@@ -1,0 +1,125 @@
+import { motion, useReducedMotion } from "motion/react";
+import { Download, MessageSquare, PenLine } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EASE } from "@/lib/motion-presets";
+import {
+  firstSection,
+  homeData,
+  imageUrl,
+  text,
+  textList,
+} from "@/lib/site-data";
+import { useSiteData } from "@/components/site/SiteDataProvider";
+
+export function AdmissionsCTA() {
+  const section = firstSection(homeData(useSiteData()), "section-9");
+  const background = Array.isArray(section.fileUrls) ? section.fileUrls[0] : "";
+  const backgroundImage = imageUrl(background);
+  const reduced = useReducedMotion();
+  return (
+    <section id="admissions" className="relative isolate overflow-hidden">
+      {backgroundImage ? (
+        <motion.img
+          src={backgroundImage}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          initial={{ scale: 1.15 }}
+          whileInView={{ scale: reduced ? 1.15 : 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 1.6, ease: EASE }}
+          className="absolute inset-0 -z-20 size-full object-cover"
+        />
+      ) : null}
+      <div className="absolute inset-0 -z-10 bg-navy-deep/88" aria-hidden />
+
+      <div className="container-page py-20 text-center lg:py-32">
+        <motion.span
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="inline-flex items-center gap-2 rounded-full border border-gold/40 px-4 py-1.5 text-xs font-bold tracking-[0.18em] text-gold uppercase"
+        >
+          {text(section.heading, "Admissions Open")}
+        </motion.span>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 26 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
+          className="mx-auto mt-6 max-w-3xl text-3xl leading-[1.1] text-navy-foreground sm:text-5xl lg:text-6xl"
+        >
+          {text(section.subHeading, "Give Your Child a Stronger Start")}
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+          className="mx-auto mt-5 max-w-xl text-base text-navy-foreground/80 sm:text-lg"
+        >
+          {textList(section.description)[0]}
+        </motion.p>
+
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={{
+            show: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
+          }}
+          className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
+        >
+          {[
+            {
+              label: "Apply Online",
+              icon: PenLine,
+              variant: "gold" as const,
+              href: "#enquiry",
+            },
+            {
+              label: "Download Prospectus",
+              icon: Download,
+              variant: "glass" as const,
+              href: "#enquiry",
+            },
+            {
+              label: "Contact Admission Office",
+              icon: MessageSquare,
+              variant: "glass" as const,
+              href: "#contact",
+            },
+          ].map(({ label, icon: Icon, variant, href }) => (
+            <motion.div
+              key={label}
+              variants={{
+                hidden: { opacity: 0, y: 18 },
+                show: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.5, ease: EASE },
+                },
+              }}
+              className="w-full sm:w-auto"
+            >
+              <Button
+                asChild
+                size="lg"
+                variant={variant}
+                className="w-full rounded-full sm:w-auto"
+              >
+                <a href={href}>
+                  <Icon className="mr-1 size-4" />
+                  {label}
+                </a>
+              </Button>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}

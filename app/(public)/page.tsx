@@ -1,0 +1,26 @@
+import { HomeClient } from "@/components/site/HomeClient";
+
+const API_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
+
+async function getHomePageData() {
+  try {
+    const res = await fetch(`${API_URL}/pages/slug/home`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const json = await res.json();
+      return json?.data ?? json;
+    }
+  } catch {
+    // fallback cleanly if API server is offline or unreachable
+  }
+  return null;
+}
+
+export default async function Home() {
+  const homeDoc = await getHomePageData();
+  const customText = homeDoc && homeDoc.isPublished !== false ? homeDoc.textContent : null;
+
+  return <HomeClient textContent={customText} />;
+}
+

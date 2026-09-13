@@ -1,0 +1,1729 @@
+{
+  "home": [
+    {
+      "hero": {
+        "content": [
+          {
+            "session": "Admissions Open 2026–27",
+            "title": "WhereCuriosityMeetsExcellence",
+            "description": "Empowering young minds with knowledge, character, creativity and confidence.",
+            "linksBtn": [
+              {
+                "text": "Explore Our School",
+                "url": "/about"
+              },
+              {
+                "text": "Apply for Admission",
+                "url": "/admissions"
+              }
+            ],
+            "icoBtn": [
+              {
+                "text": "CBSE Affiliated",
+                "icoUrl": ""
+              },
+              {
+                "text": "Holistic Education",
+                "icoUrl": ""
+              },
+              {
+                "text": "Modern Campus",
+                "icoUrl": ""
+              }
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163175/indian-public-school/assets/Home/hero-campus.jpg"
+        ]
+      },
+      "menuCard": [
+        {
+          "heading": "Admission",
+          "subHeading": "Session 2026-27",
+          "icoUrl": "",
+          "redirectUrl": "/admission"
+        },
+        {
+          "heading": "School App",
+          "subHeading": "IOS & Android",
+          "icoUrl": "",
+          "redirectUrl": "/connectivity/school-app"
+        },
+        {
+          "heading": "Parent Portal",
+          "subHeading": "Login access",
+          "icoUrl": "",
+          "redirectUrl": "/admin"
+        },
+        {
+          "heading": "Bus Routes",
+          "subHeading": "Transport info",
+          "icoUrl": "",
+          "redirectUrl": "/connectivity/bus-route"
+        },
+        {
+          "heading": "Contact",
+          "subHeading": "Talk to us",
+          "icoUrl": "",
+          "redirectUrl": "/contact-us"
+        }
+      ],
+      "banner": {
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163157/indian-public-school/assets/Home/Banner_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163160/indian-public-school/assets/Home/Banner_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163161/indian-public-school/assets/Home/Banner_3.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163162/indian-public-school/assets/Home/Banner_4.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163163/indian-public-school/assets/Home/Banner_5.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163164/indian-public-school/assets/Home/Banner_6.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163165/indian-public-school/assets/Home/Banner_7.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg"
+        ]
+      },
+      "section-1": [
+        {
+          "heading": "About Our School",
+          "subHeading": "Building Confident Learners for a Changing World",
+          "description": [
+            "Indian Public School is a co-educational CBSE school where academic rigour meets genuine care. Our classrooms are designed for enquiry rather than repetition, and our teachers know every child by name, strength and ambition.",
+            "From the earliest years to senior secondary, students are guided to think clearly, speak confidently, collaborate generously and act with integrity."
+          ],
+          "cardItem": [
+            {
+              "icoUrl": "",
+              "heading": "Our Mission",
+              "description": "To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child.",
+              "redirectUrl": "/about-us/mission-vision"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Our Vision",
+              "description": "To be a school where academic excellence, character and creativity grow together — preparing students for a changing world.",
+              "redirectUrl": "/about-us/mission-vision"
+            }
+          ],
+          "btnLinkText": {
+            "text": "Discover Our Story",
+            "url": "/about-us/school-establishment"
+          },
+          "briefCard": [
+            {
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163167/indian-public-school/assets/Home/campus-aerial.jpg",
+              "heading": "A green, purpose-built campus"
+            }
+          ]
+        }
+      ],
+      "section-2": [
+        {
+          "count": "1000+",
+          "heading": "Students",
+          "sub-heading": "Pre-primary to Grade XII"
+        },
+        {
+          "count": "75+",
+          "heading": "Faculty & Staff",
+          "sub-heading": "Trained CBSE educators"
+        },
+        {
+          "count": "17+",
+          "heading": "Years of Excellence",
+          "sub-heading": "Serving the community since 2009"
+        },
+        {
+          "count": "7 acres",
+          "heading": "Campus Area",
+          "sub-heading": "Green, purpose-built"
+        },
+        {
+          "count": "10+",
+          "heading": "Activities & Clubs",
+          "sub-heading": "Beyond the classroom"
+        }
+      ],
+      "section-3": [
+        {
+          "heading": "Why Choose IPS",
+          "mainHeading": "An education designed around the whole child",
+          "description": [
+            "Eight commitments that shape daily life at Indian Public School — academic, personal and creative."
+          ],
+          "cardItem": [
+            {
+              "heading": "CBSE Curriculum",
+              "description": "A structured CBSE programme delivered with enquiry-led teaching, continuous assessment and clear learning outcomes.",
+              "icoUrl": "",
+              "redirectUrl": "/admission/curriculum"
+            },
+            {
+              "heading": "Experienced Faculty",
+              "description": "Subject specialists and mentors who track every child's progress closely.",
+              "icoUrl": "",
+              "redirectUrl": "/about-us/mission-vision"
+            },
+            {
+              "heading": "Technology Enabled Learning",
+              "description": "Smart boards, digital labs and blended resources in everyday lessons.",
+              "icoUrl": "",
+              "redirectUrl": "/connectivity/school-app"
+            },
+            {
+              "heading": "Sports & Fitness",
+              "description": "Athletics, football, cricket, basketball, yoga and structured PE for all ages.",
+              "icoUrl": "",
+              "redirectUrl": "/infrastructure/sport-room"
+            },
+            {
+              "heading": "Arts & Culture",
+              "description": "Music, dance, theatre and visual arts woven into the weekly timetable.",
+              "icoUrl": "",
+              "redirectUrl": "/infrastructure/craft-room"
+            },
+            {
+              "heading": "Safe Campus",
+              "description": "CCTV coverage, trained staff, medical room and GPS-tracked transport.",
+              "icoUrl": "",
+              "redirectUrl": "/infrastructure/infirmary-medical"
+            },
+            {
+              "heading": "Modern Infrastructure",
+              "description": "Airy classrooms, well-equipped labs, library and activity spaces.",
+              "icoUrl": "",
+              "redirectUrl": "/infrastructure/school-building"
+            },
+            {
+              "heading": "Holistic Development",
+              "description": "Life skills, leadership, service and wellbeing programmes for every stage.",
+              "icoUrl": "",
+              "redirectUrl": "/holisic"
+            }
+          ]
+        }
+      ],
+      "section-4": [
+        {
+          "heading": "Academics",
+          "mainHeading": "The Academic Journey",
+          "description": [
+            "A continuous, carefully sequenced path from first steps in the classroom to board examinations and beyond."
+          ],
+          "cardItem": [
+            {
+              "heading": "Nursery – KG",
+              "mainHeading": "Pre-Primary",
+              "description": "Play-based learning, phonics, motor skills and gentle routines that make school feel like a happy second home.",
+              "stage": 1
+            },
+            {
+              "heading": "Grades I – V",
+              "mainHeading": "Primary",
+              "description": "Strong foundations in language, mathematics and enquiry, supported by activity-led classrooms and reading habits.",
+              "stage": 2
+            },
+            {
+              "heading": "Grades VI – VIII",
+              "mainHeading": "Middle School",
+              "description": "Concept clarity across sciences, humanities and languages, with projects, labs and structured study skills.",
+              "stage": 3
+            },
+            {
+              "heading": "Grades IX – X",
+              "mainHeading": "Secondary",
+              "description": "Focused CBSE board preparation, regular assessment cycles and mentoring for confident performance.",
+              "stage": 4
+            },
+            {
+              "heading": "Grades XI – XII",
+              "mainHeading": "Senior Secondary",
+              "description": "Science, Commerce and Humanities streams with career counselling and competitive exam guidance.",
+              "stage": 5
+            }
+          ]
+        }
+      ],
+      "section-5": [
+        {
+          "heading": "Learning Beyond the Classroom",
+          "mainHeading": "Where interests turn into identity",
+          "description": [
+            "Every week brings something to try, practise and perform — because confidence is built outside the textbook too."
+          ],
+          "cardItem": [
+            {
+              "icoUrl": "",
+              "heading": "Sports",
+              "description": "Inter-house leagues, athletics meets and daily coaching.",
+              "redirectUrl": "/infrastructure/sport-room"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Music",
+              "description": "Vocal, keyboard, percussion and school ensemble.",
+              "redirectUrl": "/infrastructure/craft-room"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Dance",
+              "description": "Classical and contemporary forms, staged every term.",
+              "redirectUrl": "/infrastructure/craft-room"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Art & Craft",
+              "description": "Drawing, painting, pottery and design thinking studios.",
+              "redirectUrl": "/infrastructure/craft-room"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Competitions",
+              "description": "Olympiads, quizzes, MUN and inter-school festivals.",
+              "redirectUrl": "/infrastructure/sport-room"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Educational Tours",
+              "description": "Field visits, heritage walks and residential trips.",
+              "redirectUrl": "/infrastructure/sport-room"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Leadership",
+              "description": "Student council, house captains and peer mentoring.",
+              "redirectUrl": "/life-hostel/our-learning-partners"
+            },
+            {
+              "icoUrl": "",
+              "heading": "Sports",
+              "description": "Inter-house leagues, athletics meets and daily coaching.",
+              "redirectUrl": "/infrastructure/sport-room"
+            }
+          ]
+        }
+      ],
+      "section-6": [
+        {
+          "heading": "Campus & Infrastructure",
+          "mainHeading": "Spaces built for how children actually learn",
+          "description": [
+            "Purpose-designed facilities that support enquiry, movement, creativity and rest across the school day."
+          ],
+          "cardItem": [
+            {
+              "title": "Smart Classrooms",
+              "sub-title": "Digital boards and airy, light-filled rooms.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163153/indian-public-school/assets/Home/about-classroom.jpg"
+            },
+            {
+              "title": "Science Labs",
+              "sub-title": "Physics, chemistry and biology labs.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163171/indian-public-school/assets/Home/facility-lab.jpg"
+            },
+            {
+              "title": "Computer Lab",
+              "sub-title": "Modern workstations for coding and design.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163170/indian-public-school/assets/Home/facility-computer.jpg"
+            },
+            {
+              "title": "Library",
+              "sub-title": "Reading room with a growing collection.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163173/indian-public-school/assets/Home/facility-library.jpg"
+            },
+            {
+              "title": "Sports Facilities",
+              "sub-title": "Courts, track and coached team practice.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163174/indian-public-school/assets/Home/facility-sports.jpg"
+            },
+            {
+              "title": "Playground",
+              "sub-title": "Safe, age-appropriate play zones.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163167/indian-public-school/assets/Home/campus-aerial.jpg"
+            },
+            {
+              "title": "Hostel & Mess",
+              "sub-title": "Supervised residence with nutritious dining.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163179/indian-public-school/assets/Home/life-kids.jpg"
+            },
+            {
+              "title": "Art & Music Rooms",
+              "sub-title": "Dedicated studios for creative practice.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163178/indian-public-school/assets/Home/life-arts.jpg"
+            }
+          ]
+        }
+      ],
+      "section-7": [
+        {
+          "heading": "Student Life",
+          "mainHeading": "A day here is never quiet",
+          "description": [
+            "Assemblies, house matches, rehearsals, science fairs and quiet reading corners — school life at IPS is full and varied."
+          ],
+          "cardItem": [
+            {
+              "title": "",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163179/indian-public-school/assets/Home/life-kids.jpg"
+            }
+          ],
+          "redirectUrl": "/about-us/director-message"
+        }
+      ],
+      "section-8": [
+        {
+          "heading": "Our Courses",
+          "cardItem": [
+            {
+              "title": "Pre-Primary",
+              "description": "The main aim of pre-primary education is to attain an optimal perceptual and motor, cognitive and socio-emotional levels as the basis for readiness for school education and the life in the society.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163180/indian-public-school/assets/Home/PrePrimary.jpg"
+            },
+            {
+              "title": "Primary Level",
+              "description": "Learning Beyond the Objective in Primary Education explores an existential perspective for pedagogy proposed in response to the current technocratic paradigm of education prevalent in many countries worldwide.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163181/indian-public-school/assets/Home/PrimaryLevel.jpg"
+            },
+            {
+              "title": "Secondary Level",
+              "description": "The key objective of secondary education is aimed at guaranteeing the development of the key competences, to the acquisition of which both primary and compulsory secondary education must contribute.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163184/indian-public-school/assets/Home/SecondaryLevel.jpg"
+            },
+            {
+              "title": "Senior-Secondary Level",
+              "description": "Secondary Education is the second stage in the system of public education usually beginning with Class IX &amp; X of during which education is differentiated in varying degrees according to the needs and aptitudes of the pupils.",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163185/indian-public-school/assets/Home/SeniorSecondLevel.jpg"
+            }
+          ],
+          "introFileUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
+          "videoUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
+          "cloudinaryFolder": "indian-public-school/assets/Videos"
+        }
+      ],
+      "section-9": [
+        {
+          "heading": "Best CBSE School in Odisha",
+          "subHeading": "Best CBSE School in Odisha",
+          "description": "The state-of-the-art school is backed by dedicated and experienced staff members and a highly committed and experienced management team – making it the ideal place for an educational experience par excellence. Our students work independently as well as cooperatively, learning to respect the needs of others as well as their own. A love of nature and a deep sense of responsibility for others and their environment are fostered. Also, the child should have fun and develop new friendships. Most importantly self - esteem is nurtured so that each child is proud of their ability and is confident in what they can achieve.",
+          "fileUrls": [
+            "https://res.cloudinary.com/niefrrkx/image/upload/v1789163169/indian-public-school/assets/Home/Director.jpg"
+          ],
+          "redirectUrl": "/about-us"
+        }
+      ],
+      "section-10": [
+        {
+          "heading": "News & Events",
+          "list": [
+            {
+              "createdAt": "2026-05-11T01:43:51.398Z",
+              "title": "Pre Exam Time Table for Class 10th & 12th",
+              "redirectUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163151/indian-public-school/assets/Downloads/TimeTable.webp"
+            },
+            {
+              "createdAt": "2026-09-11T01:43:51.398Z",
+              "title": "Admission Open 2026-27",
+              "redirectUrl": "/admission/admission-form"
+            }
+          ]
+        }
+      ],
+      "section-video": [
+        {
+          "eyebrow": "Discover IPS",
+          "title": "Experience life at Indian Public School",
+          "description": "Take a look at the campus, learning spaces and student life.",
+          "introFileUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
+          "videoUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
+          "cloudinaryFolder": "indian-public-school/assets/Videos"
+        }
+      ]
+    }
+  ],
+  "aboutUs": [
+    {
+      "mission-vision": {
+        "content": [
+          {
+            "title": "Our Vision",
+            "description": [
+              "We, at Indian Public School, recognize that each child is an individual and respect the individual needs of children. With a stress on the total development of each child – moral, intellectual, social, emotional, physical and spiritual, we aim toprovide students with the skills and exploratory experiences that shall enable them to reach their fullest potential as independent thinkers in order to adapt and adjust to a diverse and ever-changing world and lead a healthy productive and meaningful life.",
+              "Student development is catalyzed across the intellectual, social, emotional, physical, spiritual and aesthetic quality.",
+              "Student learning is encouraged by using latest educational techniques to achieve the best learning experience and initiate a lifelong pursuit of learning.",
+              "At IPS, we believe nine major skills laid down by World Health Organization – Decision making, Problem solving, Critical thinking, Effective communication, Inter personal relationship, Self-awareness, Empathy, Self-esteem and Stress handling.",
+              "Student holistic development is encouraged through excellence in sports, enrichment through creative and performance art.",
+              "At IPS, we believe nine major skills laid down by World Health Organization – Decision making, Problem solving, Critical thinking, Effective communication, Inter personal relationship, Self-awareness, Empathy, Self-esteem and Stress handling.",
+              "Student holistic development is encouraged through excellence in sports, enrichment through creative and performance art.",
+              "We instil the right attitude & approach to have a happy balanced life which prepare children to bloom into responsible global citizens with strong professional skills and deep appreciation for environment.",
+              "We are a School with an Indian mind, an Indian heart and Indian soul.  We celebrate the culture of excellence and values."
+            ]
+          },
+          {
+            "title": "Our Mission",
+            "description": [
+              "We strive to provide within a student-centred, safe, supportive, challenging environment, a well-balanced instructional program that will empower children to reach their educational and personal potential while nurturing their self-confidence and self-esteem. We seek to help each child discover and hone his innate talents and instil in our students high standards for academic scholarship, integrity, leadership, cooperation, respect for individual differences and community values, compassion for others, civic mindedness, courage to act on their beliefs and responsible citizenship. We are committed to inspiring in each student a desire to learn, to accept challenges, to become resilient and adaptable, equipped with the knowledge, skills, and disposition to continue their education to become personally fulfilled, and independent. Our mission, simply put, is to challenge and support students to be the best they can be.",
+              "To provide students, a learning environment and strengthen a culture of academic excellence.",
+              "To support their all-round development through character building, team working, physical development and a sense of leadership.",
+              "To illuminate intellect of students in multi-dimensional ways by preparing them for advanced academic study without compromising rich Indian values."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/about-us"
+      },
+      "core-values": {
+        "content": [
+          {
+            "title": "Core Values",
+            "description": [
+              "We believe in:-",
+              "Student's success",
+              "Lifelong learning",
+              "Respect",
+              "Integrity",
+              "Trust",
+              "Honesty",
+              "Ethical Behaviour",
+              "Continuous Quality Improvement"
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/about-us"
+      },
+      "directorMessage": {
+        "content": [
+          {
+            "title": "Message from the Director",
+            "description": [
+              "The state-of-the-art school is backed by dedicated and experienced staff members and a highly committed and experienced management team – making it the ideal place for an educational experience par excellence.",
+              "Our students work independently as well as cooperatively, learning to respect the needs of others as well as their own. A love of nature and a deep sense of responsibility for others and their environment are fostered. Also, the child should have fun and develop new friendships. Most importantly self - esteem is nurtured so that each child is proud of their ability and is confident in what they can achieve.",
+              "A child’s school should be an extension of their family, providing a safe environment in which they can explore ideas and feelings. Parents who enroll their children at IPS are required to attend and participate in all information meetings arranged by the school to foster open communication channels for the benefit of the children. It is our aim to direct each child to achieve their personal best by allowing them to develop at their own pace. It offers a wide variety of challenging, enjoyable and successful curricular opportunities, athletic programmes, performing arts and musical programmes with various clubs and activities.",
+              "It is our belief that school should be the experience of a life time. Our school experience sets the stage for success later in life and provides a lifetime of positive memories for our students."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/about-us/director-message"
+      },
+      "chairmanMessage": {
+        "content": [
+          {
+            "title": "Message from the Chairman",
+            "description": [
+              "Indian Public School provides a safe, affirmative and compassionate school experience so that all students feel valued and confident to achieve their own best and hence has been consistently ranked among the top performing CBSE Affiliated schools. We continue to support a wide array of exemplary academic, athletic, social opening for all students and remain dedicated for our school wide loyalty that: the multiparty instructional strategy in our educational trust has been marking an accolade to our school members and ever perfect path to enrich pace setting achievements to maximize our students success.",
+              "The state-of-the-art school is backed by dedicated and experienced staff members and a highly committed and experienced management team – making it the ideal place for an educational experience par excellence.",
+              "The school endeavors to equip its students to excel in academics, and to be savvy in the use of technology. But equally, knowledge is to become a liberating experience as the child is encouraged to discover his interests, his talents and aptitudes, and learn to form his opinions and role in society.",
+              "I take this opportunity to congratulate the Principal, staff, students; every effort of the team is highly appreciated who has contributed towards making learning so meaningful and I am also pleased about our parents who are ever supportive in our endeavours to develop this institution into a centre of knowledge."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/about-us/chairman-message"
+      },
+      "principalMessage": {
+        "content": [
+          {
+            "title": "Message from the Principal",
+            "description": [
+              "“Excellence is never an accident; it is the result of high intention, sincere effort, intelligent direction, skilled execution and the vision to foresee obstacles as opportunities.”",
+              "It is my pleasure to welcome you to IPS!!",
+              "At Indian Public School, you will find a place to grow, a place to connect and a place to belong. IPS is a school of thinkers. Here each child is known by name and celebrated for the unique talent and laurels they bring to our school. Today the role of a school is not only to pursue academic excellence but also to motivate and empower its students to be lifelong learners, critical thinkers, and productive member of an ever- changing global society. This can only be possible in a holistic, student centric environment.",
+              "Our aim is to work together to ensure that every student achieves their full potential-academic, co-curricular, and extra-curricular. A rich and diverse curriculum, coupled with a strong focus on 21st-century skills, will prepare our students to meet the challenges of the future with confidence and competence. IPS is committed to providing a safe, nurturing, and inclusive environment where every child feels valued, respected, and encouraged to explore and discover their unique talents. I am confident that with our dedicated team of teachers, engaged parents, and motivated students, we will continue to achieve excellence together.",
+              "Our teachers are highly dedicated well trained professionals. As a team, we consistently seek better ways to teach; live constantly seek better ways to teach young minds. We extend areas of strengths, support areas of weakness and attend to the emotional, social and physical well being of every learner.",
+              "Our children are intelligent, creative, innovative, disciplined, ethical and would remain dedicated to life-long learning. With the nurturing they get from the school, they would definitely become the future leaders and role model of the society.",
+              "Stay safe and blessed!!"
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/about-us/principal-message"
+      },
+      "school-establishment": {
+        "content": [
+          {
+            "title": "Message from the Principal",
+            "description": [
+              "Indian Public School was established on <b>2nd April, 2009 </b> under The <b>KS Dalmia Education Trust</b>. The school has credo towards character building and all-round personality development covering areas of intellectual stimulations, physical robustness, social adaptability, emotional independence, in-depth knowledge of subjects, fluency and good communication skills, confidence building and leadership qualities.",
+              "The School is spread over 7 acres of land, the school is equipped with facilities comparable with the best in the country, both in academics and extra-curricular activities. It is these 'extras' that will make your child's education complete.",
+              "Indian Public School- Best Residential School in Sambalpur. The school has strength of 1000+ students and classes from Pre Primary level up to Class XII. There are more than 50 teachers around 25 other staff members and an enviable state-of-the-art infrastructure. IPS is affiliated to the Central Board of Secondary Education (C.B.S.E.), New Delhi.",
+              "The school is located at <b>Bhawanipali</b>, 8 km away from Sambalpur Railway Station, on the way to Jharsuguda Road. It is an English medium, co-educational residential school with 7 acres of land. The school is well-connected by road and rail network and is easily accessible from all parts of the region.",
+              "Indian Public School, Sambalpur is an epitome of dignity, pride, values and a recognized landmark in its pursuit of excellence in education and holistic development. IPS has maintained a proud legacy of excellence offering super co-educational institution offering world-class infrastructural and education facilities and learning experience. IPS is deeply dedicated in building \"World Leaders Of Tomorrow\". Indian Public School offers a compelling combination of small classes, caring faculty, academic rigor and strong spiritual values.",
+              "Indian Public School caters to the ever expansive 'Indian Middle Class' which is looking at ensuring its child with the best in education and other activities. The school focuses on providing and delivering not just classroom based learning but also outside classroom activities. Students are encouraged to take part in national and international events of various kinds ranging from academics to cultural to sport.",
+              "Indian Public School aspires to make learning an experience. Where every child learns in an environment of joy and motivation - one that nourishes latent talents & develops full potential.IPS is unique for the quality of education that it imparts to students and its dedication towards their success. Every year,\"Where Knowledge meets Success\"",
+              "<b>State-of-the-art Infrastructure</b>",
+              "<b>Modern teaching aids</b>",
+              "<b>Emphasis on physical, emotional and moral development of the child</b>",
+              "<b>Ultimate Personal Care</b>",
+              "<b>Low Teacher-Student ratio</b>",
+              "<b>Computer-aided learning</b>",
+              "<b>Special attention on child's personality development</b>",
+              "<b>Motivating learning environment</b>",
+              "<b>Innovative activity rooms for Art & Craft, Music and Dance</b>",
+              "<b>Indoor and outdoor games</b>",
+              "<b>In-Campus Hostel Facility for boys & girls</b>",
+              "<b>In-Campus Medical Facility</b>"
+            ]
+          }
+        ],
+        "redirectUrl": "/about-us/school-establishment"
+      }
+    }
+  ],
+  "infrastructure": [
+    {
+      "school-building": {
+        "content": [
+          {
+            "title": "School Building",
+            "description": [
+              "Spread over 7  acres of land, the school is located at the heart of the town equipped with facilities comparable with the best in the country, both in academics and extra-curricular activities. It is these 'extras' that will make your child's education complete."
+            ]
+          },
+          {
+            "title": "Indian Public School - Sambalpur",
+            "description": [
+              "Indian Public school caters to the ever expansive 'Indian Middle Class' which is looking at ensuring its child with the best in education and other activities.The school focuses on providing and delivering not just classroom based learning but also outside classroom activities. Students are encouraged to take part in national and international events of various kinds ranging from academics to cultural to sport.",
+              "Indian Public school aspires to make learning an expreience. Where every child learns in an envrionment of joy and motivation - one that nourishes latent talents & develops full potential. Now, Indian Public school is among leading education institutions of India, well-known for its competitiveness and innovativeness. Indian Public school is unique for the quality of education that it imparts to students and its dedication towards their success. Every year, Indian Public school provides opportunities to over thousands of  students through its school"
+            ]
+          },
+          {
+            "title": "Where Knowledge meets Success.",
+            "description": [
+              "State-of-the-art Infrastructure",
+              "Modern teaching aids",
+              "Emphasis on physical, emotional and moral development of the child",
+              "Ultimate Personal Care",
+              "Low Teacher-Student ratio",
+              "Computer-aided learning",
+              "Special attention on child's personality development",
+              "Motivating learning environment",
+              "Innovative activity rooms for Art & Craft, Music and Dance",
+              "Indoor and outdoor games",
+              "In-Campus Hostel Facility for boys & girls",
+              "In-Campus Medical Facility."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163213/indian-public-school/assets/Infrastructure/SchoolBuilding.jpg"
+        ],
+        "redirectUrl": "/infrastructure/school-building"
+      },
+      "laboratories": {
+        "content": [
+          {
+            "title": "Laboratories",
+            "description": [
+              "The School has well equipped laboratories For Physics, Chemistry and Biology, math . Students are encouraged to use these laboratories to learn through experiments.. Besides offering the hands-on experience, science laboratory equipment teaches students how to make a scientific argument. Conducting experiments, reviewing them closely, developing logical reasoning, and responding to analytical comments, are some of the valuable skills that help in preparing the next generation of scientists, engineers, and medical professionals."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163201/indian-public-school/assets/Infrastructure/Lab_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163203/indian-public-school/assets/Infrastructure/Lab_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163204/indian-public-school/assets/Infrastructure/Lab_3.jpg"
+        ],
+        "redirectUrl": "/infrastructure/laboratories"
+      },
+      "infirmary-edical": {
+        "content": [
+          {
+            "title": "Infirmary/Medical",
+            "description": [
+              "When it comes to taking care of your young ones, we ensure we take utmost care so you can rest assured. Our wellness center is properly equipped with the state-of-the art medical equipment, and certified nurse who excel in their specialization.",
+              "The school infirmary/medical wing  is equipped with the basic materials and facilities to address the emergency care for illness or injury of students while at school . A well  trained and qualified nurse is available to manage and assess any health issues that may arise during school hours. Health advisory on prevention of various illnesses like Flu, Malaria, Jaundice , Chicken Pox, etc. is also a regular feature."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163194/indian-public-school/assets/Infrastructure/Infirmary_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163195/indian-public-school/assets/Infrastructure/Infirmary_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163197/indian-public-school/assets/Infrastructure/Infirmary_3.jpg"
+        ],
+        "redirectUrl": "/infrastructure/infirmary-medical"
+      },
+      "sport-room": {
+        "content": [
+          {
+            "title": "Sport Room",
+            "description": [
+              "To provide the best indoor sports facility to the students, the school has a sports complex to play many indoor games like Cricket, Football, Badminton, Billiards, Table Tennis, Carom Board, Chess, Basketball etc. Playing such games, under the tutelage of trained coaches, sharpens skills and invigorates the mind. Sports room is replenished on a regular basis as per the demands of students."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163198/indian-public-school/assets/Infrastructure/KidPlaygroud_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163199/indian-public-school/assets/Infrastructure/KidPlaygroud_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163200/indian-public-school/assets/Infrastructure/KidPlaygroud_3.jpg"
+        ],
+        "redirectUrl": "/infrastructure/sport-room"
+      },
+      "playground": {
+        "content": [
+          {
+            "title": "Playground",
+            "description": [
+              "Today's schools are not only tasked with preparing children for their future careers, but also teaching essential life skills, habits and attitudes that will help them successfully navigate adulthood. To do this and provide the best learning experience for students requires both indoor instruction and outdoor physical activity.",
+              "While kids explore school playgrounds they are building important life skills that will eventually help children become effective thinkers, leaders and collaborators. Unfortunately, play is under scrutiny as school administrators, teachers and parents feel pressure for children to \"perform\" academically and spend more time in classroom instruction. And with the prevalence of electronics and the amount of screen time children are receiving each day, recess and free play on a playground are more important than ever.",
+              "By creating an environment where children can experience unstructured play, you're not only supporting their physical health but also increasing their chances to succeed in the classroom. Kids pay more attention to academic tasks when they are given frequent, brief opportunities for free play. Recess can also have a calming effect helping with disciplinary issues and impulse control.",
+              "Unstructured physical activity on the playground helps kids become smarter, healthier and stronger.",
+              "We at IPS , sambalpur are having 2 big spacious playground for encouraging the student to pay wide variety of outdoor and indoor games."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163198/indian-public-school/assets/Infrastructure/KidPlaygroud_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163199/indian-public-school/assets/Infrastructure/KidPlaygroud_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163200/indian-public-school/assets/Infrastructure/KidPlaygroud_3.jpg"
+        ],
+        "redirectUrl": "/infrastructure/playground"
+      },
+      "art-craft-room": {
+        "content": [
+          {
+            "title": "Art & Craft Room",
+            "description": [
+              "We understand that art is an important part of a child’s daily routine and enables them to learn how to reflect critically on their own and others’ work. They learn to think and act as artists, makers, and designers, working creatively and intelligently. They develop an appreciation of and engagement in art, craft, and design as a critical participant and an understanding of its role in the creative and cultural industries that shape and enrich their lives.",
+              "Under the able stewardship of a qualified Art and Craft Teacher, the school provides a distinctive curriculum which includes an array of art and craft activities:"
+            ],
+            "list": [
+              "Oil Painting",
+              "Glass Painting",
+              "Painting with Acrylic colours",
+              "Watercolour Painting",
+              "Spray Painting",
+              "Impression Painting",
+              "Papercraft like origami, collage, paper modeling etc."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163186/indian-public-school/assets/Infrastructure/Art_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163187/indian-public-school/assets/Infrastructure/Art_2.jpg"
+        ],
+        "redirectUrl": "/infrastructure/craft-room"
+      },
+      "music-dance-room": {
+        "content": [
+          {
+            "title": "Music & Dance Room",
+            "description": [
+              "Teaching Music and Dance to learners has become the utmost need of a school to de stress and motivates students in performing exceptionally well. A well - equipped Music Room with playing instruments like Harmonium, Indian Drum, Synthesizer, Flute and many more aid in bringing out the maestro in students"
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163208/indian-public-school/assets/Infrastructure/Music_Dance_Room_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163209/indian-public-school/assets/Infrastructure/Music_Dance_Room_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163211/indian-public-school/assets/Infrastructure/Music_Dance_Room_3.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163212/indian-public-school/assets/Infrastructure/Music_Dance_Room_4.jpg"
+        ],
+        "redirectUrl": "/infrastructure/music-dance-room"
+      },
+      "hostels": {
+        "content": [
+          {
+            "title": "Hostels",
+            "description": [
+              "Indian Public School is spread over 7 acres of lush green campus with all the luxurious amenities. The infrastructure is designed in such a way that it takes care of all the aspects of the boarding environment. This self-sustained technology enabled campus, backed-up with an uninterrupted power supply has following facilities which makes life very comfortable at IPS Campus.",
+              "IPS campus has state-of-the-art infrastructure, modern learning facilities with highly qualified and well-trained faculty team",
+              "Various facilities at IPS are -"
+            ],
+            "list": [
+              "24x7 Security: Security guards on each floor, CCTV Cameras & other security measures.",
+              "Play Ground",
+              "Tuck Shop",
+              "Saloon Facility & Laundry Facility",
+              "Health Care Services",
+              "Telephone Facilities are available(Day Allotted)",
+              "Vocational Classes",
+              "Mess and Food court",
+              "Yoga, Music & Dance Classes",
+              "Indoor and Outdoor Games facility",
+              "Well Trained Wardens",
+              "Residential Teachers for Students"
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163189/indian-public-school/assets/Infrastructure/Hostel_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163190/indian-public-school/assets/Infrastructure/Hostel_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163191/indian-public-school/assets/Infrastructure/Hostel_3.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163192/indian-public-school/assets/Infrastructure/Hostel_4.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163193/indian-public-school/assets/Infrastructure/Hostel_5.jpg"
+        ],
+        "redirectUrl": "/infrastructure/hostel"
+      },
+      "mess": {
+        "content": [
+          {
+            "title": "Mess",
+            "list": [
+              "Students must come in time for all the meals.",
+              "Students must follow dress code in the Mess.",
+              "Proper silence and discipline are to be maintained during the meals in the Mess.",
+              "Food items are not to be taken out of Mess.",
+              "All are expected to follow table manners.",
+              "Wastage of Food is not acceptable.",
+              "Students must leave the Mess after the rising bell.",
+              "Suggestions/complaints can be communicated to student food committee Incharges/ House Mothers/ Asstt. House Mothers/ Chief Warden."
+            ],
+            "menu-preview": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163188/indian-public-school/assets/Infrastructure/food_menu"
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163204/indian-public-school/assets/Infrastructure/Mess_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163205/indian-public-school/assets/Infrastructure/Mess_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163206/indian-public-school/assets/Infrastructure/Mess_3.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163207/indian-public-school/assets/Infrastructure/Mess_4.jpg"
+        ],
+        "redirectUrl": "/infrastructure/mess"
+      }
+    }
+  ],
+  "admission": [
+    {
+      "curriculum": {
+        "content": [
+          {
+            "title": "Curriculum",
+            "description": [
+              "Indian Public School is affiliated to The Central Board of Secondary Education. The Central Board of Secondary Education (CBSE) established in the year 1929, enjoys today the distinction of being one of the oldest and largest Board of Secondary Education in India. It has about 15,000 affiliated schools in India and across 24 other countries of the world. The CBSE affiliated schools follow a uniform curriculum with a flexible scheme of studies suitable to the needs of each and every student. Notwithstanding the geographical variations, the schools and students under CBSE enjoy and share common privileges as regards the curriculum, examinations and academic innovations.",
+              "The CBSE envisions a robust, vibrant and holistic school education that will engender excellence in every sphere of human endeavour. The Board is committed to provide quality education to promote intellectual, social and cultural vivacity among its learners. It works towards evolving a learning process and environment, which empowers the future citizens to become global leaders in the emerging knowledge society. The Board advocates Continuous and Comprehensive Evaluation with an emphasis on holistic development of learners. The Board commits itself to provide a stress-free learning environment that will develop competent, confident and enterprising citizens who will promote harmony and peace."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/admission/curriculum"
+      },
+      "learning-based-activity": {
+        "content": [
+          {
+            "title": "Learning-Based Activity",
+            "description": "The old-school model of passively learning facts and reciting them out of context is no longer sufficient to prepare students to survive in today's world. Solving highly complex problems requires that students have both fundamental skills (reading, writing, and math) and 21st century skills (teamwork, problem-solving, research gathering, time management, information synthesizing, utilizing high tech tools). With this combination of skills, students become directors and managers of their learning process, guided and mentored by a skilled teacher. We at IPS ensures that students are kept at the centre of the entire learning process and all the teaching activities like examinations, workshops, projects, assignments must revolve around him to ensure vertical and 360-degree development of the child."
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/admission/learning-based-activity"
+      },
+      "admission-procedure": {
+        "content": [
+          {
+            "title": "Admission Procedure",
+            "description": [
+              "Indian Public School is a group of people passionate about making learning experiential & lifelong. The trained teachers team love teaching & work hard every day to give your child the holistic learning. Our aim is to inspire a quest for learning in your child.",
+              "Indian Public School is a one such pioneer in the field of education introducing new generation education in Sambalpur."
+            ],
+            "steps": [
+              {
+                "title": "Step-1: Visit the school campus:",
+                "description": "Visiting school campus is an important step in selecting the right school for your child. That is the reason we take your tour seriously. Our Parent Advisor & Admission Counselor plan your school tour so that you get the maximum out of it."
+              },
+              {
+                "title": "Step- 2: Submit Application Form:",
+                "description": "Fill in the application form and submit it with the required documents."
+              },
+              {
+                "title": "Step -3: Observation:",
+                "description": "After submitting the application form we will schedule an ‘Observation’ for your child. This helps us to understand the child’s learning skills and his/her readiness to the respective class for which the admission is sought."
+              },
+              {
+                "title": "Step 4: Admission:",
+                "description": "After successful completion of above process you need to deposit the term fee. The Admission process is completed and you & your child become the part of IPS family."
+              },
+              {
+                "title": "Step-5: Post Admission:",
+                "description": "We acknowledge the fact that starting a new school is a BIG change for your child & you. We also conduct a Parent Orientation Program, to make it easy for you to know your new school and to meet the Principal & fellow parents."
+              }
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/admission/admission-procedure"
+      },
+      "admission-policy": {
+        "content": [
+          {
+            "title": "Admission Policy",
+            "description": [
+              "The admission process generally begins in the month of November/ December. Admission is open to students of all communities, irrespective of caste & creed. The registration form is valid for one academic year only. The registration fee is non-refundable. Age-appropriate observations/aptitude test is administered to identify the basic skills of a child in Language/Math/ Science etc. These tests are administered to help the child and parent and in turn for the school to understand the child’s needs. In case of cancellation of admission, admission fee and school fee will not be refunded. An incomplete Registration Form will be rejected without assigning any reason.",
+              "<b>Admission Guidelines</b>",
+              "Admission opens to all the students irrespective of religion, race, caste, creed or place of birth.",
+              "Registration-cum-admission form complete in all respect should be deposited personally at the school office on or before the due date, after which no form will be entertained.",
+              "Students selected for admission will be informed by the school.",
+              "For admission in Nursery, Date of Birth Certificate (photocopy) issued by Municipal Authority must be submitted along with the form.",
+              "Category Certificate (SC/ST/OBC/Minority) must be submitted along with the form.",
+              "The photocopy of the previous class report card is to be submitted.",
+              "Aadhar card copy must be submitted along with the form.",
+              "Transfer Certificate in original issued by the previous school will be required at the time of confirmation of admission.",
+              "Admission secured on the basis of any wrong certificate or false declaration shall be cancelled by the Principal forthwith and no appeal against such action shall be entertained.",
+              "Admission will be made strictly on the basis of merit; to the extent, seats are available in each class. The School’s decision in this regard will be final.",
+              "Mere registration carries no guarantee of admission.",
+              "All photocopy documents must be attested by parents.",
+              "The admission offer will automatically stand cancelled if the fee is not deposited within the specified period."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/admission/admission-policy"
+      },
+      "required-documents": {
+        "content": [
+          {
+            "title": "Documents Required for Admission",
+            "description": [
+              "1. Attested photocopy of Birth Certificate issued by Municipal Corporation / Zila Panchayat Office.",
+              "2. Transfer Certificate in Original issued from the previous school (with counter signature) shall have to be submitted at the time of fee deposition. (If Applicable)",
+              "3. Attested Photocopy of Progress Report Issued from the previous school. (If Applicable)",
+              "4. Attested Photocopy of Aadhar Card.",
+              "5. Caste Certificate/ Minority Certificate (if any)",
+              "<b>Note:- </b>Note :",
+              "1. If any of these documents are not submitted, the form will be rejected and no further correspondence will be entertained.",
+              "The name of the child and D.O.B. once filled in shall not be changed later in any case"
+            ]
+          }
+        ],
+        "fileUrls": [
+          ""
+        ],
+        "redirectUrl": "/admission/required-documents"
+      },
+      "admission-form": {
+        "content": [
+          {
+            "title": "Admission Form",
+            "description": [
+              "Click on the link to download the admission form",
+              "https://www.ipslucknow.in/AdminDashboard/admission_form/admission-form.pdf"
+            ]
+          }
+        ],
+        "fileUrls": [
+          ""
+        ],
+        "redirectUrl": "/admission/admission-form"
+      }
+    }
+  ],
+  "academics": [
+    {
+      "courses-offered": {
+        "content": [
+          {
+            "title": "Courses Offered",
+            "sub-title": "Pre-Primary Level:: Class Playgroup  to Class UKG",
+            "list": [
+              "Montessori Trained Teachers with proven track record",
+              "Blending of Curriculum with Activities , Life Skills and Moral Value",
+              "Regular Educational tours",
+              "The project works in class calls for mass participation",
+              "Field trips and excursions make learning fun",
+              "Home visit by teachers ",
+              "Yoga and Meditation ",
+              "Reading Practice , Writing Practice , Conversational English Practice",
+              "Activity classes, Workshop classes , Monthly Competition"
+            ]
+          },
+          {
+            "title": "Courses Offered",
+            "sub-title": "Primary Level:: Class I to Class V",
+            "list": [
+              "Highly qualified an dexperienced teachers with proven track record",
+              "Extensive use of teaching aids to supplement classroom teaching",
+              "The project works, activity  in class ensuring   mass participation",
+              "Field trips and excursions make learning fun",
+              "Use of the newspaper articles, quizzes, crosswords, and other learning tools enhance general awarenesss"
+            ]
+          },
+          {
+            "title": "Courses Offered",
+            "sub-title": "Middle Level:: Class VI to VIII",
+            "list": [
+              "The emphasis is laid on building up the structured, student-centered and enquiry-based foundation laid at the Primary Level.",
+              "The curriculum is research oriented and learning opportunities are provided through worksheets in the classroom, laboratory time, library time, computer time and small group discussion time.",
+              "Personality development is stressed through development of academic knowledge, the ability to question, sensory experiences and a honing of creative expressions.",
+              "Emphasis is made on group work including story time, lecture demonstrations, large group discussions, conceptual explanations and goal setting."
+            ]
+          },
+          {
+            "title": "Courses Offered",
+            "sub-title": "Senior Level:: Class IX to XII",
+            "list": [
+              "The emphasis is laid not merely on information, but also on the learning of academic and practical skills.",
+              "The specialized program for this level strives to achieve a balance between academic excellence and the life outside the realms of scholastic aptitudes.",
+              "An equal stress is laid on preparing students for the prescribed CBSE syllabus and on preparing the students for various competitive entrance examinations",
+              "Result oriented training is imparted by experienced professionals who target for total development and desired success.",
+              "The concept of Synchro-study has been introduced to reduce stress levels of students. A synchronized study pattern is maintained between the course content of the board examinations, and that of the competitive entrance examinations.",
+              "Students have complete access to various laboratories and library resources, specially designed for the study and research requirements of the senior level students.",
+              "Regular Doubt removal classes",
+              "In house coaching for IIT/NEET/CLAT/CPT by best faculties in India"
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/academics/curriculum"
+      },
+      "stream-allocation-subjects-offered": {
+        "content": [
+          {
+            "title": "Stream Allocation Subjects Offered",
+            "heading": "Class XI Subject Streams",
+            "sub-title": "Science Stream:",
+            "list": [
+              "Compulsory Subjects (3 Nos.): English, Physics & Chemistry",
+              "Optional Subject 1: (Subject No. 4): Biology/ Math",
+              "Optional Subject 2: (Subject No. 5): Computer Science/ Physical Education"
+            ]
+          },
+          {
+            "title": "Stream Allocation Subjects Offered",
+            "heading": "",
+            "sub-title": "Commerce Stream:",
+            "list": [
+              "Compulsory Subjects (4 Nos.): English, Accounts ,BST , Economics ",
+              "Optional Subject 1: (Subject No. 5): Computer Science/ Physical Education"
+            ]
+          },
+          {
+            "title": "Stream Allocation Subjects Offered",
+            "heading": "",
+            "sub-title": "Humanities Stream:",
+            "list": [
+              "Compulsory Subjects (4 Nos.): English, History ,Geography , Economics ",
+              "Optional Subject 1: (Subject No. 5): Computer Science/ Physical Education/Math"
+            ]
+          }
+        ]
+      },
+      "social-learning-programs": {
+        "content": [
+          {
+            "title": "Social Learning Programs",
+            "heading": "",
+            "sub-title": "Career Guidance cell",
+            "list": [
+              "The Career information and guidance department at IPS is committed towards providing an effective platform to students to enable them to make informed decisions about their future. It provides leadership in the development and implementation of a comprehensive career education program that promotes knowledge of careers and all types of employment opportunities and that emphasizes to students the advantages of completing school with marketable skills. The School's career guidance program is based on the principles of self-development, career exploration and career management. The department provides professional guidance which is informative and most importantly tailored to each and every student's talents and aptitudes.",
+              "This preparation starts from class IX culminating beyond class Xll when the students seek, apply and attain admissions in various universities in India. The sessions help create awareness regarding various career paths beyond the conventional ones after identifying suitable courses with the help of aptitude tests and interactions. Emphasis is laid on providing each and every student the advice and guidance which is appropriate and relevant to his or her individual interests and abilities. The department works towards fostering a positive partnership between the school and each student, of course supported by the parents. The child is encouraged to use the school's resources and maximize the opportunities available in the realm of higher studies (both in India and abroad).",
+              "The Career Information and Guidance Department provides assistance in the following areas:",
+              "Information about various career options in Robotics, Avionics, Banking, IT, AI and many emerging fields.",
+              "Psychometric Analysis of student  to gauge their inherent potentials . ",
+              "Supports and administers University applications-making transcripts, recommendation letters predicted grades and the School profile.",
+              "Corresponds and follows-up with universities regarding student’s applications.",
+              "Arrange talks by universities representatives and other eminent experts. Internship in the corporate sector to sensitize to the atmosphere, demands, skills and expectations of a work place."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/academics/social-learning-programs"
+      },
+      "teaching-methodology": {
+        "content": [
+          {
+            "title": "Teaching Methodology",
+            "heading": "",
+            "sub-title": "",
+            "list": [
+              "Our teaching methodology seeks to broaden a student’s horizon by engaging and challenging them through varied activities, making them successful both academically and socially. Students are also encouraged to develop questions, make choices, form opinions and reflect on their work, thus developing self-worth and an ability to assess and take ownership for their own progress.  Building a sense of responsibility towards the community and environment is at the core of all academic and co-curricular activities at IPS.",
+              "Highlights of the IPS Methodology: ",
+              "* Experiential learning techniques which span Multiple Intelligences, firmly rooted in our belief that every child is unique and all children can learn. Teachers are just facilitators.",
+              "* Clear objectives-based approach to teaching, learning and assessments, focusing on building 21st century skills of Communication, Critical thinking, Collaboration and Creativity.",
+              "* Developing the qualities of confidence, reflection, responsibility, innovation and being engaged amongst the teachers and students.",
+              "* Differentiated instruction enabling educators to cater to learners across varied ability ranges and learning styles.",
+              "* Collaborative Learning, Project Based Learning and Literacy Strategies applied across all curricular subjects.",
+              "* Thematic learning over the entire academic year which serves to establish Inter-disciplinary links across subject areas, and grade levels, making cross-curricular learning relevant for the students.",
+              "* Progress evaluation based on international pattern like online progression tests for Primary and Secondary levels."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/academics/teaching-methodology"
+      }
+    }
+  ],
+  "life-hostel": [
+    {
+      "life-in-hostel": {
+        "content": [
+          {
+            "title": "Life in Hostel",
+            "sub-title": "",
+            "description": [
+              "Hostel Life at IPS, Sambalpur provides your ward with an amicable environment with a real view of the world, giving him/her unparalleled opportunities for sporting, cultural and leisure activities. Boarders at IPS make a difference. As learning is centric to all the activities at IPS, students are engaged in productive ways with the help of a well-balanced activity schedule, covering the major areas of development like academics, sports, and co-curricular activities. Personalized care and round the clock monitoring plays a major role in their overall progress.",
+              "Peer interaction is highly encouraged at IPS hostels which develops the student's traits of tolerance, compromise, caring, and sharing in a regulated environment. It helps hostellities develop mutual trust and create lifelong bonding. Students are trained and motivated in such a way that they learn to prioritize their requirements thus becoming more systematic in their approach as individuals.",
+              "Proper etiquettes, good manners, and other social skills are instilled in students under guided supervision and they are carefully monitored to ensure implementation.",
+              "Students with flair and aptitude for sports are trained under able trainers and coaches, who enable them to excel in their chosen field. Each student is motivated to select a physical activity to ensure mental and physical fitness.",
+              "IPS provides food for students, cooked in a hygienic kitchen by a professional catering service. The menu includes a variety of dishes. The well-lit, ventilated spacious, and insect-free dining hall caters to all the hostel students and the staff. The teachers dining with the students supervise their eating habits along with table etiquettes."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163216/indian-public-school/assets/LIFE%40IPS/LifeInHostel/LifeInHostel_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163217/indian-public-school/assets/LIFE%40IPS/LifeInHostel/LifeInHostel_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163218/indian-public-school/assets/LIFE%40IPS/LifeInHostel/LifeInHostel_3.jpg"
+        ],
+        "redirectUrl": "/life-hostel/life-in-hostel"
+      },
+      "our-houses": {
+        "content": [
+          {
+            "title": "Our Houses",
+            "sub-title": "",
+            "description": [
+              "The school follows the house system in which the students of Class I to XII are allotted a house. Each house is mastered by a Mentor House Master and Student House Captain, Vice House Captain, Cultural Captain, Literary Captain & Sports Captain.",
+              "The four different houses are GREEN, YELLOW, BLUE & RED they are named on the famous holy rivers NARMADA, GANGA, BRAHMAPUTRA and SATLUJ of our nation which also reflects carving the own path whenever it meets an obstacle. These are the strength and power of the houses.Inter House competitions are organized throughout the year in games, athletics, music, dramatics, debating, quiz, art, literature and general knowledge. The four Houses also compete in cultural activities and academic performance. Students are awarded points for these activities and the House with the highest points at the end of the session is declared the Champion House. The House system encourages leadership, initiative, and self-reliance among students.",
+              "The Houses conduct In-House Activities during House Assembly and the selected house representatives participate in Inter-House activities. This inculcates team spirit in them and at the same time motivates them to work to excel in each activity."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/life-hostel/our-houses"
+      },
+      "competitions-365-days": {
+        "content": [
+          {
+            "title": "Competition @ 365 Days",
+            "sub-title": "",
+            "description": [
+              "Competition in any form brings out the best in people and pushes them to excel. In schools, if used effectively, it can enhance learning significantly.",
+              "Certainly, competition in the classroom is quite healthy; it should, in fact, be encouraged. It allows students to extend themselves, to exploit their real capabilities and maximize their true potential. It is most productive when it occurs among students of similar abilities.",
+              "Traditionally, schools have fostered competition among students by assigning positions at the end of the term/semester. Each student is assigned a position based on the average score obtained from an aggregate of tests and assignment scores. In fact, some schools give positions by subject as well as overall class position so a student may have come in the third position, but might have gained first place in Math.",
+              "Usually, the diligent student is concerned about the position that he/she acquires and no good student wants to move from a high position in the class, to a lower one. This keeps competition alive and well in the classroom. Students are able to match their abilities against that of their classmates and easily determine who their rivals are. In other words, they evaluate their own competencies and recognize who their competitors are.They can then decide how much effort they need to put into their work in order to remain at the top. Over time, they might also acknowledge that there are certain students whom they cannot match and to whom they must concede defeat."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163214/indian-public-school/assets/LIFE%40IPS/Competition%40365Days/Competition_1.jpg"
+        ],
+        "redirectUrl": "/life-hostel/competitions"
+      },
+      "our-learning-partners": {
+        "content": [
+          {
+            "title": "Our Learning Partners",
+            "sub-title": "Tata test Edge",
+            "description": [
+              "TestEdge from Tata ClassEdge is a platform that helps teachers develop comprehensive assessments, in addition to a host of other useful features in their technology enabled classroom.",
+              "It comes with a digital question bank of more than 95000 questions across various grades and subjects, categorized according to difficulty levels. The questions also map to the various levels in the Bloom’s taxonomy of educational objectives. ",
+              "Key Features",
+              "Select questions from among 95000 plus instructionally sound assessment items in the digital question bank.",
+              "Add new questions to the TestEdge question bank.",
+              "Author new question papers for formative and summative assessments.",
+              "Generate and print well-formatted question papers.",
+              "Developing Comprehensive Assesments",
+              "Teachers log on to the TestEdge platform, select questions according to difficulty levels, skill level and marking scheme. They may even add their own questions and save it for future use.",
+              "With TestEdge, it hardly takes a few minutes to print an instructionally sound, well-formatted question paper."
+            ]
+          },
+          {
+            "title": "",
+            "sub-title": "About Vidyalaya",
+            "description": [
+              "Vidyalaya school management system software has redefined the education system functionalities with help of the latest technologies and gained new heights with its extraordinary features! This successful school management system uses cutting-edge technology and makes it user-friendly yet affordable! The product from the team of ultimate and 20+ years of expertise offers all the mandatory and complementary functionalities required by an educational institute! Vidyalaya is associated with IPS for providing connect 2 IPS school app for student and teachers."
+            ]
+          },
+          {
+            "title": "",
+            "sub-title": "Benefit of Vidyalaya App",
+            "description": [
+              "For schools, colleges, universities, training centers and other educational Institutes. It assists institutes to manage all administrative and academic tasks in the single integrated system. Vidyalaya provides access to appropriate information and functions to all members of the school community, including school Management Administrators, Teaching & Non-Teaching Staff, Students, and Parents. It carry user-friendly interface, advance technology to integrate with school process.",
+              "The Ultimate School ERP For Modern School",
+              "Vidyalaya empowers educational institutions to focus on delivering high-quality education while taking care of administrative tasks. It provides a single comprehensive interface for the management, tracking, and reporting of data for school administration, online learning, and student management.",
+              "Integrated School Solutions To Meet Your Needs",
+              "Vidyalaya has fully integrated school solution with various support functions to reduce manpower-intensive activities through seamless automation. SMS, Email, OMR, Biometric, Smartcard, Barcode etc. SMS, Email, OMR, Biometric, Smartcard, Barcode etc."
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163219/indian-public-school/assets/LIFE%40IPS/OurLearningPartners/LearningPartner_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163220/indian-public-school/assets/LIFE%40IPS/OurLearningPartners/LearningPartner_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163221/indian-public-school/assets/LIFE%40IPS/OurLearningPartners/LearningPartner_3.jpg"
+        ],
+        "redirectUrl": "/life-hostel/our-learning-partners"
+      },
+      "student-empowerment": {
+        "content": [
+          {
+            "title": "Student Empowerment",
+            "sub-title": "Protsah Program",
+            "description": [
+              "The Protsah Program is aimed at fulfilling our vision of providing equal opportunities to the entire team of students, educators and staff members.",
+              "STUDENT OF THE MONTH AWARD",
+              "TEACHER OF THE MONTH AWARD",
+              "RISING STAR OF THE MONTH AWARD",
+              "CLASS OF THE MONTH AWARD"
+            ]
+          }
+        ],
+        "fileUrls": [
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163222/indian-public-school/assets/LIFE%40IPS/StudentEmpowerment/Empowerment_1.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163223/indian-public-school/assets/LIFE%40IPS/StudentEmpowerment/Empowerment_2.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163225/indian-public-school/assets/LIFE%40IPS/StudentEmpowerment/Empowerment_3.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163226/indian-public-school/assets/LIFE%40IPS/StudentEmpowerment/Empowerment_4.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163227/indian-public-school/assets/LIFE%40IPS/StudentEmpowerment/Empowerment_5.jpg",
+          "https://res.cloudinary.com/niefrrkx/image/upload/v1789163228/indian-public-school/assets/LIFE%40IPS/StudentEmpowerment/Empowerment_6.jpg"
+        ],
+        "redirectUrl": "/life-hostel/student-empowerment"
+      }
+    }
+  ],
+  "connectivity": [
+    {
+      "blog": {
+        "title": "Blog",
+        "content": [
+          {
+            "title": "How To Prepare For 12th Board Exams In 1 Month?",
+            "sub-title": "",
+            "author": "",
+            "date": "2026-09-08",
+            "description": [
+              "All students must know Class 12 boards are crucial to crack if you want to do well in your entrance exams. This marks the beginning of your journey towards your dream college. Let’s take a detailed look at your 1-month study plan if you want to know how to prepare CBSE board exam in one month.",
+              "Given below is a sample timetable to finish the whole syllabus and prepare for the exam in 30 days.",
+              "1-5. \tPhysics – Keep the complete list of formulae, experiments, and derivations.",
+              "6-9. \tChemistry – Questions related to organic and inorganic chemistry are fact-based questions that can be solved quickly with good practice.",
+              "10-15. \tMathematics – Firstly, clear the basic fundamentals and concepts of the subject. Some calculations can be lengthy so you should practice a lot of these types of questions.",
+              "16-18. \tEnglish – Read as much as you can. Any piece of good literature should not escape your hands: Your textbooks, the newspaper, or anything else you can lay your hands on. Follow a good grammar book and know the basic rules.",
+              "19-22. \tBiology/Computer Science – The key to a successful Computer Science or Biology exam is understanding. Be Thorough with the diagrams and important terminologies.",
+              "23-26. \tRevision - Revision days as per subjects. Dedicate each day per subject.",
+              "27-30. \tSolve Previous Year Question Papers - Appear for atleast 5 full length mock tests. Solve question papers of last 5 years in the exam hall environment.",
+              "All the best."
+            ],
+            "redirectUrl": "/blog"
+          }
+        ]
+      },
+      "alumni": {
+        "title": "Alumni",
+        "content": [
+          {
+            "title": "How To Prepare For 12th Board Exams In 1 Month?",
+            "description": [
+              "“Coming back to school, after years of passing out, feels like coming back home…” -Each and Every IPS Alumnus",
+              "Students, past and present, are what any school is all about. Faculty and staff are vital as well, but students are unique in that they will forever fill a role—whether they are current students or long graduated. It is easy to lose track of most graduates after they embark on their various careers, but not with a school like ours, where the attachment only continues to grow.",
+              "The alumni create a school’s reputation, which relies in large part on how successful they are in the real world. Our school is well known for producing graduates who are intelligent, innovative, and effective in their fields, and hence our reputation grows further."
+            ]
+          },
+          {
+            "title": "Student Reviews"
+          }
+        ],
+        "redirectUrl": "/blog"
+      },
+      "home-visit": {
+        "content": [
+          {
+            "title": "Home Visit",
+            "description": [
+              "Home visits can establish positive contact and communication with families. They are not a replacement for parent-teacher conferences, but are a process through which teachers demonstrate their support for students’ families by visiting the home environment or an alternative location where the family feels at home and comfortable. Home visits should originate from a sincere desire to assist and work with families. Home visits promote proactive interactions through which teachers provide authentic support while recognizing families’ strengths."
+            ]
+          }
+        ],
+        "fileUrls": "",
+        "redirectUrl": "/connectivity/home-visit"
+      },
+      "bus-route": {
+        "content": [
+          {
+            "title": "Bus Route",
+            "description": [
+              "Indian Public School has its own fleet of buses. The transport committee devises routes at the beginning of every academic session to ensure safe and comfortable travel for all students. The buses are equipped with GPS tracking systems, first-aid kits, and trained conductors to ensure the safety of students. Parents are required to fill in the consent form at the time of admission if they wish to avail of the bus facility."
+            ]
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/connectivity/bus-route"
+      },
+      "school-app": {
+        "content": [
+          {
+            "title": "School App",
+            "description": [
+              "To keep pace with the digital transformation of education, Indian Public School has launched its own School App. This app is a comprehensive platform for communication between the school and parents, and provides access to important information and resources.",
+              "Connect 2 IPS"
+            ],
+            "linkUrl": "https://www.vidyalayaschoolsoftware.com/erp-login?OrgGroupId=T5+x6r9OUuUCeVUmjjHHZg== "
+          }
+        ],
+        "fileUrls": [],
+        "redirectUrl": "/connectivity/school-app"
+      },
+      "parents-teachers-meeting": {
+        "content": [
+          {
+            "title": "Parents Teachers Meeting",
+            "description": [
+              "IPS conducts PTM after every exam and  you (and often your child as well) will have the opportunity to meet with your child's teacher and talk about the progress your child is making. This is a meeting between you and the teacher to talk about your child’s learning and progress. They might be called parent-teacher interviews, parent-teacher conferences or even learning conferences."
+            ]
+          }
+        ]
+      },
+      "societal-engagement-programs": {
+        "content": [
+          {
+            "title": "Societal Engagement Programs",
+            "sub-title": "",
+            "description": [
+              "IPS conducts PTM after every exam and  you (and often your child as well) will have the opportunity to meet with your child's teacher and talk about the progress your child is making. This is a meeting between you and the teacher to talk about your child’s learning and progress. They might be called parent-teacher interviews, parent-teacher conferences or even learning conferences."
+            ]
+          },
+          {
+            "title": "",
+            "sub-title": "Family Engagement Team",
+            "description": "The Family Engagement Team is an interoffice group dedicated to strengthening the voice of families, by bringing focus to the needs of students so as to allow every student to reach full potential. "
+          },
+          {
+            "title": "",
+            "sub-title": "Partners in Education",
+            "description": "Check out the resources on this webpage supporting the framework for building greater support and capacity in schools, homes and communities, so ALL students have the chance to succeed. Get ideas for how to bring your passion, talents, and energy to help students and to make your neighbourhood schools stronger. YOU can make a difference. You can help young people in your neighbourhood have a strong start and prepare for college and for their careers."
+          }
+        ]
+      }
+    }
+  ],
+  "gallery": [
+    {
+      "eventName": "Youth Awareness",
+      "eventType": "Awareness",
+      "createdAt": "2022-01-01T01:43:51.398Z",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Gandhi Jaynti",
+      "eventType": "BirthCelebration",
+      "createdAt": "2025-10-02",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Vigilance Awareness",
+      "eventType": "Awareness",
+      "createdAt": "2025-10-02",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Vocation Training",
+      "eventType": "SkillDevelopment",
+      "createdAt": "2022-08-01",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Foundation Day",
+      "eventType": "Ceremony",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Foundation Day",
+      "eventType": "Ceremony",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Tips Suggession",
+      "eventType": "Expert Speech",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Covid Awareness",
+      "eventType": "Awareness",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "English Activity",
+      "eventType": "Subject Activity",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Public Speaking",
+      "eventType": "Awareness",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Parent-Teacher Meeting",
+      "eventType": "Parent Teacher Meeting",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Mathematics Group Activity",
+      "eventType": "Subject Activity",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Activity on Vowels and Consonants",
+      "eventType": "Subject Activity",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Winner of WorldBookofRecord",
+      "eventType": "Winner",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "NCC",
+      "eventType": "NCC Training",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Skill Development",
+      "eventType": "Skill",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Experiential Learning",
+      "eventType": "Experiential Learning",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Glimpses of World Yoga Day",
+      "eventType": "Yoga Day",
+      "createdAt": "2023-11-15",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Visit to ISCON temple by toddlers of our pre primary wing",
+      "eventType": "Field Trip",
+      "createdAt": "2026-01-24",
+      "fileUrl": []
+    },
+    {
+      "eventName": "Visit to ISCON temple by toddlers of our pre primary wing",
+      "eventType": "Field Trip",
+      "createdAt": "2026-01-24",
+      "fileUrl": []
+    }
+  ],
+  "reviews": [
+    {
+      "name": "Pradip",
+      "batch": "2020-2022",
+      "createdAt": "2020-09-11T01:43:51.398Z",
+      "rating": 3,
+      "feedback": "Great school. All the teachers we had cares about both academic and personal growth. We have 3 kids so we didn’t just get lucky. It’s a small enough school so kids don’t get lost but big enough to have all the extra curricular activities to keep kids busy and be social. Love, love, love this school.",
+      "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163277/indian-public-school/assets/Review/Anonymous.png"
+    },
+    {
+      "name": "Abhishek Prakash Jha",
+      "batch": "2020-2022",
+      "createdAt": "2020-09-11T01:43:51.398Z",
+      "rating": 5,
+      "feedback": "good School, good environment.",
+      "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163276/indian-public-school/assets/Review/AbhishekPrakashJha.jpg"
+    },
+    {
+      "name": "Shriyansh Shekhar Lenka",
+      "batch": "2021-2022",
+      "createdAt": "2022-09-11T01:43:51.398Z",
+      "rating": 5,
+      "feedback": "Satisfied with studies and overall performance of the child.",
+      "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163281/indian-public-school/assets/Review/ShreyanshSekharJha.jpg"
+    },
+    {
+      "name": "Samay Palta Singh",
+      "batch": "2021-2022",
+      "createdAt": "2022-09-11T01:43:51.398Z",
+      "rating": 3,
+      "feedback": "Good studies and good overall performance .Good improvement shown .",
+      "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163283/indian-public-school/assets/Review/SmayPatlaSingh.jpg"
+    },
+    {
+      "name": "Ansh Singh",
+      "batch": "2021-2023",
+      "createdAt": "2023-11-11T01:43:51.398Z",
+      "rating": 5,
+      "feedback": "Studies are good ..... satisfied with the academics and management of the school .",
+      "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163279/indian-public-school/assets/Review/AnshSingh.jpg"
+    }
+  ],
+  "press-release": [
+    {
+      "fileUrls": []
+    }
+  ],
+  "download": [
+    {
+      "files-formats": {
+        "title": "Files & Formats",
+        "description": [
+          "The school has a well-defined set of files and formats that are used for various administrative and academic purposes. These files and formats are designed to ensure smooth functioning of the school and to maintain proper records."
+        ],
+        "fileUrls": []
+      },
+      "news-letter": {
+        "title": "News Letter",
+        "description": [
+          "The newsletter is a publication that provides information about the school's activities, achievements, and upcoming events. It serves as a communication tool between the school and its stakeholders, including students, parents, and the community."
+        ],
+        "fileUrls": []
+      },
+      "hostel-brochure": {
+        "title": "Hostel Brochure",
+        "description": [
+          "The hostel brochure provides detailed information about the hostel facilities, rules and regulations, and other important aspects related to hostel life. It is designed to help students and parents understand the living arrangements and amenities available in the hostel."
+        ],
+        "fileUrls": []
+      },
+      "career-counselling-book": {
+        "title": "Career Counselling Book",
+        "description": [
+          "The career counselling book is a comprehensive guide that provides information about various career options, educational pathways, and guidance on making informed career choices. It aims to assist students in planning their future careers effectively."
+        ],
+        "fileUrls": []
+      },
+      "other-documents": {
+        "title": "Other",
+        "description": [
+          "This section includes various other important documents related to the school, such as policies, guidelines, and other relevant information that may be useful for students, parents, and staff members."
+        ],
+        "fileUrls": []
+      }
+    }
+  ],
+  "manadatory-disclosure": [
+    {
+      "self-certification": {
+        "title": "Self Certification",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163244/indian-public-school/assets/MandatoryDisclosure/Self_Certificate"
+      },
+      "water-testing": {
+        "title": "Water Testing",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163248/indian-public-school/assets/MandatoryDisclosure/Water_Testing"
+      },
+      "general-information": {
+        "title": "General Information",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163238/indian-public-school/assets/MandatoryDisclosure/General_Information"
+      },
+      "mandatory-disclosure": {
+        "title": "Mandatory Disclosure Details",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163239/indian-public-school/assets/MandatoryDisclosure/Mandatory_Disclosure_Details"
+      },
+      "tc": {
+        "title": "Transfer Certificate",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163245/indian-public-school/assets/MandatoryDisclosure/TC"
+      },
+      "emergency-contact": {
+        "title": "Contact Details (In Case Of Emergency Only)",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163236/indian-public-school/assets/MandatoryDisclosure/EMERGENCY_CONTACT_DETAILS"
+      },
+      "trustee": {
+        "title": "Trustee",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163247/indian-public-school/assets/MandatoryDisclosure/TRUSTEE"
+      },
+      "staff-directory": {
+        "title": "Staff Directory",
+        "fileUrl": "https://res.cloudinary.com/niefrrkx/raw/upload/v1789163231/indian-public-school/assets/MandatoryDisclosure/1787199685583STAFF_DIRECTORY"
+      }
+    }
+  ],
+  "contact-us": {
+    "title": "Contact Us",
+    "Address": {
+      "name": " Indian Public School",
+      "address": "Main Road, Near RMC, Khetrajpur",
+      "district": "Sambalpur",
+      "state": "Odisha",
+      "Post-Office": "Odisha - 768006"
+    },
+    "phone": [
+      "+91 8114320555"
+    ],
+    "email": "Ipssbp75@gmail.com",
+    "social-media": {
+      "facebook": "https://www.facebook.com/IPSSBP/",
+      "instagram": "https://www.instagram.com/ipssbp",
+      "linkdin": "https://www.linkedin.com/company/74716081/admin/",
+      "youtube": "https://www.youtube.com/ipssbp",
+      "playstore": "https://play.google.com/store/apps/details?id=com.vidyalaya.connect2ips&pli=1",
+      "appstore": "https://apps.apple.com/us/app/ips-connect-ipssbp/id6769958509"
+    },
+    "map": {
+      "latitude": "21.4653° N",
+      "longitude": "83.9757° E"
+    },
+    "google-map-link": "https://maps.app.goo.gl/XR26sBDWkTygWBbY9",
+    "google-map-embed-link": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m10!1m8!1m3!1d24593.46883888323!2d83.945741!3d21.499034!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sus!4v1789159130952!5m2!1sen!2sus\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\"></iframe>",
+    "office-timings": {
+      "Monday-Friday": "7:30 AM - 5:00 PM",
+      "Saturday": "9:00 AM - 1:00 PM",
+      "Sunday": "8:00 AM - 2:00 PM"
+    }
+  },
+  "users": [
+    {
+      "_id": "68ea145727b0470543a31e1e",
+      "name": "Super Admin",
+      "email": "admin.ips@gmail.com",
+      "password": "Admin@Ips",
+      "role": "SuperAdmin",
+      "status": "ACTIVE",
+      "avatar": "",
+      "lastLoginAt": "2026-09-11T01:43:51.398Z"
+    }
+  ],
+  "staff": [
+    {
+      "_id": "68ea145727b0470543a31e1e",
+      "employeeId": "EMP001",
+      "name": "Amit Kumar Sharma",
+      "email": "amit@gmail.com",
+      "phone": "+91-9876543210",
+      "department": "Hindi Teacher",
+      "staffType": "Faculty",
+      "status": "Active",
+      "designation": "Senior Teacher",
+      "qualification": "M.A. in Hindi Literature",
+      "joinDate": "2020-06-15T00:00:00.000Z",
+      "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163284/indian-public-school/assets/Staff/Amit.jpg"
+    },
+    {
+      "_id": "68ea145727b0470543a31e1e",
+      "employeeId": "EMP002",
+      "name": "Sonam Sharma",
+      "email": "sonam@gmail.com",
+      "phone": "+91-9876543212",
+      "department": "CS Teacher",
+      "staffType": "Faculty",
+      "status": "Active",
+      "designation": "Senior Teacher",
+      "qualification": "B.Tech in Computer Science",
+      "joinDate": "2020-06-15T00:00:00.000Z",
+      "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163285/indian-public-school/assets/Staff/Sonam.jpg"
+    }
+  ],
+  "students": [
+    {
+      "_id": "68ea145727b0470543a31e1e",
+      "studentId": "STU001",
+      "name": "Aarav Sharma",
+      "grade": "10",
+      "section": "A",
+      "dob": "2010-05-14",
+      "gender": "Male",
+      "house": "Red",
+      "transportRoute": "Route 1",
+      "parentName": "Rajesh Sharma",
+      "parentPhone": "9876543210",
+      "parentEmail": "rajesh.sharma@example.com",
+      "address": "Civil Lines, Raipur, Chhattisgarh",
+      "status": "Active",
+      "avatar": "",
+      "enrolledAt": "2025-04-01"
+    },
+    {
+      "_id": "68ea145727b0470543a31e1f",
+      "studentId": "STU002",
+      "name": "Ananya Verma",
+      "grade": "9",
+      "section": "B",
+      "dob": "2011-08-22",
+      "gender": "Female",
+      "house": "Blue",
+      "transportRoute": "Route 2",
+      "parentName": "Amit Verma",
+      "parentPhone": "9876543211",
+      "parentEmail": "amit.verma@example.com",
+      "address": "Shankar Nagar, Raipur, Chhattisgarh",
+      "status": "Active",
+      "avatar": "",
+      "enrolledAt": "2025-04-01"
+    },
+    {
+      "_id": "68ea145727b0470543a31e20",
+      "studentId": "STU003",
+      "name": "Vivaan Patel",
+      "grade": "8",
+      "section": "A",
+      "dob": "2012-02-10",
+      "gender": "Male",
+      "house": "Green",
+      "transportRoute": "Route 3",
+      "parentName": "Suresh Patel",
+      "parentPhone": "9876543212",
+      "parentEmail": "suresh.patel@example.com",
+      "address": "Telibandha, Raipur, Chhattisgarh",
+      "status": "Active",
+      "avatar": "",
+      "enrolledAt": "2025-04-01"
+    },
+    {
+      "_id": "68ea145727b0470543a31e21",
+      "studentId": "STU004",
+      "name": "Ishita Singh",
+      "grade": "7",
+      "section": "C",
+      "dob": "2013-11-05",
+      "gender": "Female",
+      "house": "Yellow",
+      "transportRoute": "Route 1",
+      "parentName": "Manoj Singh",
+      "parentPhone": "9876543213",
+      "parentEmail": "manoj.singh@example.com",
+      "address": "Avanti Vihar, Raipur, Chhattisgarh",
+      "status": "Active",
+      "avatar": "",
+      "enrolledAt": "2025-04-02"
+    },
+    {
+      "_id": "68ea145727b0470543a31e22",
+      "studentId": "STU005",
+      "name": "Aditya Gupta",
+      "grade": "10",
+      "section": "B",
+      "dob": "2010-09-18",
+      "gender": "Male",
+      "house": "Blue",
+      "transportRoute": "Route 4",
+      "parentName": "Rakesh Gupta",
+      "parentPhone": "9876543214",
+      "parentEmail": "rakesh.gupta@example.com",
+      "address": "Katora Talab, Raipur, Chhattisgarh",
+      "status": "Active",
+      "avatar": "",
+      "enrolledAt": "2025-04-02"
+    },
+    {
+      "_id": "68ea145727b0470543a31e23",
+      "studentId": "STU006",
+      "name": "Sneha Tiwari",
+      "grade": "6",
+      "section": "A",
+      "dob": "2014-03-27",
+      "gender": "Female",
+      "house": "Red",
+      "transportRoute": "Route 2",
+      "parentName": "Deepak Tiwari",
+      "parentPhone": "9876543215",
+      "parentEmail": "deepak.tiwari@example.com",
+      "address": "Devendra Nagar, Raipur, Chhattisgarh",
+      "status": "Active",
+      "avatar": "",
+      "enrolledAt": "2025-04-03"
+    },
+    {
+      "_id": "68ea145727b0470543a31e24",
+      "studentId": "STU007",
+      "name": "Reyansh Mishra",
+      "grade": "5",
+      "section": "B",
+      "dob": "2015-07-12",
+      "gender": "Male",
+      "house": "Green",
+      "transportRoute": "Route 5",
+      "parentName": "Pankaj Mishra",
+      "parentPhone": "9876543216",
+      "parentEmail": "pankaj.mishra@example.com",
+      "address": "Mowa, Raipur, Chhattisgarh",
+      "status": "Inactive",
+      "avatar": "",
+      "enrolledAt": "2025-04-03"
+    }
+  ]
+}
