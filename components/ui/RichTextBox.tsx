@@ -49,6 +49,16 @@ import {
   Layers,
   ChevronRight,
   Plus,
+  ExternalLink,
+  Link2,
+  Globe,
+  ArrowRight,
+  FileText,
+  Phone,
+  Mail,
+  Check,
+  X,
+  MousePointerClick,
 } from "lucide-react";
 
 interface RichTextBoxProps {
@@ -95,6 +105,15 @@ export function RichTextBox({
   const [isStudioOpen, setIsStudioOpen] = useState(false);
   const [studioInitialData, setStudioInitialData] = useState<ImageStudioData | string | null>(null);
   const [selectedImageEl, setSelectedImageEl] = useState<HTMLImageElement | null>(null);
+
+  // Link Creator / Hyperlink Modal States
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [linkText, setLinkText] = useState("");
+  const [linkUrl, setLinkUrl] = useState("https://");
+  const [linkTarget, setLinkTarget] = useState<"_blank" | "_self">("_self");
+  const [linkStyle, setLinkStyle] = useState<"text" | "gold-button" | "navy-button" | "outline-button" | "pill-badge">("text");
+  const [editingAnchorEl, setEditingAnchorEl] = useState<HTMLAnchorElement | null>(null);
+  const [selectedAnchorEl, setSelectedAnchorEl] = useState<HTMLAnchorElement | null>(null);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const isInternalChangeRef = useRef(false);
@@ -158,7 +177,8 @@ export function RichTextBox({
                 color: #1e3a8a;
                 font-style: italic;
               }
-              a { color: #1a5d9c; text-decoration: underline; font-weight: 600; }
+              a { color: #1a5d9c; text-decoration: underline; font-weight: 600; cursor: pointer; }
+              a.wysiwyg-selected-link { outline: 2px dashed #1a5d9c !important; outline-offset: 3px !important; background-color: rgba(26, 93, 156, 0.08) !important; border-radius: 4px; }
               img { max-width: 100%; height: auto; border-radius: 12px; margin: 12px 0; box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.2s ease; }
               img.wysiwyg-selected-img { outline: 3px solid #2563eb !important; outline-offset: 3px !important; box-shadow: 0 0 20px rgba(37, 99, 235, 0.35) !important; }
               hr { border: none; border-top: 2px solid #e2e8f0; margin: 1.5rem 0; }
@@ -192,16 +212,27 @@ export function RichTextBox({
         onChange(currentBodyHtml === "<br>" ? "" : currentBodyHtml);
       };
 
-      // Image selection listener inside iframe
+      // Image & Link selection listener inside iframe
       const handleDocClick = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
         const imgEl = (target && target.tagName === "IMG" ? target : target?.closest?.("img")) as HTMLImageElement | null;
+        const anchorEl = (target && target.tagName === "A" ? target : target?.closest?.("a")) as HTMLAnchorElement | null;
 
         doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
+        doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
 
         if (imgEl) {
           imgEl.classList.add("wysiwyg-selected-img");
           setSelectedImageEl(imgEl);
+        } else {
+          setSelectedImageEl(null);
+        }
+
+        if (anchorEl) {
+          anchorEl.classList.add("wysiwyg-selected-link");
+          setSelectedAnchorEl(anchorEl);
+        } else {
+          setSelectedAnchorEl(null);
         }
       };
 
@@ -319,11 +350,109 @@ export function RichTextBox({
     execCommand("formatBlock", formatTag);
   };
 
-  const handleAddLink = () => {
-    const url = prompt("Enter Link URL (e.g. https://example.com or /about):", "https://");
-    if (url) {
-      execCommand("createLink", url);
+  const openLinkModal = (targetAnchor?: HTMLAnchorElement | null) => {
+    const iframe = iframeRef.current;
+    const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+    const win = iframe?.contentWindow;
+
+    let anchorEl: HTMLAnchorElement | null = targetAnchor || selectedAnchorEl;
+    let selectedText = "";
+
+    if (win && doc) {
+      const selection = win.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const text = selection.toString().trim();
+        if (text) selectedText = text;
+        const container = selection.anchorNode?.parentElement;
+        if (container) {
+          const closestA = container.closest("a") as HTMLAnchorElement | null;
+          if (closestA) anchorEl = closestA;
+        }
+      }
     }
+
+    if (anchorEl) {
+      setEditingAnchorEl(anchorEl);
+      setLinkText(anchorEl.innerText || anchorEl.textContent || selectedText);
+      setLinkUrl(anchorEl.getAttribute("href") || "");
+      setLinkTarget(anchorEl.getAttribute("target") === "_blank" ? "_blank" : "_self");
+
+      const styleStr = (anchorEl.getAttribute("style") || "").toLowerCase();
+      if (styleStr.includes("#f4bd4f") || styleStr.includes("gold")) {
+        setLinkStyle("gold-button");
+      } else if (styleStr.includes("#102a4c") || styleStr.includes("navy")) {
+        setLinkStyle("navy-button");
+      } else if (styleStr.includes("border:") || styleStr.includes("border-2")) {
+        setLinkStyle("outline-button");
+      } else if (styleStr.includes("9999px")) {
+        setLinkStyle("pill-badge");
+      } else {
+        setLinkStyle("text");
+      }
+    } else {
+      setEditingAnchorEl(null);
+      setLinkText(selectedText || "");
+      setLinkUrl("https://");
+      setLinkTarget("_self");
+      setLinkStyle("text");
+    }
+
+    setIsLinkModalOpen(true);
+  };
+
+  const applyHyperlink = () => {
+    let url = linkUrl.trim();
+    if (!url) return;
+
+    const text = linkText.trim() || url;
+    const targetAttr = linkTarget === "_blank" ? `target="_blank" rel="noopener noreferrer"` : "";
+
+    let htmlSnippet = "";
+    if (linkStyle === "gold-button") {
+      htmlSnippet = `<a href="${url}" ${targetAttr} style="background-color: #f4bd4f; color: #102a4c; font-weight: 700; padding: 0.65rem 1.35rem; border-radius: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 4px 2px;">${text} &rarr;</a>`;
+    } else if (linkStyle === "navy-button") {
+      htmlSnippet = `<a href="${url}" ${targetAttr} style="background-color: #102a4c; color: #ffffff; font-weight: 700; padding: 0.65rem 1.35rem; border-radius: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 5px rgba(16,42,76,0.2); margin: 4px 2px;">${text} &rarr;</a>`;
+    } else if (linkStyle === "outline-button") {
+      htmlSnippet = `<a href="${url}" ${targetAttr} style="border: 2px solid #1a5d9c; color: #1a5d9c; background-color: #ffffff; font-weight: 700; padding: 0.6rem 1.25rem; border-radius: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin: 4px 2px;">${text} &rarr;</a>`;
+    } else if (linkStyle === "pill-badge") {
+      htmlSnippet = `<a href="${url}" ${targetAttr} style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 700; padding: 0.35rem 0.9rem; border-radius: 9999px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; margin: 4px 2px;">🔗 ${text}</a>`;
+    } else {
+      htmlSnippet = `<a href="${url}" ${targetAttr} style="color: #1a5d9c; text-decoration: underline; font-weight: 600;">${text}</a>`;
+    }
+
+    if (editingAnchorEl) {
+      editingAnchorEl.insertAdjacentHTML("beforebegin", htmlSnippet);
+      editingAnchorEl.remove();
+      setEditingAnchorEl(null);
+      setSelectedAnchorEl(null);
+      syncIframeToState();
+    } else {
+      insertHTML(htmlSnippet);
+    }
+
+    setIsLinkModalOpen(false);
+  };
+
+  const removeHyperlink = () => {
+    if (editingAnchorEl) {
+      const textNode = editingAnchorEl.innerText || editingAnchorEl.textContent || "";
+      editingAnchorEl.insertAdjacentText("beforebegin", textNode);
+      editingAnchorEl.remove();
+      setEditingAnchorEl(null);
+      setSelectedAnchorEl(null);
+      syncIframeToState();
+    } else if (selectedAnchorEl) {
+      const textNode = selectedAnchorEl.innerText || selectedAnchorEl.textContent || "";
+      selectedAnchorEl.insertAdjacentText("beforebegin", textNode);
+      selectedAnchorEl.remove();
+      setSelectedAnchorEl(null);
+      syncIframeToState();
+    }
+    setIsLinkModalOpen(false);
+  };
+
+  const handleAddLink = () => {
+    openLinkModal();
   };
 
   const handleAddImage = () => {
@@ -333,6 +462,42 @@ export function RichTextBox({
   // Visual Basic .NET Component Templates
   const insertComponent = (type: string) => {
     switch (type) {
+      case "hyperlink":
+        openLinkModal();
+        break;
+      case "ctaBanner":
+        insertHTML(
+          `<section style="background: linear-gradient(135deg, #102a4c 0%, #1a5d9c 100%); color: #ffffff; padding: 2rem; border-radius: 1.25rem; margin-bottom: 2rem; box-shadow: 0 10px 20px -5px rgba(16,42,76,0.25);">
+  <h3 style="font-size: 1.5rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem; color: #ffffff;">Need Assistance or Have Questions?</h3>
+  <p style="font-size: 1rem; color: #e2e8f0; margin-bottom: 1.25rem; line-height: 1.6;">Our admissions & administrative team is ready to guide you through every step of the process.</p>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="/contact" style="background-color: #f4bd4f; color: #102a4c; font-weight: 700; padding: 0.65rem 1.35rem; border-radius: 0.75rem; text-decoration: none; display: inline-block;">Contact Us Now &rarr;</a>
+    <a href="/admission" style="background-color: rgba(255,255,255,0.15); color: #ffffff; font-weight: 700; padding: 0.65rem 1.35rem; border-radius: 0.75rem; text-decoration: none; display: inline-block;">Apply Online &rarr;</a>
+  </div>
+</section><p><br></p>`
+        );
+        break;
+      case "quickLinksGrid":
+        insertHTML(
+          `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <div style="border: 1px solid #e2e8f0; background-color: #f8fafc; padding: 1.25rem; border-radius: 1rem;">
+    <h4 style="font-size: 1.1rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Admissions 2026–27</h4>
+    <p style="font-size: 0.875rem; color: #64748b; margin: 0 0 1rem 0;">Online application process and eligibility criteria.</p>
+    <a href="/admission" style="color: #1a5d9c; font-weight: 700; text-decoration: none; font-size: 0.9rem;">Go to Admissions &rarr;</a>
+  </div>
+  <div style="border: 1px solid #e2e8f0; background-color: #f8fafc; padding: 1.25rem; border-radius: 1rem;">
+    <h4 style="font-size: 1.1rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Curriculum & Academics</h4>
+    <p style="font-size: 0.875rem; color: #64748b; margin: 0 0 1rem 0;">CBSE syllabus, examination structure & faculty.</p>
+    <a href="/academics" style="color: #1a5d9c; font-weight: 700; text-decoration: none; font-size: 0.9rem;">View Academics &rarr;</a>
+  </div>
+  <div style="border: 1px solid #e2e8f0; background-color: #f8fafc; padding: 1.25rem; border-radius: 1rem;">
+    <h4 style="font-size: 1.1rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Mandatory Disclosure</h4>
+    <p style="font-size: 0.875rem; color: #64748b; margin: 0 0 1rem 0;">Official CBSE affiliation certificates & NOCs.</p>
+    <a href="/mandatory-public-disclosure" style="color: #1a5d9c; font-weight: 700; text-decoration: none; font-size: 0.9rem;">View Disclosures &rarr;</a>
+  </div>
+</div><p><br></p>`
+        );
+        break;
       case "hero":
         insertHTML(
           `<section style="background-color: #102a4c; color: #ffffff; padding: 2.5rem; border-radius: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 25px -5px rgba(16,42,76,0.3);">
@@ -522,6 +687,27 @@ export function RichTextBox({
   };
 
   const toolboxComponents = [
+    {
+      id: "hyperlink",
+      title: "Hyperlink & Action Button",
+      subtitle: "Write text with link & button style",
+      icon: LinkIcon,
+      color: "bg-sky-600 text-white",
+    },
+    {
+      id: "ctaBanner",
+      title: "Call-to-Action Link Banner",
+      subtitle: "Header, paragraph & redirect button",
+      icon: MousePointerClick,
+      color: "bg-blue-700 text-white",
+    },
+    {
+      id: "quickLinksGrid",
+      title: "Quick Redirect Links Grid",
+      subtitle: "3 hyperlinked navigation cards",
+      icon: ExternalLink,
+      color: "bg-[#102a4c] text-white",
+    },
     {
       id: "hero",
       title: "Hero Banner Section",
@@ -1135,6 +1321,27 @@ export function RichTextBox({
                     <Trash2 size={12} />
                   </button>
                 )}
+                {selectedAnchorEl && (
+                  <div className="flex items-center gap-1.5 bg-sky-50 border border-sky-200 px-2 py-1 rounded-xl">
+                    <span className="text-[11px] font-extrabold text-sky-900 truncate max-w-[160px]" title={selectedAnchorEl.getAttribute("href") || ""}>
+                      🔗 {selectedAnchorEl.getAttribute("href") || "Link"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => openLinkModal(selectedAnchorEl)}
+                      className="rounded-lg bg-[#1a5d9c] px-2 py-0.5 text-[11px] font-bold text-white hover:bg-blue-700 transition"
+                    >
+                      Edit Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={removeHyperlink}
+                      className="rounded-lg border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-bold text-red-600 hover:bg-red-100 transition"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1206,6 +1413,296 @@ export function RichTextBox({
           }
         }}
       />
+
+      {/* Hyperlink Creation & Edit Modal */}
+      {isLinkModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between bg-gradient-to-r from-[#102a4c] to-[#1a5d9c] px-6 py-4 text-white">
+              <div className="flex items-center gap-2.5">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur-md text-amber-400">
+                  <LinkIcon size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {editingAnchorEl ? "Edit Hyperlink & Redirect Target" : "Create Hyperlink & Redirect Target"}
+                  </h3>
+                  <p className="text-xs text-blue-200 font-medium">Configure text, destination link & button presentation</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLinkModalOpen(false)}
+                className="rounded-xl p-1.5 text-blue-200 hover:bg-white/10 hover:text-white transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="max-h-[75vh] overflow-y-auto p-6 space-y-4 text-slate-700">
+              {/* Link Text Field */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Display Link Text <span className="text-slate-400 font-normal">(Anchor Text)</span>
+                </label>
+                <input
+                  type="text"
+                  value={linkText}
+                  onChange={(e) => setLinkText(e.target.value)}
+                  placeholder="e.g. Click Here to Apply, Read Admissions Criteria..."
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-[#1a5d9c] focus:bg-white focus:ring-2 focus:ring-blue-100 transition"
+                />
+              </div>
+
+              {/* Link URL Field & Quick Presets */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    Redirect Destination URL <span className="text-red-500">*</span>
+                  </label>
+                  <span className="text-[11px] font-semibold text-blue-600">Quick Page Presets 👇</span>
+                </div>
+                <input
+                  type="text"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  placeholder="e.g. /admission, /about, https://example.com"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-[#1a5d9c] focus:bg-white focus:ring-2 focus:ring-blue-100 transition"
+                />
+
+                {/* Preset Buttons */}
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {[
+                    { label: "🎓 Admission Form", url: "/admission" },
+                    { label: "🏫 About IPS", url: "/about" },
+                    { label: "📞 Contact Us", url: "/contact" },
+                    { label: "📚 Academics", url: "/academics" },
+                    { label: "📜 CBSE Disclosure", url: "/mandatory-public-disclosure" },
+                    { label: "🖼️ Gallery", url: "/gallery" },
+                    { label: "✉️ Email Contact", url: "mailto:info@indianpublicschool.edu.in" },
+                    { label: "📱 Call Phone", url: "tel:+919876543210" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.url}
+                      type="button"
+                      onClick={() => {
+                        setLinkUrl(preset.url);
+                        if (!linkText || linkText === "https://") {
+                          setLinkText(preset.label.replace(/^[^\s]+\s*/, ""));
+                        }
+                      }}
+                      className="rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-[#1a5d9c] transition cursor-pointer"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Link Target Toggle */}
+              <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <div>
+                  <p className="text-xs font-bold text-slate-800">Open in New Tab Window</p>
+                  <p className="text-[11px] text-slate-500 font-medium">Adds target="_blank" rel="noopener noreferrer"</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLinkTarget(linkTarget === "_blank" ? "_self" : "_blank")}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    linkTarget === "_blank" ? "bg-[#1a5d9c]" : "bg-slate-300"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                      linkTarget === "_blank" ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Link Presentation Style */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Link Presentation & Button Style
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    {
+                      id: "text",
+                      name: "Standard Text Link",
+                      sub: "School blue text link with underline",
+                    },
+                    {
+                      id: "gold-button",
+                      name: "Gold CTA Button",
+                      sub: "Amber gold background button with arrow",
+                    },
+                    {
+                      id: "navy-button",
+                      name: "Navy Action Button",
+                      sub: "Navy blue background button with white text",
+                    },
+                    {
+                      id: "outline-button",
+                      name: "Outline Border Button",
+                      sub: "Blue outlined button with arrow",
+                    },
+                    {
+                      id: "pill-badge",
+                      name: "Pill Link Badge",
+                      sub: "Soft sky blue pill badge link",
+                    },
+                  ].map((st) => (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={() => setLinkStyle(st.id as any)}
+                      className={`flex flex-col text-left p-2.5 rounded-2xl border transition-all cursor-pointer ${
+                        linkStyle === st.id
+                          ? "border-[#1a5d9c] bg-blue-50/70 ring-2 ring-blue-500/20 shadow-xs"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full mb-0.5">
+                        <span className="text-xs font-bold text-slate-800">{st.name}</span>
+                        {linkStyle === st.id && <CheckCircle2 size={14} className="text-[#1a5d9c]" />}
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-medium">{st.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live Preview Box */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-100 p-3">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Live Element Preview</p>
+                <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-center min-h-[48px]">
+                  {linkStyle === "gold-button" ? (
+                    <a
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                      style={{
+                        backgroundColor: "#f4bd4f",
+                        color: "#102a4c",
+                        fontWeight: 700,
+                        padding: "0.65rem 1.35rem",
+                        borderRadius: "0.75rem",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      {linkText || "Gold Button Text"} &rarr;
+                    </a>
+                  ) : linkStyle === "navy-button" ? (
+                    <a
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                      style={{
+                        backgroundColor: "#102a4c",
+                        color: "#ffffff",
+                        fontWeight: 700,
+                        padding: "0.65rem 1.35rem",
+                        borderRadius: "0.75rem",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        boxShadow: "0 2px 5px rgba(16,42,76,0.2)",
+                      }}
+                    >
+                      {linkText || "Navy Button Text"} &rarr;
+                    </a>
+                  ) : linkStyle === "outline-button" ? (
+                    <a
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                      style={{
+                        border: "2px solid #1a5d9c",
+                        color: "#1a5d9c",
+                        backgroundColor: "#ffffff",
+                        fontWeight: 700,
+                        padding: "0.6rem 1.25rem",
+                        borderRadius: "0.75rem",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      {linkText || "Outline Button Text"} &rarr;
+                    </a>
+                  ) : linkStyle === "pill-badge" ? (
+                    <a
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                      style={{
+                        backgroundColor: "#e0f2fe",
+                        color: "#0369a1",
+                        border: "1px solid #bae6fd",
+                        fontWeight: 700,
+                        padding: "0.35rem 0.9rem",
+                        borderRadius: "9999px",
+                        fontSize: "0.85rem",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                      }}
+                    >
+                      🔗 {linkText || "Pill Badge Text"}
+                    </a>
+                  ) : (
+                    <a
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                      style={{ color: "#1a5d9c", textDecoration: "underline", fontWeight: 600 }}
+                    >
+                      {linkText || "Standard Text Hyperlink"}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-between bg-slate-50 border-t border-slate-200 px-6 py-3.5">
+              {(editingAnchorEl || selectedAnchorEl) ? (
+                <button
+                  type="button"
+                  onClick={removeHyperlink}
+                  className="flex items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
+                >
+                  <Trash2 size={13} />
+                  <span>Remove Link</span>
+                </button>
+              ) : <div />}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsLinkModalOpen(false)}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={applyHyperlink}
+                  className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:brightness-110 transition cursor-pointer"
+                >
+                  <Check size={14} />
+                  <span>{editingAnchorEl ? "Update Link" : "Insert Hyperlink"}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

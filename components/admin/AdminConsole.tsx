@@ -126,7 +126,7 @@ type ResourceKey =
   | "staff"
   | "inquiries"
   | "news"
-  | "notices"
+  // | "notices"
   | "gallery"
   | "reviews"
   | "school-settings"
@@ -153,7 +153,7 @@ const resourcePath: Record<ResourceKey, string> = {
   staff: "staff",
   inquiries: "inquiries",
   news: "news",
-  notices: "notices",
+  // notices: "notices",
   gallery: "gallery",
   reviews: "reviews",
   "school-settings": "school-settings",
@@ -202,20 +202,20 @@ const resources: Resource[] = [
     fields: ["title", "redirectUrl", "createdAt", "updatedAt"],
     inputs: { title: "text", redirectUrl: "text", attachmentUrl: "file" },
   },
-  {
-    key: "notices",
-    label: "Notices",
-    description: "Notice-board publishing",
-    icon: Bell,
-    protected: true,
-    fields: ["title", "category", "priority", "isPublished", "createdAt", "updatedAt"],
-    inputs: { title: "text", category: "select", content: "textarea", priority: "select", targetAudience: "select", publishDate: "date", expiryDate: "date", isPublished: "boolean", attachmentUrl: "file" },
-    options: {
-      category: ["Academic", "Holiday", "Events", "Examination", "General"],
-      priority: ["Low", "Medium", "High", "Urgent"],
-      targetAudience: ["ALL", "Students", "Parents", "Staff", "Public"],
-    },
-  },
+  // {
+  //   key: "notices",
+  //   label: "Notices",
+  //   description: "Notice-board publishing",
+  //   icon: Bell,
+  //   protected: true,
+  //   fields: ["title", "category", "priority", "isPublished", "createdAt", "updatedAt"],
+  //   inputs: { title: "text", category: "select", content: "textarea", priority: "select", targetAudience: "select", publishDate: "date", expiryDate: "date", isPublished: "boolean", attachmentUrl: "file" },
+  //   options: {
+  //     category: ["Academic", "Holiday", "Events", "Examination", "General"],
+  //     priority: ["Low", "Medium", "High", "Urgent"],
+  //     targetAudience: ["ALL", "Students", "Parents", "Staff", "Public"],
+  //   },
+  // },
   {
     key: "gallery",
     label: "Gallery",
@@ -232,6 +232,7 @@ const resources: Resource[] = [
         "/album/Sports",
         "/album/Activities",
         "/album/Hostel",
+        "indian-public-school/assets/Documents",
         "indian-public-school/assets/Header",
         "indian-public-school/assets/Home",
         "indian-public-school/assets/Infrastructure",
@@ -242,12 +243,15 @@ const resources: Resource[] = [
         "indian-public-school/assets/LIFE@IPS/StudentEmpowerment",
         "indian-public-school/assets/Logos",
         "indian-public-school/assets/MandatoryDisclosure",
+        "indian-public-school/assets/News",
         "indian-public-school/assets/PressRelease",
         "indian-public-school/assets/Review",
         "indian-public-school/assets/Staff",
         "indian-public-school/assets/Videos",
       ],
       eventType: [
+        "Documents",
+        "News",
         "Campus",
         "Events",
         "Sports",
@@ -346,7 +350,7 @@ function isRequiredField(field: string, resourceKey: string, isEdit: boolean): b
 
 const sectionNames = ["Overview", "People", "Content", "System"] as const;
 const resourceSections: Record<ResourceKey, (typeof sectionNames)[number]> = {
-  students: "People", staff: "People", inquiries: "People", news: "Content", notices: "Content", gallery: "Content", reviews: "Content", "menu-items": "Content", pages: "Content", "school-settings": "System", users: "System",
+  students: "People", staff: "People", inquiries: "People", news: "Content", gallery: "Content", reviews: "Content", "menu-items": "Content", pages: "Content", "school-settings": "System", users: "System",
 };
 
 function flattenMenuItems(list: RecordItem[]): RecordItem[] {
@@ -796,8 +800,8 @@ export function AdminConsole() {
 }
 
 function Overview({ data, loading, onNavigate }: { data: Partial<Record<ResourceKey, RecordItem[]>>; loading: boolean; onNavigate: (key: ResourceKey) => void }) {
-  const cards = [{ key: "students" as const, label: "Students", icon: GraduationCap, tint: "bg-blue-50 text-blue-700" }, { key: "staff" as const, label: "Staff members", icon: Users, tint: "bg-violet-50 text-violet-700" }, { key: "inquiries" as const, label: "Open enquiries", icon: ClipboardList, tint: "bg-amber-50 text-amber-700" }, { key: "notices" as const, label: "Notices", icon: Bell, tint: "bg-emerald-50 text-emerald-700" }];
-  const actions = [{ key: "students" as const, title: "Add student", text: "Create an enrolment record" }, { key: "notices" as const, title: "Publish notice", text: "Share an important update" }, { key: "gallery" as const, title: "Update gallery", text: "Add campus moments" }];
+  const cards = [{ key: "students" as const, label: "Students", icon: GraduationCap, tint: "bg-blue-50 text-blue-700" }, { key: "staff" as const, label: "Staff members", icon: Users, tint: "bg-violet-50 text-violet-700" }, { key: "inquiries" as const, label: "Open enquiries", icon: ClipboardList, tint: "bg-amber-50 text-amber-700" }, { key: "news" as const, label: "News", icon: FileText, tint: "bg-emerald-50 text-emerald-700" }];
+  const actions = [{ key: "students" as const, title: "Add student", text: "Create an enrolment record" }, { key: "news" as const, title: "Publish news", text: "Share an important update" }, { key: "gallery" as const, title: "Update gallery", text: "Add campus moments" }];
   return <div className="space-y-7"><div className="overflow-hidden rounded-2xl bg-[#102a4c] p-7 text-white shadow-xl"><div className="relative z-10 max-w-xl"><span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#ffd983]"><Sparkles size={13} /> Operations at a glance</span><h2 className="mt-4 font-display text-3xl font-bold leading-tight">Everything your school needs, in one calm workspace.</h2><p className="mt-3 text-sm leading-6 text-blue-100">Manage people, public content and day-to-day communication from the same dashboard.</p></div><div className="pointer-events-none absolute right-12 top-24 hidden h-52 w-52 rounded-full border-[32px] border-[#f4bd4f]/20 lg:block" /></div><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(({ key, label, icon: Icon, tint }) => <button key={key} onClick={() => onNavigate(key)} className="group rounded-2xl border border-slate-100 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className={`grid h-10 w-10 place-items-center rounded-xl ${tint}`}><Icon size={20} /></div><p className="mt-5 text-3xl font-bold text-[#102a4c]">{loading ? "—" : data[key]?.length ?? 0}</p><div className="mt-1 flex items-center justify-between"><p className="text-sm text-slate-500">{label}</p><ChevronRight className="text-slate-300 transition group-hover:translate-x-1" size={17} /></div></button>)}</div><div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]"><section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"><div className="mb-5 flex items-center justify-between"><div><h3 className="font-display text-xl font-bold text-[#102a4c]">Recent enquiries</h3><p className="text-sm text-slate-500">Follow up with prospective families</p></div><button onClick={() => onNavigate("inquiries")} className="text-sm font-bold text-[#1a5d9c]">View all</button></div><div className="space-y-3">{(data.inquiries || []).slice(0, 4).map((item) => <div key={itemId(item)} className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3"><div className="grid h-9 w-9 place-items-center rounded-full bg-[#dce9f8] text-sm font-bold text-[#1a5d9c]">{String(item.name || "?").slice(0, 1)}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-slate-700">{String(item.name || "New enquiry")}</p><p className="truncate text-xs text-slate-500">{String(item.inquiryType || "General inquiry")}</p></div><span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-800">{String(item.status || "Pending")}</span></div>)}{!loading && !data.inquiries?.length && <Empty text="No enquiries yet" />}</div></section><section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"><h3 className="font-display text-xl font-bold text-[#102a4c]">Quick actions</h3><div className="mt-4 space-y-2">{actions.map((action) => <button key={action.key} onClick={() => onNavigate(action.key)} className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-[#edf5fc]"><div className="grid h-9 w-9 place-items-center rounded-lg bg-[#fdf3da] text-[#b7790a]"><Plus size={17} /></div><div><p className="text-sm font-bold text-slate-700">{action.title}</p><p className="text-xs text-slate-500">{action.text}</p></div></button>)}</div></section></div></div>;
 }
 
@@ -1186,10 +1190,10 @@ const RESOURCE_FILTERS: Record<string, { label: string; key: string; options: st
   news: [
     { label: "Category", key: "category", options: ["All", "Academic", "Sports", "Events", "General", "Announcement"] },
   ],
-  notices: [
-    { label: "Priority", key: "priority", options: ["All", "Low", "Medium", "High", "Urgent"] },
-    { label: "Audience", key: "targetAudience", options: ["All", "ALL", "Students", "Parents", "Staff", "Public"] },
-  ],
+  // notices: [
+  //   { label: "Priority", key: "priority", options: ["All", "Low", "Medium", "High", "Urgent"] },
+  //   { label: "Audience", key: "targetAudience", options: ["All", "ALL", "Students", "Parents", "Staff", "Public"] },
+  // ],
   pages: [
     { label: "Status", key: "isPublished", options: ["All", "Published", "Draft"] },
   ],
@@ -1204,7 +1208,30 @@ const RESOURCE_FILTERS: Record<string, { label: string; key: string; options: st
     { label: "Status", key: "status", options: ["All", "New", "In Progress", "Contacted", "Resolved", "Closed"] },
   ],
   gallery: [
-    { label: "Event Type", key: "eventType", options: ["All", "Sports Day", "Annual Function", "Science Exhibition", "Cultural Event", "General", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts"] },
+    { label: "Event Type", key: "eventType", options: ["All", "Documents", "News", "Sports Day", "Annual Function", "Science Exhibition", "Cultural Event", "General", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts"] },
+    {
+      label: "Directory",
+      key: "directory",
+      options: [
+        "All",
+        "indian-public-school/assets/Documents",
+        "indian-public-school/assets/News",
+        "indian-public-school/assets/Home",
+        "indian-public-school/assets/Header",
+        "indian-public-school/assets/Infrastructure",
+        "indian-public-school/assets/LIFE@IPS",
+        "indian-public-school/assets/Logos",
+        "indian-public-school/assets/MandatoryDisclosure",
+        "indian-public-school/assets/PressRelease",
+        "indian-public-school/assets/Review",
+        "indian-public-school/assets/Staff",
+        "indian-public-school/assets/Videos",
+        "/album/General",
+        "/album/Campus",
+        "/album/Events",
+        "/album/Sports",
+      ],
+    },
   ],
   "school-settings": [
     { label: "Status", key: "status", options: ["All", "Active", "Inactive"] },
@@ -3869,6 +3896,14 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
       } else {
         setValue(field, uploadedUrl);
       }
+
+      setValues((prev) => {
+        const curRedirect = String(prev.redirectUrl || prev.targetUrl || "").trim();
+        if (!curRedirect) {
+          return { ...prev, redirectUrl: uploadedUrl };
+        }
+        return prev;
+      });
     } catch (err) {
       setUploadError(axios.isAxiosError(err) ? String(err.response?.data?.message || err.message) : "Failed to upload image to Cloudinary.");
     } finally {
@@ -3888,6 +3923,9 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const payload = { ...values };
+    if (!payload.redirectUrl && payload.attachmentUrl) {
+      payload.redirectUrl = String(payload.attachmentUrl);
+    }
     if (resource.key === "gallery" && typeof payload.fileUrl === "string") {
       payload.fileUrl = String(payload.fileUrl).split("\n").map((url) => url.trim()).filter(Boolean);
     }

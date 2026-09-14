@@ -94,6 +94,8 @@ function childCards(page: Content): Content[] {
 
 const API_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
+export const dynamic = "force-dynamic";
+
 async function fetchDbPage(slugArray: string[]): Promise<Content | null> {
   const lastSegment = slugArray.at(-1) || "";
   const fullPath = slugArray.join("/");
@@ -103,7 +105,7 @@ async function fetchDbPage(slugArray: string[]): Promise<Content | null> {
     if (!candidate) continue;
     try {
       const res = await fetch(`${API_URL}/pages/slug/${encodeURIComponent(candidate)}`, {
-        next: { revalidate: 5 },
+        cache: "no-store",
       });
       if (res.ok) {
         const json = await res.json();
