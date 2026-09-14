@@ -54,6 +54,9 @@ import {
 } from "lucide-react";
 import { RichTextBox } from "@/components/ui/RichTextBox";
 import { CloudinaryGalleryModal, getFileType } from "@/components/admin/CloudinaryGalleryModal";
+import { FileViewerModal } from "@/components/ui/FileViewerModal";
+import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
+import { getCloudinaryPdfThumbnailUrl, isPdfFile, getCloudinaryInlineViewerUrl } from "@/lib/file-preview";
 
 function parseJwt(token: string): { sub?: string; email?: string; role?: string; name?: string; allowedModules?: string[] } | null {
   try {
@@ -392,7 +395,7 @@ export interface QueryParamsState {
 
 export const DEFAULT_QUERY: QueryParamsState = {
   page: 1,
-  limit: 10,
+  limit: 8,
   search: "",
   sortBy: "createdAt",
   sortOrder: "desc",
@@ -405,7 +408,7 @@ function asPaginatedPayload(payload: unknown, resourceKey?: string): { items: Re
   let items: RecordItem[] = [];
   let total = 0;
   let page = 1;
-  let limit = 10;
+  let limit = 8;
   let totalPages = 1;
   let hasNextPage = false;
   let hasPrevPage = false;
@@ -414,7 +417,7 @@ function asPaginatedPayload(payload: unknown, resourceKey?: string): { items: Re
     items = raw as RecordItem[];
     total = items.length;
     page = 1;
-    limit = items.length || 10;
+    limit = items.length || 8;
     totalPages = 1;
     hasNextPage = false;
     hasPrevPage = false;
@@ -424,7 +427,7 @@ function asPaginatedPayload(payload: unknown, resourceKey?: string): { items: Re
       items = rawObj.items as RecordItem[];
       total = typeof rawObj.total === "number" ? rawObj.total : items.length;
       page = typeof rawObj.page === "number" ? rawObj.page : 1;
-      limit = typeof rawObj.limit === "number" ? rawObj.limit : 10;
+      limit = typeof rawObj.limit === "number" ? rawObj.limit : 8;
       totalPages = typeof rawObj.totalPages === "number" ? rawObj.totalPages : Math.ceil(total / (limit || 1)) || 1;
       hasNextPage = typeof rawObj.hasNextPage === "boolean" ? rawObj.hasNextPage : page < totalPages;
       hasPrevPage = typeof rawObj.hasPrevPage === "boolean" ? rawObj.hasPrevPage : page > 1;
@@ -818,6 +821,7 @@ function MediaDetailDialog({
 }) {
   const [copied, setCopied] = useState(false);
   const [activeUrlIndex, setActiveUrlIndex] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const getMediaUrls = (val: unknown): string[] => {
     if (Array.isArray(val)) return val.map(String).filter((s) => s.trim());
@@ -830,6 +834,7 @@ function MediaDetailDialog({
   const title = String(item.eventName || item.title || item.name || item.originalname || item.album || "Media Item");
   const album = String(item.eventType || item.album || item.category || "General");
   const fileType = getFileType(primaryUrl);
+  const isPdf = isPdfFile(primaryUrl);
 
   const copyUrl = () => {
     if (primaryUrl) {
@@ -874,7 +879,7 @@ function MediaDetailDialog({
 
         <div className="p-6 space-y-6">
           {/* Media Preview Container */}
-          <div className="group relative flex min-h-[260px] max-h-[440px] w-full items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 p-3">
+          <div className="group relative flex min-h-[260px] max-h-[440px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 p-3">
             {primaryUrl ? (
               fileType === "video" ? (
                 <video src={primaryUrl} controls autoPlay muted className="max-h-[400px] w-auto max-w-full rounded-xl object-contain shadow-lg" />
@@ -884,21 +889,33 @@ function MediaDetailDialog({
                   <p className="text-sm font-bold text-purple-200">{primaryUrl.split("/").pop()}</p>
                   <audio src={primaryUrl} controls className="w-full max-w-md" />
                 </div>
+              ) : isPdf ? (
+                <div className="relative flex h-full w-full min-h-[280px] max-h-[340px] flex-col items-center justify-center bg-slate-950 p-2">
+                  <PdfCanvasThumbnail url={primaryUrl} alt={title} className="max-h-[300px] w-auto max-w-full rounded-xl" />
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsViewerOpen(true)}
+                      className="flex items-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-600 transition cursor-pointer"
+                    >
+                      <Eye size={15} /> <span>Open Full Interactive Viewer</span>
+                    </button>
+                  </div>
+                </div>
               ) : fileType === "document" ? (
                 <div className="flex flex-col items-center gap-4 p-8 text-center text-white">
                   <FileText size={56} className="text-blue-400" />
                   <div>
                     <p className="text-sm font-bold text-slate-200">{primaryUrl.split("/").pop()}</p>
-                    <p className="mt-1 text-xs text-slate-400">PDF / Document File</p>
+                    <p className="mt-1 text-xs text-slate-400">Document File</p>
                   </div>
-                  <a
-                    href={primaryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500"
+                  <button
+                    type="button"
+                    onClick={() => setIsViewerOpen(true)}
+                    className="mt-2 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 cursor-pointer"
                   >
-                    <ExternalLink size={15} /> Open Document
-                  </a>
+                    <Eye size={15} /> Open Document Viewer
+                  </button>
                 </div>
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -917,11 +934,10 @@ function MediaDetailDialog({
                 <button
                   key={idx}
                   onClick={() => setActiveUrlIndex(idx)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition whitespace-nowrap ${
-                    activeUrlIndex === idx
-                      ? "bg-[#1a5d9c] text-white shadow-xs"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition whitespace-nowrap ${activeUrlIndex === idx
+                    ? "bg-[#1a5d9c] text-white shadow-xs"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
                 >
                   Asset #{idx + 1} ({getFileType(u)})
                 </button>
@@ -934,21 +950,20 @@ function MediaDetailDialog({
             <div className="flex items-center gap-2">
               <button
                 onClick={copyUrl}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-100"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-100 cursor-pointer"
               >
                 {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
                 <span>{copied ? "Copied URL!" : "Copy Media URL"}</span>
               </button>
               {primaryUrl && (
-                <a
-                  href={primaryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#1a5d9c] shadow-sm transition hover:bg-blue-50"
+                <button
+                  type="button"
+                  onClick={() => setIsViewerOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-bold text-[#1a5d9c] shadow-sm transition hover:bg-blue-100 cursor-pointer"
                 >
-                  <ExternalLink size={16} />
-                  <span>Open Full Media</span>
-                </a>
+                  <Eye size={16} />
+                  <span>Preview Full Media</span>
+                </button>
               )}
             </div>
 
@@ -993,8 +1008,8 @@ function MediaDetailDialog({
                         {Array.isArray(val)
                           ? val.join(", ")
                           : typeof val === "object" && val !== null
-                          ? JSON.stringify(val)
-                          : String(val ?? "")}
+                            ? JSON.stringify(val)
+                            : String(val ?? "")}
                       </td>
                     </tr>
                   ))}
@@ -1004,6 +1019,12 @@ function MediaDetailDialog({
           </div>
         </div>
       </div>
+      <FileViewerModal
+        isOpen={isViewerOpen}
+        onClose={() => setIsViewerOpen(false)}
+        url={primaryUrl}
+        title={title}
+      />
     </div>
   );
 }
@@ -1292,7 +1313,7 @@ function ResourceView({
   const totalItems = meta?.total ?? items.length;
   const currentPage = meta?.page ?? query.page ?? 1;
   const totalPages = meta?.totalPages ?? 1;
-  const limit = meta?.limit ?? query.limit ?? 10;
+  const limit = meta?.limit ?? query.limit ?? 8;
   const startItem = totalItems > 0 ? (currentPage - 1) * limit + 1 : 0;
   const endItem = Math.min(currentPage * limit, totalItems);
 
@@ -1421,18 +1442,16 @@ function ResourceView({
               <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-lg p-1.5 transition ${
-                    viewMode === "grid" ? "bg-white text-[#1a5d9c] shadow-sm" : "text-slate-400 hover:text-slate-600"
-                  }`}
+                  className={`rounded-lg p-1.5 transition ${viewMode === "grid" ? "bg-white text-[#1a5d9c] shadow-sm" : "text-slate-400 hover:text-slate-600"
+                    }`}
                   title="Album Grid View"
                 >
                   <Grid size={16} />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`rounded-lg p-1.5 transition ${
-                    viewMode === "list" ? "bg-white text-[#1a5d9c] shadow-sm" : "text-slate-400 hover:text-slate-600"
-                  }`}
+                  className={`rounded-lg p-1.5 transition ${viewMode === "list" ? "bg-white text-[#1a5d9c] shadow-sm" : "text-slate-400 hover:text-slate-600"
+                    }`}
                   title="Table View"
                 >
                   <List size={16} />
@@ -1444,17 +1463,15 @@ function ResourceView({
               <div className="flex items-center rounded-xl border border-blue-200 bg-blue-50 p-1">
                 <button
                   onClick={() => setMenuViewMode("table")}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                    menuViewMode === "table" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
-                  }`}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${menuViewMode === "table" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
+                    }`}
                 >
                   <List size={14} /> Table View
                 </button>
                 <button
                   onClick={() => setMenuViewMode("flow")}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                    menuViewMode === "flow" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
-                  }`}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${menuViewMode === "flow" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
+                    }`}
                 >
                   <Workflow size={14} /> Hierarchy Wire Flow
                 </button>
@@ -1709,9 +1726,8 @@ function ResourceView({
                                 <span
                                   className={
                                     typeof item[field] === "boolean"
-                                      ? `rounded-full px-2.5 py-1 text-xs font-bold ${
-                                          item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
-                                        }`
+                                      ? `rounded-full px-2.5 py-1 text-xs font-bold ${item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                                      }`
                                       : ""
                                   }
                                 >
@@ -1720,52 +1736,52 @@ function ResourceView({
                               </td>
                             );
                           })}
-                        {(canEdit || canDelete || isMediaResource) && (
-                          <td className="whitespace-nowrap px-5 py-4">
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => setDetailItem(item)}
-                                className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
-                                title="View details"
-                              >
-                                <Eye size={16} />
-                              </button>
-                              {canEdit && (
+                          {(canEdit || canDelete || isMediaResource) && (
+                            <td className="whitespace-nowrap px-5 py-4">
+                              <div className="flex items-center gap-1">
                                 <button
-                                  onClick={() => onEdit(item)}
+                                  onClick={() => setDetailItem(item)}
                                   className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
-                                  title="Edit record"
+                                  title="View details"
                                 >
-                                  <Pencil size={16} />
+                                  <Eye size={16} />
                                 </button>
-                              )}
-                              {canDelete && (
-                                isSuperUser ? (
+                                {canEdit && (
                                   <button
-                                    disabled
-                                    className="rounded-lg p-2 text-slate-300 cursor-not-allowed"
-                                    title="Super Admin accounts cannot be deleted"
+                                    onClick={() => onEdit(item)}
+                                    className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
+                                    title="Edit record"
                                   >
-                                    <Lock size={16} />
+                                    <Pencil size={16} />
                                   </button>
-                                ) : (
-                                  <button
-                                    onClick={() => onDelete(item)}
-                                    className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                                    title="Delete record"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )
-                              )}
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    );
-                  })
-                )
-              ) : (
+                                )}
+                                {canDelete && (
+                                  isSuperUser ? (
+                                    <button
+                                      disabled
+                                      className="rounded-lg p-2 text-slate-300 cursor-not-allowed"
+                                      title="Super Admin accounts cannot be deleted"
+                                    >
+                                      <Lock size={16} />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => onDelete(item)}
+                                      className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                                      title="Delete record"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  )
+                                )}
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })
+                  )
+                ) : (
                   <tr>
                     <td colSpan={resource.fields.length + 1}>
                       <Empty text={`No ${resource.label.toLowerCase()} found`} />
@@ -1790,6 +1806,7 @@ function ResourceView({
                 onChange={(e) => onQueryChange({ limit: Number(e.target.value), page: 1 })}
                 className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700 outline-none shadow-2xs"
               >
+                <option value={8}>8</option>
                 <option value={10}>10</option>
                 <option value={25}>25</option>
                 <option value={50}>50</option>
@@ -2041,11 +2058,10 @@ function HomeLayoutEditorModal({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3 py-1.5 text-xs font-bold rounded-xl transition border ${
-                activeTab === tab.id
-                  ? "border-[#1a5d9c] bg-[#1a5d9c] text-white shadow-xs"
-                  : "border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 hover:border-slate-300"
-              }`}
+              className={`px-3 py-1.5 text-xs font-bold rounded-xl transition border ${activeTab === tab.id
+                ? "border-[#1a5d9c] bg-[#1a5d9c] text-white shadow-xs"
+                : "border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 hover:border-slate-300"
+                }`}
             >
               {tab.label}
             </button>
@@ -3856,8 +3872,8 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
       initial.allowedModules = Array.isArray(record?.allowedModules)
         ? record.allowedModules
         : initial.role === "Super Admin"
-        ? ["*"]
-        : ["students", "notices", "gallery"];
+          ? ["*"]
+          : ["students", "notices", "gallery"];
     }
   }
 
@@ -3996,8 +4012,8 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                       const fileUrls: string[] = Array.isArray(rawVal)
                         ? (rawVal as string[]).map(String).filter(Boolean)
                         : typeof rawVal === "string" && rawVal.trim()
-                        ? [rawVal.trim()]
-                        : [];
+                          ? [rawVal.trim()]
+                          : [];
 
                       if (fileUrls.length === 0) return null;
 
@@ -4008,7 +4024,7 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                             const filename = url.split("/").pop() || "Media Asset";
                             return (
                               <div
-                                key={idx}
+                                key={`${url}-${idx}`}
                                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-2xs transition hover:shadow-md"
                               >
                                 <div className="relative h-32 w-full overflow-hidden bg-slate-950 flex items-center justify-center">
@@ -4022,6 +4038,13 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                                       <Music size={32} className="text-purple-300 mb-1 animate-pulse" />
                                       <span className="text-[11px] font-bold text-purple-200 truncate w-full px-2">{filename}</span>
                                     </div>
+                                  ) : isPdfFile(url) ? (
+                                    <div className="relative h-full w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+                                      <PdfCanvasThumbnail url={url} alt={filename} className="h-full w-full" />
+                                      <span className="absolute bottom-1 right-1.5 rounded-md bg-red-950/90 border border-red-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-200 shadow-md pointer-events-none">
+                                        📄 PDF
+                                      </span>
+                                    </div>
                                   ) : fType === "document" ? (
                                     <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-3 text-white text-center">
                                       <FileText size={32} className="text-blue-400 mb-1" />
@@ -4033,7 +4056,7 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                                   )}
                                   <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition">
                                     <a
-                                      href={url}
+                                      href={getCloudinaryInlineViewerUrl(url)}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="rounded-full bg-slate-900/80 p-1.5 text-slate-200 hover:bg-blue-600 hover:text-white transition"
@@ -4066,9 +4089,8 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                   <button
                     type="button"
                     onClick={() => setValue(field, !values[field])}
-                    className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-semibold ${
-                      values[field] ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"
-                    }`}
+                    className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-semibold ${values[field] ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"
+                      }`}
                   >
                     <span>{values[field] ? "Enabled" : "Disabled"}</span>
                     <span className={`h-5 w-9 rounded-full p-0.5 ${values[field] ? "bg-emerald-500" : "bg-slate-300"}`}>
@@ -4100,7 +4122,7 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                             arr.findIndex(
                               (i) =>
                                 String(i.title || "").toLowerCase().trim() ===
-                                  String(item.title || "").toLowerCase().trim() &&
+                                String(item.title || "").toLowerCase().trim() &&
                                 Number(i.level || 1) === Number(item.level || 1)
                             ) === idx
                         )
@@ -4191,9 +4213,8 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                     value={String(values[field] ?? "")}
                     onChange={(event) => setValue(field, event.target.value)}
                     rows={field === "value" || field === "content" || field === "message" || field === "feedback" || field === "textContent" ? 14 : 3}
-                    className={`w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs ${
-                      field === "value" || (typeof values[field] === "string" && (values[field] as string).trim().startsWith("{")) ? "font-mono text-xs" : ""
-                    }`}
+                    className={`w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs ${field === "value" || (typeof values[field] === "string" && (values[field] as string).trim().startsWith("{")) ? "font-mono text-xs" : ""
+                      }`}
                   />
                 ) : field === "role" ? (
                   <div className="space-y-4 pt-1">
@@ -4217,130 +4238,127 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
 
                         <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-4">
 
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Sub-Admin Component Access & Action Permissions</p>
-                            <p className="text-[11px] text-slate-500">Configure which components this Sub-Admin can access (view), update (add/edit), and delete:</p>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs font-bold text-[#1a5d9c]">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const allPerms = resources.flatMap((r) => [`${r.key}:access`, `${r.key}:update`, `${r.key}:delete`]);
-                                setValue("allowedModules", allPerms);
-                              }}
-                              className="hover:underline"
-                            >
-                              Grant Full Sub-Admin Access
-                            </button>
-                            <span className="text-slate-300">|</span>
-                            <button
-                              type="button"
-                              onClick={() => setValue("allowedModules", [])}
-                              className="text-slate-500 hover:underline hover:text-slate-700"
-                            >
-                              Clear All
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2.5">
-                          {resources.map((res) => {
-                            const list = Array.isArray(values.allowedModules) ? (values.allowedModules as string[]) : [];
-                            const hasFullModule = list.includes(res.key) || list.includes("*");
-
-                            const canAccess = hasFullModule || list.includes(`${res.key}:access`);
-                            const canUpdate = hasFullModule || list.includes(`${res.key}:update`);
-                            const canDelete = hasFullModule || list.includes(`${res.key}:delete`);
-
-                            const toggleAction = (act: "access" | "update" | "delete") => {
-                              let next = [...list];
-                              if (next.includes("*")) {
-                                next = resources.flatMap((r) => [`${r.key}:access`, `${r.key}:update`, `${r.key}:delete`]);
-                              }
-                              const permKey = `${res.key}:${act}`;
-                              if (next.includes(permKey)) {
-                                next = next.filter((p) => p !== permKey && p !== res.key);
-                              } else {
-                                next.push(permKey);
-                              }
-                              setValue("allowedModules", next);
-                            };
-
-                            const Icon = res.icon;
-
-                            return (
-                              <div
-                                key={res.key}
-                                className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-slate-200 bg-white p-3 shadow-2xs gap-2"
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Sub-Admin Component Access & Action Permissions</p>
+                              <p className="text-[11px] text-slate-500">Configure which components this Sub-Admin can access (view), update (add/edit), and delete:</p>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs font-bold text-[#1a5d9c]">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const allPerms = resources.flatMap((r) => [`${r.key}:access`, `${r.key}:update`, `${r.key}:delete`]);
+                                  setValue("allowedModules", allPerms);
+                                }}
+                                className="hover:underline"
                               >
-                                <div className="flex items-center gap-2.5">
-                                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-blue-50 text-[#1a5d9c]">
-                                    <Icon size={16} />
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-bold text-[#102a4c]">{res.label}</p>
-                                    <p className="text-[10px] text-slate-400">{res.description}</p>
-                                  </div>
-                                </div>
+                                Grant Full Sub-Admin Access
+                              </button>
+                              <span className="text-slate-300">|</span>
+                              <button
+                                type="button"
+                                onClick={() => setValue("allowedModules", [])}
+                                className="text-slate-500 hover:underline hover:text-slate-700"
+                              >
+                                Clear All
+                              </button>
+                            </div>
+                          </div>
 
-                                <div className="flex items-center gap-2 pt-1 sm:pt-0">
-                                  <label
-                                    className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${
-                                      canAccess
+                          <div className="space-y-2.5">
+                            {resources.map((res) => {
+                              const list = Array.isArray(values.allowedModules) ? (values.allowedModules as string[]) : [];
+                              const hasFullModule = list.includes(res.key) || list.includes("*");
+
+                              const canAccess = hasFullModule || list.includes(`${res.key}:access`);
+                              const canUpdate = hasFullModule || list.includes(`${res.key}:update`);
+                              const canDelete = hasFullModule || list.includes(`${res.key}:delete`);
+
+                              const toggleAction = (act: "access" | "update" | "delete") => {
+                                let next = [...list];
+                                if (next.includes("*")) {
+                                  next = resources.flatMap((r) => [`${r.key}:access`, `${r.key}:update`, `${r.key}:delete`]);
+                                }
+                                const permKey = `${res.key}:${act}`;
+                                if (next.includes(permKey)) {
+                                  next = next.filter((p) => p !== permKey && p !== res.key);
+                                } else {
+                                  next.push(permKey);
+                                }
+                                setValue("allowedModules", next);
+                              };
+
+                              const Icon = res.icon;
+
+                              return (
+                                <div
+                                  key={res.key}
+                                  className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-slate-200 bg-white p-3 shadow-2xs gap-2"
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="grid h-8 w-8 place-items-center rounded-lg bg-blue-50 text-[#1a5d9c]">
+                                      <Icon size={16} />
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-bold text-[#102a4c]">{res.label}</p>
+                                      <p className="text-[10px] text-slate-400">{res.description}</p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 pt-1 sm:pt-0">
+                                    <label
+                                      className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${canAccess
                                         ? "border-blue-300 bg-blue-50 text-[#1a5d9c]"
                                         : "border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-100"
-                                    }`}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={canAccess}
-                                      onChange={() => toggleAction("access")}
-                                      className="h-3.5 w-3.5 rounded text-[#1a5d9c]"
-                                    />
-                                    <Eye size={12} /> Access
-                                  </label>
+                                        }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={canAccess}
+                                        onChange={() => toggleAction("access")}
+                                        className="h-3.5 w-3.5 rounded text-[#1a5d9c]"
+                                      />
+                                      <Eye size={12} /> Access
+                                    </label>
 
-                                  <label
-                                    className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${
-                                      canUpdate
+                                    <label
+                                      className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${canUpdate
                                         ? "border-emerald-300 bg-emerald-50 text-emerald-700"
                                         : "border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-100"
-                                    }`}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={canUpdate}
-                                      onChange={() => toggleAction("update")}
-                                      className="h-3.5 w-3.5 rounded text-emerald-600"
-                                    />
-                                    <Pencil size={12} /> Update
-                                  </label>
+                                        }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={canUpdate}
+                                        onChange={() => toggleAction("update")}
+                                        className="h-3.5 w-3.5 rounded text-emerald-600"
+                                      />
+                                      <Pencil size={12} /> Update
+                                    </label>
 
-                                  <label
-                                    className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${
-                                      canDelete
+                                    <label
+                                      className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${canDelete
                                         ? "border-red-300 bg-red-50 text-red-700"
                                         : "border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-100"
-                                    }`}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={canDelete}
-                                      onChange={() => toggleAction("delete")}
-                                      className="h-3.5 w-3.5 rounded text-red-600"
-                                    />
-                                    <Trash2 size={12} /> Delete
-                                  </label>
+                                        }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={canDelete}
+                                        onChange={() => toggleAction("delete")}
+                                        className="h-3.5 w-3.5 rounded text-red-600"
+                                      />
+                                      <Trash2 size={12} /> Delete
+                                    </label>
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
                 ) : type === "select" ? (
                   <div className="relative">
                     <select
@@ -4395,11 +4413,10 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                                 key={preset}
                                 type="button"
                                 onClick={() => setValue("directory", preset)}
-                                className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
-                                  isSelected
-                                    ? "bg-[#1a5d9c] text-white shadow-2xs"
-                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
-                                }`}
+                                className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${isSelected
+                                  ? "bg-[#1a5d9c] text-white shadow-2xs"
+                                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
+                                  }`}
                               >
                                 📁 {label}
                               </button>

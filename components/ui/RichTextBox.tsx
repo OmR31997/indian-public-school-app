@@ -3,6 +3,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { ImageStudioModal, ImageStudioData } from "@/components/admin/ImageStudioModal";
+import {
+  normalizePdfUrl,
+  getCloudinaryPdfThumbnailUrl,
+  getCloudinaryInlineViewerUrl,
+  isPdfFile,
+  isCloudinaryUrl
+} from "@/lib/file-preview";
 import { Crop, Trash2, Sparkles as SparklesIcon, RefreshCw, Scissors } from "lucide-react";
 import {
   Bold,
@@ -88,6 +95,72 @@ const HIGHLIGHT_COLORS = [
   { name: "Light Gray", value: "#e2e8f0" },
 ];
 
+export function generatePdfCardHtml(data: {
+  url: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  theme?: "light" | "dark" | "banner" | "badge";
+  maxHeight?: number;
+}): string {
+  const cleanUrl = normalizePdfUrl(data.url);
+  const inlineUrl = getCloudinaryInlineViewerUrl(cleanUrl);
+  const pdfPicUrl = getCloudinaryPdfThumbnailUrl(cleanUrl, 1, 1000);
+  const title = data.title?.trim() || "Official PDF Document";
+  const subtitle = data.subtitle?.trim() || "";
+  const buttonText = data.buttonText?.trim() || "Open Document";
+  const theme = data.theme || "light";
+  const maxHeight = data.maxHeight || 420;
+
+  if (theme === "badge") {
+    return `<a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 0.55rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin: 8px 0; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);">📄 ${title} &rarr;</a><p><br></p>`;
+  }
+
+  if (theme === "banner") {
+    return `<div style="margin: 16px 0; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px 20px; background: #ffffff; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06); flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: bold; flex-shrink: 0;">📄</div>
+        <div style="min-width: 0;">
+          <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem; line-height: 1.3;">${title}</div>
+          ${subtitle ? `<div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">${subtitle}</div>` : `<div style="font-size: 0.75rem; color: #dc2626; font-weight: 600; margin-top: 2px;">PDF Document &bull; Click to View / Download</div>`}
+        </div>
+      </div>
+      <a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background: #1a5d9c; color: #ffffff; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(26, 93, 156, 0.25); white-space: nowrap;">${buttonText} &rarr;</a>
+    </div><p><br></p>`;
+  }
+
+  if (theme === "dark") {
+    return `<div style="margin: 20px 0; border: 1px solid #334155; border-radius: 20px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);">
+      <div style="padding: 14px 20px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="background: #ef4444; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">📄 PDF Document</span>
+          <span style="color: #f8fafc; font-weight: 700; font-size: 0.9rem;">${title}</span>
+        </div>
+        <a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background: #38bdf8; color: #0f172a; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);">${buttonText} &rarr;</a>
+      </div>
+      ${subtitle ? `<div style="padding: 10px 20px; background: #020617; color: #94a3b8; font-size: 0.8rem; border-bottom: 1px solid #1e293b;">${subtitle}</div>` : ""}
+      <div style="padding: 20px; text-align: center; background: #020617; display: flex; justify-content: center; align-items: center;">
+        <img src="${pdfPicUrl}" alt="${title}" style="max-height: ${maxHeight}px; width: auto; max-width: 100%; border-radius: 8px; border: 1px solid #334155; box-shadow: 0 8px 24px -4px rgba(0,0,0,0.5); display: block; margin: 0 auto;" />
+      </div>
+    </div><p><br></p>`;
+  }
+
+  // Default: Light Card
+  return `<div style="margin: 20px 0; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background: #ffffff; box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.08);">
+    <div style="padding: 14px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">📄 PDF Document</span>
+        <span style="color: #0f172a; font-weight: 700; font-size: 0.9rem;">${title}</span>
+      </div>
+      <a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background: #1a5d9c; color: #ffffff; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(26, 93, 156, 0.25);">${buttonText} &rarr;</a>
+    </div>
+    ${subtitle ? `<div style="padding: 10px 20px; background: #ffffff; color: #64748b; font-size: 0.8rem; border-bottom: 1px solid #f1f5f9;">${subtitle}</div>` : ""}
+    <div style="padding: 20px; text-align: center; background: #f1f5f9; display: flex; justify-content: center; align-items: center;">
+      <img src="${pdfPicUrl}" alt="${title}" style="max-height: ${maxHeight}px; width: auto; max-width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 8px 24px -4px rgba(0,0,0,0.12); display: block; margin: 0 auto;" />
+    </div>
+  </div><p><br></p>`;
+}
+
 export function RichTextBox({
   value,
   onChange,
@@ -101,10 +174,29 @@ export function RichTextBox({
   const [highlightMenuOpen, setHighlightMenuOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  // Image Studio States
+  // Image & Component Selection States
   const [isStudioOpen, setIsStudioOpen] = useState(false);
   const [studioInitialData, setStudioInitialData] = useState<ImageStudioData | string | null>(null);
   const [selectedImageEl, setSelectedImageEl] = useState<HTMLImageElement | null>(null);
+  const [selectedBlockEl, setSelectedBlockEl] = useState<HTMLElement | null>(null);
+
+  // PDF Studio Customizer States
+  const [isPdfStudioOpen, setIsPdfStudioOpen] = useState(false);
+  const [pdfStudioUrl, setPdfStudioUrl] = useState("");
+  const [pdfStudioTitle, setPdfStudioTitle] = useState("Official Document Preview");
+  const [pdfStudioSubtitle, setPdfStudioSubtitle] = useState("Click to view or download the document");
+  const [pdfStudioButtonText, setPdfStudioButtonText] = useState("Open Document");
+  const [pdfStudioTheme, setPdfStudioTheme] = useState<"light" | "dark" | "banner" | "badge">("light");
+  const [pdfStudioMaxHeight, setPdfStudioMaxHeight] = useState(420);
+
+  const openPdfStudio = (url = "") => {
+    if (url) {
+      setPdfStudioUrl(url);
+      const cleanName = url.split("/").pop()?.replace(/\.pdf$/i, "").replace(/[-_]/g, " ") || "Official Document";
+      setPdfStudioTitle(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
+    }
+    setIsPdfStudioOpen(true);
+  };
 
   // Link Creator / Hyperlink Modal States
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -181,6 +273,7 @@ export function RichTextBox({
               a.wysiwyg-selected-link { outline: 2px dashed #1a5d9c !important; outline-offset: 3px !important; background-color: rgba(26, 93, 156, 0.08) !important; border-radius: 4px; }
               img { max-width: 100%; height: auto; border-radius: 12px; margin: 12px 0; box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.2s ease; }
               img.wysiwyg-selected-img { outline: 3px solid #2563eb !important; outline-offset: 3px !important; box-shadow: 0 0 20px rgba(37, 99, 235, 0.35) !important; }
+              .wysiwyg-selected-block { outline: 2px dashed #1a5d9c !important; outline-offset: 4px !important; box-shadow: 0 0 0 4px rgba(26, 93, 156, 0.12) !important; border-radius: 8px; }
               hr { border: none; border-top: 2px solid #e2e8f0; margin: 1.5rem 0; }
               pre { background: #0f172a; color: #38bdf8; padding: 16px; border-radius: 14px; font-family: monospace; overflow-x: auto; }
               table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #cbd5e1; }
@@ -212,14 +305,29 @@ export function RichTextBox({
         onChange(currentBodyHtml === "<br>" ? "" : currentBodyHtml);
       };
 
-      // Image & Link selection listener inside iframe
+      // Image, Link & Component selection listener inside iframe
       const handleDocClick = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
+
+        doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+        doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
+        doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
+
+        if (!target || target === doc.body || target === doc.documentElement) {
+          setSelectedBlockEl(null);
+          setSelectedImageEl(null);
+          setSelectedAnchorEl(null);
+          return;
+        }
+
         const imgEl = (target && target.tagName === "IMG" ? target : target?.closest?.("img")) as HTMLImageElement | null;
         const anchorEl = (target && target.tagName === "A" ? target : target?.closest?.("a")) as HTMLAnchorElement | null;
 
-        doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
-        doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
+        let blockContainer: HTMLElement | null = null;
+        const closestComp = target.closest("section, div, blockquote, table, figure, h1, h2, h3, p, pre") as HTMLElement | null;
+        if (closestComp && closestComp !== doc.body) {
+          blockContainer = closestComp;
+        }
 
         if (imgEl) {
           imgEl.classList.add("wysiwyg-selected-img");
@@ -234,10 +342,53 @@ export function RichTextBox({
         } else {
           setSelectedAnchorEl(null);
         }
+
+        if (blockContainer) {
+          blockContainer.classList.add("wysiwyg-selected-block");
+          setSelectedBlockEl(blockContainer);
+        } else {
+          setSelectedBlockEl(null);
+        }
+      };
+
+      // Drag & Drop handlers inside iframe
+      const handleDragOver = (e: DragEvent) => {
+        e.preventDefault();
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = "copy";
+        }
+      };
+
+      const handleDrop = (e: DragEvent) => {
+        e.preventDefault();
+        const compId = e.dataTransfer?.getData("text/plain");
+        if (!compId) return;
+
+        if (compId === "pdfCard") {
+          openPdfStudio();
+          return;
+        }
+        if (compId === "hyperlink") {
+          openLinkModal();
+          return;
+        }
+
+        const snippet = getComponentHtmlSnippet(compId);
+        if (snippet) {
+          const target = e.target as HTMLElement;
+          if (target && target !== doc.body && target !== doc.documentElement) {
+            target.insertAdjacentHTML("afterend", snippet);
+          } else {
+            doc.body.insertAdjacentHTML("beforeend", snippet);
+          }
+          syncContent();
+        }
       };
 
       doc.addEventListener("click", handleDocClick);
       doc.addEventListener("mousedown", handleDocClick);
+      doc.addEventListener("dragover", handleDragOver);
+      doc.addEventListener("drop", handleDrop);
       doc.addEventListener("input", syncContent);
       doc.addEventListener("keyup", syncContent);
       doc.addEventListener("blur", syncContent);
@@ -403,6 +554,9 @@ export function RichTextBox({
   const applyHyperlink = () => {
     let url = linkUrl.trim();
     if (!url) return;
+    if (isPdfFile(url) && isCloudinaryUrl(url)) {
+      url = getCloudinaryInlineViewerUrl(url);
+    }
 
     const text = linkText.trim() || url;
     const targetAttr = linkTarget === "_blank" ? `target="_blank" rel="noopener noreferrer"` : "";
@@ -459,27 +613,46 @@ export function RichTextBox({
     setIsGalleryOpen(true);
   };
 
-  // Visual Basic .NET Component Templates
-  const insertComponent = (type: string) => {
+  const deleteSelectedBlock = () => {
+    const iframe = iframeRef.current;
+    const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+
+    const targetEl =
+      selectedBlockEl ||
+      selectedImageEl ||
+      selectedAnchorEl ||
+      (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) ||
+      (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement) ||
+      (doc?.querySelector("a.wysiwyg-selected-link") as HTMLElement);
+
+    if (!targetEl) return;
+
+    targetEl.remove();
+    setSelectedBlockEl(null);
+    setSelectedImageEl(null);
+    setSelectedAnchorEl(null);
+
+    if (doc) {
+      doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+      doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
+      doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
+    }
+    syncIframeToState();
+  };
+
+  const getComponentHtmlSnippet = (type: string): string => {
     switch (type) {
-      case "hyperlink":
-        openLinkModal();
-        break;
       case "ctaBanner":
-        insertHTML(
-          `<section style="background: linear-gradient(135deg, #102a4c 0%, #1a5d9c 100%); color: #ffffff; padding: 2rem; border-radius: 1.25rem; margin-bottom: 2rem; box-shadow: 0 10px 20px -5px rgba(16,42,76,0.25);">
+        return `<section style="background: linear-gradient(135deg, #102a4c 0%, #1a5d9c 100%); color: #ffffff; padding: 2rem; border-radius: 1.25rem; margin-bottom: 2rem; box-shadow: 0 10px 20px -5px rgba(16,42,76,0.25);">
   <h3 style="font-size: 1.5rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem; color: #ffffff;">Need Assistance or Have Questions?</h3>
   <p style="font-size: 1rem; color: #e2e8f0; margin-bottom: 1.25rem; line-height: 1.6;">Our admissions & administrative team is ready to guide you through every step of the process.</p>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="/contact" style="background-color: #f4bd4f; color: #102a4c; font-weight: 700; padding: 0.65rem 1.35rem; border-radius: 0.75rem; text-decoration: none; display: inline-block;">Contact Us Now &rarr;</a>
     <a href="/admission" style="background-color: rgba(255,255,255,0.15); color: #ffffff; font-weight: 700; padding: 0.65rem 1.35rem; border-radius: 0.75rem; text-decoration: none; display: inline-block;">Apply Online &rarr;</a>
   </div>
-</section><p><br></p>`
-        );
-        break;
+</section><p><br></p>`;
       case "quickLinksGrid":
-        insertHTML(
-          `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        return `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
   <div style="border: 1px solid #e2e8f0; background-color: #f8fafc; padding: 1.25rem; border-radius: 1rem;">
     <h4 style="font-size: 1.1rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Admissions 2026–27</h4>
     <p style="font-size: 0.875rem; color: #64748b; margin: 0 0 1rem 0;">Online application process and eligibility criteria.</p>
@@ -495,12 +668,9 @@ export function RichTextBox({
     <p style="font-size: 0.875rem; color: #64748b; margin: 0 0 1rem 0;">Official CBSE affiliation certificates & NOCs.</p>
     <a href="/mandatory-public-disclosure" style="color: #1a5d9c; font-weight: 700; text-decoration: none; font-size: 0.9rem;">View Disclosures &rarr;</a>
   </div>
-</div><p><br></p>`
-        );
-        break;
+</div><p><br></p>`;
       case "hero":
-        insertHTML(
-          `<section style="background-color: #102a4c; color: #ffffff; padding: 2.5rem; border-radius: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 25px -5px rgba(16,42,76,0.3);">
+        return `<section style="background-color: #102a4c; color: #ffffff; padding: 2.5rem; border-radius: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 25px -5px rgba(16,42,76,0.3);">
   <span style="background-color: rgba(255,255,255,0.15); color: #ffd983; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; display: inline-block;">
     CBSE ADMISSIONS OPEN 2026–27
   </span>
@@ -519,23 +689,17 @@ export function RichTextBox({
     <span>&#10003; Smart Classrooms</span>
     <span>&#10003; 100% Individual Care</span>
   </div>
-</section><p><br></p>`
-        );
-        break;
+</section><p><br></p>`;
       case "slider":
-        insertHTML(
-          `<section style="position: relative; overflow: hidden; border-radius: 1.5rem; margin-bottom: 2rem; background-color: #0f172a;">
+        return `<section style="position: relative; overflow: hidden; border-radius: 1.5rem; margin-bottom: 2rem; background-color: #0f172a;">
   <img src="https://res.cloudinary.com/niefrrkx/image/upload/v1789163175/indian-public-school/assets/Home/hero-campus.jpg" alt="Campus Banner" style="width: 100%; height: 360px; object-fit: cover; opacity: 0.85; display: block;" />
   <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem; background: linear-gradient(transparent, rgba(15,23,42,0.95)); color: #ffffff;">
     <h2 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0; color: #ffffff;">Modern Campus Infrastructure</h2>
     <p style="margin: 0; font-size: 1rem; color: #e2e8f0; max-width: 36rem;">State-of-the-art science labs, digital libraries, and world-class athletic facilities.</p>
   </div>
-</section><p><br></p>`
-        );
-        break;
+</section><p><br></p>`;
       case "features":
-        insertHTML(
-          `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+        return `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
   <div style="border: 1px solid #e2e8f0; background-color: #ffffff; padding: 1.5rem; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
     <div style="width: 48px; height: 48px; background-color: #eff6ff; color: #1a5d9c; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 1rem;">🎓</div>
     <h3 style="font-size: 1.25rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Academic Rigour</h3>
@@ -551,12 +715,9 @@ export function RichTextBox({
     <h3 style="font-size: 1.25rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Safe & Inclusive Campus</h3>
     <p style="font-size: 0.95rem; color: #64748b; line-height: 1.6; margin: 0;">24/7 CCTV surveillance, GPS-enabled transport, and dedicated student counseling support.</p>
   </div>
-</div><p><br></p>`
-        );
-        break;
+</div><p><br></p>`;
       case "principal":
-        insertHTML(
-          `<section style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 1.5rem; padding: 2rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+        return `<section style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 1.5rem; padding: 2rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
   <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=300&auto=format&fit=crop&q=80" alt="Principal Profile" style="width: 130px; height: 130px; border-radius: 1rem; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" />
   <div style="flex: 1; min-width: 240px;">
     <span style="color: #1a5d9c; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Principal's Welcome</span>
@@ -566,12 +727,9 @@ export function RichTextBox({
     </p>
     <p style="font-weight: 700; color: #1e293b; margin: 0;">Dr. S. K. Sharma — <span style="font-weight: 400; color: #64748b;">Principal, Indian Public School</span></p>
   </div>
-</section><p><br></p>`
-        );
-        break;
+</section><p><br></p>`;
       case "stats":
-        insertHTML(
-          `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; background-color: #102a4c; color: #ffffff; padding: 1.75rem; border-radius: 1.25rem; text-align: center;">
+        return `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; background-color: #102a4c; color: #ffffff; padding: 1.75rem; border-radius: 1.25rem; text-align: center;">
   <div>
     <div style="font-size: 2.25rem; font-weight: 900; color: #f4bd4f;">1500+</div>
     <div style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Active Students</div>
@@ -588,12 +746,9 @@ export function RichTextBox({
     <div style="font-size: 2.25rem; font-weight: 900; color: #f4bd4f;">25+</div>
     <div style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Years Experience</div>
   </div>
-</div><p><br></p>`
-        );
-        break;
+</div><p><br></p>`;
       case "contact":
-        insertHTML(
-          `<div style="border: 1px solid #e2e8f0; background-color: #ffffff; padding: 1.75rem; border-radius: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        return `<div style="border: 1px solid #e2e8f0; background-color: #ffffff; padding: 1.75rem; border-radius: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
   <h3 style="font-size: 1.35rem; font-weight: 800; color: #102a4c; margin: 0 0 1rem 0;">Get In Touch With Us</h3>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; color: #334155; font-size: 0.95rem;">
     <div><strong>📍 Address:</strong> Main Highway Road, IPS Campus, Knowledge City</div>
@@ -601,12 +756,9 @@ export function RichTextBox({
     <div><strong>✉️ Email:</strong> info@indianpublicschool.edu.in</div>
     <div><strong>⏰ Office Hours:</strong> Mon - Sat (8:00 AM - 4:00 PM)</div>
   </div>
-</div><p><br></p>`
-        );
-        break;
+</div><p><br></p>`;
       case "testimonials":
-        insertHTML(
-          `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+        return `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
   <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 1.25rem;">
     <div style="color: #f59e0b; font-size: 1.1rem; margin-bottom: 0.5rem;">★★★★★</div>
     <p style="font-size: 0.95rem; color: #334155; line-height: 1.6; font-style: italic; margin: 0 0 1rem 0;">"The teachers at Indian Public School genuinely care about each child. My daughter has blossomed into a confident public speaker."</p>
@@ -617,12 +769,9 @@ export function RichTextBox({
     <p style="font-size: 0.95rem; color: #334155; line-height: 1.6; font-style: italic; margin: 0 0 1rem 0;">"State of the art labs and incredible sports facilities. IPS prepared me for top engineering college entrance exams!"</p>
     <div style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">Ananya Roy — <span style="font-weight: 400; color: #64748b;">Alumni Batch 2024</span></div>
   </div>
-</div><p><br></p>`
-        );
-        break;
+</div><p><br></p>`;
       case "disclosureTable":
-        insertHTML(
-          `<div style="margin-bottom: 2rem; overflow-x: auto;">
+        return `<div style="margin-bottom: 2rem; overflow-x: auto;">
   <h3 style="font-size: 1.25rem; font-weight: 800; color: #102a4c; margin: 0 0 0.75rem 0;">Mandatory Public Disclosure Documents</h3>
   <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; font-size: 0.9rem;">
     <thead>
@@ -650,39 +799,37 @@ export function RichTextBox({
       </tr>
     </tbody>
   </table>
-</div><p><br></p>`
-        );
-        break;
+</div><p><br></p>`;
       case "info":
-        insertHTML(
-          `<div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #1e40af;"><strong>ℹ️ Notice:</strong> Type your notice or announcement details here.</div><p><br></p>`
-        );
-        break;
+        return `<div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #1e40af;"><strong>ℹ️ Notice:</strong> Type your notice or announcement details here.</div><p><br></p>`;
       case "success":
-        insertHTML(
-          `<div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #166534;"><strong>✅ Highlight:</strong> Type your positive achievement or update here.</div><p><br></p>`
-        );
-        break;
+        return `<div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #166534;"><strong>✅ Highlight:</strong> Type your positive achievement or update here.</div><p><br></p>`;
       case "warning":
-        insertHTML(
-          `<div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #92400e;"><strong>⚠️ Alert:</strong> Type urgent notice or deadline alert here.</div><p><br></p>`
-        );
-        break;
+        return `<div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #92400e;"><strong>⚠️ Alert:</strong> Type urgent notice or deadline alert here.</div><p><br></p>`;
       case "card":
-        insertHTML(
-          `<div style="border: 1px solid #cbd5e1; background-color: #f8fafc; padding: 20px; border-radius: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><h3 style="margin-top:0; color:#0f172a;">Card Title</h3><p style="margin-bottom:0; color:#334155;">Type inside this rounded card container.</p></div><p><br></p>`
-        );
-        break;
+        return `<div style="border: 1px solid #cbd5e1; background-color: #f8fafc; padding: 20px; border-radius: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><h3 style="margin-top:0; color:#0f172a;">Card Title</h3><p style="margin-bottom:0; color:#334155;">Type inside this rounded card container.</p></div><p><br></p>`;
       case "badge":
-        insertHTML(
-          `<span style="background-color: #1a5d9c; color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; display: inline-block; margin: 0 4px;">Pill Badge</span> `
-        );
-        break;
+        return `<span style="background-color: #1a5d9c; color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; display: inline-block; margin: 0 4px;">Pill Badge</span> `;
       case "grid":
-        insertHTML(
-          `<div style="display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0;"><div style="flex: 1; min-width: 240px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px;"><h4 style="margin-top:0; color:#0f172a;">Column 1 Title</h4><p style="margin-bottom:0; color:#475569;">Column 1 details...</p></div><div style="flex: 1; min-width: 240px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px;"><h4 style="margin-top:0; color:#0f172a;">Column 2 Title</h4><p style="margin-bottom:0; color:#475569;">Column 2 details...</p></div></div><p><br></p>`
-        );
-        break;
+        return `<div style="display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0;"><div style="flex: 1; min-width: 240px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px;"><h4 style="margin-top:0; color:#0f172a;">Column 1 Title</h4><p style="margin-bottom:0; color:#475569;">Column 1 details...</p></div><div style="flex: 1; min-width: 240px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px;"><h4 style="margin-top:0; color:#0f172a;">Column 2 Title</h4><p style="margin-bottom:0; color:#475569;">Column 2 details...</p></div></div><p><br></p>`;
+      default:
+        return "";
+    }
+  };
+
+  // Visual Basic .NET Component Templates
+  const insertComponent = (type: string) => {
+    if (type === "hyperlink") {
+      openLinkModal();
+      return;
+    }
+    if (type === "pdfCard") {
+      openPdfStudio();
+      return;
+    }
+    const htmlSnippet = getComponentHtmlSnippet(type);
+    if (htmlSnippet) {
+      insertHTML(htmlSnippet);
     }
   };
 
@@ -693,6 +840,13 @@ export function RichTextBox({
       subtitle: "Write text with link & button style",
       icon: LinkIcon,
       color: "bg-sky-600 text-white",
+    },
+    {
+      id: "pdfCard",
+      title: "PDF Document Card Embed",
+      subtitle: "Customize layout & embed PDF document",
+      icon: FileText,
+      color: "bg-rose-600 text-white",
     },
     {
       id: "ctaBanner",
@@ -1110,21 +1264,9 @@ export function RichTextBox({
             </button>
             <button
               type="button"
-              onClick={() => {
-                setStudioInitialData(null);
-                setIsStudioOpen(true);
-              }}
-              title="Open Image Studio (Crop, Resize, Compress)"
-              className="flex items-center gap-1 rounded-lg px-2.5 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-2xs hover:brightness-110 transition ml-0.5"
-            >
-              <Scissors size={13} />
-              <span>Crop & Edit</span>
-            </button>
-            <button
-              type="button"
               onClick={() => handleFormatBlock("<blockquote>")}
               title="Quote Block"
-              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-900 ml-0.5"
+              className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-900"
             >
               <Quote size={15} />
             </button>
@@ -1160,6 +1302,19 @@ export function RichTextBox({
             </button>
           </div>
 
+          {/* Remove Selected Element Button in Top Toolbar */}
+          {(selectedBlockEl || selectedImageEl || selectedAnchorEl) && (
+            <button
+              type="button"
+              onClick={deleteSelectedBlock}
+              title="Remove selected component or element from visual canvas"
+              className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-600 px-3 py-1 text-xs font-extrabold text-white shadow-2xs hover:bg-red-700 transition cursor-pointer animate-in fade-in"
+            >
+              <Trash2 size={13} />
+              <span>Remove Selected</span>
+            </button>
+          )}
+
           {/* Clear Format */}
           <button
             type="button"
@@ -1183,12 +1338,29 @@ export function RichTextBox({
                 <h4 className="text-xs font-black uppercase tracking-wider text-[#1a5d9c] flex items-center gap-1.5">
                   <Layers size={14} /> Visual Component Toolbox
                 </h4>
-                <p className="text-[11px] font-medium text-slate-400">1-Click to add page blocks</p>
+                <p className="text-[11px] font-medium text-slate-400">Click or Drag & Drop blocks into editor</p>
               </div>
               <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-blue-700">
                 VB Style
               </span>
             </div>
+
+            {/* Selection Quick Action Banner in Toolbox */}
+            {(selectedBlockEl || selectedImageEl || selectedAnchorEl) && (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-2.5 flex items-center justify-between text-xs font-bold text-rose-900 shadow-2xs animate-in fade-in">
+                <span className="truncate max-w-[130px] font-mono text-[11px]">
+                  &lt;{(selectedBlockEl || selectedImageEl || selectedAnchorEl)?.tagName.toLowerCase()}&gt;
+                </span>
+                <button
+                  type="button"
+                  onClick={deleteSelectedBlock}
+                  className="flex items-center gap-1 rounded-lg bg-rose-600 px-2.5 py-1 text-[11px] font-extrabold text-white hover:bg-rose-700 transition cursor-pointer shadow-2xs"
+                >
+                  <Trash2 size={12} />
+                  <span>Remove</span>
+                </button>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 gap-2">
               {toolboxComponents.map((comp) => {
@@ -1197,8 +1369,14 @@ export function RichTextBox({
                   <button
                     key={comp.id}
                     type="button"
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData("text/plain", comp.id);
+                      e.dataTransfer.effectAllowed = "copy";
+                    }}
                     onClick={() => insertComponent(comp.id)}
-                    className="group flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-2.5 text-left transition-all hover:border-blue-400 hover:bg-blue-50/50 hover:shadow-md cursor-pointer"
+                    title="Click to insert or Drag & Drop into editor canvas"
+                    className="group flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-2.5 text-left transition-all hover:border-blue-400 hover:bg-blue-50/50 hover:shadow-md cursor-grab active:cursor-grabbing"
                   >
                     <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${comp.color} shadow-2xs group-hover:scale-105 transition-transform`}>
                       <IconComp size={18} />
@@ -1227,24 +1405,27 @@ export function RichTextBox({
             <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-blue-200 bg-blue-50/90 p-2.5 shadow-md animate-in fade-in zoom-in-95">
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-1.5 text-xs font-black text-blue-950">
-                  <Scissors size={15} className="text-blue-600 animate-pulse" /> Image Tools Suite:
+                  <Scissors size={15} className="text-blue-600 animate-pulse" /> Image & Component Suite:
                 </span>
                 <span className="text-[11px] font-bold text-blue-700 max-w-[220px] truncate bg-white/80 px-2 py-0.5 rounded-md border border-blue-200">
-                  {selectedImageEl ? `Selected: ${selectedImageEl.alt || "Page Asset"}` : "Click any image below to edit"}
+                  {selectedBlockEl || selectedImageEl || selectedAnchorEl
+                    ? `Selected: <${(selectedBlockEl || selectedImageEl || selectedAnchorEl)?.tagName.toLowerCase()}>`
+                    : "Click or drag any component to edit/remove"}
                 </span>
               </div>
 
               <div className="flex items-center gap-1.5 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => openStudioForTargetImage()}
-                  className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:brightness-110 transition cursor-pointer"
-                >
-                  <Scissors size={13} />
-                  <span>✂️ Crop, Resize & Compress Studio</span>
-                </button>
-
-                <div className="h-4 w-px bg-blue-200 mx-0.5" />
+                {(selectedBlockEl || selectedImageEl || selectedAnchorEl) && (
+                  <button
+                    type="button"
+                    onClick={deleteSelectedBlock}
+                    className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:bg-red-700 transition cursor-pointer animate-in fade-in"
+                    title="Remove selected component or element from visual canvas"
+                  >
+                    <Trash2 size={13} />
+                    <span>🗑️ Remove Component</span>
+                  </button>
+                )}
 
                 {/* Quick Resizes */}
                 <span className="text-[10px] font-extrabold text-blue-800 uppercase">Size:</span>
@@ -1388,12 +1569,23 @@ export function RichTextBox({
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
         onSelectImage={(url) => {
-          if (selectedImageEl) {
-            selectedImageEl.src = url;
+          if (isPdfStudioOpen) {
+            setPdfStudioUrl(url);
+            const rawFileName = url.split("/").pop() || "Official Document";
+            const cleanName = rawFileName.replace(/\.(pdf|jpg|jpeg|png|webp)$/i, "").replace(/[-_]/g, " ");
+            setPdfStudioTitle(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
+            setIsGalleryOpen(false);
+          } else if (selectedImageEl) {
+            selectedImageEl.src = isPdfFile(url) ? getCloudinaryPdfThumbnailUrl(url, 1, 1000) : url;
             setSelectedImageEl(null);
             syncIframeToState();
+            setIsGalleryOpen(false);
+          } else if (isPdfFile(url)) {
+            openPdfStudio(url);
+            setIsGalleryOpen(false);
           } else {
             insertHTML(`<img src="${url}" alt="Cloudinary Media" style="max-width: 100%; height: auto; border-radius: 12px; margin: 12px 0; box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1);" /><p><br></p>`);
+            setIsGalleryOpen(false);
           }
         }}
       />
@@ -1413,6 +1605,235 @@ export function RichTextBox({
           }
         }}
       />
+
+      {/* PDF Card Customizer Studio Modal */}
+      {isPdfStudioOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-6 py-4 backdrop-blur-xs">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-2xl bg-rose-500/20 text-rose-400">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-extrabold text-white flex items-center gap-2">
+                    📄 PDF Card Customizer Studio
+                    <span className="rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-300">
+                      Hand Customization
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Customize layout theme, document title, description & action buttons for your PDF embed
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPdfStudioOpen(false)}
+                className="rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 overflow-hidden">
+              
+              {/* Left Column: Hand Customization Controls (5 cols) */}
+              <div className="lg:col-span-5 flex flex-col overflow-y-auto border-r border-slate-800 bg-slate-900/60 p-5 space-y-4 scrollbar-thin">
+                
+                {/* PDF File Picker */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    PDF Document File URL
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={pdfStudioUrl}
+                      onChange={(e) => setPdfStudioUrl(e.target.value)}
+                      placeholder="Paste PDF URL or select from gallery..."
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-200 outline-none focus:border-rose-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsGalleryOpen(true)}
+                      className="shrink-0 flex items-center gap-1 rounded-xl bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-700 transition cursor-pointer"
+                      title="Select PDF from Cloudinary Gallery"
+                    >
+                      <ImageIcon size={14} />
+                      <span>Gallery</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Theme Presets */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Select Card Theme & Layout Preset
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: "light", name: "Modern Light Card", icon: "🌟", desc: "Clean white card with page preview" },
+                      { id: "dark", name: "Dark Executive", icon: "🌙", desc: "Navy dark theme with glowing border" },
+                      { id: "banner", name: "Compact Banner", icon: "📄", desc: "Single row horizontal download bar" },
+                      { id: "badge", name: "Minimal Pill Badge", icon: "🏷️", desc: "Rounded pill action link badge" },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setPdfStudioTheme(t.id as any)}
+                        className={`flex flex-col text-left p-3 rounded-2xl border transition cursor-pointer ${
+                          pdfStudioTheme === t.id
+                            ? "border-rose-500 bg-rose-500/15 text-white shadow-md ring-1 ring-rose-500/50"
+                            : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                        }`}
+                      >
+                        <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                          <span>{t.icon}</span>
+                          <span>{t.name}</span>
+                        </span>
+                        <span className="text-[10px] text-slate-400 mt-1 leading-tight">{t.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Document Title */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Document Title
+                  </label>
+                  <input
+                    type="text"
+                    value={pdfStudioTitle}
+                    onChange={(e) => setPdfStudioTitle(e.target.value)}
+                    placeholder="e.g. Admission Form Session 2026-27"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-100 outline-none focus:border-rose-500"
+                  />
+                </div>
+
+                {/* Subtitle / Description */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Subtitle / Description (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={pdfStudioSubtitle}
+                    onChange={(e) => setPdfStudioSubtitle(e.target.value)}
+                    placeholder="e.g. Official application form for Grade Nursery to IX"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-slate-300 outline-none focus:border-rose-500"
+                  />
+                </div>
+
+                {/* Button Label */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Action Button Label
+                  </label>
+                  <input
+                    type="text"
+                    value={pdfStudioButtonText}
+                    onChange={(e) => setPdfStudioButtonText(e.target.value)}
+                    placeholder="e.g. Open Document"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-200 outline-none focus:border-rose-500"
+                  />
+                </div>
+
+                {/* Max Height Slider (for Card modes) */}
+                {pdfStudioTheme !== "badge" && pdfStudioTheme !== "banner" && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                        Page Preview Height
+                      </label>
+                      <span className="text-xs font-mono font-bold text-rose-400">{pdfStudioMaxHeight}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={250}
+                      max={650}
+                      step={25}
+                      value={pdfStudioMaxHeight}
+                      onChange={(e) => setPdfStudioMaxHeight(Number(e.target.value))}
+                      className="w-full accent-rose-500 cursor-pointer"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Live Interactive Preview (7 cols) */}
+              <div className="lg:col-span-7 flex flex-col overflow-hidden bg-slate-950 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <Eye size={14} className="text-rose-400" /> Live Interactive Preview:
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-mono">Theme: {pdfStudioTheme}</span>
+                </div>
+
+                {/* Live Card Renderer Box */}
+                <div className="flex-1 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900/60 p-5 scrollbar-thin">
+                  {!pdfStudioUrl ? (
+                    <div className="flex h-full flex-col items-center justify-center text-slate-500 gap-2 p-8">
+                      <FileText size={48} className="text-slate-700" />
+                      <p className="text-xs font-medium">Select a PDF file or paste URL to preview custom card</p>
+                    </div>
+                  ) : (
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: generatePdfCardHtml({
+                          url: pdfStudioUrl,
+                          title: pdfStudioTitle,
+                          subtitle: pdfStudioSubtitle,
+                          buttonText: pdfStudioButtonText,
+                          theme: pdfStudioTheme,
+                          maxHeight: pdfStudioMaxHeight,
+                        }),
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Apply Button */}
+                <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsPdfStudioOpen(false)}
+                    className="rounded-xl border border-slate-700 px-5 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!pdfStudioUrl}
+                    onClick={() => {
+                      if (!pdfStudioUrl) return;
+                      const htmlSnippet = generatePdfCardHtml({
+                        url: pdfStudioUrl,
+                        title: pdfStudioTitle,
+                        subtitle: pdfStudioSubtitle,
+                        buttonText: pdfStudioButtonText,
+                        theme: pdfStudioTheme,
+                        maxHeight: pdfStudioMaxHeight,
+                      });
+                      insertHTML(htmlSnippet);
+                      setIsPdfStudioOpen(false);
+                    }}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 px-6 py-2.5 text-xs font-extrabold text-white shadow-lg hover:brightness-110 disabled:opacity-50 transition cursor-pointer"
+                  >
+                    <Check size={16} />
+                    <span>Apply & Insert PDF Card</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hyperlink Creation & Edit Modal */}
       {isLinkModalOpen && (

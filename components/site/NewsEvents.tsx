@@ -6,8 +6,19 @@ import { EASE } from "@/lib/motion-presets";
 import { Badge } from "@/components/ui/badge";
 import { firstSection, homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { useFileViewer } from "@/components/ui/FileViewerContext";
+import { isPdfFile, getCloudinaryInlineViewerUrl, normalizePdfUrl } from "@/lib/file-preview";
 
-const POSTS = [
+interface NewsPost {
+  type: string;
+  icon: any;
+  date: string;
+  title: string;
+  text: string;
+  redirectUrl?: string;
+}
+
+const POSTS: NewsPost[] = [
   {
     type: "Latest News",
     icon: Newspaper,
@@ -38,65 +49,59 @@ const POSTS = [
   },
 ];
 
-function formatDate(rawDate?: string, fallback: string = "") {
-  if (!rawDate) return fallback;
-  const d = new Date(rawDate);
-  if (isNaN(d.getTime())) return rawDate;
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-}
-
 export function NewsEvents() {
   const siteData = useSiteData();
-  const section = firstSection(homeData(siteData), "section-10");
-  const fallbackPosts = Array.isArray(section.list)
-    ? (section.list as Record<string, unknown>[])
-    : [];
-  const posts = siteData.news?.length ? siteData.news : fallbackPosts;
+  const sec = firstSection(homeData(siteData), "section-10");
+  const rawNewsList = siteData?.news || [];
+  const { openFileViewer } = useFileViewer();
+
+  const newsList: NewsPost[] =
+    rawNewsList.length > 0
+      ? rawNewsList.map((item: any) => ({
+          type: item.category || "Update",
+          icon: Newspaper,
+          date: item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Recent",
+          title: item.title,
+          text: item.content || item.summary || "",
+          redirectUrl: normalizePdfUrl(item.linkUrl || item.imageUrl || item.attachmentUrl || item.fileUrl || ""),
+        }))
+      : POSTS;
+
   return (
-    <section className="bg-secondary/40 py-20 lg:py-32">
-      <div className="container-page">
+    <section className="bg-background py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="News & Events"
-          title="Happening at Indian Public School"
+          eyebrow={text(sec?.badge, "Updates & Highlights")}
+          title={text(sec?.title, "Latest from IPS")}
           description={text(
-            section.description,
-            "Announcements, events and updates from the school community.",
+            sec?.description,
+            "News, upcoming events, academic achievements and announcements."
           )}
         />
 
         <motion.div
           initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.15 }}
-          variants={{ show: { transition: { staggerChildren: 0.09 } } }}
-          className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.1 } },
+          }}
+          className="mt-14 grid gap-6 md:grid-cols-3"
         >
-          {posts.map((post, index) => {
-            const fallback = POSTS[index % POSTS.length]!;
-            const Icon = fallback.icon;
-            const redirectUrl = text(post.redirectUrl)?.trim();
+          {newsList.map((p, index) => {
+            const Icon = p.icon || Newspaper;
+            const redirectUrl = p.redirectUrl ? String(p.redirectUrl).trim() : "";
             const hasLink = Boolean(redirectUrl);
-            const p = {
-              type: text(post.type, fallback.type),
-              date: formatDate(text(post.createdAt), fallback.date),
-              title: text(post.title, fallback.title),
-              text: text(post.description, fallback.text),
-            };
-
+            const isPdf = isPdfFile(redirectUrl);
             const isExternal = redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://");
 
             const cardContent = (
               <motion.article
-                key={`${p.title || "news-item"}-${index}`}
                 variants={{
-                  hidden: { opacity: 0, y: 28 },
-                  show: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.6, ease: EASE },
-                  },
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
                 }}
-                whileHover={hasLink ? { y: -6 } : undefined}
                 className={`group flex h-full flex-col rounded-3xl border border-border bg-card p-6 shadow-soft transition-all ${
                   hasLink ? "hover:shadow-lift hover:border-primary/40 cursor-pointer" : ""
                 }`}
@@ -123,11 +128,23 @@ export function NewsEvents() {
             );
 
             if (hasLink) {
+              if (isPdf) {
+                return (
+                  <div
+                    key={`${p.title || "news-item"}-${index}`}
+                    onClick={() => openFileViewer(redirectUrl, p.title)}
+                    className="block h-full no-underline"
+                  >
+                    {cardContent}
+                  </div>
+                );
+              }
               if (isExternal) {
+                const inlineTarget = getCloudinaryInlineViewerUrl(redirectUrl);
                 return (
                   <a
                     key={`${p.title || "news-item"}-${index}`}
-                    href={redirectUrl}
+                    href={inlineTarget}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block h-full no-underline"

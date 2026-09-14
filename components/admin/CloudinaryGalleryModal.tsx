@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Sparkles, Filter, Scissors, Video, Music, FileText, File } from "lucide-react";
+import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Sparkles, Filter, Scissors, Video, Music, FileText, File, Eye } from "lucide-react";
 import axios from "axios";
 import { getOptionalApi, unwrapCollection, API_URL } from "@/lib/api-client";
 import { ImageStudioModal } from "./ImageStudioModal";
+import { FileViewerModal } from "@/components/ui/FileViewerModal";
+import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
+import { getCloudinaryPdfThumbnailUrl, isPdfFile } from "@/lib/file-preview";
 
 interface CloudinaryGalleryModalProps {
   isOpen: boolean;
@@ -113,6 +116,7 @@ export function CloudinaryGalleryModal({
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>("");
   const [isStudioOpen, setIsStudioOpen] = useState<boolean>(false);
+  const [previewFileUrl, setPreviewFileUrl] = useState<string | null>(null);
 
   // Fetch live unified gallery media from school backend /gallery
   useEffect(() => {
@@ -246,7 +250,7 @@ export function CloudinaryGalleryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[150] grid place-items-center bg-slate-950/70 p-4 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100 flex flex-col">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
@@ -356,6 +360,8 @@ export function CloudinaryGalleryModal({
               {filteredMedia.map((item) => {
                 const isSelected = selectedUrl === item.url;
                 const fileType = getFileType(item.url);
+                const isPdf = isPdfFile(item.url);
+                const pdfThumbnail = isPdf ? getCloudinaryPdfThumbnailUrl(item.url, 1, 600) : item.url;
 
                 return (
                   <div
@@ -386,6 +392,13 @@ export function CloudinaryGalleryModal({
                             AUDIO
                           </span>
                         </div>
+                      ) : isPdf ? (
+                        <div className="relative h-full w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+                          <PdfCanvasThumbnail url={item.url} alt={item.title} className="h-full w-full" />
+                          <span className="absolute bottom-1 right-1.5 rounded-md bg-red-950/90 border border-red-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-200 shadow-md pointer-events-none">
+                            📄 PDF PREVIEW
+                          </span>
+                        </div>
                       ) : fileType === "document" ? (
                         <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-2 text-center text-white">
                           <FileText size={30} className="text-blue-400 mb-1" />
@@ -402,6 +415,19 @@ export function CloudinaryGalleryModal({
                           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                         />
                       )}
+
+                      {/* Quick File Viewer Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewFileUrl(item.url);
+                        }}
+                        className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition rounded-lg bg-slate-900/80 p-1.5 text-white hover:bg-blue-600 shadow-md"
+                        title="Preview File Full Screen"
+                      >
+                        <Eye size={13} />
+                      </button>
                     </div>
 
                     {/* Checkmark overlay for selection */}
@@ -481,7 +507,13 @@ export function CloudinaryGalleryModal({
           onClose();
         }}
       />
+
+      <FileViewerModal
+        isOpen={!!previewFileUrl}
+        onClose={() => setPreviewFileUrl(null)}
+        url={previewFileUrl}
+        title="Gallery File Preview"
+      />
     </div>
   );
 }
-

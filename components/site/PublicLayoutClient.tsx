@@ -8,6 +8,7 @@ import {
 import { Footer } from "@/components/site/Footer";
 import { BackToTop } from "@/components/site/BackToTop";
 import { SiteDataProvider } from "@/components/site/SiteDataProvider";
+import { FileViewerProvider } from "@/components/ui/FileViewerContext";
 import type { SiteData } from "@/lib/site-data";
 
 export function PublicLayoutClient({
@@ -19,12 +20,14 @@ export function PublicLayoutClient({
 }) {
   return (
     <SiteDataProvider data={data}>
-      <ScrollProgress />
-      <AnnouncementBar />
-      <Navbar />
-      {children}
-      <Footer />
-      <BackToTop />
+      <FileViewerProvider>
+        <ScrollProgress />
+        <AnnouncementBar />
+        <Navbar />
+        {children}
+        <Footer />
+        <BackToTop />
+      </FileViewerProvider>
     </SiteDataProvider>
   );
 }
