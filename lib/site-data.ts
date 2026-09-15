@@ -32,6 +32,7 @@ export interface SiteData {
   news?: SiteRecord[];
   galleryItems?: SiteRecord[];
   reviewsItems?: SiteRecord[];
+  menuItems?: SiteRecord[];
   site_logo?: SiteLogoSetting;
   certified_board?: CertifiedBoardSetting;
   trust_board?: TrustBoardSetting;
@@ -40,16 +41,18 @@ export interface SiteData {
 
 export async function getSiteData(): Promise<SiteData> {
   const fallback = fallbackSiteData as SiteData;
-  const [siteResponse, newsResponse, galleryResponse, reviewsResponse] = await Promise.all([
+  const [siteResponse, newsResponse, galleryResponse, reviewsResponse, menuItemsResponse] = await Promise.all([
     getOptionalApi<SiteData | { value?: SiteData; _doc?: { value?: SiteData } }>("/regarding/datasource"),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/news", { limit: 8, page: 1, sortOrder: "desc" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/gallery", { limit: 50, page: 1, sortOrder: "desc" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/reviews", { limit: 12, page: 1, sortOrder: "desc" }),
+    getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/menu-items", { publishedOnly: "true" }),
   ]);
   const siteData = siteResponse ? unwrapSetting<SiteData>(siteResponse) : fallback;
   const apiNews = unwrapCollection(newsResponse);
   const apiGallery = unwrapCollection(galleryResponse);
   const apiReviews = unwrapCollection(reviewsResponse);
+  const apiMenuItems = unwrapCollection(menuItemsResponse);
   const fallbackGallery = Array.isArray(fallback.gallery)
     ? fallback.gallery as SiteRecord[]
     : [];
@@ -61,11 +64,12 @@ export async function getSiteData(): Promise<SiteData> {
     ...fallback,
     ...siteData,
     // Each public endpoint is independent. A missing content setting must not
-    // prevent live reviews, news, or gallery records from being displayed.
+    // prevent live reviews, news, gallery, or menu records from being displayed.
     home: siteData.home?.length ? siteData.home : fallback.home,
     news: apiNews.length ? apiNews : fallback.news,
     galleryItems: apiGallery.length ? apiGallery : fallbackGallery,
     reviewsItems: apiReviews.length ? apiReviews : fallbackReviews,
+    menuItems: apiMenuItems.length ? apiMenuItems : [],
   };
 }
 

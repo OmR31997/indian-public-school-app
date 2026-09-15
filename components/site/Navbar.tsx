@@ -105,7 +105,12 @@ export function AnnouncementBar() {
 }
 
 export function Navbar() {
-  const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>([]);
+  const siteData = useSiteData();
+  const initialMenuItems = Array.isArray(siteData?.menuItems) && siteData.menuItems.length > 0
+    ? (siteData.menuItems as unknown as ApiMenuItem[])
+    : [];
+
+  const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>(initialMenuItems);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -129,7 +134,7 @@ export function Navbar() {
     };
   }, []);
 
-  const menuCardItems = homeData(useSiteData()).menuCard;
+  const menuCardItems = homeData(siteData).menuCard;
   const legacyApiNav = Array.isArray(menuCardItems) ? (menuCardItems as Record<string, unknown>[]) : [];
 
   const normalizeHref = (rawUrl?: string): string => {
@@ -187,7 +192,6 @@ export function Navbar() {
     };
   }, [open]);
 
-  const siteData = useSiteData();
   const siteLogo = (siteData.site_logo as Record<string, string>) || {};
   const customLogoUrl = siteLogo.logoUrl?.trim();
   const logoTitle = siteLogo.logoText?.trim() || "Indian Public School";
