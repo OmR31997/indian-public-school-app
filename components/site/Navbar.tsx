@@ -158,6 +158,12 @@ export function Navbar() {
     };
   }, [open]);
 
+  const siteData = useSiteData();
+  const siteLogo = (siteData.site_logo as Record<string, string>) || {};
+  const customLogoUrl = siteLogo.logoUrl?.trim();
+  const logoTitle = siteLogo.logoText?.trim() || "Indian Public School";
+  const logoSubtitle = siteLogo.logoSubText?.trim() || "Learn · Lead · Inspire";
+
   return (
     <header
       className={cn(
@@ -169,15 +175,23 @@ export function Navbar() {
     >
       <nav className="container-page flex h-16 items-center justify-between gap-4 lg:h-20">
         <Link href="/" className="group flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft transition-transform duration-300 group-hover:scale-105">
-            <GraduationCap className="size-5" />
-          </span>
+          {customLogoUrl ? (
+            <img
+              src={customLogoUrl}
+              alt={logoTitle}
+              className="h-10 max-w-[140px] sm:h-12 sm:max-w-[180px] object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft transition-transform duration-300 group-hover:scale-105">
+              <GraduationCap className="size-5" />
+            </span>
+          )}
           <span className="leading-tight">
             <span className="block font-display text-base font-semibold tracking-tight sm:text-lg">
-              Indian Public School
+              {logoTitle}
             </span>
             <span className="block text-[10px] font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-              Learn · Lead · Inspire
+              {logoSubtitle}
             </span>
           </span>
         </Link>

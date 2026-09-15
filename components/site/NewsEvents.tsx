@@ -164,7 +164,11 @@ export function NewsEvents() {
               );
             }
 
-            return cardContent;
+            return (
+              <div key={`${p.title || "news-item"}-${index}`} className="block h-full">
+                {cardContent}
+              </div>
+            );
           })}
         </motion.div>
       </div>

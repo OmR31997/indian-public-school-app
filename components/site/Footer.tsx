@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Facebook, GraduationCap, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
 import { text } from "@/lib/site-data";
@@ -152,21 +152,128 @@ export function Footer() {
     { icon: Linkedin, label: "LinkedIn", href: text(footerConfig.linkedin) || text(socialsObj.linkedin, "https://linkedin.com") },
   ];
 
+  const siteLogo = (siteData.site_logo as Record<string, string>) || {};
+  const customLogoUrl = siteLogo.logoUrl?.trim();
+  const displayBrandTitle = siteLogo.logoText?.trim() || brandTitle;
+  const displayBrandSubTitle = siteLogo.logoSubText?.trim() || brandSubTitle;
+
+  const certifiedBoard = (siteData.certified_board as Record<string, unknown>) || {};
+  const certifiedEnabled = certifiedBoard.enabled !== false && Boolean(certifiedBoard.title || certifiedBoard.badgeUrl || certifiedBoard.code);
+
+  const trustBoard = (siteData.trust_board as Record<string, unknown>) || {};
+  const trustEnabled = trustBoard.enabled !== false && Boolean(trustBoard.trustName || trustBoard.logoUrl || trustBoard.regNo);
+
   return (
     <footer className="surface-navy pt-16 pb-8">
       <div className="container-page">
+        {(certifiedEnabled || trustEnabled) && (
+          <div className="mb-12 grid gap-6 border-b border-navy-foreground/15 pb-10 sm:grid-cols-2">
+            {certifiedEnabled && (
+              <Reveal>
+                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30">
+                  {certifiedBoard.badgeUrl ? (
+                    <img
+                      src={String(certifiedBoard.badgeUrl)}
+                      alt={String(certifiedBoard.title || "Certified Board")}
+                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                    />
+                  ) : (
+                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                      <Award className="size-6" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Certified Company Board</span>
+                      <ShieldCheck size={14} className="text-gold" />
+                    </div>
+                    <h4 className="mt-1 text-sm font-semibold text-navy-foreground">
+                      {String(certifiedBoard.title || "CBSE Affiliated School")}
+                    </h4>
+                    {Boolean(certifiedBoard.code) && (
+                      <p className="mt-0.5 text-xs font-medium text-gold/90">
+                        {String(certifiedBoard.code)}
+                      </p>
+                    )}
+                    {Boolean(certifiedBoard.description) && (
+                      <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
+                        {String(certifiedBoard.description)}
+                      </p>
+                    )}
+                    {Boolean(certifiedBoard.linkUrl) && (
+                      <Link href={String(certifiedBoard.linkUrl)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                        View Affiliation Details &rarr;
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </Reveal>
+            )}
+
+            {trustEnabled && (
+              <Reveal delay={0.1}>
+                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30">
+                  {trustBoard.logoUrl ? (
+                    <img
+                      src={String(trustBoard.logoUrl)}
+                      alt={String(trustBoard.trustName || "Trust Board")}
+                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                    />
+                  ) : (
+                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                      <Building2 className="size-6" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Trust Board</span>
+                      <Building2 size={14} className="text-gold" />
+                    </div>
+                    <h4 className="mt-1 text-sm font-semibold text-navy-foreground">
+                      {String(trustBoard.trustName || "K.S. Dalmia Education Trust")}
+                    </h4>
+                    {Boolean(trustBoard.regNo) && (
+                      <p className="mt-0.5 text-xs font-medium text-gold/90">
+                        {String(trustBoard.regNo)}
+                      </p>
+                    )}
+                    {Boolean(trustBoard.description) && (
+                      <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
+                        {String(trustBoard.description)}
+                      </p>
+                    )}
+                    {Boolean(trustBoard.linkUrl) && (
+                      <Link href={String(trustBoard.linkUrl)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                        Learn About Trust &rarr;
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </Reveal>
+            )}
+          </div>
+        )}
+
         <div className="grid gap-10 lg:grid-cols-[1.4fr_3fr]">
           <Reveal>
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-xl bg-gold text-gold-foreground">
-                <GraduationCap className="size-5" />
-              </span>
+              {customLogoUrl ? (
+                <img
+                  src={customLogoUrl}
+                  alt={displayBrandTitle}
+                  className="h-11 max-w-[150px] object-contain"
+                />
+              ) : (
+                <span className="grid size-11 place-items-center rounded-xl bg-gold text-gold-foreground">
+                  <GraduationCap className="size-5" />
+                </span>
+              )}
               <span>
                 <span className="block font-display text-lg font-semibold text-navy-foreground">
-                  {brandTitle}
+                  {displayBrandTitle}
                 </span>
                 <span className="block text-[10px] font-semibold tracking-[0.2em] text-gold uppercase">
-                  {brandSubTitle}
+                  {displayBrandSubTitle}
                 </span>
               </span>
             </div>

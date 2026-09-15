@@ -591,9 +591,10 @@ export function AdminConsole() {
         setQueryParams((previous) => ({ ...previous, [key]: currentQuery }));
       }
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 401 && key === "users") {
+      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 404) && key === "users") {
         setToken("");
         window.localStorage.removeItem("ips_admin_token");
+        document.cookie = "ips_admin_session=; Path=/; Max-Age=0; SameSite=Lax";
       }
       throw err;
     }
@@ -795,7 +796,7 @@ export function AdminConsole() {
           )}
         </div>
       </header>
-      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); }} onDelete={remove} />}</div>
+      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); }} onDelete={remove} token={token} />}</div>
     </section>
     {formOpen && current && <RecordDialog token={token} resource={current} record={editing} saving={saving} allSectionPages={data.pages || []} allMenuItems={data["menu-items"] || []} onClose={() => { setFormOpen(false); setEditing(null); }} onSave={save} />}
     {loginOpen && <LoginDialog onClose={() => setLoginOpen(false)} onLoggedIn={(accessToken) => { window.localStorage.setItem("ips_admin_token", accessToken); document.cookie = `ips_admin_session=${encodeURIComponent(accessToken)}; Path=/; SameSite=Lax; Max-Age=28800${location.protocol === "https:" ? "; Secure" : ""}`; setToken(accessToken); setLoginOpen(false); }} />}
@@ -1264,6 +1265,452 @@ const RESOURCE_FILTERS: Record<string, { label: string; key: string; options: st
   ],
 };
 
+function HeaderFooterSettingsCard({
+  token,
+  items,
+  onSaveComplete,
+}: {
+  token: string;
+  items: RecordItem[];
+  onSaveComplete: () => void;
+}) {
+  const [activeTab, setActiveTab] = useState<"logo" | "certified" | "trust">("logo");
+  const [galleryPickerField, setGalleryPickerField] = useState<"logoUrl" | "badgeUrl" | "trustLogoUrl" | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const logoItem = useMemo(() => items.find((i) => i.key === "site_logo"), [items]);
+  const certItem = useMemo(() => items.find((i) => i.key === "certified_board"), [items]);
+  const trustItem = useMemo(() => items.find((i) => i.key === "trust_board"), [items]);
+
+  const [siteLogo, setSiteLogo] = useState({
+    logoUrl: "",
+    logoText: "Indian Public School",
+    logoSubText: "Learn · Lead · Inspire",
+  });
+
+  const [certifiedBoard, setCertifiedBoard] = useState({
+    title: "CBSE Affiliated School",
+    code: "Affiliation No. 1530211 | School Code: 53123",
+    badgeUrl: "",
+    description: "Affiliated to Central Board of Secondary Education, New Delhi",
+    linkUrl: "/mandatory-disclosure",
+    enabled: true,
+  });
+
+  const [trustBoard, setTrustBoard] = useState({
+    trustName: "K.S. Dalmia Education Trust",
+    regNo: "Established under KS Dalmia Education Trust",
+    logoUrl: "",
+    description: "Dedicated to character building, academic excellence, and holistic personality development.",
+    linkUrl: "/about-us/school-establishment",
+    enabled: true,
+  });
+
+  useEffect(() => {
+    if (logoItem?.value && typeof logoItem.value === "object") {
+      setSiteLogo((prev) => ({ ...prev, ...(logoItem.value as object) }));
+    }
+    if (certItem?.value && typeof certItem.value === "object") {
+      setCertifiedBoard((prev) => ({ ...prev, ...(certItem.value as object) }));
+    }
+    if (trustItem?.value && typeof trustItem.value === "object") {
+      setTrustBoard((prev) => ({ ...prev, ...(trustItem.value as object) }));
+    }
+  }, [logoItem, certItem, trustItem]);
+
+  const saveSettings = async () => {
+    if (!token) {
+      setError("Please sign in to save identity settings.");
+      return;
+    }
+    setSaving(true);
+    setMessage("");
+    setError("");
+
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+
+      await axios.post(
+        `${API_URL}/school-settings`,
+        {
+          key: "site_logo",
+          category: "Header",
+          description: "Header and Footer School Logo branding",
+          value: siteLogo,
+          isPublic: true,
+          status: "Active",
+        },
+        { headers }
+      );
+
+      await axios.post(
+        `${API_URL}/school-settings`,
+        {
+          key: "certified_board",
+          category: "Footer",
+          description: "Certified Company Board & Affiliation Details",
+          value: certifiedBoard,
+          isPublic: true,
+          status: "Active",
+        },
+        { headers }
+      );
+
+      await axios.post(
+        `${API_URL}/school-settings`,
+        {
+          key: "trust_board",
+          category: "Footer",
+          description: "Trust Board & Educational Trust Details",
+          value: trustBoard,
+          isPublic: true,
+          status: "Active",
+        },
+        { headers }
+      );
+
+      setMessage("Header & Footer identity settings saved successfully!");
+      onSaveComplete();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const msg = (err.response?.data as { message?: string })?.message || err.message;
+        setError(Array.isArray(msg) ? msg.join(", ") : String(msg));
+      } else {
+        setError("Failed to save identity settings.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mb-8 overflow-hidden rounded-2xl border border-blue-100 bg-white p-6 shadow-md">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 uppercase tracking-wider">
+              Identity Setup
+            </span>
+            <h3 className="font-display text-xl font-bold text-[#102a4c]">Header & Footer Branding Settings</h3>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Configure School Logo, Certified Board info, and Trust Board details. Applied automatically if present.
+          </p>
+        </div>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={saveSettings}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-[#124c81] disabled:opacity-60 cursor-pointer shrink-0"
+        >
+          {saving ? <LoaderCircle size={15} className="animate-spin" /> : <Save size={15} />}
+          <span>{saving ? "Saving..." : "Save Identity Settings"}</span>
+        </button>
+      </div>
+
+      {message && (
+        <div className="mt-4 flex items-center justify-between rounded-xl bg-emerald-50 p-3.5 text-xs font-bold text-emerald-800 border border-emerald-200">
+          <span>✅ {message}</span>
+          <button type="button" onClick={() => setMessage("")}><X size={14} /></button>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-4 flex items-center justify-between rounded-xl bg-red-50 p-3.5 text-xs font-bold text-red-800 border border-red-200">
+          <span>⚠️ {error}</span>
+          <button type="button" onClick={() => setError("")}><X size={14} /></button>
+        </div>
+      )}
+
+      {/* Tabs Header */}
+      <div className="mt-5 flex flex-wrap gap-2 border-b border-slate-100 pb-3">
+        <button
+          type="button"
+          onClick={() => setActiveTab("logo")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
+        >
+          <GraduationCap size={15} /> School Logo & Tagline
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("certified")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
+        >
+          <Crown size={15} /> Certified Company Board
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("trust")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            activeTab === "trust" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
+        >
+          <ShieldCheck size={15} /> Trust Board
+        </button>
+      </div>
+
+      {/* Tab 1: Logo */}
+      {activeTab === "logo" && (
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Logo Image URL</label>
+              <div className="mt-1 flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="https://res.cloudinary.com/... or /assets/logo.png"
+                  value={siteLogo.logoUrl}
+                  onChange={(e) => setSiteLogo((p) => ({ ...p, logoUrl: e.target.value }))}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setGalleryPickerField("logoUrl")}
+                  className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
+                >
+                  <UploadCloud size={14} /> Gallery
+                </button>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400">
+                Leave empty to keep current default icon setup.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700">School Name</label>
+              <input
+                type="text"
+                value={siteLogo.logoText}
+                onChange={(e) => setSiteLogo((p) => ({ ...p, logoText: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Tagline / Subtitle</label>
+              <input
+                type="text"
+                value={siteLogo.logoSubText}
+                onChange={(e) => setSiteLogo((p) => ({ ...p, logoSubText: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Logo Preview</p>
+            <div className="mt-4 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-xs">
+              {siteLogo.logoUrl ? (
+                <img src={siteLogo.logoUrl} alt="Logo preview" className="h-10 w-auto object-contain" />
+              ) : (
+                <span className="grid size-10 place-items-center rounded-xl bg-[#102a4c] text-white">
+                  <GraduationCap className="size-5" />
+                </span>
+              )}
+              <div className="text-left">
+                <p className="font-display text-sm font-bold text-[#102a4c]">{siteLogo.logoText || "Indian Public School"}</p>
+                <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">{siteLogo.logoSubText || "Learn · Lead · Inspire"}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 2: Certified Company Board */}
+      {activeTab === "certified" && (
+        <div className="mt-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="cert-enabled"
+              checked={certifiedBoard.enabled}
+              onChange={(e) => setCertifiedBoard((p) => ({ ...p, enabled: e.target.checked }))}
+              className="size-4 rounded text-[#1a5d9c]"
+            />
+            <label htmlFor="cert-enabled" className="text-xs font-bold text-slate-700 cursor-pointer">
+              Enable Certified Company Board in Footer
+            </label>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Board / Certification Title</label>
+              <input
+                type="text"
+                placeholder="e.g. CBSE Affiliated School"
+                value={certifiedBoard.title}
+                onChange={(e) => setCertifiedBoard((p) => ({ ...p, title: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Affiliation Code / Registration No.</label>
+              <input
+                type="text"
+                placeholder="e.g. Affiliation No. 1530211 | School Code: 53123"
+                value={certifiedBoard.code}
+                onChange={(e) => setCertifiedBoard((p) => ({ ...p, code: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700">Badge / Logo Image URL</label>
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="https://res.cloudinary.com/... badge image"
+                value={certifiedBoard.badgeUrl}
+                onChange={(e) => setCertifiedBoard((p) => ({ ...p, badgeUrl: e.target.value }))}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+              <button
+                type="button"
+                onClick={() => setGalleryPickerField("badgeUrl")}
+                className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
+              >
+                <UploadCloud size={14} /> Gallery
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Description / Details</label>
+              <textarea
+                rows={2}
+                placeholder="Details regarding CBSE certification & quality standards"
+                value={certifiedBoard.description}
+                onChange={(e) => setCertifiedBoard((p) => ({ ...p, description: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Verification Link URL</label>
+              <input
+                type="text"
+                placeholder="e.g. /mandatory-disclosure"
+                value={certifiedBoard.linkUrl}
+                onChange={(e) => setCertifiedBoard((p) => ({ ...p, linkUrl: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 3: Trust Board */}
+      {activeTab === "trust" && (
+        <div className="mt-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="trust-enabled"
+              checked={trustBoard.enabled}
+              onChange={(e) => setTrustBoard((p) => ({ ...p, enabled: e.target.checked }))}
+              className="size-4 rounded text-[#1a5d9c]"
+            />
+            <label htmlFor="trust-enabled" className="text-xs font-bold text-slate-700 cursor-pointer">
+              Enable Trust Board in Footer
+            </label>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Trust Name</label>
+              <input
+                type="text"
+                placeholder="e.g. K.S. Dalmia Education Trust"
+                value={trustBoard.trustName}
+                onChange={(e) => setTrustBoard((p) => ({ ...p, trustName: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Registration / Board Details</label>
+              <input
+                type="text"
+                placeholder="e.g. Established under KS Dalmia Education Trust"
+                value={trustBoard.regNo}
+                onChange={(e) => setTrustBoard((p) => ({ ...p, regNo: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700">Trust Seal / Crest Logo Image URL</label>
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="https://res.cloudinary.com/... trust logo"
+                value={trustBoard.logoUrl}
+                onChange={(e) => setTrustBoard((p) => ({ ...p, logoUrl: e.target.value }))}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+              <button
+                type="button"
+                onClick={() => setGalleryPickerField("trustLogoUrl")}
+                className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
+              >
+                <UploadCloud size={14} /> Gallery
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Trust Description</label>
+              <textarea
+                rows={2}
+                placeholder="Description of the educational trust and vision"
+                value={trustBoard.description}
+                onChange={(e) => setTrustBoard((p) => ({ ...p, description: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Official Trust Link URL</label>
+              <input
+                type="text"
+                placeholder="e.g. /about-us/school-establishment"
+                value={trustBoard.linkUrl}
+                onChange={(e) => setTrustBoard((p) => ({ ...p, linkUrl: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cloudinary picker modal */}
+      <CloudinaryGalleryModal
+        isOpen={Boolean(galleryPickerField)}
+        onClose={() => setGalleryPickerField(null)}
+        onSelectImage={(url) => {
+          if (galleryPickerField === "logoUrl") setSiteLogo((p) => ({ ...p, logoUrl: url }));
+          if (galleryPickerField === "badgeUrl") setCertifiedBoard((p) => ({ ...p, badgeUrl: url }));
+          if (galleryPickerField === "trustLogoUrl") setTrustBoard((p) => ({ ...p, logoUrl: url }));
+          setGalleryPickerField(null);
+        }}
+      />
+    </div>
+  );
+}
+
 function ResourceView({
   resource,
   items,
@@ -1277,6 +1724,7 @@ function ResourceView({
   onCreate,
   onEdit,
   onDelete,
+  token,
 }: {
   resource: Resource;
   items: RecordItem[];
@@ -1290,6 +1738,7 @@ function ResourceView({
   onCreate: () => void;
   onEdit: (item: RecordItem) => void;
   onDelete: (item: RecordItem) => void;
+  token?: string;
 }) {
   const isMediaResource = resource.key === "gallery";
   const isMenuResource = resource.key === "menu-items";
@@ -1350,6 +1799,14 @@ function ResourceView({
           </button>
         )}
       </div>
+
+      {resource.key === "school-settings" && (
+        <HeaderFooterSettingsCard
+          token={token || ""}
+          items={items}
+          onSaveComplete={() => onQueryChange({})}
+        />
+      )}
 
       <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
         {/* Header Controls */}

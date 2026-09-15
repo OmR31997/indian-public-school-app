@@ -3,11 +3,38 @@ import fallbackSiteData from "@/public/cloud-datasource.json";
 
 export type SiteRecord = ApiRecord;
 
+export interface SiteLogoSetting {
+  logoUrl?: string;
+  logoText?: string;
+  logoSubText?: string;
+}
+
+export interface CertifiedBoardSetting {
+  title?: string;
+  code?: string;
+  badgeUrl?: string;
+  description?: string;
+  linkUrl?: string;
+  enabled?: boolean;
+}
+
+export interface TrustBoardSetting {
+  trustName?: string;
+  regNo?: string;
+  logoUrl?: string;
+  description?: string;
+  linkUrl?: string;
+  enabled?: boolean;
+}
+
 export interface SiteData {
   home: SiteRecord[];
   news?: SiteRecord[];
   galleryItems?: SiteRecord[];
   reviewsItems?: SiteRecord[];
+  site_logo?: SiteLogoSetting;
+  certified_board?: CertifiedBoardSetting;
+  trust_board?: TrustBoardSetting;
   [key: string]: unknown;
 }
 
