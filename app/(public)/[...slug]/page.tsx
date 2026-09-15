@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { GraduationCap } from "lucide-react";
 import datasource from "@/public/cloud-datasource.json";
+import fallbackHeroImage from "@/assets/campus-aerial.jpg";
 
 type Content = Record<string, unknown>;
 
@@ -13,6 +16,39 @@ function label(value: string) {
   return value
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function buildBreadcrumbs(slug: string[], pageTitle: string) {
+  const items: { label: string; href: string }[] = [
+    { label: "Home", href: "/" },
+  ];
+
+  if (slug.length === 1) {
+    const s = slug[0].toLowerCase();
+    if (["curriculum", "syllabus", "academics", "courses"].includes(s)) {
+      items.push({ label: "Admission", href: "/#admissions" });
+    } else if (["fee-structure", "procedure", "eligibility", "enrolment"].includes(s)) {
+      items.push({ label: "Admission", href: "/#admissions" });
+    } else if (["about", "mission", "vision"].includes(s)) {
+      items.push({ label: "About Us", href: "/#about" });
+    }
+  } else {
+    let acc = "";
+    for (let i = 0; i < slug.length - 1; i++) {
+      acc += `/${slug[i]}`;
+      items.push({
+        label: label(slug[i]),
+        href: acc,
+      });
+    }
+  }
+
+  items.push({
+    label: pageTitle,
+    href: `/${slug.join("/")}`,
+  });
+
+  return items;
 }
 
 function findByRedirect(value: unknown, pathname: string): Content | null {
@@ -176,17 +212,56 @@ export default async function ContentPage({
   const images = contentMedia(page);
   const cards = childCards(page);
   const htmlContent = typeof page.textContent === "string" ? page.textContent : "";
+  const breadcrumbs = buildBreadcrumbs(slug, title);
+  const bannerImg =
+    images.length > 0
+      ? images[0]
+      : typeof page?.heroImage === "string" && page.heroImage
+      ? (page.heroImage as string)
+      : typeof page?.bannerImage === "string" && page.bannerImage
+      ? (page.bannerImage as string)
+      : fallbackHeroImage.src;
 
   return (
     <main className="flex-1">
-      <section className="surface-navy py-20 lg:py-28">
-        <div className="container-page max-w-4xl">
-          <p className="text-sm font-semibold tracking-[0.18em] text-gold uppercase">
-            Indian Public School
-          </p>
-          <h1 className="mt-4 font-display text-4xl text-navy-foreground sm:text-6xl">
-            {title}
-          </h1>
+      <section className="relative overflow-hidden bg-slate-950 py-5 sm:py-6 text-white shadow-lg border-b border-gold/30">
+        <div className="absolute inset-0 z-0">
+          <img
+            src={bannerImg}
+            alt={title}
+            className="h-full w-full object-cover object-center filter brightness-[0.4] contrast-[1.15] scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-navy-950/80 to-slate-950/95" />
+          <div className="absolute inset-0 bg-slate-950/30 backdrop-blur-[1px]" />
+        </div>
+
+        <div className="container-page relative z-10 max-w-5xl flex items-center">
+          <nav
+            aria-label="Breadcrumb"
+            className="inline-flex flex-wrap items-center gap-2.5 rounded-full border border-gold/40 bg-slate-950/75 px-5 py-2 text-xs font-semibold text-white/95 shadow-xl backdrop-blur-md sm:text-sm"
+          >
+            <GraduationCap className="size-4 text-gold shrink-0 mr-0.5" />
+            {breadcrumbs.map((item, idx) => {
+              const isLast = idx === breadcrumbs.length - 1;
+              return (
+                <div key={idx} className="inline-flex items-center gap-2.5">
+                  {idx > 0 && <span className="text-gold font-extrabold text-xs sm:text-sm">*</span>}
+                  {isLast ? (
+                    <span className="font-bold text-gold drop-shadow-sm">
+                      {item.label}
+                    </span>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="transition-colors hover:text-gold hover:underline text-white/80"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
         </div>
       </section>
       <section className="container-page py-16 lg:py-24">
