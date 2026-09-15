@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import { ChevronDown, GraduationCap, Menu, Phone, X } from "lucide-react";
+import { ChevronDown, ChevronRight, GraduationCap, Menu, Phone, X } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -21,13 +21,35 @@ const NAV = [
   { label: "Contact", href: "/#contact" },
 ];
 
+interface ApiSubMenuItem {
+  title: string;
+  linkUrl?: string;
+  targetUrl?: string;
+  slug?: string;
+  isPublished?: boolean;
+  order?: number;
+  subItems?: ApiSubMenuItem[];
+}
+
 interface ApiMenuItem {
   title: string;
   targetUrl?: string;
   slug?: string;
   isPublished?: boolean;
   order?: number;
-  subItems?: { title: string; linkUrl?: string; order?: number }[];
+  subItems?: ApiSubMenuItem[];
+}
+
+interface NavSubItem {
+  title: string;
+  linkUrl: string;
+  subItems: NavSubItem[];
+}
+
+interface NavItem {
+  label: string;
+  href: string;
+  subItems: NavSubItem[];
 }
 
 export function ScrollProgress() {
@@ -110,39 +132,46 @@ export function Navbar() {
   const menuCardItems = homeData(useSiteData()).menuCard;
   const legacyApiNav = Array.isArray(menuCardItems) ? (menuCardItems as Record<string, unknown>[]) : [];
 
-  const navigation = dbMenuItems.length
+  const normalizeHref = (rawUrl?: string): string => {
+    const url = (rawUrl || "/").trim();
+    if (!url) return "/";
+    if (url.startsWith("/") || url.startsWith("http")) return url;
+    if (url.startsWith("#")) return `/${url}`;
+    return `/#${url}`;
+  };
+
+  const mapSubItem = (s: ApiSubMenuItem): NavSubItem => {
+    const rawUrl = s.linkUrl || s.targetUrl || s.slug || "/";
+    const linkUrl = normalizeHref(rawUrl);
+    const childSubItems = Array.isArray(s.subItems)
+      ? s.subItems.map(mapSubItem).filter((c) => Boolean(c.title))
+      : [];
+    return {
+      title: s.title,
+      linkUrl,
+      subItems: childSubItems,
+    };
+  };
+
+  const navigation: NavItem[] = dbMenuItems.length
     ? dbMenuItems.map((item) => {
         const rawUrl = (item.targetUrl || item.slug || "/").trim();
-        const href = rawUrl.startsWith("/") || rawUrl.startsWith("http")
-          ? rawUrl
-          : rawUrl.startsWith("#")
-          ? `/${rawUrl}`
-          : `/#${rawUrl}`;
+        const href = normalizeHref(rawUrl);
         return {
           label: item.title,
           href,
           subItems: Array.isArray(item.subItems)
-            ? item.subItems
-                .map((s) => {
-                  const sUrl = (s.linkUrl || "/").trim();
-                  const sHref = sUrl.startsWith("/") || sUrl.startsWith("http")
-                    ? sUrl
-                    : sUrl.startsWith("#")
-                    ? `/${sUrl}`
-                    : `/#${sUrl}`;
-                  return { title: s.title, linkUrl: sHref };
-                })
-                .filter((s) => Boolean(s.title))
+            ? item.subItems.map(mapSubItem).filter((s) => Boolean(s.title))
             : [],
         };
       })
     : legacyApiNav.length
     ? legacyApiNav.map((item) => ({
         label: text(item.heading),
-        href: text(item.redirectUrl, "/"),
-        subItems: [] as { title: string; linkUrl?: string }[],
+        href: normalizeHref(text(item.redirectUrl, "/")),
+        subItems: [] as NavSubItem[],
       }))
-    : NAV.map((item) => ({ ...item, subItems: [] as { title: string; linkUrl?: string }[] }));
+    : NAV.map((item) => ({ ...item, subItems: [] as NavSubItem[] }));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -215,15 +244,42 @@ export function Navbar() {
               {item.subItems.length > 0 && (
                 <div className="pointer-events-none absolute left-0 top-full pt-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
                   <div className="w-56 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
-                    {item.subItems.map((sub, sIdx) => (
-                      <Link
-                        key={sIdx}
-                        href={sub.linkUrl || item.href}
-                        className="block rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
-                      >
-                        {sub.title}
-                      </Link>
-                    ))}
+                    {item.subItems.map((sub, sIdx) => {
+                      const hasLevel3 = sub.subItems && sub.subItems.length > 0;
+                      const targetHref = (sub.linkUrl === "/" && hasLevel3)
+                        ? sub.subItems[0].linkUrl
+                        : (sub.linkUrl || item.href);
+
+                      return (
+                        <div key={sIdx} className="group/sub relative">
+                          <Link
+                            href={targetHref}
+                            className="flex items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
+                          >
+                            <span>{sub.title}</span>
+                            {hasLevel3 && (
+                              <ChevronRight size={13} className="text-muted-foreground transition-transform group-hover/sub:translate-x-0.5" />
+                            )}
+                          </Link>
+
+                          {hasLevel3 && (
+                            <div className="pointer-events-none absolute left-full top-0 pl-1.5 opacity-0 transition-all duration-200 group-hover/sub:pointer-events-auto group-hover/sub:opacity-100">
+                              <div className="w-56 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
+                                {sub.subItems.map((sub3, s3Idx) => (
+                                  <Link
+                                    key={s3Idx}
+                                    href={sub3.linkUrl || targetHref}
+                                    className="block rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
+                                  >
+                                    {sub3.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -313,16 +369,39 @@ export function Navbar() {
                   </Link>
                   {item.subItems.length > 0 && (
                     <div className="ml-4 space-y-1 border-l-2 border-primary/20 py-1 pl-3">
-                      {item.subItems.map((sub, sIdx) => (
-                        <Link
-                          key={sIdx}
-                          href={sub.linkUrl || item.href}
-                          onClick={() => setOpen(false)}
-                          className="block rounded-lg px-3 py-1.5 text-xs font-semibold text-foreground/70 transition-colors hover:bg-primary/10 hover:text-primary"
-                        >
-                          {sub.title}
-                        </Link>
-                      ))}
+                      {item.subItems.map((sub, sIdx) => {
+                        const hasLevel3 = sub.subItems && sub.subItems.length > 0;
+                        const targetHref = (sub.linkUrl === "/" && hasLevel3)
+                          ? sub.subItems[0].linkUrl
+                          : (sub.linkUrl || item.href);
+
+                        return (
+                          <div key={sIdx} className="space-y-1">
+                            <Link
+                              href={targetHref}
+                              onClick={() => setOpen(false)}
+                              className="flex items-center justify-between rounded-lg px-3 py-1.5 text-xs font-semibold text-foreground/70 transition-colors hover:bg-primary/10 hover:text-primary"
+                            >
+                              <span>{sub.title}</span>
+                              {hasLevel3 && <ChevronDown size={12} className="text-muted-foreground/70" />}
+                            </Link>
+                            {hasLevel3 && (
+                              <div className="ml-3 space-y-1 border-l border-primary/15 pl-2">
+                                {sub.subItems.map((sub3, s3Idx) => (
+                                  <Link
+                                    key={s3Idx}
+                                    href={sub3.linkUrl || targetHref}
+                                    onClick={() => setOpen(false)}
+                                    className="block rounded-md px-2.5 py-1 text-[11px] font-medium text-foreground/60 transition-colors hover:bg-primary/5 hover:text-primary"
+                                  >
+                                    {sub3.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </motion.li>
@@ -347,3 +426,4 @@ export function Navbar() {
     </header>
   );
 }
+
