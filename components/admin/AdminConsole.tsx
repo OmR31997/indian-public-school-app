@@ -227,7 +227,7 @@ const resources: Resource[] = [
     icon: ImageIcon,
     protected: true,
     fields: ["eventName", "directory", "eventType", "fileUrl", "createdAt", "updatedAt"],
-    inputs: { eventName: "text", directory: "text", eventType: "select", fileUrl: "file" },
+    inputs: { eventName: "text", directory: "select", eventType: "select", fileUrl: "file" },
     options: {
       directory: [
         "/album/General",
@@ -254,6 +254,7 @@ const resources: Resource[] = [
         "indian-public-school/assets/Videos",
       ],
       eventType: [
+        "General",
         "Documents",
         "News",
         "Campus",
@@ -263,18 +264,9 @@ const resources: Resource[] = [
         "Hostel",
         "Arts",
         "Awareness",
-        "BirthCelebration",
-        "Ceremony",
-        "Expert Speech",
-        "Experiential Learning",
-        "Field Trip",
-        "NCC Training",
-        "Parent Teacher Meeting",
-        "SkillDevelopment",
-        "Subject Activity",
-        "Winner",
-        "Yoga Day",
-        "General",
+        "Celebration",
+        "Academic",
+        "Infrastructure",
       ],
     },
   },
@@ -1236,7 +1228,7 @@ const RESOURCE_FILTERS: Record<string, { label: string; key: string; options: st
     { label: "Status", key: "status", options: ["All", "New", "In Progress", "Contacted", "Resolved", "Closed"] },
   ],
   gallery: [
-    { label: "Event Type", key: "eventType", options: ["All", "Documents", "News", "Sports Day", "Annual Function", "Science Exhibition", "Cultural Event", "General", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts"] },
+    { label: "Event Type", key: "eventType", options: ["All", "General", "Documents", "News", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Awareness", "Celebration", "Academic", "Infrastructure"] },
     {
       label: "Directory",
       key: "directory",
@@ -1837,19 +1829,21 @@ function ResourceView({
 
       <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
         {/* Header Controls */}
-        <div className="flex flex-col gap-4 border-b border-slate-100 p-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-col gap-4 border-b border-slate-200/80 bg-slate-50/70 p-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-wrap items-center gap-3">
-            <p className="text-sm font-bold text-[#102a4c]">
-              <span className="rounded-md bg-blue-50 px-2 py-1 text-xs text-[#1a5d9c] font-bold">{totalItems}</span> {resource.label.toLowerCase()}
-            </p>
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-3 py-1 text-xs font-bold text-[#1a5d9c] shadow-2xs">
+              <span className="flex h-2 w-2 rounded-full bg-[#1a5d9c]"></span>
+              <span>{totalItems}</span>
+              <span className="capitalize font-medium text-slate-600">{resource.label.toLowerCase()}</span>
+            </div>
 
             {/* Domain Filter Selectors */}
             {filtersConfig.map((filter) => {
               const currentValue = query.filterKey === filter.key ? query.filterValue || "All" : "All";
               return (
-                <div key={filter.key} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs">
-                  <SlidersHorizontal size={13} className="text-slate-400" />
-                  <span className="font-medium text-slate-500">{filter.label}:</span>
+                <div key={filter.key} className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs shadow-2xs transition hover:border-slate-300">
+                  <SlidersHorizontal size={13} className="text-[#1a5d9c]" />
+                  <span className="font-semibold text-slate-500">{filter.label}:</span>
                   <select
                     value={currentValue}
                     onChange={(e) => {
@@ -1860,24 +1854,29 @@ function ResourceView({
                         onQueryChange({ filterKey: filter.key, filterValue: val, page: 1 });
                       }
                     }}
-                    className="bg-transparent font-bold text-slate-700 outline-none cursor-pointer"
+                    className="bg-transparent font-bold text-slate-800 outline-none cursor-pointer pr-1"
                   >
-                    {filter.options.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
+                    {filter.options.map((opt) => {
+                      const displayLabel = opt.startsWith("indian-public-school/assets/")
+                        ? opt.replace("indian-public-school/assets/", "Assets/")
+                        : opt;
+                      return (
+                        <option key={opt} value={opt}>{displayLabel}</option>
+                      );
+                    })}
                   </select>
                 </div>
               );
             })}
 
             {/* Sort Field & Order Toggle */}
-            <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs">
-              <ArrowUpDown size={13} className="text-slate-400" />
-              <span className="font-medium text-slate-500">Sort:</span>
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs shadow-2xs transition hover:border-slate-300">
+              <ArrowUpDown size={13} className="text-[#1a5d9c]" />
+              <span className="font-semibold text-slate-500">Sort:</span>
               <select
                 value={query.sortBy || "createdAt"}
                 onChange={(e) => onQueryChange({ sortBy: e.target.value, page: 1 })}
-                className="bg-transparent font-bold text-slate-700 outline-none cursor-pointer"
+                className="bg-transparent font-bold text-slate-800 outline-none cursor-pointer"
               >
                 <option value="createdAt">Created Date</option>
                 <option value="updatedAt">Updated Date</option>
@@ -1886,10 +1885,14 @@ function ResourceView({
               </select>
               <button
                 onClick={() => onQueryChange({ sortOrder: query.sortOrder === "asc" ? "desc" : "asc", page: 1 })}
-                className="ml-1 rounded px-1.5 py-0.5 font-bold uppercase tracking-wider text-[10px] bg-white border border-slate-200 text-slate-700 shadow-2xs hover:bg-slate-100"
+                className="ml-1 flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2 py-0.5 font-extrabold uppercase tracking-wider text-[10px] text-slate-700 shadow-2xs hover:bg-slate-200 transition"
                 title="Toggle sort direction"
               >
-                {query.sortOrder === "asc" ? "ASC" : "DESC"}
+                {query.sortOrder === "asc" ? (
+                  <><span>ASC</span><ArrowUp size={10} /></>
+                ) : (
+                  <><span>DESC</span><ArrowDown size={10} /></>
+                )}
               </button>
             </div>
 
@@ -1900,16 +1903,16 @@ function ResourceView({
                   setLocalSearch("");
                   onQueryChange(DEFAULT_QUERY);
                 }}
-                className="inline-flex items-center gap-1 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-800 transition hover:bg-amber-100"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300/80 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 shadow-2xs hover:bg-amber-100 transition active:scale-95"
               >
-                <RotateCcw size={13} /> Reset Filters
+                <RotateCcw size={13} className="text-amber-700" /> Reset Filters
               </button>
             )}
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-400 sm:w-64">
-              <Search size={16} />
+            <label className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-slate-400 sm:w-64 shadow-2xs focus-within:border-[#1a5d9c] focus-within:ring-2 focus-within:ring-blue-100 transition duration-150">
+              <Search size={15} className="text-slate-400" />
               <input
                 value={localSearch}
                 onChange={(event) => setLocalSearch(event.target.value)}
@@ -1918,15 +1921,15 @@ function ResourceView({
                 }}
                 onBlur={handleSearchSubmit}
                 placeholder={`Search ${resource.label.toLowerCase()}...`}
-                className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                className="w-full bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400"
               />
             </label>
 
             {isMediaResource && (
-              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-100/80 p-1 shadow-2xs">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-lg p-1.5 transition ${viewMode === "grid" ? "bg-white text-[#1a5d9c] shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  className={`rounded-lg p-1.5 transition ${viewMode === "grid" ? "bg-white text-[#1a5d9c] shadow-xs font-bold" : "text-slate-500 hover:text-slate-800"
                     }`}
                   title="Album Grid View"
                 >
@@ -1934,7 +1937,7 @@ function ResourceView({
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`rounded-lg p-1.5 transition ${viewMode === "list" ? "bg-white text-[#1a5d9c] shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  className={`rounded-lg p-1.5 transition ${viewMode === "list" ? "bg-white text-[#1a5d9c] shadow-xs font-bold" : "text-slate-500 hover:text-slate-800"
                     }`}
                   title="Table View"
                 >
@@ -4820,69 +4823,55 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                     )}
                   </div>
                 ) : type === "select" ? (
-                  <div className="relative">
-                    <select
-                      required={required}
-                      value={String(values[field] ?? "")}
-                      onChange={(event) => setValue(field, event.target.value)}
-                      className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-sm font-semibold text-slate-800 outline-none transition hover:border-slate-300 focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer"
-                    >
-                      <option value="" disabled className="text-slate-400">
-                        Select {titleCase(field)}
-                      </option>
-                      {(resource.options?.[field] || []).map((opt) => (
-                        <option key={opt} value={opt} className="text-slate-800 py-1 font-medium">
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  </div>
-                ) : field === "directory" ? (
                   (() => {
-                    const dirPresets = [
-                      "/album/General",
-                      "/album/Campus",
-                      "/album/Events",
-                      "/album/Sports",
-                      "/album/Activities",
-                      "/album/Hostel",
-                      "indian-public-school/assets/Header",
-                      "indian-public-school/assets/Home",
-                      "indian-public-school/assets/Infrastructure",
-                    ];
+                    const isGalleryEventType = resource.key === "gallery" && field === "eventType";
+                    const isGalleryDirectory = resource.key === "gallery" && field === "directory";
                     const currentVal = String(values[field] ?? "");
 
+                    const handleSelectEventType = (val: string) => {
+                      setValue("eventType", val);
+                      // Auto-sync directory if untouched or matching default album pattern
+                      const currentDir = String(values["directory"] ?? "");
+                      if (!currentDir || currentDir === "/album/" || currentDir.startsWith("/album/") || currentDir.startsWith("indian-public-school/assets/")) {
+                        if (val === "Documents") {
+                          setValue("directory", "indian-public-school/assets/Documents");
+                        } else if (val === "News") {
+                          setValue("directory", "indian-public-school/assets/News");
+                        } else if (val === "Infrastructure") {
+                          setValue("directory", "indian-public-school/assets/Infrastructure");
+                        } else {
+                          setValue("directory", `/album/${val}`);
+                        }
+                      }
+                    };
+
+                    const optionsList = resource.options?.[field] || [];
+
                     return (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
+                      <div className="relative">
+                        <select
                           required={required}
-                          placeholder="e.g. /album/sports or /album/events"
                           value={currentVal}
-                          onChange={(event) => setValue("directory", event.target.value)}
-                          className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs"
-                        />
-                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                          <span className="text-[11px] font-bold text-slate-400 mr-1">Quick Presets:</span>
-                          {dirPresets.map((preset) => {
-                            const isSelected = currentVal === preset;
-                            const label = preset.replace(/^\/album\//, "").replace(/^indian-public-school\/assets\//, "");
-                            return (
-                              <button
-                                key={preset}
-                                type="button"
-                                onClick={() => setValue("directory", preset)}
-                                className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${isSelected
-                                  ? "bg-[#1a5d9c] text-white shadow-2xs"
-                                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
-                                  }`}
-                              >
-                                📁 {label}
-                              </button>
-                            );
-                          })}
-                        </div>
+                          onChange={(event) => {
+                            const val = event.target.value;
+                            if (isGalleryEventType) {
+                              handleSelectEventType(val);
+                            } else {
+                              setValue(field, val);
+                            }
+                          }}
+                          className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-sm font-semibold text-slate-800 outline-none transition hover:border-slate-300 focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer"
+                        >
+                          <option value="" disabled className="text-slate-400">
+                            Select {titleCase(field)}
+                          </option>
+                          {optionsList.map((opt) => (
+                            <option key={opt} value={opt} className="text-slate-800 py-1 font-medium">
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       </div>
                     );
                   })()

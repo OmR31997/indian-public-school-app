@@ -18,7 +18,7 @@ const NAV = [
   { label: "Campus Life", href: "/#campus-life" },
   { label: "Infrastructure", href: "/#infrastructure" },
   { label: "Gallery", href: "/#gallery" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Contact", href: "/contact-us" },
 ];
 
 interface ApiSubMenuItem {
@@ -119,7 +119,7 @@ export function AnnouncementBar() {
             {ctaText}
           </Link>
           <Link
-            href="/#contact"
+            href="/contact-us"
             className="rounded-full border border-navy-foreground/30 px-3.5 py-1.5 text-xs font-semibold transition-colors hover:bg-navy-foreground/10"
           >
             Contact School
@@ -195,23 +195,23 @@ export function Navbar() {
 
   const navigation: NavItem[] = dbMenuItems.length
     ? dbMenuItems.map((item) => {
-        const rawUrl = (item.targetUrl || item.slug || "/").trim();
-        const href = normalizeHref(rawUrl);
-        return {
-          label: item.title,
-          href,
-          subItems: Array.isArray(item.subItems)
-            ? item.subItems.map(mapSubItem).filter((s) => Boolean(s.title))
-            : [],
-        };
-      })
+      const rawUrl = (item.targetUrl || item.slug || "/").trim();
+      const href = normalizeHref(rawUrl);
+      return {
+        label: item.title,
+        href,
+        subItems: Array.isArray(item.subItems)
+          ? item.subItems.map(mapSubItem).filter((s) => Boolean(s.title))
+          : [],
+      };
+    })
     : legacyApiNav.length
-    ? legacyApiNav.map((item) => ({
+      ? legacyApiNav.map((item) => ({
         label: text(item.heading),
         href: normalizeHref(text(item.redirectUrl, "/")),
         subItems: [] as NavSubItem[],
       }))
-    : NAV.map((item) => ({ ...item, subItems: [] as NavSubItem[] }));
+      : NAV.map((item) => ({ ...item, subItems: [] as NavSubItem[] }));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -332,12 +332,12 @@ export function Navbar() {
           <Button
             asChild
             size="sm"
-            className="hidden rounded-full sm:inline-flex"
+            className="hidden rounded-full sm:inline-flex text-white"
           >
             <Link href="/#admissions">Apply Now</Link>
           </Button>
           <Link
-            href="/#contact"
+            href="/contact-us"
             className="grid size-10 place-items-center rounded-full border border-border text-foreground transition-colors hover:bg-secondary xl:hidden"
             aria-label="Contact school"
           >

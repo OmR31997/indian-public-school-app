@@ -7,7 +7,7 @@ import { getOptionalApi, unwrapCollection, API_URL } from "@/lib/api-client";
 import { ImageStudioModal } from "./ImageStudioModal";
 import { FileViewerModal } from "@/components/ui/FileViewerModal";
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
-import { getCloudinaryPdfThumbnailUrl, isPdfFile } from "@/lib/file-preview";
+import { getCloudinaryPdfThumbnailUrl, isPdfFile, isDocumentFile } from "@/lib/file-preview";
 
 interface CloudinaryGalleryModalProps {
   isOpen: boolean;
@@ -26,24 +26,28 @@ interface MediaItem {
 
 export function getFileType(url: string): "image" | "video" | "audio" | "document" {
   if (!url || typeof url !== "string") return "image";
-  const cleanUrl = url.toLowerCase().split("?")[0];
+  const lowercaseUrl = url.toLowerCase();
+  const cleanUrl = lowercaseUrl.split("?")[0].split("#")[0];
+
   if (
     cleanUrl.match(/\.(mp4|webm|mov|mkv|avi|ogv)$/) ||
-    cleanUrl.includes("/video/upload/") ||
-    cleanUrl.includes("resource_type=video")
+    lowercaseUrl.includes("/video/upload/") ||
+    lowercaseUrl.includes("resource_type=video")
   ) {
     return "video";
   }
   if (
     cleanUrl.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/) ||
-    cleanUrl.includes("/audio/upload/") ||
-    cleanUrl.includes("resource_type=audio")
+    lowercaseUrl.includes("/audio/upload/") ||
+    lowercaseUrl.includes("resource_type=audio")
   ) {
     return "audio";
   }
   if (
+    isDocumentFile(url) ||
+    isPdfFile(url) ||
     cleanUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|7z)$/) ||
-    cleanUrl.includes("/raw/upload/")
+    lowercaseUrl.includes("/raw/upload/")
   ) {
     return "document";
   }

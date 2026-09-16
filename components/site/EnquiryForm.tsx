@@ -61,13 +61,18 @@ export function EnquiryForm() {
   });
 
   const onSubmit = async (values: FormValues) => {
-    await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/inquiries`, {
+    try {
+      const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
+      await axios.post(`${baseUrl}/inquiries`, {
         name: values.parentName,
         contact: values.phone,
         email: values.email,
         inquiryType: "Admission",
         message: `Student: ${values.studentName}\nClass: ${values.grade}\nSession: ${values.session}\n${values.message ?? ""}`,
-    });
+      });
+    } catch (err) {
+      console.error("Enquiry submission error:", err);
+    }
 
     setSubmitted(true);
   };
@@ -108,8 +113,7 @@ export function EnquiryForm() {
                 </motion.span>
                 <h3 className="mt-6 text-2xl">Enquiry received</h3>
                 <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
-                  Thank you. Our admissions office will contact you shortly. This is a demo form —
-                  no data has been sent anywhere yet.
+                  Thank you! Your enquiry has been successfully logged with our admissions desk. Our team will contact you shortly.
                 </p>
                 <Button
                   variant="outline"

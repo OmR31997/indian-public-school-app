@@ -10,6 +10,28 @@ export function isCloudinaryUrl(url?: string | null): boolean {
 export function normalizePdfUrl(url?: string | null): string {
   if (!url) return "";
   let clean = url.trim();
+
+  // Convert legacy signed Cloudinary download API links to direct Cloudinary CDN URLs
+  if (clean.includes("api.cloudinary.com") && clean.includes("download") && clean.includes("public_id=")) {
+    try {
+      const urlObj = new URL(clean);
+      const publicId = urlObj.searchParams.get("public_id");
+      const format = urlObj.searchParams.get("format") || "pdf";
+      const pathParts = urlObj.pathname.split("/");
+      const cloudIdx = pathParts.indexOf("v1_1");
+      const cloudName = cloudIdx !== -1 ? pathParts[cloudIdx + 1] : "niefrrkx";
+
+      if (publicId && cloudName) {
+        const decodedPublicId = decodeURIComponent(publicId);
+        const hasExt = decodedPublicId.toLowerCase().endsWith(`.${format.toLowerCase()}`);
+        const finalPublicId = hasExt ? decodedPublicId : `${decodedPublicId}.${format}`;
+        clean = `https://res.cloudinary.com/${cloudName}/image/upload/${finalPublicId}`;
+      }
+    } catch {
+      // Ignore URL parse error and proceed with original clean string
+    }
+  }
+
   if (clean.toLowerCase().endsWith(".pdf.pdf")) {
     clean = clean.substring(0, clean.length - 4);
   }
@@ -18,25 +40,37 @@ export function normalizePdfUrl(url?: string | null): string {
 
 export function getCleanUrl(url?: string | null): string {
   if (!url) return "";
-  return normalizePdfUrl(url).split("?")[0];
+  return normalizePdfUrl(url).split("?")[0].split("#")[0];
 }
 
 export function isPdfFile(url?: string | null): boolean {
-  if (!url) return false;
-  const clean = getCleanUrl(url).toLowerCase();
+  if (!url || typeof url !== "string") return false;
+  const normalized = normalizePdfUrl(url);
+  const lowercaseUrl = url.toLowerCase();
+  const clean = getCleanUrl(normalized).toLowerCase();
+
   return (
     clean.endsWith(".pdf") ||
-    clean.includes("resource_type=pdf") ||
-    (isCloudinaryUrl(url) && (clean.includes(".pdf") || clean.includes("/raw/upload/")))
+    lowercaseUrl.includes(".pdf") ||
+    lowercaseUrl.includes("format=pdf") ||
+    lowercaseUrl.includes("resource_type=pdf") ||
+    lowercaseUrl.includes("/pdf-proxy")
   );
 }
 
 export function isDocumentFile(url?: string | null): boolean {
-  if (!url) return false;
-  const clean = getCleanUrl(url).toLowerCase();
+  if (!url || typeof url !== "string") return false;
+  const normalized = normalizePdfUrl(url);
+  const clean = getCleanUrl(normalized).toLowerCase();
+  const lowercaseUrl = url.toLowerCase();
+
   return (
     isPdfFile(url) ||
     /\.(doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|7z)$/i.test(clean) ||
+    lowercaseUrl.includes(".doc") ||
+    lowercaseUrl.includes(".docx") ||
+    lowercaseUrl.includes(".xls") ||
+    lowercaseUrl.includes(".xlsx") ||
     clean.includes("/raw/upload/")
   );
 }
