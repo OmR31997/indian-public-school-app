@@ -57,6 +57,7 @@ import { CloudinaryGalleryModal, getFileType } from "@/components/admin/Cloudina
 import { FileViewerModal } from "@/components/ui/FileViewerModal";
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
 import { getCloudinaryPdfThumbnailUrl, isPdfFile, getCloudinaryInlineViewerUrl } from "@/lib/file-preview";
+import { imageUrl } from "@/lib/site-data";
 
 function parseJwt(token: string): { sub?: string; email?: string; role?: string; name?: string; allowedModules?: string[] } | null {
   try {
@@ -404,39 +405,44 @@ export const DEFAULT_QUERY: QueryParamsState = {
 };
 
 function asPaginatedPayload(payload: unknown, resourceKey?: string): { items: RecordItem[]; meta: PaginationMeta } {
-  let raw = (payload as { data?: unknown })?.data ?? payload;
-  let items: RecordItem[] = [];
-  let total = 0;
-  let page = 1;
-  let limit = 8;
-  let totalPages = 1;
-  let hasNextPage = false;
-  let hasPrevPage = false;
-
-  if (Array.isArray(raw)) {
-    items = raw as RecordItem[];
-    total = items.length;
-    page = 1;
-    limit = items.length || 8;
-    totalPages = 1;
-    hasNextPage = false;
-    hasPrevPage = false;
-  } else if (raw && typeof raw === "object") {
-    const rawObj = raw as Record<string, unknown>;
-    if (Array.isArray(rawObj.items)) {
-      items = rawObj.items as RecordItem[];
-      total = typeof rawObj.total === "number" ? rawObj.total : items.length;
-      page = typeof rawObj.page === "number" ? rawObj.page : 1;
-      limit = typeof rawObj.limit === "number" ? rawObj.limit : 8;
-      totalPages = typeof rawObj.totalPages === "number" ? rawObj.totalPages : Math.ceil(total / (limit || 1)) || 1;
-      hasNextPage = typeof rawObj.hasNextPage === "boolean" ? rawObj.hasNextPage : page < totalPages;
-      hasPrevPage = typeof rawObj.hasPrevPage === "boolean" ? rawObj.hasPrevPage : page > 1;
-    } else if (Array.isArray(rawObj.data)) {
-      items = rawObj.data as RecordItem[];
-      total = items.length;
-      totalPages = 1;
-    }
+  if (!payload || typeof payload !== "object") {
+    return {
+      items: [],
+      meta: { page: 1, limit: 8, total: 0, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+    };
   }
+
+  const pObj = payload as Record<string, unknown>;
+  let items: RecordItem[] = [];
+
+  // Extract items array
+  if (Array.isArray(pObj.data)) {
+    items = pObj.data as RecordItem[];
+  } else if (Array.isArray(pObj.items)) {
+    items = pObj.items as RecordItem[];
+  } else if (pObj.data && typeof pObj.data === "object") {
+    const dataObj = pObj.data as Record<string, unknown>;
+    if (Array.isArray(dataObj.items)) {
+      items = dataObj.items as RecordItem[];
+    } else if (Array.isArray(dataObj.data)) {
+      items = dataObj.data as RecordItem[];
+    }
+  } else if (Array.isArray(payload)) {
+    items = payload as RecordItem[];
+  }
+
+  // Extract meta/pagination info from top-level meta, data object, or top-level payload
+  const metaObj =
+    (pObj.meta && typeof pObj.meta === "object" ? (pObj.meta as Record<string, unknown>) : null) ||
+    (pObj.data && typeof pObj.data === "object" && !Array.isArray(pObj.data) ? (pObj.data as Record<string, unknown>) : null) ||
+    pObj;
+
+  const total = typeof metaObj.total === "number" ? metaObj.total : items.length;
+  const page = typeof metaObj.page === "number" ? metaObj.page : 1;
+  const limit = typeof metaObj.limit === "number" ? metaObj.limit : (items.length || 8);
+  const totalPages = typeof metaObj.totalPages === "number" ? metaObj.totalPages : Math.ceil(total / (limit || 1)) || 1;
+  const hasNextPage = typeof metaObj.hasNextPage === "boolean" ? metaObj.hasNextPage : page < totalPages;
+  const hasPrevPage = typeof metaObj.hasPrevPage === "boolean" ? metaObj.hasPrevPage : page > 1;
 
   if (resourceKey === "menu-items" || items.some((i) => Array.isArray(i.subItems) && i.subItems.length > 0)) {
     items = flattenMenuItems(items);
@@ -553,8 +559,10 @@ export function AdminConsole() {
 
   const fetchResource = useCallback(async (key: ResourceKey, overrideQuery?: Partial<QueryParamsState>) => {
     try {
+      const defaultLimit = key === "gallery" ? 100 : DEFAULT_QUERY.limit;
       const currentQuery = {
         ...DEFAULT_QUERY,
+        limit: defaultLimit,
         ...(queryParamsRef.current[key] || {}),
         ...(overrideQuery || {}),
       };
@@ -587,9 +595,7 @@ export function AdminConsole() {
       const parsed = asPaginatedPayload(response.data, key);
       setData((previous) => ({ ...previous, [key]: parsed.items }));
       setMetaData((previous) => ({ ...previous, [key]: parsed.meta }));
-      if (overrideQuery) {
-        setQueryParams((previous) => ({ ...previous, [key]: currentQuery }));
-      }
+      setQueryParams((previous) => ({ ...previous, [key]: currentQuery }));
     } catch (err) {
       if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 404) && key === "users") {
         setToken("");
@@ -1280,6 +1286,7 @@ function HeaderFooterSettingsCard({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const siteDsItem = useMemo(() => items.find((i) => i.key === "site_datasource"), [items]);
   const logoItem = useMemo(() => items.find((i) => i.key === "site_logo"), [items]);
   const certItem = useMemo(() => items.find((i) => i.key === "certified_board"), [items]);
   const trustItem = useMemo(() => items.find((i) => i.key === "trust_board"), [items]);
@@ -1309,16 +1316,27 @@ function HeaderFooterSettingsCard({
   });
 
   useEffect(() => {
-    if (logoItem?.value && typeof logoItem.value === "object") {
+    const dsVal = (siteDsItem?.value as Record<string, any>) || {};
+    const homeIdentity = (Array.isArray(dsVal.home) ? dsVal.home[0]?.identity : dsVal.identity) || {};
+
+    if (homeIdentity.site_logo && typeof homeIdentity.site_logo === "object") {
+      setSiteLogo((prev) => ({ ...prev, ...(homeIdentity.site_logo as object) }));
+    } else if (logoItem?.value && typeof logoItem.value === "object") {
       setSiteLogo((prev) => ({ ...prev, ...(logoItem.value as object) }));
     }
-    if (certItem?.value && typeof certItem.value === "object") {
+
+    if (homeIdentity.certified_board && typeof homeIdentity.certified_board === "object") {
+      setCertifiedBoard((prev) => ({ ...prev, ...(homeIdentity.certified_board as object) }));
+    } else if (certItem?.value && typeof certItem.value === "object") {
       setCertifiedBoard((prev) => ({ ...prev, ...(certItem.value as object) }));
     }
-    if (trustItem?.value && typeof trustItem.value === "object") {
+
+    if (homeIdentity.trust_board && typeof homeIdentity.trust_board === "object") {
+      setTrustBoard((prev) => ({ ...prev, ...(homeIdentity.trust_board as object) }));
+    } else if (trustItem?.value && typeof trustItem.value === "object") {
       setTrustBoard((prev) => ({ ...prev, ...(trustItem.value as object) }));
     }
-  }, [logoItem, certItem, trustItem]);
+  }, [siteDsItem, logoItem, certItem, trustItem]);
 
   const saveSettings = async () => {
     if (!token) {
@@ -1331,47 +1349,40 @@ function HeaderFooterSettingsCard({
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
+      const currentDsVal = (siteDsItem?.value as Record<string, any>) || {};
+      const homeList = Array.isArray(currentDsVal.home) ? [...currentDsVal.home] : [{}];
+      const firstHome = { ...(homeList[0] || {}) };
+      const identityObj = {
+        ...(firstHome.identity || {}),
+        site_logo: siteLogo,
+        certified_board: certifiedBoard,
+        trust_board: trustBoard,
+      };
+      firstHome.identity = identityObj;
+      homeList[0] = firstHome;
+
+      const finalVal = {
+        ...currentDsVal,
+        site_logo: siteLogo,
+        certified_board: certifiedBoard,
+        trust_board: trustBoard,
+        home: homeList,
+      };
 
       await axios.post(
         `${API_URL}/school-settings`,
         {
-          key: "site_logo",
-          category: "Header",
-          description: "Header and Footer School Logo branding",
-          value: siteLogo,
+          key: "site_datasource",
+          category: "Content",
+          description: "Full home page and website section layout configuration datasource",
+          value: finalVal,
           isPublic: true,
           status: "Active",
         },
         { headers }
       );
 
-      await axios.post(
-        `${API_URL}/school-settings`,
-        {
-          key: "certified_board",
-          category: "Footer",
-          description: "Certified Company Board & Affiliation Details",
-          value: certifiedBoard,
-          isPublic: true,
-          status: "Active",
-        },
-        { headers }
-      );
-
-      await axios.post(
-        `${API_URL}/school-settings`,
-        {
-          key: "trust_board",
-          category: "Footer",
-          description: "Trust Board & Educational Trust Details",
-          value: trustBoard,
-          isPublic: true,
-          status: "Active",
-        },
-        { headers }
-      );
-
-      setMessage("Header & Footer identity settings saved successfully!");
+      setMessage("Header & Footer identity settings saved successfully inside site_datasource!");
       onSaveComplete();
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -1774,9 +1785,25 @@ function ResourceView({
   );
 
   const getMediaUrl = (item: RecordItem): string => {
-    const val = item.fileUrl || item.url || item.path || item.attachmentUrl || item.avatar;
-    if (Array.isArray(val)) return String(val[0] || "");
-    return String(val || "");
+    const val =
+      item.fileUrl ||
+      item.fileUrls ||
+      item.url ||
+      item.secure_url ||
+      item.path ||
+      item.attachmentUrl ||
+      item.avatar ||
+      item.src;
+    let raw = "";
+    if (Array.isArray(val)) {
+      raw = String(val[0] || "");
+    } else {
+      raw = String(val || "");
+    }
+    if (!raw) {
+      return "https://res.cloudinary.com/niefrrkx/image/upload/v1789163175/indian-public-school/assets/Home/hero-campus.jpg";
+    }
+    return imageUrl(raw);
   };
 
   const handleSearchSubmit = () => {
@@ -2268,6 +2295,8 @@ function ResourceView({
                 <option value={25}>25</option>
                 <option value={50}>50</option>
                 <option value={100}>100</option>
+                <option value={200}>200</option>
+                <option value={500}>500 (All)</option>
               </select>
             </div>
           </div>
@@ -2397,6 +2426,37 @@ function HomeLayoutEditorModal({
         return;
       }
     }
+
+    const homeList = Array.isArray(finalVal.home) ? [...finalVal.home] : [{}];
+    const firstHome = { ...(homeList[0] || {}) };
+    const currentIdentity = { ...(firstHome.identity || {}) };
+
+    const headerObj = { ...(finalVal.header || currentIdentity.header || {}) };
+    const footerObj = { ...(finalVal.footer || currentIdentity.footer || {}) };
+    const logoObj = { ...(finalVal.site_logo || currentIdentity.site_logo || {}) };
+    const certObj = { ...(finalVal.certified_board || currentIdentity.certified_board || {}) };
+    const trustObj = { ...(finalVal.trust_board || currentIdentity.trust_board || {}) };
+
+    firstHome.identity = {
+      ...currentIdentity,
+      header: headerObj,
+      footer: footerObj,
+      site_logo: logoObj,
+      certified_board: certObj,
+      trust_board: trustObj,
+    };
+    homeList[0] = firstHome;
+
+    finalVal = {
+      ...finalVal,
+      header: headerObj,
+      footer: footerObj,
+      site_logo: logoObj,
+      certified_board: certObj,
+      trust_board: trustObj,
+      home: homeList,
+    };
+
     onSave({
       key: record?.key || "site_datasource",
       category: record?.category || "Content",
@@ -2404,6 +2464,48 @@ function HomeLayoutEditorModal({
       status: "Active",
       value: finalVal,
       isPublic: true,
+    });
+  };
+
+  const updateHeaderField = (field: string, val: string) => {
+    setDatasource((prev: any) => {
+      const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
+      const firstHome = { ...(homeList[0] || {}) };
+      const identityObj = { ...(firstHome.identity || {}) };
+      const headerObj = { ...(identityObj.header || prev?.header || {}), [field]: val };
+
+      identityObj.header = headerObj;
+      firstHome.identity = identityObj;
+      homeList[0] = firstHome;
+
+      const next = {
+        ...prev,
+        header: headerObj,
+        home: homeList,
+      };
+      setJsonText(JSON.stringify(next, null, 2));
+      return next;
+    });
+  };
+
+  const updateFooterField = (field: string, val: string) => {
+    setDatasource((prev: any) => {
+      const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
+      const firstHome = { ...(homeList[0] || {}) };
+      const identityObj = { ...(firstHome.identity || {}) };
+      const footerObj = { ...(identityObj.footer || prev?.footer || {}), [field]: val };
+
+      identityObj.footer = footerObj;
+      firstHome.identity = identityObj;
+      homeList[0] = firstHome;
+
+      const next = {
+        ...prev,
+        footer: footerObj,
+        home: homeList,
+      };
+      setJsonText(JSON.stringify(next, null, 2));
+      return next;
     });
   };
 
@@ -2550,15 +2652,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. Admissions Open for Session 2026-27 | Apply Online Today"
-                      value={datasource?.header?.noticeText || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, header: { ...prev?.header, noticeText: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.header?.noticeText || datasource?.header?.noticeText || ""}
+                      onChange={(e) => updateHeaderField("noticeText", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -2568,15 +2663,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. +91-9876543210"
-                      value={datasource?.header?.phone || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, header: { ...prev?.header, phone: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.header?.phone || datasource?.header?.phone || ""}
+                      onChange={(e) => updateHeaderField("phone", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -2586,15 +2674,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. info@indianpublicschool.in"
-                      value={datasource?.header?.email || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, header: { ...prev?.header, email: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.header?.email || datasource?.header?.email || ""}
+                      onChange={(e) => updateHeaderField("email", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -2604,15 +2685,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. Apply Now"
-                      value={datasource?.header?.ctaText || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, header: { ...prev?.header, ctaText: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.header?.ctaText || datasource?.header?.ctaText || ""}
+                      onChange={(e) => updateHeaderField("ctaText", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -2622,51 +2696,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. /admission"
-                      value={datasource?.header?.ctaUrl || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, header: { ...prev?.header, ctaUrl: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">School Brand Name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Indian Public School"
-                      value={datasource?.header?.logoText || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, header: { ...prev?.header, logoText: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Brand Tagline / Affiliation Text</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. CBSE Affiliated Institution"
-                      value={datasource?.header?.logoSubText || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, header: { ...prev?.header, logoSubText: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.header?.ctaUrl || datasource?.header?.ctaUrl || ""}
+                      onChange={(e) => updateHeaderField("ctaUrl", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -2689,15 +2720,8 @@ function HomeLayoutEditorModal({
                     <textarea
                       rows={2}
                       placeholder="Brief introduction displayed in website footer"
-                      value={datasource?.footer?.aboutText || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, aboutText: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.aboutText || datasource?.footer?.aboutText || ""}
+                      onChange={(e) => updateFooterField("aboutText", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none resize-y"
                     />
                   </div>
@@ -2707,15 +2731,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. IPS Main Campus, School Road, City Center"
-                      value={datasource?.footer?.address || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, address: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.address || datasource?.footer?.address || ""}
+                      onChange={(e) => updateFooterField("address", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -2725,15 +2742,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. +91-9876543210"
-                      value={datasource?.footer?.phone || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, phone: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.phone || datasource?.footer?.phone || ""}
+                      onChange={(e) => updateFooterField("phone", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -2743,15 +2753,8 @@ function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. contact@indianpublicschool.in"
-                      value={datasource?.footer?.email || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, email: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.email || datasource?.footer?.email || ""}
+                      onChange={(e) => updateFooterField("email", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>

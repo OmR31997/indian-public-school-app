@@ -1,6 +1,48 @@
 {
   "home": [
     {
+      "identity": {
+        "header": {
+          "noticeText": "Admissions Open for Session 2026-27",
+          "phone": "",
+          "email": "",
+          "ctaText": "Apply Now",
+          "ctaUrl": "/#admissions",
+          "logoText": "Indian Public School",
+          "logoSubText": "Learn · Lead · Inspire",
+          "logoUrl": ""
+        },
+        "footer": {
+          "aboutText": "A co-educational CBSE school committed to academic excellence, strong character and genuine care for every child.",
+          "address": "Main Road, Near RMC, Khetrajpur, Sambalpur, Odisha - 768006",
+          "phone": "+91 8114320555",
+          "email": "Ipssbp75@gmail.com",
+          "copyright": "© 2026 Indian Public School. All rights reserved.",
+          "logoText": "Indian Public School",
+          "logoSubText": "Learn · Lead · Inspire"
+        },
+        "site_logo": {
+          "logoUrl": "",
+          "logoText": "Indian Public School",
+          "logoSubText": "Learn · Lead · Inspire"
+        },
+        "certified_board": {
+          "title": "CBSE Affiliated School",
+          "code": "Affiliation No. 1530211 | School Code: 53123",
+          "badgeUrl": "",
+          "description": "Affiliated to Central Board of Secondary Education, New Delhi",
+          "linkUrl": "/mandatory-disclosure",
+          "enabled": true
+        },
+        "trust_board": {
+          "trustName": "K.S. Dalmia Education Trust",
+          "regNo": "Established under KS Dalmia Education Trust",
+          "logoUrl": "",
+          "description": "Dedicated to character building, academic excellence, and holistic personality development.",
+          "linkUrl": "/about-us/school-establishment",
+          "enabled": true
+        }
+      },
       "hero": {
         "content": [
           {

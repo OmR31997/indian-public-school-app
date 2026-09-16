@@ -125,7 +125,7 @@ export function CloudinaryGalleryModal({
     const fetchGalleryMedia = async () => {
       setLoading(true);
       try {
-        const galleryRes = await getOptionalApi<any>("/gallery?limit=100");
+        const galleryRes = await getOptionalApi<any>("/gallery?limit=1000");
         const dbItems = unwrapCollection<any>(galleryRes);
 
         const fetchedMedia: MediaItem[] = (Array.isArray(dbItems) ? dbItems : []).flatMap(

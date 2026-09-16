@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
+import Link from "next/link";
 import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
 import { cn } from "@/lib/utils";
@@ -19,16 +20,31 @@ function isStaffOrStudentItem(item: Record<string, unknown>): boolean {
     ? item.tags.map((t) => String(t).toLowerCase())
     : [String(item.tags || "").toLowerCase()];
 
-  const forbiddenTerms = ["staff", "staffs", "teacher", "teachers", "faculty", "student", "students", "profile", "avatar"];
+  const forbiddenTerms = [
+    "staff",
+    "staffs",
+    "teacher",
+    "teachers",
+    "faculty",
+    "student",
+    "students",
+    "profile",
+    "avatar",
+    "press",
+    "pressrelease",
+    "press-release",
+    "press_release",
+  ];
 
-  if (forbiddenTerms.some((term) => type === term || type.includes(`${term}_`) || type.includes(`_${term}`))) return true;
+  if (forbiddenTerms.some((term) => type === term || type.includes(`${term}_`) || type.includes(`_${term}`) || type.includes(term))) return true;
   if (forbiddenTerms.some((term) => cat === term)) return true;
   if (forbiddenTerms.some((term) => tags.includes(term))) return true;
   if (
     name.includes("staff photo") ||
     name.includes("student photo") ||
     name.includes("staff profile") ||
-    name.includes("student profile")
+    name.includes("student profile") ||
+    name.includes("press release")
   ) {
     return true;
   }
@@ -39,23 +55,34 @@ function isStaffOrStudentUrl(url: string): boolean {
   if (!url) return false;
   const lower = url.toLowerCase();
   return (
-    lower.includes("/staff/") ||
-    lower.includes("/staffs/") ||
-    lower.includes("/student/") ||
-    lower.includes("/students/") ||
-    lower.includes("/profiles/") ||
-    lower.includes("/avatars/") ||
-    lower.includes("staff_photo") ||
-    lower.includes("student_photo") ||
-    lower.includes("staff-photo") ||
-    lower.includes("student-photo") ||
-    lower.includes("staff_profile") ||
-    lower.includes("student_profile")
-  ) && !lower.includes("campus");
+    (lower.includes("/staff/") ||
+      lower.includes("/staffs/") ||
+      lower.includes("/student/") ||
+      lower.includes("/students/") ||
+      lower.includes("/profiles/") ||
+      lower.includes("/avatars/") ||
+      lower.includes("/press/") ||
+      lower.includes("/pressrelease/") ||
+      lower.includes("staff_photo") ||
+      lower.includes("student_photo") ||
+      lower.includes("staff-photo") ||
+      lower.includes("student-photo") ||
+      lower.includes("staff_profile") ||
+      lower.includes("student_profile") ||
+      lower.includes("press_release") ||
+      lower.includes("press-release") ||
+      lower.includes("pressrelease")) &&
+    !lower.includes("campus")
+  );
 }
 
 function mapEventTypeToCategory(rawType: unknown): Category {
   const t = text(rawType, "Campus").trim();
+  if (t.startsWith("/album/")) {
+    const folder = t.replace(/^\/album\//i, "").trim();
+    const matched = CATEGORIES.find((c) => c.toLowerCase() === folder.toLowerCase());
+    if (matched && matched !== "All") return matched as Category;
+  }
   if (["Campus", "Events", "Sports", "Activities", "Hostel", "Arts"].includes(t)) {
     return t as Category;
   }
@@ -182,6 +209,16 @@ export function Gallery() {
             ))}
           </AnimatePresence>
         </motion.div>
+
+        <div className="mt-12 text-center">
+          <Link
+            href={active !== "All" ? `/album/${encodeURIComponent(active.toLowerCase())}` : "/gallery-album"}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
+          >
+            <span>{active !== "All" ? `Explore ${active} Photo Albums` : "Explore All Photo Albums"}</span>
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
       </div>
 
       <AnimatePresence>

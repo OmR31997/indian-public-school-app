@@ -5,7 +5,7 @@ import axios from "axios";
 import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
-import { text } from "@/lib/site-data";
+import { homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
 
@@ -69,7 +69,8 @@ const DEFAULT_FOOTER_COLUMNS = [
 
 export function Footer() {
   const siteData = useSiteData();
-  const footerConfig = (siteData.footer as Record<string, unknown>) ?? {};
+  const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
+  const footerConfig = (homeIdentity.footer as Record<string, unknown>) || (siteData.footer as Record<string, unknown>) || {};
   const contact = (siteData["contact-us"] as Record<string, unknown>) ?? {};
   const addressObj = (contact.Address as Record<string, unknown>) ?? {};
   const fallbackAddress = [addressObj.address, addressObj.district, addressObj.state, addressObj["Post-Office"]]
@@ -152,15 +153,16 @@ export function Footer() {
     { icon: Linkedin, label: "LinkedIn", href: text(footerConfig.linkedin) || text(socialsObj.linkedin, "https://linkedin.com") },
   ];
 
-  const siteLogo = (siteData.site_logo as Record<string, string>) || {};
-  const customLogoUrl = siteLogo.logoUrl?.trim();
-  const displayBrandTitle = siteLogo.logoText?.trim() || brandTitle;
-  const displayBrandSubTitle = siteLogo.logoSubText?.trim() || brandSubTitle;
+  const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
+  const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
+  const customLogoUrl = text(footerConfig.logoUrl) || siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim();
+  const displayBrandTitle = text(footerConfig.logoText) || siteLogo.logoText?.trim() || headerConfig.logoText?.trim() || brandTitle;
+  const displayBrandSubTitle = text(footerConfig.logoSubText) || siteLogo.logoSubText?.trim() || headerConfig.logoSubText?.trim() || brandSubTitle;
 
-  const certifiedBoard = (siteData.certified_board as Record<string, unknown>) || {};
+  const certifiedBoard = (homeIdentity.certified_board as Record<string, unknown>) || (siteData?.certified_board as Record<string, unknown>) || (footerConfig.certified_board as Record<string, unknown>) || {};
   const certifiedEnabled = certifiedBoard.enabled !== false && Boolean(certifiedBoard.title || certifiedBoard.badgeUrl || certifiedBoard.code);
 
-  const trustBoard = (siteData.trust_board as Record<string, unknown>) || {};
+  const trustBoard = (homeIdentity.trust_board as Record<string, unknown>) || (siteData?.trust_board as Record<string, unknown>) || (footerConfig.trust_board as Record<string, unknown>) || {};
   const trustEnabled = trustBoard.enabled !== false && Boolean(trustBoard.trustName || trustBoard.logoUrl || trustBoard.regNo);
 
   return (

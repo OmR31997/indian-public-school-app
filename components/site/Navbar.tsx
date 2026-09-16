@@ -69,28 +69,54 @@ export function ScrollProgress() {
 }
 
 export function AnnouncementBar() {
-  const hero = (homeData(useSiteData()).hero as Record<string, unknown>) ?? {};
+  const siteData = useSiteData();
+  const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
+  const headerConfig = (homeIdentity.header as Record<string, unknown>) || (siteData?.header as Record<string, unknown>) || {};
+  const hero = (homeData(siteData).hero as Record<string, unknown>) ?? {};
   const content = Array.isArray(hero.content)
     ? (hero.content[0] as Record<string, unknown>)
     : {};
+
+  const noticeText =
+    text(headerConfig.noticeText) ||
+    text(content.session, "Admissions Open for the current academic session");
+  const phone = text(headerConfig.phone);
+  const email = text(headerConfig.email);
+  const ctaText = text(headerConfig.ctaText) || "Apply Now";
+  const ctaUrl = text(headerConfig.ctaUrl) || "/#admissions";
+
   return (
     <div className="surface-navy relative z-40 text-navy-foreground">
       <div className="container-page flex flex-col items-center justify-between gap-2 py-2.5 text-center sm:flex-row sm:text-left">
-        <p className="text-xs font-medium sm:text-sm">
-          <span className="mr-2 inline-block rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold-foreground uppercase">
-            New
-          </span>
-          {text(
-            content.session,
-            "Admissions Open for the current academic session",
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+          <p className="text-xs font-medium sm:text-sm">
+            <span className="mr-2 inline-block rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold-foreground uppercase">
+              New
+            </span>
+            {noticeText}
+          </p>
+          {(phone || email) && (
+            <div className="hidden items-center gap-3 text-xs opacity-90 lg:flex">
+              {phone && (
+                <a href={`tel:${phone}`} className="flex items-center gap-1 hover:underline">
+                  <Phone size={12} className="text-gold" />
+                  <span>{phone}</span>
+                </a>
+              )}
+              {email && (
+                <a href={`mailto:${email}`} className="flex items-center gap-1 hover:underline">
+                  <span>{email}</span>
+                </a>
+              )}
+            </div>
           )}
-        </p>
+        </div>
         <div className="flex items-center gap-2">
           <Link
-            href="/#admissions"
+            href={ctaUrl}
             className="rounded-full bg-gold px-3.5 py-1.5 text-xs font-semibold text-gold-foreground transition-transform hover:-translate-y-0.5"
           >
-            Apply Now
+            {ctaText}
           </Link>
           <Link
             href="/#contact"
@@ -113,6 +139,15 @@ export function Navbar() {
   const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>(initialMenuItems);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [expandedMobile, setExpandedMobile] = useState<Record<string, boolean>>({});
+
+  const toggleMobileExpand = (key: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setExpandedMobile((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -192,10 +227,12 @@ export function Navbar() {
     };
   }, [open]);
 
-  const siteLogo = (siteData.site_logo as Record<string, string>) || {};
-  const customLogoUrl = siteLogo.logoUrl?.trim();
-  const logoTitle = siteLogo.logoText?.trim() || "Indian Public School";
-  const logoSubtitle = siteLogo.logoSubText?.trim() || "Learn · Lead · Inspire";
+  const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
+  const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
+  const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
+  const customLogoUrl = headerConfig.logoUrl?.trim() || siteLogo.logoUrl?.trim();
+  const logoTitle = headerConfig.logoText?.trim() || siteLogo.logoText?.trim() || "Indian Public School";
+  const logoSubtitle = headerConfig.logoSubText?.trim() || siteLogo.logoSubText?.trim() || "Learn · Lead · Inspire";
 
   return (
     <header
@@ -351,65 +388,141 @@ export function Navbar() {
             className="overflow-hidden border-t border-border bg-background/98 backdrop-blur-xl xl:hidden"
           >
             <motion.ul
-              className="container-page grid gap-1 py-4"
+              className="container-page grid gap-1.5 py-4 max-h-[80vh] overflow-y-auto"
               initial="hidden"
               animate="show"
               variants={{ show: { transition: { staggerChildren: 0.045 } } }}
             >
-              {navigation.map((item, index) => (
-                <motion.li
-                  key={`${item.href || "mobile-navigation-item"}-${index}`}
-                  variants={{
-                    hidden: { opacity: 0, x: -16 },
-                    show: { opacity: 1, x: 0 },
-                  }}
-                >
-                  <Link
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="block rounded-xl px-4 py-2.5 text-base font-medium transition-colors hover:bg-secondary"
-                  >
-                    {item.label}
-                  </Link>
-                  {item.subItems.length > 0 && (
-                    <div className="ml-4 space-y-1 border-l-2 border-primary/20 py-1 pl-3">
-                      {item.subItems.map((sub, sIdx) => {
-                        const hasLevel3 = sub.subItems && sub.subItems.length > 0;
-                        const targetHref = (sub.linkUrl === "/" && hasLevel3)
-                          ? sub.subItems[0].linkUrl
-                          : (sub.linkUrl || item.href);
+              {navigation.map((item, index) => {
+                const itemKey = `item-${index}`;
+                const hasSub = item.subItems.length > 0;
+                const isExpanded = Boolean(expandedMobile[itemKey]);
 
-                        return (
-                          <div key={sIdx} className="space-y-1">
-                            <Link
-                              href={targetHref}
-                              onClick={() => setOpen(false)}
-                              className="flex items-center justify-between rounded-lg px-3 py-1.5 text-xs font-semibold text-foreground/70 transition-colors hover:bg-primary/10 hover:text-primary"
-                            >
-                              <span>{sub.title}</span>
-                              {hasLevel3 && <ChevronDown size={12} className="text-muted-foreground/70" />}
-                            </Link>
-                            {hasLevel3 && (
-                              <div className="ml-3 space-y-1 border-l border-primary/15 pl-2">
-                                {sub.subItems.map((sub3, s3Idx) => (
-                                  <Link
-                                    key={s3Idx}
-                                    href={sub3.linkUrl || targetHref}
-                                    onClick={() => setOpen(false)}
-                                    className="block rounded-md px-2.5 py-1 text-[11px] font-medium text-foreground/60 transition-colors hover:bg-primary/5 hover:text-primary"
-                                  >
-                                    {sub3.title}
-                                  </Link>
-                                ))}
-                              </div>
+                return (
+                  <motion.li
+                    key={`${item.href || "mobile-navigation-item"}-${index}`}
+                    variants={{
+                      hidden: { opacity: 0, x: -16 },
+                      show: { opacity: 1, x: 0 },
+                    }}
+                    className="rounded-xl bg-secondary/30 border border-border/40 overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between px-4 py-2.5">
+                      <Link
+                        href={item.href}
+                        onClick={(e) => {
+                          if (hasSub && (item.href === "/" || item.href === "#" || item.href.endsWith("#"))) {
+                            toggleMobileExpand(itemKey, e);
+                          } else {
+                            setOpen(false);
+                          }
+                        }}
+                        className="flex-1 text-base font-semibold transition-colors hover:text-primary"
+                      >
+                        {item.label}
+                      </Link>
+
+                      {hasSub && (
+                        <button
+                          type="button"
+                          onClick={(e) => toggleMobileExpand(itemKey, e)}
+                          className="grid size-8 place-items-center rounded-lg border border-border/60 bg-background/80 text-foreground/80 hover:bg-primary/10 hover:text-primary transition-colors"
+                          aria-label={`Toggle ${item.label} sub menu`}
+                        >
+                          <ChevronDown
+                            size={16}
+                            className={cn(
+                              "transition-transform duration-300",
+                              isExpanded && "rotate-180 text-primary",
                             )}
-                          </div>
-                        );
-                      })}
+                          />
+                        </button>
+                      )}
                     </div>
-                  )}
-                </motion.li>
-              ))}
+
+                    <AnimatePresence>
+                      {hasSub && isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease: "easeInOut" }}
+                          className="overflow-hidden border-t border-border/50 bg-background/60 px-3 py-2 space-y-1.5"
+                        >
+                          {item.subItems.map((sub, sIdx) => {
+                            const subKey = `sub-${index}-${sIdx}`;
+                            const hasLevel3 = sub.subItems && sub.subItems.length > 0;
+                            const isSubExpanded = Boolean(expandedMobile[subKey]);
+                            const targetHref =
+                              sub.linkUrl === "/" && hasLevel3
+                                ? sub.subItems[0].linkUrl
+                                : sub.linkUrl || item.href;
+
+                            return (
+                              <div key={sIdx} className="rounded-lg bg-card/60 p-1.5 border border-border/40 space-y-1">
+                                <div className="flex items-center justify-between px-2 py-1">
+                                  <Link
+                                    href={targetHref}
+                                    onClick={(e) => {
+                                      if (hasLevel3 && (sub.linkUrl === "/" || sub.linkUrl === "#")) {
+                                        toggleMobileExpand(subKey, e);
+                                      } else {
+                                        setOpen(false);
+                                      }
+                                    }}
+                                    className="flex-1 text-xs font-semibold text-foreground/90 transition-colors hover:text-primary"
+                                  >
+                                    {sub.title}
+                                  </Link>
+
+                                  {hasLevel3 && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => toggleMobileExpand(subKey, e)}
+                                      className="grid size-6 place-items-center rounded bg-secondary text-muted-foreground hover:text-primary"
+                                    >
+                                      <ChevronDown
+                                        size={13}
+                                        className={cn(
+                                          "transition-transform duration-200",
+                                          isSubExpanded && "rotate-180 text-primary",
+                                        )}
+                                      />
+                                    </button>
+                                  )}
+                                </div>
+
+                                <AnimatePresence>
+                                  {hasLevel3 && isSubExpanded && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: "auto", opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.2 }}
+                                      className="overflow-hidden ml-2 pl-2 border-l border-primary/20 space-y-1 pt-1"
+                                    >
+                                      {sub.subItems.map((sub3, s3Idx) => (
+                                        <Link
+                                          key={s3Idx}
+                                          href={sub3.linkUrl || targetHref}
+                                          onClick={() => setOpen(false)}
+                                          className="block rounded-md px-2 py-1 text-[11px] font-medium text-foreground/75 transition-colors hover:bg-primary/10 hover:text-primary"
+                                        >
+                                          {sub3.title}
+                                        </Link>
+                                      ))}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.li>
+                );
+              })}
               <motion.li
                 variants={{
                   hidden: { opacity: 0, y: 8 },
