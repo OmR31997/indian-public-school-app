@@ -203,18 +203,18 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
 
   return (
     <main className="flex-1">
-      <section className="relative overflow-hidden bg-slate-950 py-5 sm:py-6 text-white shadow-lg border-b border-gold/30">
+      <section className="relative overflow-hidden bg-slate-950 py-10 sm:py-14 text-white shadow-lg border-b border-gold/30">
         <div className="absolute inset-0 z-0">
           <img
             src={bannerImg}
             alt={title}
-            className="h-full w-full object-cover object-center filter brightness-[0.4] contrast-[1.15] scale-105"
+            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-navy-950/80 to-slate-950/95" />
-          <div className="absolute inset-0 bg-slate-950/30 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-navy-950/85 to-slate-950/95" />
+          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[1px]" />
         </div>
 
-        <div className="container-page relative z-10 max-w-5xl flex items-center">
+        <div className="container-page relative z-10 max-w-5xl flex flex-col items-start gap-4">
           <nav
             aria-label="Breadcrumb"
             className="inline-flex flex-wrap items-center gap-2.5 rounded-full border border-gold/40 bg-slate-950/75 px-5 py-2 text-xs font-semibold text-white/95 shadow-xl backdrop-blur-md sm:text-sm"
@@ -241,12 +241,21 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
               );
             })}
           </nav>
+
+          <div className="mt-2 space-y-2">
+            <span className="inline-block rounded-md bg-gold/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold border border-gold/40">
+              Official School Document & Information
+            </span>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md">
+              {title}
+            </h1>
+          </div>
         </div>
       </section>
-      <section className="container-page py-16 lg:py-24">
+      <section className="container-page py-12 lg:py-20">
         {htmlContent ? (
           <div
-            className="mx-auto max-w-4xl prose prose-slate prose-lg max-w-none space-y-4 text-slate-700 leading-relaxed font-sans"
+            className="mx-auto max-w-4xl prose prose-slate prose-lg max-w-none space-y-6 text-slate-800 leading-relaxed font-sans dynamic-page-content"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
         ) : (
@@ -257,7 +266,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
         {images.length ? <div className="mt-12 grid gap-5 sm:grid-cols-2">{images.map((src, index) => <img key={src} src={src} alt={`${title} ${index + 1}`} className="aspect-[4/3] w-full rounded-2xl object-cover shadow-soft" />)}</div> : null}
         {cards.length ? <div className="mt-12 grid gap-5 md:grid-cols-2">{cards.map((card, index) => {
           const cardTitle = typeof card.title === "string" ? card.title : typeof card.heading === "string" ? card.heading : `Information ${index + 1}`;
-          return <article key={`${cardTitle}-${index}`} className="rounded-2xl border border-border bg-card p-6 shadow-soft"><h2 className="text-xl font-semibold">{cardTitle}</h2>{contentText(card).map((paragraph) => <p key={paragraph} className="mt-3 text-sm leading-relaxed text-muted-foreground">{paragraph}</p>)}</article>;
+          return <article key={`${cardTitle}-${index}`} className="rounded-2xl border border-border bg-card p-6 shadow-soft"><h2 className="text-xl font-semibold text-slate-900">{cardTitle}</h2>{contentText(card).map((paragraph) => <p key={paragraph} className="mt-3 text-sm leading-relaxed text-muted-foreground">{paragraph}</p>)}</article>;
         })}</div> : null}
       </section>
     </main>

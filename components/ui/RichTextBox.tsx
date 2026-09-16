@@ -701,17 +701,17 @@ export function RichTextBox({
       case "features":
         return `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
   <div style="border: 1px solid #e2e8f0; background-color: #ffffff; padding: 1.5rem; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-    <div style="width: 48px; height: 48px; background-color: #eff6ff; color: #1a5d9c; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 1rem;">🎓</div>
+    <div style="width: 48px; height: 48px; background-color: #eff6ff; color: #1a5d9c; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 1rem;"><i class="bi bi-mortarboard-fill"></i></div>
     <h3 style="font-size: 1.25rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Academic Rigour</h3>
     <p style="font-size: 0.95rem; color: #64748b; line-height: 1.6; margin: 0;">Comprehensive CBSE curriculum designed for interactive learning, critical thinking, and competitive excellence.</p>
   </div>
   <div style="border: 1px solid #e2e8f0; background-color: #ffffff; padding: 1.5rem; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-    <div style="width: 48px; height: 48px; background-color: #f0fdf4; color: #166534; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 1rem;">🏆</div>
+    <div style="width: 48px; height: 48px; background-color: #f0fdf4; color: #166534; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 1rem;"><i class="bi bi-trophy-fill"></i></div>
     <h3 style="font-size: 1.25rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Sports & Co-Curricular</h3>
     <p style="font-size: 0.95rem; color: #64748b; line-height: 1.6; margin: 0;">Nurturing physical stamina, sportsmanship, performing arts, and leadership skills in every student.</p>
   </div>
   <div style="border: 1px solid #e2e8f0; background-color: #ffffff; padding: 1.5rem; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-    <div style="width: 48px; height: 48px; background-color: #fffbeb; color: #b45309; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 1rem;">🛡️</div>
+    <div style="width: 48px; height: 48px; background-color: #fffbeb; color: #b45309; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 1rem;"><i class="bi bi-shield-check"></i></div>
     <h3 style="font-size: 1.25rem; font-weight: 700; color: #102a4c; margin: 0 0 0.5rem 0;">Safe & Inclusive Campus</h3>
     <p style="font-size: 0.95rem; color: #64748b; line-height: 1.6; margin: 0;">24/7 CCTV surveillance, GPS-enabled transport, and dedicated student counseling support.</p>
   </div>
@@ -751,10 +751,10 @@ export function RichTextBox({
         return `<div style="border: 1px solid #e2e8f0; background-color: #ffffff; padding: 1.75rem; border-radius: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
   <h3 style="font-size: 1.35rem; font-weight: 800; color: #102a4c; margin: 0 0 1rem 0;">Get In Touch With Us</h3>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; color: #334155; font-size: 0.95rem;">
-    <div><strong>📍 Address:</strong> Main Highway Road, IPS Campus, Knowledge City</div>
-    <div><strong>📞 Phone:</strong> +91 98765 43210 / 011-2345678</div>
-    <div><strong>✉️ Email:</strong> info@indianpublicschool.edu.in</div>
-    <div><strong>⏰ Office Hours:</strong> Mon - Sat (8:00 AM - 4:00 PM)</div>
+    <div><strong><i class="bi bi-geo-alt-fill me-1 text-primary"></i> Address:</strong> Main Highway Road, IPS Campus, Knowledge City</div>
+    <div><strong><i class="bi bi-telephone-fill me-1 text-primary"></i> Phone:</strong> +91 98765 43210 / 011-2345678</div>
+    <div><strong><i class="bi bi-envelope-fill me-1 text-primary"></i> Email:</strong> info@indianpublicschool.edu.in</div>
+    <div><strong><i class="bi bi-clock-fill me-1 text-primary"></i> Office Hours:</strong> Mon - Sat (8:00 AM - 4:00 PM)</div>
   </div>
 </div><p><br></p>`;
       case "testimonials":
@@ -801,11 +801,11 @@ export function RichTextBox({
   </table>
 </div><p><br></p>`;
       case "info":
-        return `<div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #1e40af;"><strong>ℹ️ Notice:</strong> Type your notice or announcement details here.</div><p><br></p>`;
+        return `<div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #1e40af;"><strong><i class="bi bi-info-circle-fill me-1"></i> Notice:</strong> Type your notice or announcement details here.</div><p><br></p>`;
       case "success":
-        return `<div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #166534;"><strong>✅ Highlight:</strong> Type your positive achievement or update here.</div><p><br></p>`;
+        return `<div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #166534;"><strong><i class="bi bi-check-circle-fill me-1"></i> Highlight:</strong> Type your positive achievement or update here.</div><p><br></p>`;
       case "warning":
-        return `<div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #92400e;"><strong>⚠️ Alert:</strong> Type urgent notice or deadline alert here.</div><p><br></p>`;
+        return `<div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; margin: 16px 0; color: #92400e;"><strong><i class="bi bi-exclamation-triangle-fill me-1"></i> Alert:</strong> Type urgent notice or deadline alert here.</div><p><br></p>`;
       case "card":
         return `<div style="border: 1px solid #cbd5e1; background-color: #f8fafc; padding: 20px; border-radius: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><h3 style="margin-top:0; color:#0f172a;">Card Title</h3><p style="margin-bottom:0; color:#334155;">Type inside this rounded card container.</p></div><p><br></p>`;
       case "badge":
@@ -951,11 +951,10 @@ export function RichTextBox({
 
   return (
     <div
-      className={`rounded-3xl border border-slate-200 bg-white transition-all shadow-xs overflow-hidden ${
-        isFullscreen
-          ? "fixed inset-3 z-50 flex flex-col shadow-2xl ring-1 ring-slate-900/20"
-          : "relative"
-      }`}
+      className={`rounded-3xl border border-slate-200 bg-white transition-all shadow-xs overflow-hidden ${isFullscreen
+        ? "fixed inset-3 z-50 flex flex-col shadow-2xl ring-1 ring-slate-900/20"
+        : "relative"
+        }`}
     >
       {/* Top Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50/90 px-4 py-2.5">
@@ -963,33 +962,30 @@ export function RichTextBox({
           <button
             type="button"
             onClick={() => setActiveTab("visual")}
-            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
-              activeTab === "visual"
-                ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-            }`}
+            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${activeTab === "visual"
+              ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
+              : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+              }`}
           >
             <Pencil size={13} /> Visual Content Editor
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("preview")}
-            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
-              activeTab === "preview"
-                ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-            }`}
+            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${activeTab === "preview"
+              ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
+              : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+              }`}
           >
             <Eye size={13} /> Live Page Preview
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("html")}
-            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
-              activeTab === "html"
-                ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-            }`}
+            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${activeTab === "html"
+              ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
+              : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+              }`}
           >
             <FileCode size={13} /> HTML Code
           </button>
@@ -999,7 +995,7 @@ export function RichTextBox({
             className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:brightness-110 transition ml-2 cursor-pointer"
           >
             <Scissors size={13} />
-            <span>✂️ Image Studio (Crop, Resize, Compress)</span>
+            <span>Image Studio (Crop, Resize, Compress)</span>
           </button>
         </div>
 
@@ -1008,14 +1004,13 @@ export function RichTextBox({
             <button
               type="button"
               onClick={() => setShowToolbox(!showToolbox)}
-              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition shadow-2xs ${
-                showToolbox
-                  ? "border-blue-300 bg-blue-50 text-[#1a5d9c]"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
-              }`}
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition shadow-2xs ${showToolbox
+                ? "border-blue-300 bg-blue-50 text-[#1a5d9c]"
+                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+                }`}
             >
               <Layers size={13} />
-              <span>{showToolbox ? "Hide VB Toolbox" : "🧰 Visual Components Toolbox"}</span>
+              <span>{showToolbox ? "Hide VB Toolbox" : "Visual Components Toolbox"}</span>
             </button>
           )}
 
@@ -1423,7 +1418,7 @@ export function RichTextBox({
                     title="Remove selected component or element from visual canvas"
                   >
                     <Trash2 size={13} />
-                    <span>🗑️ Remove Component</span>
+                    <span>Remove Component</span>
                   </button>
                 )}
 
@@ -1504,8 +1499,8 @@ export function RichTextBox({
                 )}
                 {selectedAnchorEl && (
                   <div className="flex items-center gap-1.5 bg-sky-50 border border-sky-200 px-2 py-1 rounded-xl">
-                    <span className="text-[11px] font-extrabold text-sky-900 truncate max-w-[160px]" title={selectedAnchorEl.getAttribute("href") || ""}>
-                      🔗 {selectedAnchorEl.getAttribute("href") || "Link"}
+                    <span className="text-[11px] font-extrabold text-sky-900 truncate max-w-[160px] flex items-center gap-1" title={selectedAnchorEl.getAttribute("href") || ""}>
+                      <i className="bi bi-link-45deg" /> {selectedAnchorEl.getAttribute("href") || "Link"}
                     </span>
                     <button
                       type="button"
@@ -1531,17 +1526,15 @@ export function RichTextBox({
             <iframe
               ref={iframeRef}
               title="Visual CMS Content Editor Workspace"
-              className={`w-full border border-slate-100 outline-none bg-white rounded-2xl ${
-                isFullscreen ? "flex-1 min-h-[70vh]" : "min-h-[460px]"
-              }`}
+              className={`w-full border border-slate-100 outline-none bg-white rounded-2xl ${isFullscreen ? "flex-1 min-h-[70vh]" : "min-h-[460px]"
+                }`}
             />
           )}
 
           {activeTab === "preview" && (
             <div
-              className={`w-full p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base ${
-                isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
-              }`}
+              className={`w-full p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base ${isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
+                }`}
               dangerouslySetInnerHTML={{
                 __html:
                   value ||
@@ -1618,7 +1611,7 @@ export function RichTextBox({
                 </div>
                 <div>
                   <h3 className="font-display text-lg font-extrabold text-white flex items-center gap-2">
-                    📄 PDF Card Customizer Studio
+                    PDF Card Customizer Studio
                     <span className="rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-300">
                       Hand Customization
                     </span>
@@ -1639,10 +1632,10 @@ export function RichTextBox({
 
             {/* Modal Body */}
             <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 overflow-hidden">
-              
+
               {/* Left Column: Hand Customization Controls (5 cols) */}
               <div className="lg:col-span-5 flex flex-col overflow-y-auto border-r border-slate-800 bg-slate-900/60 p-5 space-y-4 scrollbar-thin">
-                
+
                 {/* PDF File Picker */}
                 <div>
                   <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
@@ -1675,23 +1668,22 @@ export function RichTextBox({
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: "light", name: "Modern Light Card", icon: "🌟", desc: "Clean white card with page preview" },
-                      { id: "dark", name: "Dark Executive", icon: "🌙", desc: "Navy dark theme with glowing border" },
-                      { id: "banner", name: "Compact Banner", icon: "📄", desc: "Single row horizontal download bar" },
-                      { id: "badge", name: "Minimal Pill Badge", icon: "🏷️", desc: "Rounded pill action link badge" },
+                      { id: "light", name: "Modern Light Card", icon: "bi bi-sun-fill", desc: "Clean white card with page preview" },
+                      { id: "dark", name: "Dark Executive", icon: "bi bi-moon-stars-fill", desc: "Navy dark theme with glowing border" },
+                      { id: "banner", name: "Compact Banner", icon: "bi bi-file-earmark-pdf-fill", desc: "Single row horizontal download bar" },
+                      { id: "badge", name: "Minimal Pill Badge", icon: "bi bi-tag-fill", desc: "Rounded pill action link badge" },
                     ].map((t) => (
                       <button
                         key={t.id}
                         type="button"
                         onClick={() => setPdfStudioTheme(t.id as any)}
-                        className={`flex flex-col text-left p-3 rounded-2xl border transition cursor-pointer ${
-                          pdfStudioTheme === t.id
-                            ? "border-rose-500 bg-rose-500/15 text-white shadow-md ring-1 ring-rose-500/50"
-                            : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                        }`}
+                        className={`flex flex-col text-left p-3 rounded-2xl border transition cursor-pointer ${pdfStudioTheme === t.id
+                          ? "border-rose-500 bg-rose-500/15 text-white shadow-md ring-1 ring-rose-500/50"
+                          : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                          }`}
                       >
                         <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                          <span>{t.icon}</span>
+                          <i className={`${t.icon} text-rose-400`} />
                           <span>{t.name}</span>
                         </span>
                         <span className="text-[10px] text-slate-400 mt-1 leading-tight">{t.desc}</span>
@@ -1896,14 +1888,14 @@ export function RichTextBox({
                 {/* Preset Buttons */}
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {[
-                    { label: "🎓 Admission Form", url: "/admission" },
-                    { label: "🏫 About IPS", url: "/about" },
-                    { label: "📞 Contact Us", url: "/contact" },
-                    { label: "📚 Academics", url: "/academics" },
-                    { label: "📜 CBSE Disclosure", url: "/mandatory-public-disclosure" },
-                    { label: "🖼️ Gallery", url: "/gallery" },
-                    { label: "✉️ Email Contact", url: "mailto:info@indianpublicschool.edu.in" },
-                    { label: "📱 Call Phone", url: "tel:+919876543210" },
+                    { label: "Admission Form", icon: "bi bi-mortarboard-fill", url: "/admission" },
+                    { label: "About IPS", icon: "bi bi-building", url: "/about" },
+                    { label: "Contact Us", icon: "bi bi-telephone-fill", url: "/contact" },
+                    { label: "Academics", icon: "bi bi-book-fill", url: "/academics" },
+                    { label: "CBSE Disclosure", icon: "bi bi-file-earmark-text-fill", url: "/mandatory-public-disclosure" },
+                    { label: "Gallery", icon: "bi bi-images", url: "/gallery" },
+                    { label: "Email Contact", icon: "bi bi-envelope-fill", url: "mailto:info@indianpublicschool.edu.in" },
+                    { label: "Call Phone", icon: "bi bi-telephone-outbound-fill", url: "tel:+919876543210" },
                   ].map((preset) => (
                     <button
                       key={preset.url}
@@ -1911,12 +1903,13 @@ export function RichTextBox({
                       onClick={() => {
                         setLinkUrl(preset.url);
                         if (!linkText || linkText === "https://") {
-                          setLinkText(preset.label.replace(/^[^\s]+\s*/, ""));
+                          setLinkText(preset.label);
                         }
                       }}
-                      className="rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-[#1a5d9c] transition cursor-pointer"
+                      className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-[#1a5d9c] transition cursor-pointer"
                     >
-                      {preset.label}
+                      <i className={`${preset.icon} text-[#1a5d9c]`} />
+                      <span>{preset.label}</span>
                     </button>
                   ))}
                 </div>
@@ -1931,14 +1924,12 @@ export function RichTextBox({
                 <button
                   type="button"
                   onClick={() => setLinkTarget(linkTarget === "_blank" ? "_self" : "_blank")}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    linkTarget === "_blank" ? "bg-[#1a5d9c]" : "bg-slate-300"
-                  }`}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${linkTarget === "_blank" ? "bg-[#1a5d9c]" : "bg-slate-300"
+                    }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                      linkTarget === "_blank" ? "translate-x-5" : "translate-x-0"
-                    }`}
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${linkTarget === "_blank" ? "translate-x-5" : "translate-x-0"
+                      }`}
                   />
                 </button>
               </div>
@@ -1980,11 +1971,10 @@ export function RichTextBox({
                       key={st.id}
                       type="button"
                       onClick={() => setLinkStyle(st.id as any)}
-                      className={`flex flex-col text-left p-2.5 rounded-2xl border transition-all cursor-pointer ${
-                        linkStyle === st.id
-                          ? "border-[#1a5d9c] bg-blue-50/70 ring-2 ring-blue-500/20 shadow-xs"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                      }`}
+                      className={`flex flex-col text-left p-2.5 rounded-2xl border transition-all cursor-pointer ${linkStyle === st.id
+                        ? "border-[#1a5d9c] bg-blue-50/70 ring-2 ring-blue-500/20 shadow-xs"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        }`}
                     >
                       <div className="flex items-center justify-between w-full mb-0.5">
                         <span className="text-xs font-bold text-slate-800">{st.name}</span>
@@ -2075,7 +2065,7 @@ export function RichTextBox({
                         gap: "0.35rem",
                       }}
                     >
-                      🔗 {linkText || "Pill Badge Text"}
+                      <i className="bi bi-link-45deg me-1" /> {linkText || "Pill Badge Text"}
                     </a>
                   ) : (
                     <a

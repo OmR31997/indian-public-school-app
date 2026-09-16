@@ -144,7 +144,7 @@ type Resource = {
   key: ResourceKey;
   label: string;
   description: string;
-  icon: typeof Users;
+  icon: any;
   protected?: boolean;
   fields: string[];
   inputs: Record<string, InputType>;
@@ -709,7 +709,7 @@ export function AdminConsole() {
 
   return <main className="min-h-screen bg-[#f4f7fb] text-slate-800">
     <aside className={`fixed inset-y-0 left-0 z-30 flex w-[272px] flex-col bg-[#102a4c] px-4 py-5 text-slate-200 shadow-2xl transition-transform lg:translate-x-0 ${mobileMenu ? "translate-x-0" : "-translate-x-full"}`}>
-      <div className="mb-9 flex items-center gap-3 px-2"><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f4bd4f] text-[#102a4c]"><GraduationCap size={23} /></div><div><p className="font-display text-lg font-bold text-white">IPS Admin</p><p className="text-xs text-blue-200">Indian Public School</p></div></div>
+      <div className="mb-9 flex items-center gap-3 px-2"><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f4bd4f] text-[#102a4c] overflow-hidden p-1"><img src="/assets/Logos/IPSLOGO.png" alt="IPS Logo" className="h-full w-full object-contain" /></div><div><p className="font-display text-lg font-bold text-white">IPS Admin</p><p className="text-xs text-blue-200">Indian Public School</p></div></div>
       <nav className="flex-1 space-y-5 overflow-y-auto">
         <button onClick={() => { setActive("overview"); setMobileMenu(false); }} className={`sidebar-link ${active === "overview" ? "sidebar-link-active" : ""}`}><LayoutDashboard size={18} /> Overview</button>
         {sectionNames.slice(1).map((section) => {
@@ -1415,7 +1415,7 @@ function HeaderFooterSettingsCard({
 
       {message && (
         <div className="mt-4 flex items-center justify-between rounded-xl bg-emerald-50 p-3.5 text-xs font-bold text-emerald-800 border border-emerald-200">
-          <span>✅ {message}</span>
+          <span><i className="bi bi-cloud-check-fill"></i> {message}</span>
           <button type="button" onClick={() => setMessage("")}><X size={14} /></button>
         </div>
       )}
@@ -1432,9 +1432,8 @@ function HeaderFooterSettingsCard({
         <button
           type="button"
           onClick={() => setActiveTab("logo")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
-            activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
         >
           <GraduationCap size={15} /> School Logo & Tagline
         </button>
@@ -1442,9 +1441,8 @@ function HeaderFooterSettingsCard({
         <button
           type="button"
           onClick={() => setActiveTab("certified")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
-            activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
         >
           <Crown size={15} /> Certified Company Board
         </button>
@@ -1452,9 +1450,8 @@ function HeaderFooterSettingsCard({
         <button
           type="button"
           onClick={() => setActiveTab("trust")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
-            activeTab === "trust" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "trust" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
         >
           <ShieldCheck size={15} /> Trust Board
         </button>
@@ -2598,34 +2595,35 @@ function HomeLayoutEditorModal({
         {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 bg-slate-50/80 p-3 overflow-hidden">
           {[
-            { id: "header", label: "📌 Header Config" },
-            { id: "footer", label: "🦶 Footer Config" },
-            { id: "hero", label: "🦸 Hero Poster" },
-            { id: "banner", label: "🚩 Banner Slider" },
-            { id: "quickCards", label: "🎴 Quick Cards" },
-            { id: "video", label: "🎬 Intro Video Setup" },
-            { id: "sec1", label: "🏫 Sec 1: About" },
-            { id: "sec2", label: "📊 Sec 2: Key Stats" },
-            { id: "sec3", label: "⭐ Sec 3: Why Choose" },
-            { id: "sec4", label: "📚 Sec 4: Academics" },
-            { id: "sec5", label: "🎨 Sec 5: Activities" },
-            { id: "sec6", label: "🏢 Sec 6: Campus" },
-            { id: "sec7", label: "🌟 Sec 7: Student Life" },
-            { id: "sec8", label: "🎓 Sec 8: Courses" },
-            { id: "sec9", label: "🏆 Sec 9: Director Message" },
-            { id: "sec10", label: "📰 Sec 10: News & Notices" },
-            { id: "rawJson", label: "💻 Raw JSON" },
+            { id: "header", label: "Header Config", icon: "bi-card-heading" },
+            { id: "footer", label: "Footer Config", icon: "bi-layout-text-window" },
+            { id: "hero", label: "Hero Poster", icon: "bi-person-standing" },
+            { id: "banner", label: "Banner Slider", icon: "bi-flag-fill" },
+            { id: "quickCards", label: "Quick Cards", icon: "bi-grid-3x3-gap" },
+            { id: "video", label: "Intro Video Setup", icon: "bi-camera-video-fill" },
+            { id: "sec1", label: "Sec 1: About", icon: "bi-building" },
+            { id: "sec2", label: "Sec 2: Key Stats", icon: "bi-bar-chart-fill" },
+            { id: "sec3", label: "Sec 3: Why Choose", icon: "bi-star-fill" },
+            { id: "sec4", label: "Sec 4: Academics", icon: "bi-book-fill" },
+            { id: "sec5", label: "Sec 5: Activities", icon: "bi-activity" },
+            { id: "sec6", label: "Sec 6: Campus", icon: "bi-building-fill" },
+            { id: "sec7", label: "Sec 7: Student Life", icon: "bi-people-fill" },
+            { id: "sec8", label: "Sec 8: Courses", icon: "bi-mortarboard-fill" },
+            { id: "sec9", label: "Sec 9: Director Message", icon: "bi-person-badge-fill" },
+            { id: "sec10", label: "Sec 10: News & Notices", icon: "bi-newspaper" },
+            { id: "rawJson", label: "Raw JSON", icon: "bi-code-slash" },
           ].map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3 py-1.5 text-xs font-bold rounded-xl transition border ${activeTab === tab.id
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition border ${activeTab === tab.id
                 ? "border-[#1a5d9c] bg-[#1a5d9c] text-white shadow-xs"
                 : "border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 hover:border-slate-300"
                 }`}
             >
-              {tab.label}
+              <i className={`bi ${tab.icon}`} />
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
@@ -2646,7 +2644,7 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <span>📌</span> Website Header & Navigation Top Bar Configuration
+                  <i className="bi bi-card-heading text-[#1a5d9c]" /> Website Header & Navigation Top Bar Configuration
                 </h3>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -2714,7 +2712,7 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <span>🦶</span> Website Footer & Contact Info Configuration
+                  <i className="bi bi-layout-text-window text-[#1a5d9c]" /> Website Footer & Contact Info Configuration
                 </h3>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -2897,7 +2895,7 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <span>🦸</span> Hero Main Poster & Content Settings
+                  <i className="bi bi-person-standing text-[#1a5d9c]" /> Hero Main Poster & Content Settings
                 </h3>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -3046,7 +3044,7 @@ function HomeLayoutEditorModal({
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                    <span>🚩</span> Sliding Banner Posters
+                    <i className="bi bi-flag-fill text-[#1a5d9c]" /> Sliding Banner Posters
                   </h3>
                   <label className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-[#102a4c]">
                     <UploadCloud size={14} /> Upload New Banner Poster
@@ -3120,7 +3118,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">🎴 Quick Action Menu Cards ({(homeObj.menuCard || []).length})</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-grid-3x3-gap text-[#1a5d9c]" /> Quick Action Menu Cards ({(homeObj.menuCard || []).length})
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addTopArrayItem("menuCard", { heading: "New Action Card", subHeading: "Explore options", redirectUrl: "/about" })}
@@ -3192,7 +3192,9 @@ function HomeLayoutEditorModal({
           {activeTab === "sec1" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <h3 className="text-sm font-bold text-[#102a4c]">🏫 Section 1: About Our School</h3>
+                <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                  <i className="bi bi-building text-[#1a5d9c]" /> Section 1: About Our School
+                </h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <label className="text-[11px] font-bold text-slate-500">Section Title</label>
@@ -3352,7 +3354,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">📊 Section 2: Key Statistics Counters ({(homeObj["section-2"] || []).length})</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-bar-chart-fill text-[#1a5d9c]" /> Section 2: Key Statistics Counters ({(homeObj["section-2"] || []).length})
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addTopArrayItem("section-2", { count: "100+", heading: "New Stat", "sub-heading": "Stat description" })}
@@ -3413,7 +3417,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">⭐ Section 3: Why Choose IPS ({(homeObj["section-3"]?.[0]?.cardItem || []).length} Cards)</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-star-fill text-[#1a5d9c]" /> Section 3: Why Choose IPS ({(homeObj["section-3"]?.[0]?.cardItem || []).length} Cards)
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addItemToSection("section-3", { heading: "New Commitment", description: "Commitment details", icoUrl: "", redirectUrl: "/about" })}
@@ -3476,7 +3482,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">📚 Section 4: Academic Journey Stages ({(homeObj["section-4"]?.[0]?.cardItem || []).length} Stages)</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-book-fill text-[#1a5d9c]" /> Section 4: Academic Journey Stages ({(homeObj["section-4"]?.[0]?.cardItem || []).length} Stages)
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addItemToSection("section-4", { heading: "Grade X – XII", mainHeading: "New Stage", description: "Stage curriculum details" })}
@@ -3556,7 +3564,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">🎨 Section 5: Co-Curricular Activities ({(homeObj["section-5"]?.[0]?.cardItem || []).length} Cards)</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-activity text-[#1a5d9c]" /> Section 5: Co-Curricular Activities ({(homeObj["section-5"]?.[0]?.cardItem || []).length} Cards)
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addItemToSection("section-5", { heading: "New Activity", description: "Activity details", redirectUrl: "/about" })}
@@ -3619,7 +3629,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">🏢 Section 6: Campus Infrastructure Cards ({(homeObj["section-6"]?.[0]?.cardItem || []).length} Cards)</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-building-fill text-[#1a5d9c]" /> Section 6: Campus Infrastructure Cards ({(homeObj["section-6"]?.[0]?.cardItem || []).length} Cards)
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addItemToSection("section-6", { title: "New Facility", "sub-title": "Facility features", fileUrl: "" })}
@@ -3715,7 +3727,9 @@ function HomeLayoutEditorModal({
           {activeTab === "sec7" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <h3 className="text-sm font-bold text-[#102a4c]">🌟 Section 7: Student Life Showcase</h3>
+                <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                  <i className="bi bi-people-fill text-[#1a5d9c]" /> Section 7: Student Life Showcase
+                </h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <input
                     type="text"
@@ -3780,7 +3794,7 @@ function HomeLayoutEditorModal({
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                    🎬 Campus Introduction Video Setup
+                    <i className="bi bi-camera-video-fill text-[#1a5d9c]" /> Campus Introduction Video Setup
                   </h3>
                   <span className="text-[11px] font-semibold text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
                     Controls IntroVideo section &amp; site_datasource media
@@ -4035,7 +4049,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">🎓 Section 8: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-mortarboard-fill text-[#1a5d9c]" /> Section 8: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addItemToSection("section-8", { title: "New Level", description: "Course level details", fileUrl: "" })}
@@ -4127,7 +4143,9 @@ function HomeLayoutEditorModal({
           {activeTab === "sec9" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <h3 className="text-sm font-bold text-[#102a4c]">🏆 Section 9: Best CBSE School / Director Message</h3>
+                <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                  <i className="bi bi-person-badge-fill text-[#1a5d9c]" /> Section 9: Best CBSE School / Director Message
+                </h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <input
                     type="text"
@@ -4200,7 +4218,9 @@ function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c]">📰 Section 10: News & Notice Board Items ({(homeObj["section-10"]?.[0]?.list || []).length})</h3>
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-newspaper text-[#1a5d9c]" /> Section 10: News & Notice Board Items ({(homeObj["section-10"]?.[0]?.list || []).length})
+                  </h3>
                   <button
                     type="button"
                     onClick={() => addItemToSection("section-10", { title: "New School Notice / Announcement", createdAt: new Date().toISOString(), redirectUrl: "/news" })}
@@ -4265,7 +4285,9 @@ function HomeLayoutEditorModal({
           {/* TAB: Raw JSON */}
           {activeTab === "rawJson" && (
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-slate-500">Advanced Raw JSON Schema Editor for all sections</p>
+              <p className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+                <i className="bi bi-code-slash text-[#1a5d9c]" /> Advanced Raw JSON Schema Editor for all sections
+              </p>
               <textarea
                 rows={22}
                 value={jsonText}

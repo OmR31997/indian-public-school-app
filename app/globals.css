@@ -1,3 +1,4 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 @import "tailwindcss" source(none);
 @source "../app";
 @source "../components";
@@ -242,3 +243,56 @@
     scroll-behavior: auto;
   }
 }
+
+/* Dynamic Page Content Layout & Color Cascade Fixes */
+.dynamic-page-content {
+  color: #1e293b;
+}
+
+/* Allow elements with inline style="color: ..." to take full precedence */
+.dynamic-page-content [style*="color:"] {
+  color: inherit;
+}
+
+/* Dark section containers (e.g. Hero banners, stats bars, navy cards) MUST preserve white text for all headings and text */
+.dynamic-page-content section[style*="#102a4c"],
+.dynamic-page-content section[style*="#0f172a"],
+.dynamic-page-content section[style*="linear-gradient"],
+.dynamic-page-content div[style*="#102a4c"],
+.dynamic-page-content div[style*="#0f172a"],
+.dynamic-page-content div[style*="linear-gradient"] {
+  color: #ffffff;
+}
+
+.dynamic-page-content section[style*="#102a4c"] h1,
+.dynamic-page-content section[style*="#102a4c"] h2,
+.dynamic-page-content section[style*="#102a4c"] h3,
+.dynamic-page-content section[style*="#0f172a"] h1,
+.dynamic-page-content section[style*="#0f172a"] h2,
+.dynamic-page-content section[style*="#0f172a"] h3,
+.dynamic-page-content section[style*="linear-gradient"] h1,
+.dynamic-page-content section[style*="linear-gradient"] h2,
+.dynamic-page-content section[style*="linear-gradient"] h3,
+.dynamic-page-content div[style*="#102a4c"] h1,
+.dynamic-page-content div[style*="#102a4c"] h2,
+.dynamic-page-content div[style*="#102a4c"] h3,
+.dynamic-page-content div[style*="#0f172a"] h1,
+.dynamic-page-content div[style*="#0f172a"] h2,
+.dynamic-page-content div[style*="#0f172a"] h3,
+.dynamic-page-content div[style*="linear-gradient"] h1,
+.dynamic-page-content div[style*="linear-gradient"] h2,
+.dynamic-page-content div[style*="linear-gradient"] h3 {
+  color: #ffffff !important;
+}
+
+/* Light cards explicitly maintain dark navy headings */
+.dynamic-page-content div[style*="#ffffff"] h1,
+.dynamic-page-content div[style*="#ffffff"] h2,
+.dynamic-page-content div[style*="#ffffff"] h3,
+.dynamic-page-content div[style*="#f8fafc"] h1,
+.dynamic-page-content div[style*="#f8fafc"] h2,
+.dynamic-page-content div[style*="#f8fafc"] h3 {
+  color: #0f172a;
+}
+
+
