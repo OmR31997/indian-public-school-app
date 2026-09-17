@@ -30,6 +30,8 @@ import {
   UploadCloud,
   Check,
   Eye,
+  EyeOff,
+  KeyRound,
   Copy,
   ExternalLink,
   Grid,
@@ -519,6 +521,7 @@ export function AdminConsole() {
   const [search, setSearch] = useState("");
   const [token, setToken] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [editing, setEditing] = useState<RecordItem | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -756,6 +759,9 @@ export function AdminConsole() {
                 <p className="text-[10px] font-semibold text-blue-200 uppercase tracking-wider">{currentUser?.role || (isSuperAdmin ? "Super Admin" : "Sub Admin")}</p>
               </div>
             </div>
+            <button onClick={() => setChangePasswordOpen(true)} className="sidebar-link w-full text-xs">
+              <KeyRound size={16} /> Change password
+            </button>
             <button onClick={signOut} className="sidebar-link w-full text-xs">
               <LogOut size={16} /> Sign out
             </button>
@@ -769,7 +775,7 @@ export function AdminConsole() {
     </aside>
     {mobileMenu && <button aria-label="Close navigation" onClick={() => setMobileMenu(false)} className="fixed inset-0 z-20 bg-slate-950/40 lg:hidden" />}
     <section className="min-h-screen lg:pl-[272px]">
-      <header className="sticky top-0 z-10 flex h-[76px] items-center justify-between border-b border-slate-200 bg-[#f4f7fb]/90 px-5 backdrop-blur lg:px-9">
+      <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-slate-200 bg-[#f4f7fb] px-5 shadow-xs lg:px-9">
         <div className="flex items-center gap-4">
           <button onClick={() => setMobileMenu(true)} className="rounded-lg p-2 text-slate-600 lg:hidden"><Menu /></button>
           <div>
@@ -798,6 +804,7 @@ export function AdminConsole() {
     </section>
     {formOpen && current && <RecordDialog token={token} resource={current} record={editing} saving={saving} allSectionPages={data.pages || []} allMenuItems={data["menu-items"] || []} onClose={() => { setFormOpen(false); setEditing(null); }} onSave={save} />}
     {loginOpen && <LoginDialog onClose={() => setLoginOpen(false)} onLoggedIn={(accessToken) => { window.localStorage.setItem("ips_admin_token", accessToken); document.cookie = `ips_admin_session=${encodeURIComponent(accessToken)}; Path=/; SameSite=Lax; Max-Age=28800${location.protocol === "https:" ? "; Secure" : ""}`; setToken(accessToken); setLoginOpen(false); }} />}
+    {changePasswordOpen && token && <ChangePasswordDialog token={token} onClose={() => setChangePasswordOpen(false)} />}
   </main>;
 }
 
@@ -5221,4 +5228,199 @@ function LoginDialog({ onClose, onLoggedIn }: { onClose: () => void; onLoggedIn:
   const [email, setEmail] = useState("admin@indianpublicschool.in"); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
   const submit = async (event: React.FormEvent) => { event.preventDefault(); setLoading(true); setError(""); try { const response = await axios.post(`${API_URL}/auth/login`, { email, password }); const payload = response.data?.data ?? response.data; if (!payload.accessToken) throw new Error("The API did not return an access token."); onLoggedIn(payload.accessToken); } catch (reason) { setError(axios.isAxiosError(reason) ? String(reason.response?.data?.message || "Sign in failed.") : "Sign in failed."); } finally { setLoading(false); } };
   return <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4"><form onSubmit={submit} className="w-full max-w-md rounded-2xl bg-white p-7 shadow-2xl"><div className="flex items-start justify-between"><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fdf3da] text-[#b7790a]"><ShieldCheck /></div><button type="button" onClick={onClose} className="text-slate-400"><X /></button></div><h2 className="mt-5 font-display text-2xl font-bold text-[#102a4c]">Administrator sign in</h2><p className="mt-1 text-sm text-slate-500">Sign in to publish or update school information.</p>{error && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}<label className="mt-5 block text-sm font-bold text-slate-600">Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal outline-none focus:border-[#1a5d9c]" /></label><label className="mt-4 block text-sm font-bold text-slate-600">Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal outline-none focus:border-[#1a5d9c]" /></label><button disabled={loading} className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-3 text-sm font-bold text-white disabled:opacity-60">{loading && <LoaderCircle size={16} className="animate-spin" />} Sign in securely</button></form></div>;
+}
+
+function ChangePasswordDialog({
+  token,
+  onClose,
+}: {
+  token: string;
+  onClose: () => void;
+}) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!currentPassword) {
+      setError("Please enter your current password.");
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setError("New password must be at least 6 characters long.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("New password and password confirmation do not match.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${API_URL}/auth/change-password`,
+        { currentPassword, newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const msg = response.data?.message || "Password updated successfully!";
+      setSuccess(msg);
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (reason) {
+      if (axios.isAxiosError(reason)) {
+        const msg =
+          reason.response?.data?.message ||
+          "Failed to change password. Please check your credentials.";
+        setError(Array.isArray(msg) ? msg.join(", ") : String(msg));
+      } else {
+        setError("Failed to change password.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-7 shadow-2xl">
+        <div className="flex items-start justify-between">
+          <div className="grid h-11 w-11 place-items-center rounded-xl bg-blue-50 text-[#1a5d9c]">
+            <KeyRound size={22} />
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <h2 className="mt-4 font-display text-2xl font-bold text-[#102a4c]">
+          Change Password
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Update your account password. Must be at least 6 characters.
+        </p>
+
+        {error && (
+          <div className="mt-4 rounded-xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-sm text-red-700 flex items-center gap-2">
+            <span className="shrink-0">⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-2.5 text-sm text-emerald-800 flex items-center gap-2">
+            <Check size={18} className="shrink-0 text-emerald-600" />
+            <span>{success}</span>
+          </div>
+        )}
+
+        <form onSubmit={submit} className="mt-5 space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-slate-700">
+              Current Password
+            </label>
+            <div className="relative mt-1.5">
+              <input
+                type={showCurrent ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-[#1a5d9c] focus:ring-2 focus:ring-[#1a5d9c]/10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrent(!showCurrent)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700">
+              New Password
+            </label>
+            <div className="relative mt-1.5">
+              <input
+                type={showNew ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password (min 6 chars)"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-[#1a5d9c] focus:ring-2 focus:ring-[#1a5d9c]/10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowNew(!showNew)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700">
+              Confirm New Password
+            </label>
+            <div className="relative mt-1.5">
+              <input
+                type={showConfirm ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-[#1a5d9c] focus:ring-2 focus:ring-[#1a5d9c]/10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(!showConfirm)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !!success}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#154b7e] transition disabled:opacity-60"
+            >
+              {loading && <LoaderCircle size={16} className="animate-spin" />}
+              Update Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }

@@ -98,23 +98,12 @@ export function AnnouncementBar() {
             </span>
             {noticeText}
           </p>
-          {(phone || email || waConfig.enabled) && (
+          {(phone || email) && (
             <div className="hidden items-center gap-3 text-xs opacity-90 lg:flex">
               {phone && (
                 <a href={`tel:${phone}`} className="flex items-center gap-1 hover:underline">
                   <Phone size={12} className="text-gold" />
                   <span>{phone}</span>
-                </a>
-              )}
-              {waConfig.enabled && (
-                <a
-                  href={`https://wa.me/${waPhoneDigits}?text=${encodeURIComponent("Hello! I would like to inquire about Indian Public School.")}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1 hover:underline text-emerald-300 font-semibold"
-                >
-                  <i className="bi bi-whatsapp text-emerald-400" />
-                  <span>WhatsApp</span>
                 </a>
               )}
               {email && (
