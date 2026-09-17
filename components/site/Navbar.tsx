@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { homeData, text } from "@/lib/site-data";
+import { getWhatsAppConfig, homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
 const API_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
@@ -15,10 +15,11 @@ const NAV = [
   { label: "About", href: "/#about" },
   { label: "Academics", href: "/#academics" },
   { label: "Admissions", href: "/#admissions" },
-  { label: "Campus Life", href: "/#campus-life" },
   { label: "Infrastructure", href: "/#infrastructure" },
+  { label: "Student Life", href: "/#student-life" },
   { label: "Gallery", href: "/#gallery" },
-  { label: "Contact", href: "/contact-us" },
+  { label: "Mandatory Disclosure", href: "/mandatory-disclosure" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 interface ApiSubMenuItem {
@@ -70,12 +71,11 @@ export function ScrollProgress() {
 
 export function AnnouncementBar() {
   const siteData = useSiteData();
-  const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
-  const headerConfig = (homeIdentity.header as Record<string, unknown>) || (siteData?.header as Record<string, unknown>) || {};
-  const hero = (homeData(siteData).hero as Record<string, unknown>) ?? {};
-  const content = Array.isArray(hero.content)
-    ? (hero.content[0] as Record<string, unknown>)
-    : {};
+  const home = homeData(siteData);
+  const content = (home.content as Record<string, unknown>) ?? {};
+  const identity = (home.identity as Record<string, unknown>) ?? {};
+  const headerConfig = (identity.header as Record<string, unknown>) ?? {};
+  const waConfig = getWhatsAppConfig(siteData);
 
   const noticeText =
     text(headerConfig.noticeText) ||
@@ -84,6 +84,9 @@ export function AnnouncementBar() {
   const email = text(headerConfig.email);
   const ctaText = text(headerConfig.ctaText) || "Apply Now";
   const ctaUrl = text(headerConfig.ctaUrl) || "/#admissions";
+
+  const rawPhone = waConfig.phone.replace(/[^0-9]/g, "");
+  const waPhoneDigits = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
 
   return (
     <div className="surface-navy relative z-40 text-navy-foreground">
@@ -95,12 +98,23 @@ export function AnnouncementBar() {
             </span>
             {noticeText}
           </p>
-          {(phone || email) && (
+          {(phone || email || waConfig.enabled) && (
             <div className="hidden items-center gap-3 text-xs opacity-90 lg:flex">
               {phone && (
                 <a href={`tel:${phone}`} className="flex items-center gap-1 hover:underline">
                   <Phone size={12} className="text-gold" />
                   <span>{phone}</span>
+                </a>
+              )}
+              {waConfig.enabled && (
+                <a
+                  href={`https://wa.me/${waPhoneDigits}?text=${encodeURIComponent("Hello! I would like to inquire about Indian Public School.")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 hover:underline text-emerald-300 font-semibold"
+                >
+                  <i className="bi bi-whatsapp text-emerald-400" />
+                  <span>WhatsApp</span>
                 </a>
               )}
               {email && (
@@ -230,7 +244,8 @@ export function Navbar() {
   const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
   const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
   const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
-  const customLogoUrl = headerConfig.logoUrl?.trim() || siteLogo.logoUrl?.trim();
+  const rawLogoUrl = headerConfig.logoUrl?.trim() || siteLogo.logoUrl?.trim() || "/assets/Logos/IPSLOGO.png";
+  const customLogoUrl = rawLogoUrl === "/assets/IPSLOGO.png" ? "/assets/Logos/IPSLOGO.png" : rawLogoUrl;
   const logoTitle = headerConfig.logoText?.trim() || siteLogo.logoText?.trim() || "Indian Public School";
   const logoSubtitle = headerConfig.logoSubText?.trim() || siteLogo.logoSubText?.trim() || "Learn · Lead · Inspire";
 

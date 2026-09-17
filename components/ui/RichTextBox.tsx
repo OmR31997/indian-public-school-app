@@ -957,12 +957,12 @@ export function RichTextBox({
         }`}
     >
       {/* Top Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50/90 px-4 py-2.5">
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50/90 px-4 py-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => setActiveTab("visual")}
-            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${activeTab === "visual"
+            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${activeTab === "visual"
               ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
               : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               }`}
@@ -972,7 +972,7 @@ export function RichTextBox({
           <button
             type="button"
             onClick={() => setActiveTab("preview")}
-            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${activeTab === "preview"
+            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${activeTab === "preview"
               ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
               : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               }`}
@@ -982,7 +982,7 @@ export function RichTextBox({
           <button
             type="button"
             onClick={() => setActiveTab("html")}
-            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${activeTab === "html"
+            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${activeTab === "html"
               ? "bg-white text-[#1a5d9c] shadow-2xs border border-slate-200"
               : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               }`}
@@ -1004,7 +1004,7 @@ export function RichTextBox({
             <button
               type="button"
               onClick={() => setShowToolbox(!showToolbox)}
-              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition shadow-2xs ${showToolbox
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition shadow-2xs cursor-pointer ${showToolbox
                 ? "border-blue-300 bg-blue-50 text-[#1a5d9c]"
                 : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
                 }`}
@@ -1017,7 +1017,7 @@ export function RichTextBox({
           <button
             type="button"
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-2xs"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-2xs cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen Workspace" : "Expand Fullscreen Workspace"}
           >
             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
@@ -1028,7 +1028,7 @@ export function RichTextBox({
 
       {/* Formatting Toolbar */}
       {activeTab === "visual" && (
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 bg-slate-50/50 p-2.5 text-slate-700">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 bg-slate-50/50 p-2.5 text-slate-700 shrink-0">
           {/* Text Style Selection */}
           <select
             onChange={(e) => handleFormatBlock(e.target.value)}

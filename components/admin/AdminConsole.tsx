@@ -845,8 +845,8 @@ function MediaDetailDialog({
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
+      <div className="max-h-[90vh] w-full max-w-3xl flex flex-col overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4 shrink-0 rounded-t-3xl z-10">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-[#1a5d9c]">
               {fileType === "video" ? (
@@ -2356,7 +2356,7 @@ function HomeLayoutEditorModal({
   onSave: (value: Record<string, unknown>) => void;
 }) {
   const [activeTab, setActiveTab] = useState<
-    "header" | "footer" | "hero" | "banner" | "quickCards" | "video" | "sec1" | "sec2" | "sec3" | "sec4" | "sec5" | "sec6" | "sec7" | "sec8" | "sec9" | "sec10" | "rawJson"
+    "header" | "footer" | "whatsapp" | "hero" | "banner" | "quickCards" | "video" | "sec1" | "sec2" | "sec3" | "sec4" | "sec5" | "sec6" | "sec7" | "sec8" | "sec9" | "sec10" | "rawJson"
   >("header");
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>("");
@@ -2433,6 +2433,7 @@ function HomeLayoutEditorModal({
 
     const headerObj = { ...(finalVal.header || currentIdentity.header || {}) };
     const footerObj = { ...(finalVal.footer || currentIdentity.footer || {}) };
+    const waObj = { ...(finalVal.whatsapp || currentIdentity.whatsapp || {}) };
     const logoObj = { ...(finalVal.site_logo || currentIdentity.site_logo || {}) };
     const certObj = { ...(finalVal.certified_board || currentIdentity.certified_board || {}) };
     const trustObj = { ...(finalVal.trust_board || currentIdentity.trust_board || {}) };
@@ -2441,6 +2442,7 @@ function HomeLayoutEditorModal({
       ...currentIdentity,
       header: headerObj,
       footer: footerObj,
+      whatsapp: waObj,
       site_logo: logoObj,
       certified_board: certObj,
       trust_board: trustObj,
@@ -2451,6 +2453,7 @@ function HomeLayoutEditorModal({
       ...finalVal,
       header: headerObj,
       footer: footerObj,
+      whatsapp: waObj,
       site_logo: logoObj,
       certified_board: certObj,
       trust_board: trustObj,
@@ -2502,6 +2505,27 @@ function HomeLayoutEditorModal({
       const next = {
         ...prev,
         footer: footerObj,
+        home: homeList,
+      };
+      setJsonText(JSON.stringify(next, null, 2));
+      return next;
+    });
+  };
+
+  const updateWhatsAppField = (field: string, val: any) => {
+    setDatasource((prev: any) => {
+      const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
+      const firstHome = { ...(homeList[0] || {}) };
+      const identityObj = { ...(firstHome.identity || {}) };
+      const waObj = { ...(identityObj.whatsapp || prev?.whatsapp || {}), [field]: val };
+
+      identityObj.whatsapp = waObj;
+      firstHome.identity = identityObj;
+      homeList[0] = firstHome;
+
+      const next = {
+        ...prev,
+        whatsapp: waObj,
         home: homeList,
       };
       setJsonText(JSON.stringify(next, null, 2));
@@ -2577,7 +2601,7 @@ function HomeLayoutEditorModal({
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100 flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4 shrink-0 rounded-t-3xl">
           <div>
             <h2 className="font-display text-xl font-bold text-[#102a4c] flex items-center gap-2">
               <Sparkles className="text-amber-500" size={20} />
@@ -2587,16 +2611,17 @@ function HomeLayoutEditorModal({
               Dynamically add, remove, reorder, edit cards and upload images for any section.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
+          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer">
             <X size={20} />
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 bg-slate-50/80 p-3 overflow-hidden">
+        <div className="flex items-center gap-1.5 border-b border-slate-200 bg-slate-50/90 p-3 overflow-x-auto scrollbar-thin shrink-0 whitespace-nowrap">
           {[
             { id: "header", label: "Header Config", icon: "bi-card-heading" },
             { id: "footer", label: "Footer Config", icon: "bi-layout-text-window" },
+            { id: "whatsapp", label: "WhatsApp Widget", icon: "bi-whatsapp" },
             { id: "hero", label: "Hero Poster", icon: "bi-person-standing" },
             { id: "banner", label: "Banner Slider", icon: "bi-flag-fill" },
             { id: "quickCards", label: "Quick Cards", icon: "bi-grid-3x3-gap" },
@@ -2617,7 +2642,7 @@ function HomeLayoutEditorModal({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition border ${activeTab === tab.id
+              className={`flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition border whitespace-nowrap cursor-pointer ${activeTab === tab.id
                 ? "border-[#1a5d9c] bg-[#1a5d9c] text-white shadow-xs"
                 : "border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 hover:border-slate-300"
                 }`}
@@ -2883,6 +2908,107 @@ function HomeLayoutEditorModal({
                         });
                       }}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: WhatsApp */}
+          {activeTab === "whatsapp" && (
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                    <i className="bi bi-whatsapp text-emerald-600 text-lg" /> Floating WhatsApp Chat Widget Configuration
+                  </h3>
+
+                  <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+                    <input
+                      type="checkbox"
+                      checked={(datasource?.home?.[0]?.identity?.whatsapp?.enabled ?? datasource?.whatsapp?.enabled) !== false}
+                      onChange={(e) => updateWhatsAppField("enabled", e.target.checked)}
+                      className="size-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <span className="text-xs font-bold text-slate-700">Enable Floating WhatsApp Widget</span>
+                  </label>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">WhatsApp Contact Phone Number (Default: +91 97351 81684)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. +91 97351 81684"
+                      value={datasource?.home?.[0]?.identity?.whatsapp?.phone || datasource?.whatsapp?.phone || "+91 97351 81684"}
+                      onChange={(e) => updateWhatsAppField("phone", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Helpdesk Agent / Desk Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. IPS Admissions & Support"
+                      value={datasource?.home?.[0]?.identity?.whatsapp?.agentName || datasource?.whatsapp?.agentName || "IPS Admissions & Support"}
+                      onChange={(e) => updateWhatsAppField("agentName", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Agent Role / Subtitle</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Official Helpdesk"
+                      value={datasource?.home?.[0]?.identity?.whatsapp?.agentRole || datasource?.whatsapp?.agentRole || "Official Helpdesk"}
+                      onChange={(e) => updateWhatsAppField("agentRole", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Widget Position on Screen</label>
+                    <select
+                      value={datasource?.home?.[0]?.identity?.whatsapp?.position || datasource?.whatsapp?.position || "bottom-left"}
+                      onChange={(e) => updateWhatsAppField("position", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-emerald-500"
+                    >
+                      <option value="bottom-left">Bottom Left (Recommended)</option>
+                      <option value="bottom-right">Bottom Right (Stacked)</option>
+                    </select>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="text-[11px] font-bold text-slate-500">Welcome Greeting Message</label>
+                    <textarea
+                      rows={2}
+                      placeholder="Greeting text displayed when visitor opens chat box"
+                      value={datasource?.home?.[0]?.identity?.whatsapp?.welcomeMessage || datasource?.whatsapp?.welcomeMessage || "Hello! 👋 Welcome to Indian Public School. How can we assist you with admissions or campus details today?"}
+                      onChange={(e) => updateWhatsAppField("welcomeMessage", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none resize-y focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="text-[11px] font-bold text-slate-500">Quick Inquiry Topic Options (Comma Separated)</label>
+                    <input
+                      type="text"
+                      placeholder="Admission Inquiry 🎓, Fee Structure 💰, Schedule Campus Visit 🏫, General Query 💬"
+                      value={
+                        Array.isArray(datasource?.home?.[0]?.identity?.whatsapp?.presetMessages)
+                          ? datasource.home[0].identity.whatsapp.presetMessages.join(", ")
+                          : Array.isArray(datasource?.whatsapp?.presetMessages)
+                          ? datasource.whatsapp.presetMessages.join(", ")
+                          : "Admission Inquiry 🎓, Fee Structure 💰, Schedule Campus Visit 🏫, General Query 💬"
+                      }
+                      onChange={(e) => {
+                        const items = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
+                        updateWhatsAppField("presetMessages", items);
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-emerald-500"
                     />
                   </div>
                 </div>
@@ -3724,69 +3850,206 @@ function HomeLayoutEditorModal({
           )}
 
           {/* TAB: Section 7 */}
-          {activeTab === "sec7" && (
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <i className="bi bi-people-fill text-[#1a5d9c]" /> Section 7: Student Life Showcase
-                </h3>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <input
-                    type="text"
-                    placeholder="Heading"
-                    value={homeObj["section-7"]?.[0]?.heading || ""}
-                    onChange={(e) => {
-                      const sec7 = [...(homeObj["section-7"] || [{}])];
-                      sec7[0] = { ...sec7[0], heading: e.target.value };
-                      updateHome((prev) => ({ ...prev, "section-7": sec7 }));
-                    }}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Main Heading"
-                    value={homeObj["section-7"]?.[0]?.mainHeading || ""}
-                    onChange={(e) => {
-                      const sec7 = [...(homeObj["section-7"] || [{}])];
-                      sec7[0] = { ...sec7[0], mainHeading: e.target.value };
-                      updateHome((prev) => ({ ...prev, "section-7": sec7 }));
-                    }}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                  />
+          {activeTab === "sec7" && (() => {
+            const sec7Data = homeObj["section-7"]?.[0] || {};
+            const cardsList: Array<{ title?: string; heading?: string; fileUrl: string }> = Array.isArray(sec7Data.cardItem)
+              ? sec7Data.cardItem
+              : [];
+            const descText = Array.isArray(sec7Data.description)
+              ? sec7Data.description[0] || ""
+              : typeof sec7Data.description === "string"
+              ? sec7Data.description
+              : "";
+
+            return (
+              <div className="space-y-5">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                      <i className="bi bi-people-fill text-[#1a5d9c]" /> Section 7: Student Life Showcase
+                    </h3>
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-[#1a5d9c] border border-blue-100">
+                      {cardsList.length} {cardsList.length === 1 ? "Image" : "Images"} configured
+                    </span>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-500 mb-1">Eyebrow / Sub-Heading</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Student Life"
+                        value={sec7Data.heading || ""}
+                        onChange={(e) => {
+                          const sec7 = [...(homeObj["section-7"] || [{}])];
+                          sec7[0] = { ...sec7[0], heading: e.target.value };
+                          updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                        }}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-500 mb-1">Main Heading</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. A day here is never quiet"
+                        value={sec7Data.mainHeading || ""}
+                        onChange={(e) => {
+                          const sec7 = [...(homeObj["section-7"] || [{}])];
+                          sec7[0] = { ...sec7[0], mainHeading: e.target.value };
+                          updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                        }}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Section Description</label>
+                    <textarea
+                      rows={2}
+                      placeholder="e.g. Assemblies, house matches, rehearsals, science fairs and quiet reading corners..."
+                      value={descText}
+                      onChange={(e) => {
+                        const sec7 = [...(homeObj["section-7"] || [{}])];
+                        sec7[0] = { ...sec7[0], description: [e.target.value] };
+                        updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-[#1a5d9c] resize-none"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  {homeObj["section-7"]?.[0]?.cardItem?.[0]?.fileUrl && (
-                    <div className="relative h-20 w-32 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={homeObj["section-7"][0].cardItem[0].fileUrl} alt="Student Life" className="h-full w-full object-cover" />
+                {/* Section 7 Images Grid Editor */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+                  <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-slate-100">
+                    <div>
+                      <h4 className="text-xs font-bold text-[#102a4c]">Student Life Showcase Photos</h4>
+                      <p className="text-[11px] text-slate-500">Upload multiple photos to display in the Student Life section masonry grid.</p>
+                    </div>
+
+                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#124272] transition-colors shadow-sm">
+                      <Plus size={16} /> Add Image(s)
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={async (e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length === 0) return;
+                          const currentCards = [...(homeObj["section-7"]?.[0]?.cardItem || [])];
+                          for (const file of files) {
+                            const url = await uploadImage(file);
+                            if (url) {
+                              const autoTitle = file.name
+                                .replace(/\.[^/.]+$/, "")
+                                .replace(/[-_]/g, " ")
+                                .trim();
+                              currentCards.push({ title: autoTitle, fileUrl: url });
+                            }
+                          }
+                          const sec7 = [...(homeObj["section-7"] || [{}])];
+                          sec7[0] = { ...sec7[0], cardItem: currentCards };
+                          updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                          e.target.value = "";
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {cardsList.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 text-center">
+                      <ImageIcon className="h-10 w-10 text-slate-300 mb-2" />
+                      <p className="text-xs font-bold text-slate-600">No Student Life images added yet</p>
+                      <p className="text-[11px] text-slate-400 mt-1 max-w-xs">Click &quot;Add Image(s)&quot; above to upload photos for this section.</p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {cardsList.map((card, cardIdx) => (
+                        <div
+                          key={`sec7-card-${cardIdx}`}
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50 p-3 hover:border-slate-300 transition-all shadow-xs"
+                        >
+                          <div className="space-y-3">
+                            <div className="relative h-40 w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-900">
+                              {card.fileUrl ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                  src={card.fileUrl}
+                                  alt={card.title || card.heading || `Student Life ${cardIdx + 1}`}
+                                  className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
+                                  No image
+                                </div>
+                              )}
+                              <span className="absolute top-2 left-2 rounded-lg bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-white">
+                                #{cardIdx + 1}
+                              </span>
+                            </div>
+
+                            <input
+                              type="text"
+                              placeholder="Image Caption / Title"
+                              value={card.title || card.heading || ""}
+                              onChange={(e) => {
+                                const sec7 = [...(homeObj["section-7"] || [{}])];
+                                const cards = [...(sec7[0].cardItem || [])];
+                                cards[cardIdx] = { ...cards[cardIdx], title: e.target.value };
+                                sec7[0] = { ...sec7[0], cardItem: cards };
+                                updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                              }}
+                              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-[#1a5d9c]"
+                            />
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-slate-200/60">
+                            <label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-bold text-[#1a5d9c] hover:underline">
+                              <UploadCloud size={14} /> Change Photo
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      const sec7 = [...(homeObj["section-7"] || [{}])];
+                                      const cards = [...(sec7[0].cardItem || [])];
+                                      cards[cardIdx] = { ...cards[cardIdx], fileUrl: url };
+                                      sec7[0] = { ...sec7[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                                    }
+                                  }
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const sec7 = [...(homeObj["section-7"] || [{}])];
+                                const cards = (sec7[0].cardItem || []).filter((_: any, idx: number) => idx !== cardIdx);
+                                sec7[0] = { ...sec7[0], cardItem: cards };
+                                updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                              }}
+                              className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Delete photo"
+                            >
+                              <Trash2 size={13} /> Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
-                    <UploadCloud size={16} /> Upload Cover Photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await uploadImage(file);
-                          if (url) {
-                            const sec7 = [...(homeObj["section-7"] || [{}])];
-                            const cards = [...(sec7[0].cardItem || [{}])];
-                            cards[0] = { ...cards[0], fileUrl: url };
-                            sec7[0] = { ...sec7[0], cardItem: cards };
-                            updateHome((prev) => ({ ...prev, "section-7": sec7 }));
-                          }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* TAB: Video Setup */}
           {activeTab === "video" && (
@@ -3807,10 +4070,10 @@ function HomeLayoutEditorModal({
                   const eyebrowVal = secVid.eyebrow || sec8.videoEyebrow || "Discover IPS";
                   const titleVal = secVid.title || secVid.heading || sec8.videoTitle || "Experience life at Indian Public School";
                   const descVal = secVid.description || sec8.videoDescription || "Take a look at the campus, learning spaces and student life.";
-                  const CLOUDINARY_SEED_VIDEO = "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4";
+                  const FALLBACK_SEED_VIDEO = "https://www.indianpublicschool.in/assets/img/IPS.mp4";
                   let videoUrlVal = secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl;
                   if (!videoUrlVal || videoUrlVal === "/IPSIntroVideo.mp4") {
-                    videoUrlVal = CLOUDINARY_SEED_VIDEO;
+                    videoUrlVal = FALLBACK_SEED_VIDEO;
                   }
                   const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "indian-public-school/assets/Videos";
 
@@ -4440,20 +4703,20 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-      <form onSubmit={submit} className={`max-h-[92vh] w-full overflow-y-auto rounded-3xl bg-white shadow-2xl border border-slate-100 transition-all ${isLargeModal ? "max-w-5xl" : "max-w-2xl"}`}>
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5">
+      <form onSubmit={submit} className={`max-h-[92vh] w-full flex flex-col overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100 transition-all ${isLargeModal ? "max-w-5xl" : "max-w-2xl"}`}>
+        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5 shrink-0 rounded-t-3xl z-20">
           <div>
             <h2 className="font-display text-2xl font-bold text-[#102a4c]">
               {record ? "Edit" : resource.key === "school-settings" ? "Add / Edit" : "Add"} {resource.label.endsWith("s") ? resource.label.slice(0, -1) : resource.label}
             </h2>
             <p className="text-sm text-slate-500">Changes are sent to the school API and synced to Cloudinary.</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100">
+          <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 cursor-pointer">
             <X size={19} />
           </button>
         </div>
 
-        <div className="grid gap-4 p-6 sm:grid-cols-2">
+        <div className="flex-1 overflow-y-auto p-6 grid gap-4 sm:grid-cols-2">
           {uploadError && (
             <div className="sm:col-span-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-700">
               {uploadError}
@@ -4913,16 +5176,16 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
           })}
         </div>
 
-        <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
-          <button type="button" onClick={onClose} className="rounded-xl px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100">
+        <div className="flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/80 px-6 py-4 shrink-0 rounded-b-3xl z-10">
+          <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">
             Cancel
           </button>
           <button
             disabled={saving || Boolean(uploading)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
           >
             {saving && <LoaderCircle size={16} className="animate-spin" />}
-            {saving ? "Saving" : "Save changes"}
+            {saving ? "Saving…" : "Save changes"}
           </button>
         </div>
       </form>

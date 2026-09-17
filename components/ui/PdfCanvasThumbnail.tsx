@@ -136,7 +136,7 @@ export function PdfCanvasThumbnail({ url, className = "", alt = "PDF Page Previe
         alt={alt}
         className="h-full w-full object-cover"
         onError={() => {
-          setUseCanvas(true);
+          setTimeout(() => setUseCanvas(true), 0);
         }}
       />
     </div>

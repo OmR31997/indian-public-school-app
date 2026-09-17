@@ -22,9 +22,23 @@
           "logoSubText": "Learn · Lead · Inspire"
         },
         "site_logo": {
-          "logoUrl": "",
+          "logoUrl": "/assets/Logos/IPSLOGO.png",
           "logoText": "Indian Public School",
           "logoSubText": "Learn · Lead · Inspire"
+        },
+        "whatsapp": {
+          "enabled": true,
+          "phone": "+91 97351 81684",
+          "agentName": "IPS Admissions & Support",
+          "agentRole": "Official Helpdesk",
+          "welcomeMessage": "Hello!, Welcome to Indian Public School. How can we assist you with admissions or campus details today?",
+          "presetMessages": [
+            "Admission Inquiry",
+            "Fee Structure",
+            "Schedule Campus Visit",
+            "General Query"
+          ],
+          "position": "bottom-left"
         },
         "certified_board": {
           "title": "CBSE Affiliated School",
@@ -403,8 +417,28 @@
           ],
           "cardItem": [
             {
-              "title": "",
+              "title": "Creative Arts & Crafts",
               "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163179/indian-public-school/assets/Home/life-kids.jpg"
+            },
+            {
+              "title": "Music & Performing Arts",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163178/indian-public-school/assets/Home/life-arts.jpg"
+            },
+            {
+              "title": "Sports & Athletic Training",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163174/indian-public-school/assets/Home/facility-sports.jpg"
+            },
+            {
+              "title": "Interactive Learning & Library",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163173/indian-public-school/assets/Home/facility-library.jpg"
+            },
+            {
+              "title": "Campus Activities & Play",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163167/indian-public-school/assets/Home/campus-aerial.jpg"
+            },
+            {
+              "title": "Primary Education Workshops",
+              "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163180/indian-public-school/assets/Home/PrePrimary.jpg"
             }
           ],
           "redirectUrl": "/about-us/director-message"
@@ -435,8 +469,8 @@
               "fileUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163185/indian-public-school/assets/Home/SeniorSecondLevel.jpg"
             }
           ],
-          "introFileUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
-          "videoUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
+          "introFileUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4",
+          "videoUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4",
           "cloudinaryFolder": "indian-public-school/assets/Videos"
         }
       ],
@@ -473,8 +507,8 @@
           "eyebrow": "Discover IPS",
           "title": "Experience life at Indian Public School",
           "description": "Take a look at the campus, learning spaces and student life.",
-          "introFileUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
-          "videoUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
+          "introFileUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4",
+          "videoUrl": "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4",
           "cloudinaryFolder": "indian-public-school/assets/Videos"
         }
       ]

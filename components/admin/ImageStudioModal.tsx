@@ -171,10 +171,12 @@ export function ImageStudioModal({
     setCropRect({ x: 0, y: 0, width: 100, height: 100 });
     setAspectRatio(0);
 
+    let isMounted = true;
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = initialSrc;
     img.onload = () => {
+      if (!isMounted) return;
       setNaturalSize({ width: img.naturalWidth || 800, height: img.naturalHeight || 600 });
       setTargetWidth(img.naturalWidth || 800);
       setTargetHeight(img.naturalHeight || 600);
@@ -186,14 +188,20 @@ export function ImageStudioModal({
       updateCompressionEstimate(img.naturalWidth || 800, img.naturalHeight || 600, quality, outputFormat);
     };
     img.onerror = () => {
+      if (!isMounted) return;
       const fallbackImg = new Image();
       fallbackImg.src = initialSrc;
       fallbackImg.onload = () => {
+        if (!isMounted) return;
         setNaturalSize({ width: fallbackImg.naturalWidth || 800, height: fallbackImg.naturalHeight || 600 });
         setTargetWidth(fallbackImg.naturalWidth || 800);
         setTargetHeight(fallbackImg.naturalHeight || 600);
         hiddenImgRef.current = fallbackImg;
       };
+    };
+
+    return () => {
+      isMounted = false;
     };
   }, [isOpen, initialData]);
 

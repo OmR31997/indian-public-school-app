@@ -155,7 +155,8 @@ export function Footer() {
 
   const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
   const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
-  const customLogoUrl = text(footerConfig.logoUrl) || siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim();
+  const rawLogoUrl = text(footerConfig.logoUrl) || siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim() || "/assets/Logos/IPSLOGO.png";
+  const customLogoUrl = rawLogoUrl === "/assets/IPSLOGO.png" ? "/assets/Logos/IPSLOGO.png" : rawLogoUrl;
   const displayBrandTitle = text(footerConfig.logoText) || siteLogo.logoText?.trim() || headerConfig.logoText?.trim() || brandTitle;
   const displayBrandSubTitle = text(footerConfig.logoSubText) || siteLogo.logoSubText?.trim() || headerConfig.logoSubText?.trim() || brandSubTitle;
 

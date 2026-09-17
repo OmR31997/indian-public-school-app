@@ -57,8 +57,15 @@ export function getFileType(url: string): "image" | "video" | "audio" | "documen
 const DEFAULT_CLOUDINARY_MEDIA: MediaItem[] = [
   {
     id: "default-[#1-video]",
-    url: "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4",
-    title: "IPS Campus Intro Video Showcase",
+    url: "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4",
+    title: "IPS Campus Intro Video Showcase (Cloudinary)",
+    category: "Videos",
+    source: "cloudinary",
+  },
+  {
+    id: "default-fallback-video",
+    url: "https://www.indianpublicschool.in/assets/img/IPS.mp4",
+    title: "IPS Official Fallback Video",
     category: "Videos",
     source: "cloudinary",
   },

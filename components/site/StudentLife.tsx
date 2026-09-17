@@ -30,7 +30,7 @@ export function StudentLife() {
     <section className="py-20 lg:py-32">
       <div className="container-page">
         <SectionHeading
-          eyebrow="Student Life"
+          eyebrow={text(section.heading) || "Student Life"}
           title={text(section.mainHeading)}
           description={textList(section.description)[0]}
         />
@@ -42,10 +42,7 @@ export function StudentLife() {
           className="mt-14 columns-1 gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4"
         >
           {shots.map((shot, index) => {
-            const alt = text(
-              shot.heading,
-              "Student life at Indian Public School",
-            );
+            const alt = text(shot.title) || text(shot.heading) || "Student life at Indian Public School";
             const shotImage = imageUrl(shot.fileUrl);
             return (
               <motion.figure

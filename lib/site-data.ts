@@ -27,6 +27,16 @@ export interface TrustBoardSetting {
   enabled?: boolean;
 }
 
+export interface WhatsAppSetting {
+  enabled?: boolean;
+  phone?: string;
+  agentName?: string;
+  agentRole?: string;
+  welcomeMessage?: string;
+  presetMessages?: string[];
+  position?: "bottom-left" | "bottom-right";
+}
+
 export interface SiteData {
   home: SiteRecord[];
   news?: SiteRecord[];
@@ -36,6 +46,7 @@ export interface SiteData {
   site_logo?: SiteLogoSetting;
   certified_board?: CertifiedBoardSetting;
   trust_board?: TrustBoardSetting;
+  whatsapp?: WhatsAppSetting;
   [key: string]: unknown;
 }
 
@@ -107,4 +118,30 @@ export function imageUrls(record: SiteRecord): string[] {
   const value = record.fileUrls ?? record.fileUrl;
   if (!Array.isArray(value)) return imageUrl(value) ? [imageUrl(value)] : [];
   return value.filter((item): item is string => typeof item === "string" && item.length > 0);
+}
+
+export function getWhatsAppConfig(siteData?: SiteData | null): Required<WhatsAppSetting> {
+  const home = siteData?.home?.[0] as SiteRecord | undefined;
+  const identityObj = (home?.identity as SiteRecord | undefined) ?? {};
+  const wa = (identityObj?.whatsapp as WhatsAppSetting | undefined) ?? (siteData?.whatsapp as WhatsAppSetting | undefined) ?? {};
+
+  const phone = text(wa.phone) || "+91 97351 81684";
+  const enabled = wa.enabled !== false;
+  const agentName = text(wa.agentName) || "IPS Admissions & Support";
+  const agentRole = text(wa.agentRole) || "Official Helpdesk";
+  const welcomeMessage = text(wa.welcomeMessage) || "Hello! Welcome to Indian Public School. How can we assist you with admissions or campus details today?";
+  const presetMessages = Array.isArray(wa.presetMessages) && wa.presetMessages.length > 0
+    ? wa.presetMessages.map((m) => String(m))
+    : ["Admission Inquiry", "Fee Structure", "Schedule Campus Visit", "General Query"];
+  const position = wa.position === "bottom-right" ? "bottom-right" : "bottom-left";
+
+  return {
+    enabled,
+    phone,
+    agentName,
+    agentRole,
+    welcomeMessage,
+    presetMessages,
+    position,
+  };
 }

@@ -7,13 +7,14 @@ export function IntroVideo() {
   const secVid = firstSection(siteHome, "section-video");
   const sec8 = firstSection(siteHome, "section-8");
 
-  const CLOUDINARY_SEED_VIDEO = "https://res.cloudinary.com/niefrrkx/video/upload/v1789299171/indian-public-school/assets/Videos/IPSIntroVideo.mp4";
+  const FALLBACK_SEED_VIDEO = "https://www.indianpublicschool.in/assets/img/IPS.mp4";
+  const CLOUDINARY_VIDEO = "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4";
   let explicitUrl = text(secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl);
-  if (explicitUrl === "/IPSIntroVideo.mp4") {
-    explicitUrl = CLOUDINARY_SEED_VIDEO;
+  if (!explicitUrl || explicitUrl === "/IPSIntroVideo.mp4" || explicitUrl.includes("v1789299171")) {
+    explicitUrl = CLOUDINARY_VIDEO;
   }
   const isCleared = secVid.introFileUrl === "" || secVid.videoUrl === "" || sec8.introFileUrl === "";
-  const source = explicitUrl ? explicitUrl : isCleared ? "" : CLOUDINARY_SEED_VIDEO;
+  const source = explicitUrl ? explicitUrl : isCleared ? "" : CLOUDINARY_VIDEO;
 
   if (!source) {
     return null;
@@ -35,18 +36,18 @@ export function IntroVideo() {
         <SectionHeading eyebrow={eyebrow} title={title} description={description} />
         <div className="mt-12 overflow-hidden rounded-3xl border border-border bg-navy-deep shadow-lift">
           <video
-            className="aspect-video w-full"
+            src={source}
+            className="aspect-video w-full object-cover"
             autoPlay={autoPlay}
             muted={muted}
             loop={loop}
             controls={showControls}
             poster={poster || undefined}
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-label={title}
             key={`${source}-${autoPlay}-${muted}-${loop}-${showControls}`}
           >
-            <source src={source} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
