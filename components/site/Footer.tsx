@@ -14,10 +14,36 @@ interface ApiMenuItem {
   title: string;
   slug?: string;
   targetUrl?: string;
+  linkUrl?: string;
   category?: string;
   isPublished?: boolean;
   order?: number;
   subItems?: ApiMenuItem[];
+}
+
+function getItemHref(item: ApiMenuItem): string {
+  // If item has 3rd level subItems, directly point to the first published child's link
+  if (Array.isArray(item.subItems) && item.subItems.length > 0) {
+    const publishedChild = item.subItems.find(
+      (child) => child.isPublished !== false && Boolean(child.targetUrl?.trim() || child.linkUrl?.trim() || child.slug?.trim())
+    );
+    if (publishedChild) {
+      return getItemHref(publishedChild);
+    }
+  }
+
+  const explicitTarget = (item.targetUrl || item.linkUrl || "").trim();
+  if (explicitTarget && explicitTarget !== "#") {
+    if (explicitTarget.startsWith("/") || explicitTarget.startsWith("http")) return explicitTarget;
+    if (explicitTarget.startsWith("#")) return `/${explicitTarget}`;
+    return `/#${explicitTarget}`;
+  }
+
+  const slugTarget = (item.slug || "/").trim();
+  if (!slugTarget || slugTarget === "/") return "/";
+  if (slugTarget.startsWith("/") || slugTarget.startsWith("http")) return slugTarget;
+  if (slugTarget.startsWith("#")) return `/${slugTarget}`;
+  return `/#${slugTarget}`;
 }
 
 const DEFAULT_FOOTER_COLUMNS = [
@@ -119,31 +145,29 @@ export function Footer() {
   }, []);
 
   const footerColumns = dbMenuItems.length
-    ? dbMenuItems.map((parent) => {
-        const subLinks = Array.isArray(parent.subItems) && parent.subItems.length > 0
-          ? parent.subItems
-              .filter((sub) => sub.isPublished !== false)
-              .map((sub) => {
-                const target = (sub.targetUrl || sub.slug || "/").trim();
-                const href = target.startsWith("/") || target.startsWith("http")
-                  ? target
-                  : target.startsWith("#")
-                  ? `/${target}`
-                  : `/#${target}`;
-                return { title: sub.title, href };
-              })
-          : [
-              {
-                title: parent.title,
-                href: (parent.targetUrl || parent.slug || "/").trim(),
-              },
-            ];
+    ? dbMenuItems
+        .filter((parent) => parent.isPublished !== false)
+        .map((parent) => {
+          const subLinks = Array.isArray(parent.subItems) && parent.subItems.length > 0
+            ? parent.subItems
+                .filter((sub) => sub.isPublished !== false)
+                .map((sub) => ({
+                  title: sub.title,
+                  href: getItemHref(sub),
+                }))
+            : [
+                {
+                  title: parent.title,
+                  href: getItemHref(parent),
+                },
+              ];
 
-        return {
-          title: parent.title,
-          links: subLinks,
-        };
-      })
+          return {
+            title: parent.title,
+            links: subLinks,
+          };
+        })
+        .filter((col) => col.links.length > 0)
     : DEFAULT_FOOTER_COLUMNS;
 
   const socialLinks = [
