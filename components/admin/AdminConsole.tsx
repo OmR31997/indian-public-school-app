@@ -4640,6 +4640,16 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
       formData.append("file", file);
       formData.append("album", resource.label);
 
+      const targetFolder =
+        (typeof values.directory === "string" && values.directory.trim()) ||
+        (typeof values.folder === "string" && values.folder.trim()) ||
+        (typeof values.cloudinaryFolder === "string" && values.cloudinaryFolder.trim()) ||
+        "";
+
+      if (targetFolder) {
+        formData.append("folder", targetFolder);
+      }
+
       const res = await axios.post(`${API_URL}/uploads`, formData, {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",

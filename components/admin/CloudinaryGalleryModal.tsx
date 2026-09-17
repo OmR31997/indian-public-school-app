@@ -189,6 +189,9 @@ export function CloudinaryGalleryModal({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("album", "Visual Editor Picked");
+      if (activeCategory && activeCategory !== "All") {
+        formData.append("folder", activeCategory);
+      }
 
       const token =
         typeof window !== "undefined"
