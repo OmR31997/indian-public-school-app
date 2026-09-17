@@ -42,6 +42,7 @@
   --color-gold-foreground: var(--gold-foreground);
   --color-navy: var(--navy);
   --color-navy-deep: var(--navy-deep);
+  --color-navy-950: oklch(0.14 0.05 266);
   --color-navy-foreground: var(--navy-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -257,10 +258,8 @@
 /* Dark section containers (e.g. Hero banners, stats bars, navy cards) MUST preserve white text for all headings and text */
 .dynamic-page-content section[style*="#102a4c"],
 .dynamic-page-content section[style*="#0f172a"],
-.dynamic-page-content section[style*="linear-gradient"],
 .dynamic-page-content div[style*="#102a4c"],
-.dynamic-page-content div[style*="#0f172a"],
-.dynamic-page-content div[style*="linear-gradient"] {
+.dynamic-page-content div[style*="#0f172a"] {
   color: #ffffff;
 }
 
@@ -270,18 +269,12 @@
 .dynamic-page-content section[style*="#0f172a"] h1,
 .dynamic-page-content section[style*="#0f172a"] h2,
 .dynamic-page-content section[style*="#0f172a"] h3,
-.dynamic-page-content section[style*="linear-gradient"] h1,
-.dynamic-page-content section[style*="linear-gradient"] h2,
-.dynamic-page-content section[style*="linear-gradient"] h3,
 .dynamic-page-content div[style*="#102a4c"] h1,
 .dynamic-page-content div[style*="#102a4c"] h2,
 .dynamic-page-content div[style*="#102a4c"] h3,
 .dynamic-page-content div[style*="#0f172a"] h1,
 .dynamic-page-content div[style*="#0f172a"] h2,
-.dynamic-page-content div[style*="#0f172a"] h3,
-.dynamic-page-content div[style*="linear-gradient"] h1,
-.dynamic-page-content div[style*="linear-gradient"] h2,
-.dynamic-page-content div[style*="linear-gradient"] h3 {
+.dynamic-page-content div[style*="#0f172a"] h3 {
   color: #ffffff !important;
 }
 

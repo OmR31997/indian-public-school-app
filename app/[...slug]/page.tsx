@@ -193,12 +193,12 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
   const htmlContent = typeof page.textContent === "string" ? page.textContent : "";
   const breadcrumbs = buildBreadcrumbs(slug, title);
   const bannerImg =
-    images.length > 0
-      ? images[0]
-      : typeof page?.heroImage === "string" && page.heroImage
+    typeof page?.heroImage === "string" && page.heroImage
       ? (page.heroImage as string)
       : typeof page?.bannerImage === "string" && page.bannerImage
       ? (page.bannerImage as string)
+      : typeof page?.image === "string" && page.image
+      ? (page.image as string)
       : fallbackHeroImage.src;
 
   return (
@@ -210,7 +210,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
             alt={title}
             className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-navy-950/85 to-slate-950/95" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-navy-950/90 to-slate-950/95" />
           <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[1px]" />
         </div>
 
