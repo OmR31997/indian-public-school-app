@@ -282,10 +282,10 @@ export function FileViewerModal({
   return (
     <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/80 p-2 sm:p-4 backdrop-blur-md animate-in fade-in duration-200">
       <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 text-white shadow-2xl">
-        
+
         {/* Header Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-900/90 px-5 py-3.5 backdrop-blur-xs shrink-0">
-          
+
           {/* File Badge & Title */}
           <div className="flex items-center gap-3 min-w-0 max-w-md">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500/20 text-blue-400">
@@ -307,11 +307,6 @@ export function FileViewerModal({
                 <span className="font-semibold uppercase tracking-wider text-blue-400">
                   {isPdf ? "PDF Document" : fileType}
                 </span>
-                {isPdf && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300">
-                    <Sparkles size={11} /> Next.js Proxy & PDF.js Canvas Engine
-                  </span>
-                )}
               </div>
             </div>
           </div>
@@ -322,11 +317,10 @@ export function FileViewerModal({
               <button
                 type="button"
                 onClick={() => setActiveTab("picture")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
-                  activeTab === "picture"
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${activeTab === "picture"
                     ? "bg-[#1a5d9c] text-white shadow-xs"
                     : "text-slate-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <Eye size={14} />
                 <span>Picture Preview</span>
@@ -334,11 +328,10 @@ export function FileViewerModal({
               <button
                 type="button"
                 onClick={() => setActiveTab("reader")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
-                  activeTab === "reader"
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${activeTab === "reader"
                     ? "bg-[#1a5d9c] text-white shadow-xs"
                     : "text-slate-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <BookOpen size={14} />
                 <span>Interactive Reader</span>
@@ -422,11 +415,11 @@ export function FileViewerModal({
 
         {/* Main Viewing Canvas */}
         <div className="relative flex flex-1 overflow-hidden bg-slate-950 items-center justify-center p-2 sm:p-4">
-          
+
           {/* PDF Picture Preview Mode */}
           {isPdf && activeTab === "picture" && (
             <div className="relative flex h-full w-full flex-col items-center justify-center overflow-auto scrollbar-thin">
-              
+
               {(isFetchingPdf || isRenderingPage) && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-xs text-slate-300 gap-2">
                   <LoaderCircle size={32} className="animate-spin text-blue-500" />
@@ -487,34 +480,31 @@ export function FileViewerModal({
           {/* PDF / Document Interactive Reader Mode */}
           {((isPdf && activeTab === "reader") || (!isPdf && isDoc)) && (
             <div className="relative h-full w-full flex flex-col items-center justify-center">
-              
+
               {/* Reader Engine Bar */}
               <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-xl bg-slate-900/90 border border-slate-800 px-3 py-1 text-[11px] shadow-lg backdrop-blur-md">
                 <span className="font-bold text-slate-400 mr-1">Reader Engine:</span>
                 <button
                   type="button"
                   onClick={() => setReaderEngine(1)}
-                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${
-                    readerEngine === 1 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
-                  }`}
+                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 1 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                    }`}
                 >
                   Proxy Stream
                 </button>
                 <button
                   type="button"
                   onClick={() => setReaderEngine(2)}
-                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${
-                    readerEngine === 2 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
-                  }`}
+                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 2 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                    }`}
                 >
                   Local Blob Reader
                 </button>
                 <button
                   type="button"
                   onClick={() => setReaderEngine(3)}
-                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${
-                    readerEngine === 3 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
-                  }`}
+                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 3 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                    }`}
                 >
                   Google Reader
                 </button>
