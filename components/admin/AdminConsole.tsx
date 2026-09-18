@@ -1005,7 +1005,9 @@ function MediaDetailDialog({
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
               <table className="w-full text-left text-xs">
                 <tbody className="divide-y divide-slate-100">
-                  {Object.entries(item).map(([key, val]) => (
+                  {Object.entries(item)
+                    .filter(([key]) => key !== "_id" && key !== "__v")
+                    .map(([key, val]) => (
                     <tr key={key} className="hover:bg-slate-50/50">
                       <td className="w-1/3 whitespace-nowrap bg-slate-50/70 px-4 py-3 font-bold text-slate-600">
                         {titleCase(key)}

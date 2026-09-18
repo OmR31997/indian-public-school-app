@@ -175,7 +175,7 @@ export function ContactUsView() {
 
       const data = res.data?.data || res.data;
       setSubmittedResult({
-        id: data?._id || data?.id,
+        id: data?.referenceNo || data?.inquiryId || (data?.id && data.id !== data._id ? data.id : undefined),
         type: values.inquiryType,
         email: values.email,
         timestamp: new Date().toLocaleString(),
@@ -219,7 +219,7 @@ export function ContactUsView() {
 
       const data = res.data?.data || res.data;
       setSubmittedResult({
-        id: data?._id || data?.id,
+        id: data?.referenceNo || data?.inquiryId || (data?.id && data.id !== data._id ? data.id : undefined),
         type: `Feedback - ${values.category}`,
         email: values.email,
         timestamp: new Date().toLocaleString(),
