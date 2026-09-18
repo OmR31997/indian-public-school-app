@@ -69,9 +69,31 @@ export function PdfCanvasThumbnail({ url, className = "", alt = "PDF Page Previe
         try {
           const proxyUrl = getPdfProxyUrl(url);
           const res = await fetch(proxyUrl);
+          if (!res.ok) {
+            throw new Error(`PDF proxy HTTP status ${res.status}`);
+          }
           const buffer = await res.arrayBuffer();
+
+          // Check for PDF magic header bytes (%PDF)
+          const header = new Uint8Array(buffer, 0, Math.min(4, buffer.byteLength));
+          const isPdfHeader =
+            header.length >= 4 &&
+            header[0] === 0x25 && // %
+            header[1] === 0x50 && // P
+            header[2] === 0x44 && // D
+            header[3] === 0x46;   // F
+
+          if (!isPdfHeader) {
+            if (isMounted) {
+              setLoading(false);
+              setError(true);
+            }
+            return;
+          }
+
           pdfData = { data: buffer };
         } catch {
+          // Fall back to direct URL attempt if proxy fetch failed
           pdfData = { url, withCredentials: false };
         }
 
@@ -93,8 +115,7 @@ export function PdfCanvasThumbnail({ url, className = "", alt = "PDF Page Previe
         }
         setLoading(false);
       })
-      .catch((err) => {
-        console.warn("PDF.js canvas thumbnail render fallback error:", err);
+      .catch(() => {
         if (isMounted) {
           setLoading(false);
           setError(true);

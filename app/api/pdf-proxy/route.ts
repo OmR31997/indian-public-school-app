@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     const rawType = res.headers.get("content-type") || "application/pdf";
     const contentType =
-      rawType.includes("octet-stream") || rawType.includes("text/plain") || rawType.includes("html")
+      rawType.includes("octet-stream") || rawType.includes("text/plain")
         ? "application/pdf"
         : rawType;
 

@@ -140,6 +140,20 @@ export function FileViewerModal({
       })
       .then(async (buffer) => {
         if (!isMounted) return;
+
+        // Verify PDF magic header bytes (%PDF)
+        const header = new Uint8Array(buffer, 0, Math.min(4, buffer.byteLength));
+        const isPdfHeader =
+          header.length >= 4 &&
+          header[0] === 0x25 && // %
+          header[1] === 0x50 && // P
+          header[2] === 0x44 && // D
+          header[3] === 0x46;   // F
+
+        if (!isPdfHeader) {
+          throw new Error("File content is not a valid PDF document");
+        }
+
         setPdfBuffer(buffer);
 
         // Create Blob URL for browser iframe embedding
@@ -158,7 +172,6 @@ export function FileViewerModal({
         setIsFetchingPdf(false);
       })
       .catch((err) => {
-        console.warn("Failed to fetch PDF binary:", err);
         if (isMounted) {
           setIsFetchingPdf(false);
           setFetchError("Unable to stream PDF binary directly. You can open the document in a new tab.");
