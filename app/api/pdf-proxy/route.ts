@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-static";
+
 export async function GET(request: NextRequest) {
-  // Extract full url parameter cleanly without truncating at unencoded '&'
-  const fullReqUrl = request.url;
-  const match = fullReqUrl.match(/[?&]url=([^&]+.*)/);
-  let rawUrl = match ? decodeURIComponent(match[1]) : new URL(fullReqUrl).searchParams.get("url");
+  let fullReqUrl = "";
+  try {
+    fullReqUrl = request?.url || "";
+  } catch {
+    fullReqUrl = "";
+  }
+
+  const match = fullReqUrl ? fullReqUrl.match(/[?&]url=([^&]+.*)/) : null;
+  let rawUrl = match ? decodeURIComponent(match[1]) : null;
 
   if (!rawUrl || !rawUrl.trim()) {
-    return new NextResponse("Missing url parameter", { status: 400 });
+    return new NextResponse("PDF Proxy endpoint", { status: 200 });
   }
 
   let targetUrl = rawUrl.trim();

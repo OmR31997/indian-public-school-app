@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { GalleryAlbumClient } from "@/components/site/GalleryAlbumClient";
 
+export function generateStaticParams() {
+  return [
+    { slug: ["all"] },
+    { slug: ["campus"] },
+    { slug: ["events"] },
+  ];
+}
+
 export async function generateMetadata({
   params,
 }: {

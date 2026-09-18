@@ -126,7 +126,23 @@ function childCards(page: Content): Content[] {
 
 const API_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
-export const dynamic = "force-dynamic";
+export function generateStaticParams() {
+  const routes = [
+    ["about"],
+    ["academics"],
+    ["admissions"],
+    ["contact"],
+    ["curriculum"],
+    ["syllabus"],
+    ["fee-structure"],
+    ["procedure"],
+    ["eligibility"],
+    ["enrolment"],
+    ["mission"],
+    ["vision"],
+  ];
+  return routes.map((slug) => ({ slug }));
+}
 
 async function fetchDbPage(slugArray: string[]): Promise<Content | null> {
   const lastSegment = slugArray.at(-1) || "";
