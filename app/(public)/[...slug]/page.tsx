@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Lock } from "lucide-react";
 import datasource from "@/public/cloud-datasource.json";
 import fallbackHeroImage from "@/assets/campus-aerial.jpg";
 
@@ -191,35 +191,59 @@ export default async function ContentPage({
   const { slug } = await params;
   const page = await resolvePage(slug);
 
-  if (!page) {
+  if (page && (page.isPublished === false || page.isPublished === "false")) {
     return (
-      <main className="container-page py-28">
-        <h1 className="text-4xl font-bold">Page not found</h1>
-        <p className="mt-4 text-muted-foreground">
-          This school information page has not been published yet.
-        </p>
+      <main className="container-page py-24 min-h-[60vh] flex items-center justify-center">
+        <div className="max-w-md w-full text-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-amber-50 text-amber-600">
+            <Lock size={28} />
+          </div>
+          <h1 className="font-display text-2xl font-bold text-slate-900">Page Not Accessible</h1>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            This school information page is currently not published or is not accessible. Please contact administration for assistance.
+          </p>
+          <div className="mt-6">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-sm font-bold text-white shadow-xs transition hover:bg-[#102a4c]"
+            >
+              Back to Home
+            </Link>
+          </div>
+        </div>
       </main>
     );
   }
 
+  const fallbackTitle = label(slug.at(-1) ?? "School information");
+  const activePage: Content = page || {
+    title: fallbackTitle,
+    heading: fallbackTitle,
+    description: [`Welcome to Indian Public School's ${fallbackTitle} section. Please explore our campus programs or contact our administrative office for details.`],
+    textContent: `<p className="text-slate-700 leading-relaxed">Welcome to Indian Public School's ${fallbackTitle} section. For complete information, schedules, and guidance, please visit our main campus or reach out to our administration office.</p>`,
+  };
+
   const title =
-    typeof page.title === "string"
-      ? page.title
-      : typeof page.heading === "string"
-      ? page.heading
-      : label(slug.at(-1) ?? "School information");
-  const description = contentText(page);
-  const images = contentMedia(page);
-  const cards = childCards(page);
-  const htmlContent = typeof page.textContent === "string" ? page.textContent : "";
+    typeof activePage.title === "string"
+      ? activePage.title
+      : typeof activePage.heading === "string"
+      ? activePage.heading
+      : fallbackTitle;
+  const description = contentText(activePage);
+  if (description.length === 0) {
+    description.push(`Welcome to Indian Public School's ${title} section. For complete details, schedules, and admissions info, please visit our campus or contact our administration.`);
+  }
+  const images = contentMedia(activePage);
+  const cards = childCards(activePage);
+  const htmlContent = typeof activePage.textContent === "string" ? activePage.textContent : "";
   const breadcrumbs = buildBreadcrumbs(slug, title);
   const bannerImg =
-    typeof page?.heroImage === "string" && page.heroImage
-      ? (page.heroImage as string)
-      : typeof page?.bannerImage === "string" && page.bannerImage
-      ? (page.bannerImage as string)
-      : typeof page?.image === "string" && page.image
-      ? (page.image as string)
+    typeof activePage?.heroImage === "string" && activePage.heroImage
+      ? (activePage.heroImage as string)
+      : typeof activePage?.bannerImage === "string" && activePage.bannerImage
+      ? (activePage.bannerImage as string)
+      : typeof activePage?.image === "string" && activePage.image
+      ? (activePage.image as string)
       : fallbackHeroImage.src;
 
   return (
