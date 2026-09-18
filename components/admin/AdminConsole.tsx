@@ -4920,6 +4920,8 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
                     const pagesMap = new Map<string, string>();
                     defaultSitePages.forEach((p) => pagesMap.set(p.url, p.title));
                     allSectionPages.forEach((p) => {
+                      const isPublished = p.isPublished !== false && p.isPublished !== "false";
+                      if (!isPublished) return;
                       const pageUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
                       if (pageUrl) {
                         pagesMap.set(pageUrl, String(p.title || pageUrl));
