@@ -883,7 +883,7 @@ function MediaDetailDialog({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
           {/* Media Preview Container */}
           <div className="group relative flex min-h-[260px] max-h-[440px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 p-3">
             {primaryUrl ? (

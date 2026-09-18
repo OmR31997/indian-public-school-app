@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   X,
-  Download,
   ExternalLink,
   Copy,
   Check,
@@ -89,7 +88,6 @@ export function FileViewerModal({
   const [totalPages, setTotalPages] = useState<number>(1);
   const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [copied, setCopied] = useState<boolean>(false);
-  const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
   // Blob & Fetch State
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
@@ -163,7 +161,7 @@ export function FileViewerModal({
         console.warn("Failed to fetch PDF binary:", err);
         if (isMounted) {
           setIsFetchingPdf(false);
-          setFetchError("Unable to stream PDF binary directly. You can still download the document below.");
+          setFetchError("Unable to stream PDF binary directly. You can open the document in a new tab.");
         }
       });
 
@@ -235,44 +233,6 @@ export function FileViewerModal({
     void navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleDownload = async () => {
-    setIsDownloading(true);
-    try {
-      if (pdfBuffer) {
-        const blob = new Blob([pdfBuffer], { type: "application/pdf" });
-        const bUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = bUrl;
-        const cleanName = displayName.replace(/[^\w\s.-]/gi, "_");
-        a.download = isPdf && !cleanName.toLowerCase().endsWith(".pdf") ? `${cleanName}.pdf` : cleanName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(bUrl);
-      } else {
-        const downloadUrl = isPdf ? pdfProxyStreamUrl : inlineUrl;
-        const res = await fetch(downloadUrl);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const blob = await res.blob();
-        const bUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = bUrl;
-        const cleanName = displayName.replace(/[^\w\s.-]/gi, "_");
-        a.download = isPdf && !cleanName.toLowerCase().endsWith(".pdf") ? `${cleanName}.pdf` : cleanName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(bUrl);
-      }
-    } catch (err) {
-      console.warn("Direct blob download failed, falling back to direct tab:", err);
-      const directTarget = getCloudinaryInlineViewerUrl(url);
-      window.open(directTarget, "_blank");
-    } finally {
-      setIsDownloading(false);
-    }
   };
 
   const zoomIn = () => setZoomLevel((prev) => Math.min(prev + 25, 250));
@@ -382,17 +342,6 @@ export function FileViewerModal({
               <span className="hidden md:inline">{copied ? "Copied!" : "Copy Link"}</span>
             </button>
 
-            <button
-              type="button"
-              disabled={isDownloading}
-              onClick={handleDownload}
-              className="flex items-center gap-1.5 rounded-xl border border-emerald-600/40 bg-emerald-600/20 px-3.5 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-600/30 disabled:opacity-50 transition cursor-pointer"
-              title="Direct Download File"
-            >
-              {isDownloading ? <LoaderCircle size={14} className="animate-spin" /> : <Download size={14} />}
-              <span>{isDownloading ? "Downloading..." : "Download"}</span>
-            </button>
-
             <a
               href={pdfProxyStreamUrl}
               target="_blank"
@@ -434,13 +383,14 @@ export function FileViewerModal({
                   <AlertCircle size={52} className="text-amber-400" />
                   <h3 className="font-bold text-lg text-slate-200">Streaming Interrupted</h3>
                   <p className="text-xs text-slate-400">{fetchError}</p>
-                  <button
-                    type="button"
-                    onClick={handleDownload}
-                    className="mt-2 flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 transition cursor-pointer"
+                  <a
+                    href={pdfProxyStreamUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 transition cursor-pointer"
                   >
-                    <Download size={15} /> Download PDF File Directly
-                  </button>
+                    <ExternalLink size={15} /> Open in New Tab
+                  </a>
                 </div>
               ) : (
                 <div className="flex h-full w-full items-center justify-center overflow-auto p-4">
@@ -534,17 +484,6 @@ export function FileViewerModal({
                   title="Google Docs Reader"
                 />
               )}
-
-              {/* Download Quick Button */}
-              <div className="absolute bottom-3 right-4 z-20">
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  className="flex items-center gap-1.5 rounded-xl bg-emerald-600/90 border border-emerald-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-xl backdrop-blur-xs hover:bg-emerald-500 transition cursor-pointer"
-                >
-                  <Download size={14} /> Download PDF File
-                </button>
-              </div>
 
             </div>
           )}
