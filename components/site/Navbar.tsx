@@ -271,65 +271,87 @@ export function Navbar() {
         </Link>
 
         <ul className="hidden items-center gap-1 xl:flex">
-          {navigation.map((item, index) => (
-            <li key={`${item.href || "navigation-item"}-${index}`} className="group relative">
-              <Link
-                href={item.href}
-                className="relative flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
-              >
-                <span className="relative">
-                  {item.label}
-                  <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gold transition-all duration-300 group-hover:w-full" />
-                </span>
+          {navigation.map((item, index) => {
+            const isRightSide = index >= Math.floor(navigation.length / 2);
+
+            return (
+              <li key={`${item.href || "navigation-item"}-${index}`} className="group relative">
+                <Link
+                  href={item.href}
+                  className="relative flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
+                >
+                  <span className="relative">
+                    {item.label}
+                    <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gold transition-all duration-300 group-hover:w-full" />
+                  </span>
+                  {item.subItems.length > 0 && (
+                    <ChevronDown size={13} className="text-muted-foreground transition-transform group-hover:rotate-180" />
+                  )}
+                </Link>
+
                 {item.subItems.length > 0 && (
-                  <ChevronDown size={13} className="text-muted-foreground transition-transform group-hover:rotate-180" />
-                )}
-              </Link>
+                  <div
+                    className={cn(
+                      "pointer-events-none absolute top-full pt-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100",
+                      isRightSide ? "right-0" : "left-0"
+                    )}
+                  >
+                    <div className="w-56 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
+                      {item.subItems.map((sub, sIdx) => {
+                        const hasLevel3 = sub.subItems && sub.subItems.length > 0;
+                        const targetHref = (sub.linkUrl === "/" && hasLevel3)
+                          ? sub.subItems[0].linkUrl
+                          : (sub.linkUrl || item.href);
 
-              {item.subItems.length > 0 && (
-                <div className="pointer-events-none absolute left-0 top-full pt-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-                  <div className="w-56 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
-                    {item.subItems.map((sub, sIdx) => {
-                      const hasLevel3 = sub.subItems && sub.subItems.length > 0;
-                      const targetHref = (sub.linkUrl === "/" && hasLevel3)
-                        ? sub.subItems[0].linkUrl
-                        : (sub.linkUrl || item.href);
+                        return (
+                          <div key={sIdx} className="group/sub relative">
+                            <Link
+                              href={targetHref}
+                              className="flex items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
+                            >
+                              <span>{sub.title}</span>
+                              {hasLevel3 && (
+                                <ChevronRight
+                                  size={13}
+                                  className={cn(
+                                    "text-muted-foreground transition-transform",
+                                    isRightSide
+                                      ? "rotate-180 group-hover/sub:-translate-x-0.5"
+                                      : "group-hover/sub:translate-x-0.5"
+                                  )}
+                                />
+                              )}
+                            </Link>
 
-                      return (
-                        <div key={sIdx} className="group/sub relative">
-                          <Link
-                            href={targetHref}
-                            className="flex items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
-                          >
-                            <span>{sub.title}</span>
                             {hasLevel3 && (
-                              <ChevronRight size={13} className="text-muted-foreground transition-transform group-hover/sub:translate-x-0.5" />
-                            )}
-                          </Link>
-
-                          {hasLevel3 && (
-                            <div className="pointer-events-none absolute left-full top-0 pl-1.5 opacity-0 transition-all duration-200 group-hover/sub:pointer-events-auto group-hover/sub:opacity-100">
-                              <div className="w-56 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
-                                {sub.subItems.map((sub3, s3Idx) => (
-                                  <Link
-                                    key={s3Idx}
-                                    href={sub3.linkUrl || targetHref}
-                                    className="block rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
-                                  >
-                                    {sub3.title}
-                                  </Link>
-                                ))}
+                              <div
+                                className={cn(
+                                  "pointer-events-none absolute top-0 opacity-0 transition-all duration-200 group-hover/sub:pointer-events-auto group-hover/sub:opacity-100",
+                                  isRightSide ? "right-full pr-1.5" : "left-full pl-1.5"
+                                )}
+                              >
+                                <div className="w-56 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
+                                  {sub.subItems.map((sub3, s3Idx) => (
+                                    <Link
+                                      key={s3Idx}
+                                      href={sub3.linkUrl || targetHref}
+                                      className="block rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
+                                    >
+                                      {sub3.title}
+                                    </Link>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
-            </li>
-          ))}
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         <div className="flex items-center gap-2">
