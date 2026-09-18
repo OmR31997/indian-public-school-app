@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import { ChevronDown, ChevronRight, GraduationCap, Menu, Phone, X } from "lucide-react";
+import { ChevronDown, ChevronRight, ExternalLink, GraduationCap, LayoutGrid, Menu, Phone, Sparkles, X } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getWhatsAppConfig, homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const API_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
@@ -143,6 +150,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<Record<string, boolean>>({});
+  const [moreModalOpen, setMoreModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<"overflow" | "all">("overflow");
 
   const toggleMobileExpand = (key: string, e?: React.MouseEvent) => {
     if (e) {
@@ -216,6 +225,11 @@ export function Navbar() {
       }))
       : NAV.map((item) => ({ ...item, subItems: [] as NavSubItem[] }));
 
+  const MAX_VISIBLE_NAV = 8;
+  const hasNavOverflow = navigation.length > MAX_VISIBLE_NAV;
+  const visibleNavigation = hasNavOverflow ? navigation.slice(0, 8) : navigation;
+  const overflowNavigation = hasNavOverflow ? navigation.slice(8) : [];
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -271,8 +285,8 @@ export function Navbar() {
         </Link>
 
         <ul className="hidden items-center gap-1 xl:flex">
-          {navigation.map((item, index) => {
-            const isRightSide = index >= Math.floor(navigation.length / 2);
+          {visibleNavigation.map((item, index) => {
+            const isRightSide = index >= Math.floor(visibleNavigation.length / 2);
 
             return (
               <li key={`${item.href || "navigation-item"}-${index}`} className="group relative">
@@ -352,6 +366,20 @@ export function Navbar() {
               </li>
             );
           })}
+
+          {hasNavOverflow && (
+            <li className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreModalOpen(true)}
+                className="grid size-9 place-items-center rounded-full border border-border/80 bg-background/80 text-foreground/80 transition-all duration-300 hover:border-gold hover:bg-gold/10 hover:text-gold active:scale-95 cursor-pointer group shadow-2xs"
+                aria-label="View additional pages"
+                title="View additional pages"
+              >
+                <LayoutGrid size={16} className="transition-transform duration-300 group-hover:scale-110" />
+              </button>
+            </li>
+          )}
         </ul>
 
         <div className="flex items-center gap-2">
@@ -566,6 +594,98 @@ export function Navbar() {
           </motion.div>
         ) : null}
       </AnimatePresence>
+
+      <Dialog open={moreModalOpen} onOpenChange={setMoreModalOpen}>
+        <DialogContent className="max-w-3xl sm:max-w-4xl max-h-[85vh] overflow-y-auto p-6 rounded-3xl border border-border/80 bg-background/98 shadow-2xl">
+          <DialogHeader className="pb-3 border-b border-border/50 text-left">
+            <DialogTitle className="font-display text-xl font-bold tracking-tight text-foreground">
+              Additional Pages & Resources
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {overflowNavigation.map((item, idx) => (
+              <div
+                key={idx}
+                className="group/card rounded-2xl border border-border/60 bg-card/50 p-4 transition-all duration-300 hover:border-gold/50 hover:bg-card hover:shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2 mb-2">
+                    <Link
+                      href={item.href}
+                      onClick={() => setMoreModalOpen(false)}
+                      className="font-display text-sm font-bold text-foreground transition-colors hover:text-primary flex items-center gap-1.5 group-hover/card:text-primary"
+                    >
+                      <span>{item.label}</span>
+                      <ExternalLink size={12} className="opacity-0 group-hover/card:opacity-100 text-gold transition-opacity" />
+                    </Link>
+                    {item.subItems.length > 0 && (
+                      <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                        {item.subItems.length}
+                      </span>
+                    )}
+                  </div>
+
+                  {item.subItems.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {item.subItems.map((sub, sIdx) => {
+                        const hasLevel3 = sub.subItems && sub.subItems.length > 0;
+                        const targetHref =
+                          sub.linkUrl === "/" && hasLevel3
+                            ? sub.subItems[0].linkUrl
+                            : sub.linkUrl || item.href;
+
+                        return (
+                          <div key={sIdx} className="rounded-lg bg-background/70 p-2 border border-border/40 space-y-1">
+                            <Link
+                              href={targetHref}
+                              onClick={() => setMoreModalOpen(false)}
+                              className="flex items-center justify-between text-xs font-semibold text-foreground/90 transition-colors hover:text-primary"
+                            >
+                              <span className="flex items-center gap-1.5">
+                                <span className="size-1.5 rounded-full bg-gold" />
+                                {sub.title}
+                              </span>
+                              {hasLevel3 && <ChevronRight size={12} className="text-muted-foreground" />}
+                            </Link>
+
+                            {hasLevel3 && (
+                              <div className="pl-3.5 space-y-1 border-l border-gold/30 ml-1 pt-0.5">
+                                {sub.subItems.map((sub3, s3Idx) => (
+                                  <Link
+                                    key={s3Idx}
+                                    href={sub3.linkUrl || targetHref}
+                                    onClick={() => setMoreModalOpen(false)}
+                                    className="block text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary hover:translate-x-0.5"
+                                  >
+                                    • {sub3.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground/70 italic py-1">Direct link</p>
+                  )}
+                </div>
+
+                {/* <div className="mt-3 pt-2 border-t border-border/30 flex items-center justify-end">
+                  <Link
+                    href={item.href}
+                    onClick={() => setMoreModalOpen(false)}
+                    className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+                  >
+                    Open {item.label} &rarr;
+                  </Link>
+                </div> */}
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
