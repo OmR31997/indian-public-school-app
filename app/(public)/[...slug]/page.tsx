@@ -130,23 +130,58 @@ function childCards(page: Content): Content[] {
 
 const API_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
-export function generateStaticParams() {
-  const routes = [
-    ["about"],
-    ["academics"],
-    ["admissions"],
-    ["contact"],
-    ["curriculum"],
-    ["syllabus"],
-    ["fee-structure"],
-    ["procedure"],
-    ["eligibility"],
-    ["enrolment"],
-    ["mission"],
-    ["vision"],
+function extractSlugsFromDatasource(data: unknown): string[][] {
+  const slugsSet = new Set<string>();
+
+  function traverse(obj: unknown) {
+    if (!obj) return;
+    if (typeof obj === "string") {
+      if (obj.startsWith("/") && !obj.startsWith("/#") && !obj.startsWith("//")) {
+        const cleanPath = obj.split("#")[0].split("?")[0].replace(/^\/|\/$/g, "");
+        if (cleanPath && !cleanPath.includes(".")) {
+          slugsSet.add(cleanPath);
+        }
+      }
+    } else if (Array.isArray(obj)) {
+      obj.forEach(traverse);
+    } else if (typeof obj === "object") {
+      Object.values(obj).forEach(traverse);
+    }
+  }
+
+  traverse(data);
+
+  const defaultSlugs = [
+    "about",
+    "academics",
+    "admissions",
+    "contact",
+    "curriculum",
+    "syllabus",
+    "fee-structure",
+    "procedure",
+    "eligibility",
+    "enrolment",
+    "mission",
+    "vision",
+    "mandatory-disclosure",
+    "about-us/school-establishment",
+    "about-us/mission-vision",
+    "about-us/director-message",
+    "about-us/chairman-message",
+    "about-us/principal-message",
+    "download/mandatory/certificate-of-recognition",
   ];
+  defaultSlugs.forEach((s) => slugsSet.add(s));
+
+  return Array.from(slugsSet).map((path) => path.split("/"));
+}
+
+export function generateStaticParams() {
+  const routes = extractSlugsFromDatasource(datasource);
   return routes.map((slug) => ({ slug }));
 }
+
 
 async function fetchDbPage(slugArray: string[]): Promise<Content | null> {
   const lastSegment = slugArray.at(-1) || "";
