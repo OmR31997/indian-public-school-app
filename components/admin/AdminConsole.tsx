@@ -53,6 +53,7 @@ import {
   SlidersHorizontal,
   ArrowUpDown,
   RotateCcw,
+  RefreshCw,
 } from "lucide-react";
 import { RichTextBox } from "@/components/ui/RichTextBox";
 import { CloudinaryGalleryModal, getFileType } from "@/components/admin/CloudinaryGalleryModal";
@@ -60,6 +61,7 @@ import { FileViewerModal } from "@/components/ui/FileViewerModal";
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
 import { getCloudinaryPdfThumbnailUrl, isPdfFile, getCloudinaryInlineViewerUrl } from "@/lib/file-preview";
 import { imageUrl } from "@/lib/site-data";
+import { useInquiryNotifications } from "@/lib/hooks/useInquiryNotifications";
 
 function parseJwt(token: string): { sub?: string; email?: string; role?: string; name?: string; allowedModules?: string[] } | null {
   try {
@@ -195,13 +197,14 @@ const resources: Resource[] = [
     description: "Admission and contact leads",
     icon: ClipboardList,
     protected: true,
-    fields: ["name", "inquiryType", "email", "contact", "status", "createdAt", "updatedAt"],
+    fields: ["name", "inquiryType", "email", "contact", "isRead", "status", "createdAt", "updatedAt"],
     inputs: {
       name: "text",
       contact: "text",
       email: "text",
       inquiryType: "select",
       message: "textarea",
+      isRead: "boolean",
       status: "select",
     },
     options: { inquiryType: ["Admission", "General", "Academic", "Transport", "Fee Structure", "Other"], status: ["Pending", "In Progress", "Resolved", "Closed"] },
@@ -474,6 +477,9 @@ function itemId(item: RecordItem) {
 }
 
 function formatValue(field: string, value: unknown, item?: RecordItem, allItems: RecordItem[] = []) {
+  if (field === "isRead") {
+    return value === true ? "Read" : "Unread";
+  }
   if (value === null || value === undefined || value === "") return "—";
 
   if (field === "name" && item?.message && typeof item.message === "string") {
@@ -554,6 +560,10 @@ export function AdminConsole() {
   const [formOpen, setFormOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [saving, setSaving] = useState(false);
+
+
+
+
 
   const currentUser = useMemo(() => {
     if (!token) return null;
@@ -641,6 +651,28 @@ export function AdminConsole() {
     }
     setLoading(false);
   }, [fetchResource, token, canAccessResource]);
+
+  // Notification Hook (SOLID Architecture & Smart Load Optimization)
+  const {
+    unreadCount,
+    unreadNotifications,
+    isNotificationOpen: notificationOpen,
+    setIsNotificationOpen: setNotificationOpen,
+    markAsRead: markInquiryAsRead,
+    markAllAsRead: markAllInquiriesAsRead,
+    refreshNotifications: fetchUnreadNotifications,
+  } = useInquiryNotifications(
+    API_URL,
+    token,
+    data.inquiries as Record<string, unknown>[] | undefined,
+    useCallback(() => {
+      if (active === "inquiries") {
+        void fetchResource("inquiries");
+      }
+    }, [active, fetchResource])
+  );
+
+
 
   useEffect(() => { setToken(window.localStorage.getItem("ips_admin_token") || ""); }, []);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -764,7 +796,9 @@ export function AdminConsole() {
                       <Icon size={18} />
                       <span>{resource.label}</span>
                       {resource.key === "inquiries" && (data.inquiries?.length || 0) > 0 && (
-                        <span className="ml-auto rounded-full bg-[#f4bd4f] px-2 py-0.5 text-[10px] font-bold text-[#102a4c]">{data.inquiries?.length}</span>
+                        <span className="ml-auto rounded-full bg-[#f4bd4f] px-2 py-0.5 text-[10px] font-bold text-[#102a4c]">
+                          {data.inquiries?.length}
+                        </span>
                       )}
                       {resource.key === "users" && <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-amber-300"><Crown size={11} /></span>}
                     </button>
@@ -812,8 +846,110 @@ export function AdminConsole() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => void refresh()} className="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 sm:block">
-            Refresh
+          {/* Notification Bell Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setNotificationOpen((prev) => !prev)}
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+              title="Notifications"
+            >
+              <Bell size={18} className="text-[#102a4c]" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-extrabold text-white ring-2 ring-white animate-pulse">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Popover Dropdown */}
+            {notificationOpen && (
+              <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl z-50 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Bell size={16} className="text-[#1a5d9c]" />
+                    <h3 className="font-bold text-[#102a4c] text-sm">Enquiry Notifications</h3>
+                    {unreadCount > 0 && (
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700">
+                        {unreadCount} Unread
+                      </span>
+                    )}
+                  </div>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={() => void markAllInquiriesAsRead()}
+                      className="text-[11px] font-bold text-[#1a5d9c] hover:underline cursor-pointer"
+                    >
+                      Mark all as read
+                    </button>
+                  )}
+                </div>
+
+                <div className="mt-3 max-h-80 overflow-y-auto space-y-2 scrollbar-thin">
+                  {unreadNotifications.length > 0 ? (
+                    unreadNotifications.map((inq) => {
+                      const id = itemId(inq);
+                      return (
+                        <div
+                          key={id}
+                          onClick={() => {
+                            setNotificationOpen(false);
+                            setActive("inquiries");
+                            setEditing(inq);
+                            setFormOpen(true);
+                            void markInquiryAsRead(id);
+                          }}
+                          className="group flex flex-col gap-1 rounded-xl border border-blue-100 bg-blue-50/50 p-3 text-left transition hover:bg-blue-100/70 cursor-pointer"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs text-[#102a4c] truncate">
+                              {String(inq.name || "New Applicant")}
+                            </span>
+                            <span className="rounded-md bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold text-white uppercase">
+                              {String(inq.inquiryType || "Admission")}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 line-clamp-2">
+                            {String(inq.message || "No message body")}
+                          </p>
+                          <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                            <span>{inq.contact ? String(inq.contact) : String(inq.email || "")}</span>
+                            <span className="font-semibold text-blue-800 group-hover:underline">View details →</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="py-8 text-center text-xs text-slate-400">
+                      <Check size={24} className="mx-auto mb-2 text-emerald-500 opacity-80" />
+                      All enquiries read! No pending notifications.
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 border-t border-slate-100 pt-2.5 text-center">
+                  <button
+                    onClick={() => {
+                      setNotificationOpen(false);
+                      setActive("inquiries");
+                    }}
+                    className="text-xs font-bold text-[#1a5d9c] hover:underline cursor-pointer"
+                  >
+                    View All Enquiries ({data.inquiries?.length || 0})
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => {
+              void refresh();
+              void fetchUnreadNotifications();
+            }}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+            title="Refresh Console Data"
+          >
+            <RefreshCw size={18} className="text-[#102a4c]" />
           </button>
           {token && (
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 pr-3 shadow-xs">
@@ -828,7 +964,7 @@ export function AdminConsole() {
           )}
         </div>
       </header>
-      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); }} onDelete={remove} token={token} />}</div>
+      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); if (current?.key === "inquiries" && !item.isRead) { void markInquiryAsRead(itemId(item)); } }} onDelete={remove} token={token} />}</div>
     </section>
     {formOpen && current && <RecordDialog token={token} resource={current} record={editing} saving={saving} allSectionPages={data.pages || []} allMenuItems={data["menu-items"] || []} onClose={() => { setFormOpen(false); setEditing(null); }} onSave={save} />}
     {loginOpen && <LoginDialog onClose={() => setLoginOpen(false)} onLoggedIn={(accessToken) => { window.localStorage.setItem("ips_admin_token", accessToken); document.cookie = `ips_admin_session=${encodeURIComponent(accessToken)}; Path=/; SameSite=Lax; Max-Age=28800${location.protocol === "https:" ? "; Secure" : ""}`; setToken(accessToken); setLoginOpen(false); }} />}
@@ -2215,7 +2351,14 @@ function ResourceView({
                     items.map((item) => {
                       const isSuperUser = resource.key === "users" && isSuperAdminRole(item.role);
                       return (
-                        <tr key={itemId(item)} className="transition hover:bg-slate-50/70">
+                        <tr
+                          key={itemId(item)}
+                          className={`transition ${
+                            resource.key === "inquiries" && !item.isRead
+                              ? "border-l-4 border-l-red-500 bg-red-50/30 hover:bg-red-50/60 font-medium"
+                              : "hover:bg-slate-50/70"
+                          }`}
+                        >
                           {resource.fields.map((field) => {
                             const isMenuTitle = resource.key === "menu-items" && field === "title";
                             const level = Number(item.level || 1);
@@ -2268,10 +2411,17 @@ function ResourceView({
                               <td key={field} className="max-w-[220px] px-5 py-4 text-sm text-slate-600">
                                 <span
                                   className={
-                                    typeof item[field] === "boolean"
-                                      ? `rounded-full px-2.5 py-1 text-xs font-bold ${item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
-                                      }`
-                                      : ""
+                                    field === "isRead"
+                                      ? `rounded-full px-2.5 py-1 text-xs font-bold ${
+                                          item[field]
+                                            ? "bg-slate-100 text-slate-600"
+                                            : "bg-red-100 text-red-700 border border-red-200 animate-pulse"
+                                        }`
+                                      : typeof item[field] === "boolean"
+                                        ? `rounded-full px-2.5 py-1 text-xs font-bold ${
+                                            item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                                          }`
+                                        : ""
                                   }
                                 >
                                   {formatValue(field, item[field], item, items)}
