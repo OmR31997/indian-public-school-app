@@ -21,6 +21,7 @@ interface MediaItem {
   url: string;
   title: string;
   category: string;
+  directory?: string;
   source: "database" | "cloudinary";
 }
 
@@ -147,13 +148,24 @@ export function CloudinaryGalleryModal({
               ? [item.fileUrl]
               : [];
             if (urls.length === 0) return [];
-            return urls.map((url: string, uIdx: number) => ({
-              id: item._id || item.id ? `${item._id || item.id}-${uIdx}` : `media-${idx}-${uIdx}`,
-              url,
-              title: item.eventName || item.title || item.album || `Gallery Media #${idx + 1}${urls.length > 1 ? ` (${uIdx + 1})` : ""}`,
-              category: item.directory || item.eventType || item.album || item.category || "General",
-              source: item.isCdnResource ? "cloudinary" : "database",
-            }));
+            return urls.map((url: string, uIdx: number) => {
+              const dir =
+                item.directory ||
+                item.folder ||
+                (url.toLowerCase().includes("admissiondocuments")
+                  ? "indian-public-school/assets/AdmissionDocuments"
+                  : item.eventType || item.album || item.category || "General");
+              return {
+                id: item._id || item.id ? `${item._id || item.id}-${uIdx}` : `media-${idx}-${uIdx}`,
+                url,
+                title: item.eventName || item.title || item.album || `Gallery Media #${idx + 1}${urls.length > 1 ? ` (${uIdx + 1})` : ""}`,
+                category: dir.toLowerCase().includes("admissiondocuments")
+                  ? "AdmissionDocuments"
+                  : (item.eventType || item.category || dir || "General"),
+                directory: dir,
+                source: item.isCdnResource ? "cloudinary" : "database",
+              };
+            });
           }
         );
 
@@ -188,9 +200,9 @@ export function CloudinaryGalleryModal({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("album", "Visual Editor Picked");
+      formData.append("album", activeCategory === "AdmissionDocuments" ? "AdmissionDocuments" : "Visual Editor Picked");
       if (activeCategory && activeCategory !== "All") {
-        formData.append("folder", activeCategory);
+        formData.append("folder", activeCategory === "AdmissionDocuments" ? "indian-public-school/assets/AdmissionDocuments" : activeCategory);
       }
 
       const token =
@@ -218,7 +230,8 @@ export function CloudinaryGalleryModal({
         id: `upload-${Date.now()}`,
         url,
         title: file.name.replace(/\.[^/.]+$/, ""),
-        category: "New Uploads",
+        category: activeCategory !== "All" ? activeCategory : "New Uploads",
+        directory: activeCategory === "AdmissionDocuments" ? "indian-public-school/assets/AdmissionDocuments" : activeCategory,
         source: "database",
       };
 
@@ -235,8 +248,10 @@ export function CloudinaryGalleryModal({
   const categories = useMemo(() => {
     const set = new Set<string>();
     set.add("All");
+    set.add("AdmissionDocuments");
     mediaList.forEach((m) => {
       if (m.category) set.add(m.category);
+      if (m.directory) set.add(m.directory);
     });
     return Array.from(set);
   }, [mediaList]);
@@ -245,7 +260,8 @@ export function CloudinaryGalleryModal({
     return mediaList.filter((m) => {
       const matchesSearch =
         m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.url.toLowerCase().includes(searchQuery.toLowerCase());
+        m.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.directory && m.directory.toLowerCase().includes(searchQuery.toLowerCase()));
 
       if (!matchesSearch) return false;
 
@@ -257,7 +273,19 @@ export function CloudinaryGalleryModal({
       if (activeCategory === "Audio") return fType === "audio";
       if (activeCategory === "Images") return fType === "image";
 
-      return m.category === activeCategory;
+      if (activeCategory === "AdmissionDocuments") {
+        return (
+          m.category === "AdmissionDocuments" ||
+          (m.directory && m.directory.toLowerCase().includes("admissiondocuments")) ||
+          m.url.toLowerCase().includes("admissiondocuments")
+        );
+      }
+
+      return (
+        m.category === activeCategory ||
+        m.directory === activeCategory ||
+        (m.directory && m.directory.toLowerCase().includes(activeCategory.toLowerCase()))
+      );
     });
   }, [mediaList, searchQuery, activeCategory]);
 

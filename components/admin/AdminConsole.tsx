@@ -196,7 +196,14 @@ const resources: Resource[] = [
     icon: ClipboardList,
     protected: true,
     fields: ["name", "inquiryType", "email", "contact", "status", "createdAt", "updatedAt"],
-    inputs: { name: "text", contact: "text", email: "text", inquiryType: "select", message: "textarea", status: "select" },
+    inputs: {
+      name: "text",
+      contact: "text",
+      email: "text",
+      inquiryType: "select",
+      message: "textarea",
+      status: "select",
+    },
     options: { inquiryType: ["Admission", "General", "Academic", "Transport", "Fee Structure", "Other"], status: ["Pending", "In Progress", "Resolved", "Closed"] },
   },
   {
@@ -238,6 +245,8 @@ const resources: Resource[] = [
         "/album/Sports",
         "/album/Activities",
         "/album/Hostel",
+        "/album/AdmissionDocuments",
+        "indian-public-school/assets/AdmissionDocuments",
         "indian-public-school/assets/Documents",
         "indian-public-school/assets/Header",
         "indian-public-school/assets/Home",
@@ -257,6 +266,7 @@ const resources: Resource[] = [
       ],
       eventType: [
         "General",
+        "AdmissionDocuments",
         "Documents",
         "News",
         "Campus",
@@ -465,6 +475,19 @@ function itemId(item: RecordItem) {
 
 function formatValue(field: string, value: unknown, item?: RecordItem, allItems: RecordItem[] = []) {
   if (value === null || value === undefined || value === "") return "—";
+
+  if (field === "name" && item?.message && typeof item.message === "string") {
+    const studentMatch = item.message.match(/STUDENT DETAILS:\s*[\r\n]+Name:\s*([^\r\n]+)/i);
+    if (studentMatch && studentMatch[1]) {
+      const sName = studentMatch[1].trim();
+      const rawName = String(value).trim();
+      if (sName.toLowerCase() !== rawName.toLowerCase() && !rawName.toLowerCase().includes(sName.toLowerCase())) {
+        return `${sName} (Parent: ${rawName})`;
+      }
+      return sName;
+    }
+  }
+
   if (field === "level") {
     return `Level ${String(value)}`;
   }
@@ -493,6 +516,9 @@ function formatValue(field: string, value: unknown, item?: RecordItem, allItems:
   }
   if (typeof value === "boolean") return value ? "Published" : "Draft";
   if (Array.isArray(value)) return `${value.length} asset${value.length === 1 ? "" : "s"}`;
+  if (typeof value === "string" && (value.startsWith("http://") || value.startsWith("https://"))) {
+    return value.split("/").pop() || value;
+  }
   if (typeof value === "string" && value.length > 42) return `${value.slice(0, 42)}…`;
   if (typeof value === "object") return "Configured";
   return String(value);
@@ -500,6 +526,8 @@ function formatValue(field: string, value: unknown, item?: RecordItem, allItems:
 
 function titleCase(value: string) {
   if (value === "inquiryType" || value === "enquirieType") return "Enquiry Type";
+  if (value === "profileImageUrl") return "Student Profile Photo (Cloudinary)";
+  if (value === "marksheetUrl") return "Previous Year Marksheet (Cloudinary)";
   if (value === "parentId") return "Parent Item (Hierarchy)";
   if (value === "targetUrl") return "Target Redirect URL";
   if (value === "textContent") return "Page Rich Content (HTML/Text)";
@@ -830,9 +858,29 @@ function MediaDetailDialog({
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const getMediaUrls = (val: unknown): string[] => {
-    if (Array.isArray(val)) return val.map(String).filter((s) => s.trim());
-    if (typeof val === "string" && val.trim()) return [val.trim()];
-    return [];
+    const list: string[] = [];
+    if (Array.isArray(val)) list.push(...val.map(String));
+    else if (typeof val === "string" && val.trim()) list.push(val.trim());
+
+    if (item.profileImageUrl && typeof item.profileImageUrl === "string") list.push(item.profileImageUrl);
+    if (item.marksheetUrl && typeof item.marksheetUrl === "string") list.push(item.marksheetUrl);
+    if (Array.isArray(item.documents)) {
+      item.documents.forEach((d: unknown) => {
+        if (typeof d === "string" && d.trim()) list.push(d.trim());
+      });
+    }
+
+    // Extract URLs embedded in inquiry message text
+    if (item.message && typeof item.message === "string") {
+      const matched = item.message.match(/https?:\/\/[^\s"'>\)]+/gi) || [];
+      matched.forEach((url) => {
+        if (url.includes("cloudinary") || url.includes("/uploads/")) {
+          list.push(url);
+        }
+      });
+    }
+
+    return Array.from(new Set(list.filter((s) => s && s.startsWith("http"))));
   };
 
   const urls = getMediaUrls(item.fileUrl || item.url || item.path || item.attachmentUrl || item.avatar);
@@ -1237,12 +1285,13 @@ const RESOURCE_FILTERS: Record<string, { label: string; key: string; options: st
     { label: "Status", key: "status", options: ["All", "New", "In Progress", "Contacted", "Resolved", "Closed"] },
   ],
   gallery: [
-    { label: "Event Type", key: "eventType", options: ["All", "General", "Documents", "News", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Awareness", "Celebration", "Academic", "Infrastructure"] },
+    { label: "Event Type", key: "eventType", options: ["All", "General", "AdmissionDocuments", "Documents", "News", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Awareness", "Celebration", "Academic", "Infrastructure"] },
     {
       label: "Directory",
       key: "directory",
       options: [
         "All",
+        "indian-public-school/assets/AdmissionDocuments",
         "indian-public-school/assets/Documents",
         "indian-public-school/assets/News",
         "indian-public-school/assets/Home",
@@ -1259,6 +1308,7 @@ const RESOURCE_FILTERS: Record<string, { label: string; key: string; options: st
         "/album/Campus",
         "/album/Events",
         "/album/Sports",
+        "/album/AdmissionDocuments",
       ],
     },
   ],

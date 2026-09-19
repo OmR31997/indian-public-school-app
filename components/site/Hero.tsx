@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { EASE } from "@/lib/motion-presets";
 import { firstSection, homeData, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 import fallbackHeroImage from "@/assets/hero-campus.jpg";
 
 const BADGES = [
@@ -147,29 +148,20 @@ export function Hero() {
             </a>
           </Button>
           <Button
-            asChild
+            type="button"
             size="lg"
             variant="glass"
-            className="group rounded-full"
+            onClick={() => openAdmissionModal()}
+            className="group rounded-full cursor-pointer"
           >
-            <a
-              href={text(
-                (Array.isArray(content.linksBtn)
-                  ? (content.linksBtn[1] as Record<string, unknown>)
-                  : {}
-                ).url,
-                "#admissions",
-              )}
-            >
-              <Play className="mr-1 size-4" />
-              {text(
-                (Array.isArray(content.linksBtn)
-                  ? (content.linksBtn[1] as Record<string, unknown>)
-                  : {}
-                ).text,
-                "Apply for Admission",
-              )}
-            </a>
+            <Play className="mr-1 size-4" />
+            {text(
+              (Array.isArray(content.linksBtn)
+                ? (content.linksBtn[1] as Record<string, unknown>)
+                : {}
+              ).text,
+              "Apply for Admission",
+            )}
           </Button>
         </motion.div>
 

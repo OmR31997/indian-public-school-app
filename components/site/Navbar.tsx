@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getWhatsAppConfig, homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 import {
   Dialog,
   DialogContent,
@@ -122,12 +123,13 @@ export function AnnouncementBar() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href={ctaUrl}
-            className="rounded-full bg-gold px-3.5 py-1.5 text-xs font-semibold text-gold-foreground transition-transform hover:-translate-y-0.5"
+          <button
+            type="button"
+            onClick={() => openAdmissionModal()}
+            className="rounded-full bg-gold px-3.5 py-1.5 text-xs font-semibold text-gold-foreground transition-transform hover:-translate-y-0.5 cursor-pointer"
           >
             {ctaText}
-          </Link>
+          </button>
           <Link
             href="/contact-us"
             className="rounded-full border border-navy-foreground/30 px-3.5 py-1.5 text-xs font-semibold transition-colors hover:bg-navy-foreground/10"
@@ -384,11 +386,12 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <Button
-            asChild
+            type="button"
             size="sm"
-            className="hidden rounded-full sm:inline-flex text-white"
+            onClick={() => openAdmissionModal()}
+            className="hidden rounded-full sm:inline-flex text-white cursor-pointer bg-[#1a5d9c] hover:bg-[#102a4c]"
           >
-            <Link href="/#admissions">Apply Now</Link>
+            Apply Now
           </Button>
           <Link
             href="/contact-us"
@@ -584,10 +587,15 @@ export function Navbar() {
                 }}
                 className="pt-2"
               >
-                <Button asChild className="w-full rounded-full">
-                  <Link href="/#admissions" onClick={() => setOpen(false)}>
-                    Apply Now
-                  </Link>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    openAdmissionModal();
+                  }}
+                  className="w-full rounded-full cursor-pointer bg-[#1a5d9c] hover:bg-[#102a4c] text-white font-bold"
+                >
+                  Apply Now
                 </Button>
               </motion.li>
             </motion.ul>

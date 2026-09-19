@@ -3,6 +3,7 @@ import { Bus, ClipboardCheck, Mail, Smartphone, Users } from "lucide-react";
 import { EASE } from "@/lib/motion-presets";
 import { homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 
 const ACTIONS = [
   {
@@ -55,6 +56,11 @@ export function QuickActions() {
             const label = text(action.heading, fallback.label);
             const note = text(action.subHeading, fallback.note);
             const href = text(action.redirectUrl, fallback.href);
+            const isAdmissionAction =
+              label.toLowerCase().includes("admission") ||
+              href.includes("admissions") ||
+              href.includes("admission");
+
             return (
               <motion.li
                 key={`${label || "quick-action"}-${index}`}
@@ -69,10 +75,16 @@ export function QuickActions() {
               >
                 <motion.a
                   href={href}
+                  onClick={(e) => {
+                    if (isAdmissionAction) {
+                      e.preventDefault();
+                      openAdmissionModal();
+                    }
+                  }}
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ duration: 0.25, ease: EASE }}
-                  className="group flex h-full flex-col gap-3 rounded-2xl bg-secondary/60 p-4 transition-colors hover:bg-accent"
+                  className="group flex h-full flex-col gap-3 rounded-2xl bg-secondary/60 p-4 transition-colors hover:bg-accent cursor-pointer"
                 >
                   <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground transition-colors group-hover:bg-gold group-hover:text-gold-foreground">
                     <Icon className="size-5" />

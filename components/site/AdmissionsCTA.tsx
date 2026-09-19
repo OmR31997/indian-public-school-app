@@ -10,6 +10,7 @@ import {
   textList,
 } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 
 export function AdmissionsCTA() {
   const section = firstSection(homeData(useSiteData()), "section-9");
@@ -73,51 +74,76 @@ export function AdmissionsCTA() {
           }}
           className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
-          {[
-            {
-              label: "Apply Online",
-              icon: PenLine,
-              variant: "gold" as const,
-              href: "#enquiry",
-            },
-            {
-              label: "Download Prospectus",
-              icon: Download,
-              variant: "glass" as const,
-              href: "#enquiry",
-            },
-            {
-              label: "Contact Admission Office",
-              icon: MessageSquare,
-              variant: "glass" as const,
-              href: "#contact",
-            },
-          ].map(({ label, icon: Icon, variant, href }) => (
-            <motion.div
-              key={label}
-              variants={{
-                hidden: { opacity: 0, y: 18 },
-                show: {
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.5, ease: EASE },
-                },
-              }}
-              className="w-full sm:w-auto"
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 18 },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.5, ease: EASE },
+              },
+            }}
+            className="w-full sm:w-auto"
+          >
+            <Button
+              type="button"
+              size="lg"
+              variant="gold"
+              onClick={() => openAdmissionModal()}
+              className="w-full rounded-full sm:w-auto cursor-pointer font-bold"
             >
-              <Button
-                asChild
-                size="lg"
-                variant={variant}
-                className="w-full rounded-full sm:w-auto"
-              >
-                <a href={href}>
-                  <Icon className="mr-1 size-4" />
-                  {label}
-                </a>
-              </Button>
-            </motion.div>
-          ))}
+              <PenLine className="mr-1 size-4" />
+              Apply Online
+            </Button>
+          </motion.div>
+
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 18 },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.5, ease: EASE },
+              },
+            }}
+            className="w-full sm:w-auto"
+          >
+            <Button
+              asChild
+              size="lg"
+              variant="glass"
+              className="w-full rounded-full sm:w-auto"
+            >
+              <a href="#enquiry">
+                <Download className="mr-1 size-4" />
+                Download Prospectus
+              </a>
+            </Button>
+          </motion.div>
+
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 18 },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.5, ease: EASE },
+              },
+            }}
+            className="w-full sm:w-auto"
+          >
+            <Button
+              asChild
+              size="lg"
+              variant="glass"
+              className="w-full rounded-full sm:w-auto"
+            >
+              <a href="#contact">
+                <MessageSquare className="mr-1 size-4" />
+                Contact Admission Office
+              </a>
+            </Button>
+          </motion.div>
         </motion.div>
       </div>
     </section>
