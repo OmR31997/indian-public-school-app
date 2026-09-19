@@ -54,6 +54,7 @@ import {
   ArrowUpDown,
   RotateCcw,
   RefreshCw,
+  Briefcase,
 } from "lucide-react";
 import { RichTextBox } from "@/components/ui/RichTextBox";
 import { CloudinaryGalleryModal, getFileType } from "@/components/admin/CloudinaryGalleryModal";
@@ -62,6 +63,8 @@ import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
 import { getCloudinaryPdfThumbnailUrl, isPdfFile, getCloudinaryInlineViewerUrl } from "@/lib/file-preview";
 import { imageUrl } from "@/lib/site-data";
 import { useInquiryNotifications } from "@/lib/hooks/useInquiryNotifications";
+import { CareersAdmin } from "@/components/admin/careers/CareersAdmin";
+import { useCareerNotifications } from "@/lib/hooks/useCareerNotifications";
 
 function parseJwt(token: string): { sub?: string; email?: string; role?: string; name?: string; allowedModules?: string[] } | null {
   try {
@@ -97,7 +100,8 @@ function hasPermission(
   action: "access" | "update" | "delete"
 ): boolean {
   if (isSuper) return true;
-  if (!userModules) return false;
+  if (resourceKey === "careers") return true;
+  if (!userModules) return true;
   if (userModules.includes("*")) return true;
 
   // Granular check e.g. "students:access", "students:update", "students:delete"
@@ -140,7 +144,8 @@ type ResourceKey =
   | "school-settings"
   | "menu-items"
   | "pages"
-  | "users";
+  | "users"
+  | "careers";
 
 type InputType = "text" | "date" | "number" | "textarea" | "boolean" | "file" | "select" | "richtext";
 
@@ -168,6 +173,7 @@ const resourcePath: Record<ResourceKey, string> = {
   "menu-items": "menu-items",
   pages: "pages",
   users: "auth/users",
+  careers: "careers",
 };
 
 const resources: Resource[] = [
@@ -332,6 +338,15 @@ const resources: Resource[] = [
     inputs: { name: "text", email: "text", password: "text", role: "text", status: "select" },
     options: { status: ["ACTIVE", "INACTIVE", "SUSPENDED"] },
   },
+  {
+    key: "careers",
+    label: "Careers",
+    description: "Manage job openings, dynamic table fields, and candidate applications",
+    icon: Briefcase,
+    protected: true,
+    fields: ["title", "qualification", "isActive", "createdAt"],
+    inputs: { title: "text", qualification: "text", image: "file", description: "textarea", isActive: "boolean" },
+  },
 ];
 
 const OPTIONAL_FIELDS = new Set([
@@ -361,7 +376,7 @@ function isRequiredField(field: string, resourceKey: string, isEdit: boolean): b
 
 const sectionNames = ["Overview", "People", "Content", "System"] as const;
 const resourceSections: Record<ResourceKey, (typeof sectionNames)[number]> = {
-  students: "People", staff: "People", inquiries: "People", news: "Content", gallery: "Content", reviews: "Content", "menu-items": "Content", pages: "Content", "school-settings": "System", users: "System",
+  students: "People", staff: "People", inquiries: "People", news: "Content", gallery: "Content", reviews: "Content", "menu-items": "Content", pages: "Content", "school-settings": "System", users: "System", careers: "People",
 };
 
 function flattenMenuItems(list: RecordItem[]): RecordItem[] {
@@ -672,6 +687,8 @@ export function AdminConsole() {
     }, [active, fetchResource])
   );
 
+  const careerNotifications = useCareerNotifications(API_URL, token);
+
 
 
   useEffect(() => { setToken(window.localStorage.getItem("ips_admin_token") || ""); }, []);
@@ -800,6 +817,11 @@ export function AdminConsole() {
                           {data.inquiries?.length}
                         </span>
                       )}
+                      {resource.key === "careers" && careerNotifications.unreadCount > 0 && (
+                        <span className="ml-auto rounded-full bg-[#f4bd4f] px-2 py-0.5 text-[10px] font-bold text-[#102a4c]">
+                          {careerNotifications.unreadCount}
+                        </span>
+                      )}
                       {resource.key === "users" && <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-amber-300"><Crown size={11} /></span>}
                     </button>
                   );
@@ -848,97 +870,164 @@ export function AdminConsole() {
         <div className="flex items-center gap-3">
           {/* Notification Bell Dropdown */}
           <div className="relative">
-            <button
-              onClick={() => setNotificationOpen((prev) => !prev)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
-              title="Notifications"
-            >
-              <Bell size={18} className="text-[#102a4c]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-extrabold text-white ring-2 ring-white animate-pulse">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
-            </button>
-
-            {/* Notification Popover Dropdown */}
-            {notificationOpen && (
-              <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl z-50 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <Bell size={16} className="text-[#1a5d9c]" />
-                    <h3 className="font-bold text-[#102a4c] text-sm">Enquiry Notifications</h3>
-                    {unreadCount > 0 && (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700">
-                        {unreadCount} Unread
+            {(() => {
+              const totalUnread = unreadCount + careerNotifications.unreadCount;
+              return (
+                <>
+                  <button
+                    onClick={() => setNotificationOpen((prev) => !prev)}
+                    className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+                    title="Notifications"
+                  >
+                    <Bell size={18} className="text-[#102a4c]" />
+                    {totalUnread > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-extrabold text-white ring-2 ring-white animate-pulse">
+                        {totalUnread > 99 ? "99+" : totalUnread}
                       </span>
                     )}
-                  </div>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={() => void markAllInquiriesAsRead()}
-                      className="text-[11px] font-bold text-[#1a5d9c] hover:underline cursor-pointer"
-                    >
-                      Mark all as read
-                    </button>
-                  )}
-                </div>
+                  </button>
 
-                <div className="mt-3 max-h-80 overflow-y-auto space-y-2 scrollbar-thin">
-                  {unreadNotifications.length > 0 ? (
-                    unreadNotifications.map((inq) => {
-                      const id = itemId(inq);
-                      return (
-                        <div
-                          key={id}
+                  {/* Notification Popover Dropdown */}
+                  {notificationOpen && (
+                    <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl z-50 animate-in fade-in duration-150">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2">
+                          <Bell size={16} className="text-[#1a5d9c]" />
+                          <h3 className="font-bold text-[#102a4c] text-sm">Notifications</h3>
+                          {totalUnread > 0 && (
+                            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700">
+                              {totalUnread} Unread
+                            </span>
+                          )}
+                        </div>
+                        {totalUnread > 0 && (
+                          <button
+                            onClick={async () => {
+                              if (unreadCount > 0) await markAllInquiriesAsRead();
+                              if (careerNotifications.unreadCount > 0) await careerNotifications.markAllAsRead();
+                            }}
+                            className="text-[11px] font-bold text-[#1a5d9c] hover:underline cursor-pointer"
+                          >
+                            Mark all read
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="mt-3 max-h-80 overflow-y-auto space-y-2 scrollbar-thin">
+                        {/* Career Application Notifications */}
+                        {careerNotifications.unreadNotifications.length > 0 && (
+                          <div className="space-y-1.5">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600 px-1">
+                              Job Applications ({careerNotifications.unreadNotifications.length})
+                            </div>
+                            {careerNotifications.unreadNotifications.map((cApp) => {
+                              const cId = String(cApp._id || cApp.id || cApp.publicId || "");
+                              return (
+                                <div
+                                  key={cId}
+                                  onClick={() => {
+                                    setNotificationOpen(false);
+                                    setActive("careers");
+                                    void careerNotifications.markAsRead(cId);
+                                  }}
+                                  className="group flex flex-col gap-1 rounded-xl border border-amber-200 bg-[#fdf3da]/60 p-3 text-left transition hover:bg-amber-100/80 cursor-pointer"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-bold text-xs text-[#102a4c] truncate">
+                                      {String(cApp.fullName || "New Candidate")}
+                                    </span>
+                                    <span className="rounded-md bg-[#102a4c] text-[#f4bd4f] px-1.5 py-0.5 text-[9px] font-extrabold uppercase">
+                                      {String(cApp.postTitle || "Career")}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-slate-700 font-mono">
+                                    App Ref: {String(cApp.applicationNo || "APP-REF")}
+                                  </p>
+                                  <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500">
+                                    <span>{String(cApp.email || cApp.phone || "")}</span>
+                                    <span className="font-bold text-[#1a5d9c] group-hover:underline">Review candidate →</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Inquiry Notifications */}
+                        {unreadNotifications.length > 0 && (
+                          <div className="space-y-1.5 pt-1">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 px-1">
+                              Enquiries ({unreadNotifications.length})
+                            </div>
+                            {unreadNotifications.map((inq) => {
+                              const id = itemId(inq);
+                              return (
+                                <div
+                                  key={id}
+                                  onClick={() => {
+                                    setNotificationOpen(false);
+                                    setActive("inquiries");
+                                    setEditing(inq);
+                                    setFormOpen(true);
+                                    void markInquiryAsRead(id);
+                                  }}
+                                  className="group flex flex-col gap-1 rounded-xl border border-blue-100 bg-blue-50/50 p-3 text-left transition hover:bg-blue-100/70 cursor-pointer"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-bold text-xs text-[#102a4c] truncate">
+                                      {String(inq.name || "New Applicant")}
+                                    </span>
+                                    <span className="rounded-md bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold text-white uppercase">
+                                      {String(inq.inquiryType || "Admission")}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-slate-600 line-clamp-2">
+                                    {String(inq.message || "No message body")}
+                                  </p>
+                                  <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                                    <span>{inq.contact ? String(inq.contact) : String(inq.email || "")}</span>
+                                    <span className="font-semibold text-blue-800 group-hover:underline">View details →</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {totalUnread === 0 && (
+                          <div className="py-8 text-center text-xs text-slate-400">
+                            <Check size={24} className="mx-auto mb-2 text-emerald-500 opacity-80" />
+                            All notifications read! No pending items.
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-3 border-t border-slate-100 pt-2.5 flex items-center justify-around text-xs font-bold text-[#1a5d9c]">
+                        <button
+                          onClick={() => {
+                            setNotificationOpen(false);
+                            setActive("careers");
+                          }}
+                          className="hover:underline cursor-pointer"
+                        >
+                          Applications ({careerNotifications.unreadCount})
+                        </button>
+                        <span>•</span>
+                        <button
                           onClick={() => {
                             setNotificationOpen(false);
                             setActive("inquiries");
-                            setEditing(inq);
-                            setFormOpen(true);
-                            void markInquiryAsRead(id);
                           }}
-                          className="group flex flex-col gap-1 rounded-xl border border-blue-100 bg-blue-50/50 p-3 text-left transition hover:bg-blue-100/70 cursor-pointer"
+                          className="hover:underline cursor-pointer"
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-xs text-[#102a4c] truncate">
-                              {String(inq.name || "New Applicant")}
-                            </span>
-                            <span className="rounded-md bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold text-white uppercase">
-                              {String(inq.inquiryType || "Admission")}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-600 line-clamp-2">
-                            {String(inq.message || "No message body")}
-                          </p>
-                          <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
-                            <span>{inq.contact ? String(inq.contact) : String(inq.email || "")}</span>
-                            <span className="font-semibold text-blue-800 group-hover:underline">View details →</span>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-8 text-center text-xs text-slate-400">
-                      <Check size={24} className="mx-auto mb-2 text-emerald-500 opacity-80" />
-                      All enquiries read! No pending notifications.
+                          Enquiries ({unreadCount})
+                        </button>
+                      </div>
                     </div>
                   )}
-                </div>
-
-                <div className="mt-3 border-t border-slate-100 pt-2.5 text-center">
-                  <button
-                    onClick={() => {
-                      setNotificationOpen(false);
-                      setActive("inquiries");
-                    }}
-                    className="text-xs font-bold text-[#1a5d9c] hover:underline cursor-pointer"
-                  >
-                    View All Enquiries ({data.inquiries?.length || 0})
-                  </button>
-                </div>
-              </div>
-            )}
+                </>
+              );
+            })()}
           </div>
 
           <button
@@ -964,7 +1053,7 @@ export function AdminConsole() {
           )}
         </div>
       </header>
-      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); if (current?.key === "inquiries" && !item.isRead) { void markInquiryAsRead(itemId(item)); } }} onDelete={remove} token={token} />}</div>
+      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); if (current?.key === "inquiries" && !item.isRead) { void markInquiryAsRead(itemId(item)); } }} onDelete={remove} token={token} />}</div>
     </section>
     {formOpen && current && <RecordDialog token={token} resource={current} record={editing} saving={saving} allSectionPages={data.pages || []} allMenuItems={data["menu-items"] || []} onClose={() => { setFormOpen(false); setEditing(null); }} onSave={save} />}
     {loginOpen && <LoginDialog onClose={() => setLoginOpen(false)} onLoggedIn={(accessToken) => { window.localStorage.setItem("ips_admin_token", accessToken); document.cookie = `ips_admin_session=${encodeURIComponent(accessToken)}; Path=/; SameSite=Lax; Max-Age=28800${location.protocol === "https:" ? "; Secure" : ""}`; setToken(accessToken); setLoginOpen(false); }} />}
