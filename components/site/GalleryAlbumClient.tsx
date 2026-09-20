@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { homeData, imageUrls, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { getOptionalApi, unwrapCollection } from "@/lib/api-client";
+import { UniversalMedia, detectMediaType } from "@/components/ui/UniversalMedia";
 
 type Category = "All" | "Campus" | "Events" | "Sports" | "Activities" | "Hostel" | "Arts" | "Banners";
 
@@ -835,17 +836,19 @@ export function GalleryAlbumClient({
                 </button>
               )}
 
-              {/* Image Preview */}
-              <motion.img
-                key={filteredImages[lightboxIndex].src}
-                initial={{ scale: 0.92, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                transition={{ duration: 0.25, ease: EASE }}
-                src={filteredImages[lightboxIndex].src}
-                alt={filteredImages[lightboxIndex].alt}
-                className="max-h-[78vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
-              />
+              {/* Universal Media Lightbox Preview */}
+              <div className="flex h-full w-full items-center justify-center p-2">
+                <UniversalMedia
+                  key={filteredImages[lightboxIndex].src}
+                  src={filteredImages[lightboxIndex].src}
+                  alt={filteredImages[lightboxIndex].alt}
+                  title={filteredImages[lightboxIndex].alt}
+                  controls
+                  autoPlay
+                  containerClassName="max-h-[78vh] w-auto max-w-full rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl overflow-hidden"
+                />
+              </div>
+
 
               {/* Next Button */}
               {filteredImages.length > 1 && (

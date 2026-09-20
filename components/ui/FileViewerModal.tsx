@@ -31,6 +31,7 @@ import {
   isCloudinaryUrl
 } from "@/lib/file-preview";
 import { getFileType } from "@/components/admin/CloudinaryGalleryModal";
+import { UniversalMedia, detectMediaType } from "@/components/ui/UniversalMedia";
 
 interface FileViewerModalProps {
   isOpen: boolean;
@@ -514,31 +515,39 @@ export function FileViewerModal({
             </div>
           )}
 
-          {/* Video Player */}
-          {fileType === "video" && (
-            <div className="flex h-full w-full items-center justify-center p-4">
-              <video
+          {/* Video Player (YouTube, Vimeo, HTML5 Video, Cloudinary Stream) */}
+          {(fileType === "video" || detectMediaType(url) === "video") && (
+            <div className="flex h-full w-full items-center justify-center p-2 sm:p-4">
+              <UniversalMedia
                 src={inlineUrl}
+                alt={displayName}
+                title={displayName}
                 controls
                 autoPlay
-                className="max-h-[82vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border border-slate-800 bg-black"
+                aspectRatio="video"
+                containerClassName="w-full max-w-4xl max-h-[82vh] rounded-2xl border border-slate-800 bg-black shadow-2xl"
               />
             </div>
           )}
 
           {/* Audio Player */}
           {fileType === "audio" && (
-            <div className="flex flex-col items-center justify-center gap-6 p-8 text-center max-w-lg bg-slate-900/90 rounded-3xl border border-slate-800 shadow-2xl">
-              <div className="grid h-24 w-24 place-items-center rounded-3xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white shadow-lg shadow-purple-500/20">
-                <Music size={48} className="animate-pulse" />
+            <div className="flex flex-col items-center justify-center gap-6 p-6 sm:p-8 text-center max-w-lg bg-slate-900/90 rounded-3xl border border-slate-800 shadow-2xl w-full">
+              <div className="grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white shadow-lg shadow-purple-500/20">
+                <Music size={40} className="animate-pulse" />
               </div>
-              <div>
-                <h3 className="font-bold text-lg text-slate-100">{displayName}</h3>
-                <p className="text-xs text-purple-300 mt-1">Audio Recording</p>
+              <div className="w-full">
+                <UniversalMedia
+                  src={inlineUrl}
+                  title={displayName}
+                  alt={displayName}
+                  type="audio"
+                  containerClassName="w-full"
+                />
               </div>
-              <audio src={inlineUrl} controls autoPlay className="w-full" />
             </div>
           )}
+
 
         </div>
       </div>

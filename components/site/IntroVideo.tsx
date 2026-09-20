@@ -1,6 +1,7 @@
 import { SectionHeading } from "@/components/site/Reveal";
 import { firstSection, homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { UniversalMedia } from "@/components/ui/UniversalMedia";
 
 export function IntroVideo() {
   const siteHome = homeData(useSiteData());
@@ -35,24 +36,24 @@ export function IntroVideo() {
       <div className="container-page">
         <SectionHeading eyebrow={eyebrow} title={title} description={description} />
         <div className="mt-12 overflow-hidden rounded-3xl border border-border bg-navy-deep shadow-lift">
-          <video
+          <UniversalMedia
             src={source}
-            className="aspect-video w-full object-cover"
+            alt={title}
+            title={title}
+            poster={poster || undefined}
             autoPlay={autoPlay}
             muted={muted}
             loop={loop}
             controls={showControls}
-            poster={poster || undefined}
-            playsInline
-            preload="auto"
-            aria-label={title}
-            key={`${source}-${autoPlay}-${muted}-${loop}-${showControls}`}
-          >
-            Your browser does not support the video tag.
-          </video>
+            aspectRatio="video"
+            objectFit="cover"
+            className="w-full"
+            containerClassName="w-full rounded-3xl"
+          />
         </div>
       </div>
     </section>
   );
 }
+
 
