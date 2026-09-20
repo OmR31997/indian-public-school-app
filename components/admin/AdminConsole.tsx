@@ -203,14 +203,13 @@ const resources: Resource[] = [
     description: "Admission and contact leads",
     icon: ClipboardList,
     protected: true,
-    fields: ["name", "inquiryType", "email", "contact", "isRead", "status", "createdAt", "updatedAt"],
+    fields: ["name", "inquiryType", "email", "contact", "status", "createdAt", "updatedAt"],
     inputs: {
       name: "text",
       contact: "text",
       email: "text",
       inquiryType: "select",
       message: "textarea",
-      isRead: "boolean",
       status: "select",
     },
     options: { inquiryType: ["Admission", "General", "Academic", "Transport", "Fee Structure", "Other"], status: ["Pending", "In Progress", "Resolved", "Closed"] },
@@ -1053,7 +1052,7 @@ export function AdminConsole() {
           )}
         </div>
       </header>
-      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); if (current?.key === "inquiries" && !item.isRead) { void markInquiryAsRead(itemId(item)); } }} onDelete={remove} token={token} />}</div>
+      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); }} onDelete={remove} token={token} />}</div>
     </section>
     {formOpen && current && <RecordDialog token={token} resource={current} record={editing} saving={saving} allSectionPages={data.pages || []} allMenuItems={data["menu-items"] || []} onClose={() => { setFormOpen(false); setEditing(null); }} onSave={save} />}
     {loginOpen && <LoginDialog onClose={() => setLoginOpen(false)} onLoggedIn={(accessToken) => { window.localStorage.setItem("ips_admin_token", accessToken); document.cookie = `ips_admin_session=${encodeURIComponent(accessToken)}; Path=/; SameSite=Lax; Max-Age=28800${location.protocol === "https:" ? "; Secure" : ""}`; setToken(accessToken); setLoginOpen(false); }} />}
@@ -2442,11 +2441,7 @@ function ResourceView({
                       return (
                         <tr
                           key={itemId(item)}
-                          className={`transition ${
-                            resource.key === "inquiries" && !item.isRead
-                              ? "border-l-4 border-l-red-500 bg-red-50/30 hover:bg-red-50/60 font-medium"
-                              : "hover:bg-slate-50/70"
-                          }`}
+                          className="transition hover:bg-slate-50/70"
                         >
                           {resource.fields.map((field) => {
                             const isMenuTitle = resource.key === "menu-items" && field === "title";

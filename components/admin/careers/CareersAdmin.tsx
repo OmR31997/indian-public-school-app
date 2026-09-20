@@ -69,7 +69,7 @@ export interface CareerApplicationRecord {
   coverNote?: string;
   resumeUrl?: string;
   customAnswers?: Record<string, string>;
-  isRead: boolean;
+  isRead?: boolean;
   status: "PENDING" | "SHORTLISTED" | "REJECTED" | "HIRED";
   createdAt?: string;
 }
@@ -328,11 +328,11 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
     try {
       await axios.patch(
         `${apiUrl}/careers/applications/${id}/status`,
-        { status: newStatus, isRead: true },
+        { status: newStatus },
         { headers: getHeaders() }
       );
       if (selectedApp && (selectedApp._id === id || selectedApp.id === id)) {
-        setSelectedApp((prev) => (prev ? { ...prev, status: newStatus, isRead: true } : null));
+        setSelectedApp((prev) => (prev ? { ...prev, status: newStatus } : null));
       }
       fetchApplications();
       if (onRefreshNotifications) onRefreshNotifications();
@@ -422,9 +422,6 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
           >
             <FileText className="w-4 h-4" />
             Applications Hub ({applications.length})
-            {applications.filter((a) => !a.isRead).length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-            )}
           </button>
         </div>
       </div>
@@ -672,20 +669,13 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                       return (
                         <tr
                           key={id}
-                          className={`hover:bg-[#edf5fc] dark:hover:bg-slate-800/40 transition-colors ${
-                            !app.isRead ? "bg-[#fdf3da]/40 dark:bg-amber-950/20 font-semibold" : ""
-                          }`}
+                          className="hover:bg-[#edf5fc] dark:hover:bg-slate-800/40 transition-colors"
                         >
                           <td className="py-3 px-4 font-mono font-bold text-[#1a5d9c]">
                             {app.applicationNo}
                           </td>
                           <td className="py-3 px-4 font-bold text-[#102a4c] dark:text-white">
-                            <div className="flex items-center gap-2">
-                              {!app.isRead && (
-                                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                              )}
-                              <span>{app.fullName}</span>
-                            </div>
+                            <span>{app.fullName}</span>
                           </td>
                           <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">
                             {app.postTitle}

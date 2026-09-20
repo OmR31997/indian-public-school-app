@@ -38,59 +38,87 @@ export function useCareerNotifications(
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
 
   const tokenRef = useRef(token);
-  useEffect(() => {
-    tokenRef.current = token;
-  }, [token]);
 
   const refreshNotifications = useCallback(async () => {
     if (typeof document !== "undefined" && document.hidden) {
       return;
     }
+    if (!tokenRef.current) {
+      setUnreadCount(0);
+      setUnreadNotifications([]);
+      return;
+    }
 
     try {
-      const headers = tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {};
-      const res = await axios.get(`${apiUrl}/careers/applications/notifications/unread`, { headers });
+      const headers = { Authorization: `Bearer ${tokenRef.current}` };
+      const res = await axios.get(`${apiUrl}/notifications/unread-count?type=CAREER_APPLICATION`, { headers });
       const body = res.data;
       let count = 0;
       let itemsList: CareerNotificationRecord[] = [];
 
       if (body) {
-        if (typeof body.unreadCount === "number") {
-          count = body.unreadCount;
-        } else if (body.data && typeof (body.data as any).unreadCount === "number") {
-          count = (body.data as any).unreadCount;
+        let rawItems: any[] = [];
+        if (Array.isArray(body.data)) {
+          rawItems = body.data;
+        } else if (Array.isArray(body.items)) {
+          rawItems = body.items;
+        } else if (Array.isArray(body)) {
+          rawItems = body;
+        } else if (body.data && Array.isArray(body.data.items)) {
+          rawItems = body.data.items;
         }
 
-        if (Array.isArray(body.items)) {
-          itemsList = body.items;
-        } else if (body.data && Array.isArray((body.data as any).items)) {
-          itemsList = (body.data as any).items;
-        } else if (Array.isArray(body.data)) {
-          itemsList = body.data;
+        if (body.meta && typeof body.meta.unreadCount === "number") {
+          count = Number(body.meta.unreadCount);
+        } else if (typeof body.unreadCount === "number") {
+          count = Number(body.unreadCount);
+        } else if (body.data && typeof body.data.unreadCount === "number") {
+          count = Number(body.data.unreadCount);
+        } else {
+          count = rawItems.length;
         }
 
-        if (count === 0 && itemsList.length > 0) {
-          count = itemsList.length;
-        }
+        itemsList = rawItems.map((item: any) => {
+          const meta = item.metadata || {};
+          return {
+            ...item,
+            id: item._id ? String(item._id) : item.id,
+            fullName: meta.fullName || meta.name || item.title,
+            email: meta.email || "",
+            phone: meta.phone || meta.contact || "",
+            postTitle: meta.postTitle || item.title,
+            applicationNo: meta.applicationNo || "APP-REF",
+          };
+        });
       }
 
       setUnreadCount(count);
       setUnreadNotifications(itemsList);
     } catch {
-      if (applicationsData && Array.isArray(applicationsData)) {
-        const unread = (applicationsData as CareerNotificationRecord[]).filter((app) => !app.isRead);
-        setUnreadCount(unread.length);
-        setUnreadNotifications(unread);
-      }
+      setUnreadCount(0);
+      setUnreadNotifications([]);
     }
-  }, [apiUrl, applicationsData]);
+  }, [apiUrl]);
+
+  useEffect(() => {
+    tokenRef.current = token;
+    if (token) {
+      void refreshNotifications();
+    }
+  }, [token, refreshNotifications]);
+
+  useEffect(() => {
+    if (isNotificationOpen && tokenRef.current) {
+      void refreshNotifications();
+    }
+  }, [isNotificationOpen, refreshNotifications]);
 
   const markAsRead = useCallback(
     async (id: string) => {
       if (!id) return;
       try {
         const headers = tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {};
-        await axios.patch(`${apiUrl}/careers/applications/${id}/status`, { isRead: true }, { headers });
+        await axios.patch(`${apiUrl}/notifications/${id}/read`, {}, { headers });
 
         setUnreadNotifications((prev) =>
           prev.filter((item) => String(item.id || item._id || item.publicId) !== id)
@@ -99,7 +127,7 @@ export function useCareerNotifications(
 
         if (onApplicationsUpdated) onApplicationsUpdated();
       } catch (err) {
-        console.error("Failed to mark application as read:", err);
+        console.error("Failed to mark application notification as read:", err);
       }
     },
     [apiUrl, onApplicationsUpdated]
@@ -108,14 +136,14 @@ export function useCareerNotifications(
   const markAllAsRead = useCallback(async () => {
     try {
       const headers = tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {};
-      await axios.patch(`${apiUrl}/careers/applications/notifications/mark-all-read`, {}, { headers });
+      await axios.patch(`${apiUrl}/notifications/mark-all-read?type=CAREER_APPLICATION`, {}, { headers });
 
       setUnreadNotifications([]);
       setUnreadCount(0);
 
       if (onApplicationsUpdated) onApplicationsUpdated();
     } catch (err) {
-      console.error("Failed to mark all applications as read:", err);
+      console.error("Failed to mark all application notifications as read:", err);
     }
   }, [apiUrl, onApplicationsUpdated]);
 

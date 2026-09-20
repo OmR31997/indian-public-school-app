@@ -48,57 +48,87 @@ export function useInquiryNotifications(
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
 
   const tokenRef = useRef(token);
-  useEffect(() => {
-    tokenRef.current = token;
-  }, [token]);
 
   const refreshNotifications = useCallback(async () => {
-    // 🛑 Zero Server Load: Skip HTTP requests completely if browser tab is hidden/inactive
+    // 🛑 Zero Server Load: Skip HTTP requests completely if browser tab is hidden/inactive or no token
     if (typeof document !== "undefined" && document.hidden) {
+      return;
+    }
+    if (!tokenRef.current) {
+      setUnreadCount(0);
+      setUnreadNotifications([]);
       return;
     }
 
     try {
-      const res = await axios.get(`${apiUrl}/inquiries/notifications/unread`);
+      const headers = { Authorization: `Bearer ${tokenRef.current}` };
+      const res = await axios.get(`${apiUrl}/notifications/unread-count?type=INQUIRY`, { headers });
       const body = res.data;
       let count = 0;
       let itemsList: NotificationRecord[] = [];
 
       if (body) {
-        if (typeof body.unreadCount === "number") {
-          count = body.unreadCount;
-        } else if (body.meta && typeof body.meta.unreadCount === "number") {
-          count = body.meta.unreadCount;
+        let rawItems: any[] = [];
+        if (Array.isArray(body.data)) {
+          rawItems = body.data;
+        } else if (Array.isArray(body.items)) {
+          rawItems = body.items;
+        } else if (Array.isArray(body)) {
+          rawItems = body;
+        } else if (body.data && Array.isArray(body.data.items)) {
+          rawItems = body.data.items;
         }
 
-        if (Array.isArray(body.items)) {
-          itemsList = body.items;
-        } else if (Array.isArray(body.data)) {
-          itemsList = body.data;
+        if (body.meta && typeof body.meta.unreadCount === "number") {
+          count = Number(body.meta.unreadCount);
+        } else if (typeof body.unreadCount === "number") {
+          count = Number(body.unreadCount);
+        } else if (body.data && typeof body.data.unreadCount === "number") {
+          count = Number(body.data.unreadCount);
+        } else {
+          count = rawItems.length;
         }
 
-        if (count === 0 && itemsList.length > 0) {
-          count = itemsList.length;
-        }
+        itemsList = rawItems.map((item: any) => {
+          const meta = item.metadata || {};
+          return {
+            ...item,
+            id: item._id ? String(item._id) : item.id,
+            name: meta.name || item.title,
+            email: meta.email || "",
+            contact: meta.contact || "",
+            inquiryType: meta.inquiryType || "General",
+            message: item.message || meta.message,
+          };
+        });
       }
 
       setUnreadCount(count);
       setUnreadNotifications(itemsList);
     } catch {
-      // Fallback: Derivation from loaded inquiries dataset
-      if (inquiriesData && Array.isArray(inquiriesData)) {
-        const unread = (inquiriesData as NotificationRecord[]).filter((inq) => !inq.isRead);
-        setUnreadCount(unread.length);
-        setUnreadNotifications(unread);
-      }
+      setUnreadCount(0);
+      setUnreadNotifications([]);
     }
-  }, [apiUrl, inquiriesData]);
+  }, [apiUrl]);
+
+  useEffect(() => {
+    tokenRef.current = token;
+    if (token) {
+      void refreshNotifications();
+    }
+  }, [token, refreshNotifications]);
+
+  useEffect(() => {
+    if (isNotificationOpen && tokenRef.current) {
+      void refreshNotifications();
+    }
+  }, [isNotificationOpen, refreshNotifications]);
 
   const markAsRead = useCallback(async (id: string) => {
     if (!id) return;
     try {
       const headers = tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {};
-      await axios.patch(`${apiUrl}/inquiries/${id}`, { isRead: true }, { headers });
+      await axios.patch(`${apiUrl}/notifications/${id}/read`, {}, { headers });
 
       // Optimistic local state update (0 delay)
       setUnreadNotifications((prev) => prev.filter((item) => String(item.id || item._id || item.publicId) !== id));
@@ -106,14 +136,14 @@ export function useInquiryNotifications(
 
       if (onInquiriesUpdated) onInquiriesUpdated();
     } catch (err) {
-      console.error("Failed to mark inquiry as read:", err);
+      console.error("Failed to mark notification as read:", err);
     }
   }, [apiUrl, onInquiriesUpdated]);
 
   const markAllAsRead = useCallback(async () => {
     try {
       const headers = tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {};
-      await axios.patch(`${apiUrl}/inquiries/mark-all-read`, {}, { headers });
+      await axios.patch(`${apiUrl}/notifications/mark-all-read?type=INQUIRY`, {}, { headers });
 
       // Optimistic local state update (0 delay)
       setUnreadNotifications([]);
@@ -121,7 +151,7 @@ export function useInquiryNotifications(
 
       if (onInquiriesUpdated) onInquiriesUpdated();
     } catch (err) {
-      console.error("Failed to mark all inquiries as read:", err);
+      console.error("Failed to mark all inquiry notifications as read:", err);
     }
   }, [apiUrl, onInquiriesUpdated]);
 
@@ -155,16 +185,6 @@ export function useInquiryNotifications(
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [refreshNotifications]);
-
-  // Derived state sync when inquiries data changes in parent component
-  useEffect(() => {
-    if (inquiriesData && Array.isArray(inquiriesData)) {
-      const unread = (inquiriesData as NotificationRecord[]).filter((inq) => !inq.isRead);
-      if (unread.length > 0) {
-        setUnreadCount((prev) => Math.max(prev, unread.length));
-      }
-    }
-  }, [inquiriesData]);
 
   return {
     unreadCount,
