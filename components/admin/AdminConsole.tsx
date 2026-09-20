@@ -688,7 +688,21 @@ export function AdminConsole() {
 
   const careerNotifications = useCareerNotifications(API_URL, token);
 
+  const notificationRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setNotificationOpen(false);
+      }
+    }
+    if (notificationOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [notificationOpen, setNotificationOpen]);
 
   useEffect(() => { setToken(window.localStorage.getItem("ips_admin_token") || ""); }, []);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -868,7 +882,7 @@ export function AdminConsole() {
         </div>
         <div className="flex items-center gap-3">
           {/* Notification Bell Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={notificationRef}>
             {(() => {
               const totalUnread = unreadCount + careerNotifications.unreadCount;
               return (
