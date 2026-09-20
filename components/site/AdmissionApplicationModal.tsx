@@ -92,7 +92,7 @@ function formatBytes(bytes: number): string {
 }
 
 // Reusable Admission Form Component
-export function AdmissionForm({ defaultGrade }: { defaultGrade?: string }) {
+export function AdmissionForm({ defaultGrade, onClose }: { defaultGrade?: string; onClose?: () => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [applicationId, setApplicationId] = useState("");
   const [copied, setCopied] = useState(false);
@@ -338,7 +338,16 @@ export function AdmissionForm({ defaultGrade }: { defaultGrade?: string }) {
           </div>
         )}
 
-        <div className="text-center pt-2">
+        <div className="text-center pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          {onClose && (
+            <Button
+              type="button"
+              onClick={onClose}
+              className="rounded-full bg-[#102a4c] hover:bg-[#1a5d9c] text-white font-bold px-6 py-2 shadow-md transition-all cursor-pointer"
+            >
+              Done & Close
+            </Button>
+          )}
           <Button
             type="button"
             onClick={() => {
@@ -349,7 +358,7 @@ export function AdmissionForm({ defaultGrade }: { defaultGrade?: string }) {
               setSubmittedData(null);
             }}
             variant="outline"
-            className="rounded-full border-slate-300 text-slate-700 hover:bg-slate-100"
+            className="rounded-full border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
           >
             Submit Another Application
           </Button>
@@ -824,7 +833,7 @@ export function AdmissionApplicationModal() {
 
           {/* Form Body */}
           <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white">
-            <AdmissionForm defaultGrade={defaultGrade} />
+            <AdmissionForm defaultGrade={defaultGrade} onClose={() => setIsOpen(false)} />
           </div>
         </motion.div>
       </div>
