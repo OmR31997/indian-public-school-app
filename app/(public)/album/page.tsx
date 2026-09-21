@@ -2,10 +2,16 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { GalleryAlbumClient } from "@/components/site/GalleryAlbumClient";
 
+const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://indian-public-school-app.vercel.app";
+
 export const metadata: Metadata = {
   title: "School Photo Albums | Indian Public School",
-  description: "Explore photo albums, events, campus architecture, and celebrations under /album/* at Indian Public School.",
+  description: "Explore photo albums, campus events, and celebrations at Indian Public School.",
+  alternates: {
+    canonical: `${baseUrl}/gallery`,
+  },
 };
+
 
 export default function AlbumIndexPage() {
   return (

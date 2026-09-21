@@ -2,10 +2,33 @@ import type { Metadata } from "next";
 import { GraduationCap, ShieldCheck, FileText, Calendar, Sparkles } from "lucide-react";
 import { AdmissionForm } from "@/components/site/AdmissionApplicationModal";
 
+const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://indian-public-school-app.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Online Admission Application 2026–27 | Indian Public School",
-  description: "Apply online for admission to Indian Public School for Academic Session 2026–27. Complete the online admission application form.",
+  title: "Online Admission Form 2026–27 | CBSE School Registration",
+  description:
+    "Apply online for admission at Indian Public School, Sambalpur for Academic Session 2026–27. Check eligibility, required documents, fee structure, and submit student registration.",
+  keywords: [
+    "School Admission 2026-27",
+    "Indian Public School Admission",
+    "CBSE School Admission Sambalpur",
+    "Online School Registration Odisha",
+    "School Admission Application Form",
+  ],
+  alternates: {
+    canonical: `${baseUrl}/admission`,
+  },
+  openGraph: {
+    title: "Online Admission Application 2026–27 | Indian Public School",
+    description:
+      "Apply online for admission to Indian Public School for Academic Session 2026–27. Complete student registration online in simple steps.",
+    url: `${baseUrl}/admission`,
+    siteName: "Indian Public School",
+    locale: "en_IN",
+    type: "website",
+  },
 };
+
 
 export default function AdmissionPage() {
   return (

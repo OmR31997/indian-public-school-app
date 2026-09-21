@@ -163,6 +163,8 @@ async function resolvePage(slug: string[]): Promise<Content | null> {
   return lastSegment ? findBySectionKey(datasource, lastSegment) : null;
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://indian-public-school-app.vercel.app";
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
   const page = await resolvePage(slug);
@@ -171,8 +173,44 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     : typeof page?.heading === "string"
       ? page.heading
       : label(slug.at(-1) ?? "Indian Public School");
-  return { title: `${title} | Indian Public School` };
+
+  const descList = page ? contentText(page) : [];
+  const description = descList.length > 0
+    ? descList[0].slice(0, 160)
+    : `Explore ${title} at Indian Public School, Sambalpur. Official CBSE school curriculum, campus facilities, and admissions guidance.`;
+
+  const path = slug.join("/");
+  const canonicalUrl = `${baseUrl}/${path}`;
+
+  return {
+    title: title,
+    description,
+    keywords: [
+      title,
+      `Indian Public School ${title}`,
+      "Indian Public School",
+      "CBSE School Sambalpur",
+      "School Admission 2026-27",
+    ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${title} | Indian Public School`,
+      description,
+      url: canonicalUrl,
+      siteName: "Indian Public School",
+      locale: "en_IN",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Indian Public School`,
+      description,
+    },
+  };
 }
+
 
 export default async function ContentPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
@@ -232,9 +270,25 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
       ? (activePage.image as string)
       : fallbackHeroImage.src;
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbs.map((b, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: b.label,
+      item: b.href.startsWith("http") ? b.href : `${baseUrl}${b.href.startsWith("/") ? "" : "/"}${b.href}`,
+    })),
+  };
+
   return (
     <main className="flex-1">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <section className="relative overflow-hidden bg-slate-950 py-10 sm:py-14 text-white shadow-lg border-b border-gold/30">
+
         <div className="absolute inset-0 z-0">
           <img
             src={bannerImg}
