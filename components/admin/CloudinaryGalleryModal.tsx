@@ -114,6 +114,27 @@ const DEFAULT_CLOUDINARY_MEDIA: MediaItem[] = [
   },
 ];
 
+export function normalizeCategoryKey(raw?: string): string {
+  if (!raw || typeof raw !== "string") return "";
+  let s = raw.trim();
+  if (s.startsWith("/album/")) s = s.replace(/^\/album\//, "");
+  if (s.startsWith("indian-public-school/assets/")) s = s.replace(/^indian-public-school\/assets\//, "");
+  if (s.startsWith("indian-public-school/")) s = s.replace(/^indian-public-school\//, "");
+  if (s.includes("/")) s = s.split("/").pop() || s;
+  return s.trim();
+}
+
+export function formatCategoryDisplay(cat: string): string {
+  if (!cat) return "";
+  if (cat === "All" || cat === "AdmissionDocuments") return cat;
+  return cat
+    .replace(/_/g, " ")
+    .replace(/-/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\b\w/g, (l) => l.toUpperCase())
+    .trim();
+}
+
 export function CloudinaryGalleryModal({
   isOpen,
   onClose,
@@ -246,14 +267,26 @@ export function CloudinaryGalleryModal({
   };
 
   const categories = useMemo(() => {
-    const set = new Set<string>();
-    set.add("All");
-    set.add("AdmissionDocuments");
+    const categoryMap = new Map<string, string>(); // lowerCaseKey -> cleanCategoryKey
+
+    categoryMap.set("all", "All");
+    categoryMap.set("admissiondocuments", "AdmissionDocuments");
+
     mediaList.forEach((m) => {
-      if (m.category) set.add(m.category);
-      if (m.directory) set.add(m.directory);
+      [m.category, m.directory].forEach((raw) => {
+        if (!raw) return;
+        const normKey = normalizeCategoryKey(raw);
+        if (!normKey) return;
+        const lower = normKey.toLowerCase();
+        if (lower === "all" || lower === "general") return;
+
+        if (!categoryMap.has(lower)) {
+          categoryMap.set(lower, normKey);
+        }
+      });
     });
-    return Array.from(set);
+
+    return Array.from(categoryMap.values());
   }, [mediaList]);
 
   const filteredMedia = useMemo(() => {
@@ -273,18 +306,25 @@ export function CloudinaryGalleryModal({
       if (activeCategory === "Audio") return fType === "audio";
       if (activeCategory === "Images") return fType === "image";
 
-      if (activeCategory === "AdmissionDocuments") {
+      const activeNorm = normalizeCategoryKey(activeCategory).toLowerCase();
+
+      if (activeNorm === "admissiondocuments") {
         return (
-          m.category === "AdmissionDocuments" ||
+          m.category.toLowerCase().includes("admissiondocuments") ||
           (m.directory && m.directory.toLowerCase().includes("admissiondocuments")) ||
           m.url.toLowerCase().includes("admissiondocuments")
         );
       }
 
+      const catNorm = normalizeCategoryKey(m.category).toLowerCase();
+      const dirNorm = normalizeCategoryKey(m.directory).toLowerCase();
+
       return (
-        m.category === activeCategory ||
-        m.directory === activeCategory ||
-        (m.directory && m.directory.toLowerCase().includes(activeCategory.toLowerCase()))
+        catNorm === activeNorm ||
+        dirNorm === activeNorm ||
+        catNorm.includes(activeNorm) ||
+        dirNorm.includes(activeNorm) ||
+        m.url.toLowerCase().includes(activeNorm)
       );
     });
   }, [mediaList, searchQuery, activeCategory]);
@@ -349,13 +389,9 @@ export function CloudinaryGalleryModal({
             <span>Filter:</span>
           </div>
           {categories.map((cat) => {
-            const isSelected = activeCategory === cat;
-            let displayLabel = cat;
-            if (cat.startsWith("/album/")) {
-              displayLabel = `📁 ` + cat.replace(/^\/album\//, "").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-            } else if (cat.startsWith("indian-public-school/")) {
-              displayLabel = `📁 ` + cat.split("/").pop()!.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-            }
+            const isSelected = activeCategory.toLowerCase() === cat.toLowerCase();
+            const isSpecial = cat === "All" || cat === "Videos" || cat === "Documents" || cat === "Audio" || cat === "Images";
+            const displayLabel = isSpecial ? cat : `📁 ${formatCategoryDisplay(cat)}`;
 
             return (
               <button
@@ -483,11 +519,7 @@ export function CloudinaryGalleryModal({
                       <p className="text-xs font-bold text-[#102a4c] truncate">{item.title}</p>
                       <div className="mt-1 flex items-center justify-between gap-1.5">
                         <span className="inline-block text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md truncate max-w-full">
-                          {item.category.startsWith("/album/")
-                            ? `📁 ` + item.category.replace(/^\/album\//, "").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-                            : item.category.startsWith("indian-public-school/")
-                            ? `📁 ` + item.category.split("/").pop()!.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-                            : item.category}
+                          📁 {formatCategoryDisplay(normalizeCategoryKey(item.category || item.directory || "General"))}
                         </span>
                       </div>
                     </div>
