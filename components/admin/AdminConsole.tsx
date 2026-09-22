@@ -3092,22 +3092,137 @@ function HomeLayoutEditorModal({
                     />
                   </div>
 
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">School Office Hours</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 7:30 AM - 5:00 PM"
-                      value={datasource?.footer?.officeHours || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, officeHours: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                    />
+                  <div className="sm:col-span-2 rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-2xs">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <div>
+                        <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
+                          <i className="bi bi-clock-history text-[#1a5d9c]"></i> School Office Timings Schedule
+                        </label>
+                        <p className="text-[11px] text-slate-500">Configure day-wise working hours for admissions and administration office</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDatasource((prev: any) => {
+                            const next = { ...prev };
+                            const contactUs = { ...(next["contact-us"] || {}) };
+                            const timings = { ...(contactUs["office-timings"] || {}) };
+                            let newKey = "Sunday";
+                            let counter = 1;
+                            while (newKey in timings) {
+                              newKey = `New Day ${counter++}`;
+                            }
+                            timings[newKey] = "8:00 AM - 2:00 PM";
+                            contactUs["office-timings"] = timings;
+                            next["contact-us"] = contactUs;
+                            const summaryText = Object.entries(timings).map(([k, v]) => `${k}: ${v}`).join(" | ");
+                            next.footer = { ...(next.footer || {}), officeHours: summaryText };
+                            setJsonText(JSON.stringify(next, null, 2));
+                            return next;
+                          });
+                        }}
+                        className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-[#1a5d9c] hover:bg-blue-100 transition cursor-pointer"
+                      >
+                        <Plus size={14} /> Add Timing Slot
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {(() => {
+                        const contactUs = datasource?.["contact-us"] as Record<string, any> | undefined;
+                        const officeTimings = (contactUs?.["office-timings"] as Record<string, string>) || {
+                          "Monday-Friday": "7:30 AM - 5:00 PM",
+                          "Saturday": "9:00 AM - 1:00 PM",
+                          "Sunday": "8:00 AM - 2:00 PM",
+                        };
+                        const entries = Object.entries(officeTimings);
+
+                        if (entries.length === 0) {
+                          return <p className="text-xs text-slate-400 italic">No office timing slots added yet. Click &quot;Add Timing Slot&quot; above.</p>;
+                        }
+
+                        return entries.map(([dayKey, timeVal], idx) => (
+                          <div key={idx} className="flex flex-col sm:flex-row items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/70 p-2.5">
+                            <div className="w-full sm:w-1/3">
+                              <label className="text-[10px] font-bold text-slate-400 block mb-0.5">Days Range</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. Monday-Friday"
+                                value={dayKey}
+                                onChange={(e) => {
+                                  const newDayKey = e.target.value;
+                                  setDatasource((prev: any) => {
+                                    const next = { ...prev };
+                                    const cUs = { ...(next["contact-us"] || {}) };
+                                    const oldTimings = { ...(cUs["office-timings"] || {}) };
+                                    const newTimings: Record<string, string> = {};
+                                    Object.entries(oldTimings).forEach(([k, v]) => {
+                                      if (k === dayKey) {
+                                        newTimings[newDayKey] = v as string;
+                                      } else {
+                                        newTimings[k] = v as string;
+                                      }
+                                    });
+                                    cUs["office-timings"] = newTimings;
+                                    next["contact-us"] = cUs;
+                                    const summaryText = Object.entries(newTimings).map(([k, v]) => `${k}: ${v}`).join(" | ");
+                                    next.footer = { ...(next.footer || {}), officeHours: summaryText };
+                                    setJsonText(JSON.stringify(next, null, 2));
+                                    return next;
+                                  });
+                                }}
+                                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                              />
+                            </div>
+                            <div className="w-full sm:flex-1">
+                              <label className="text-[10px] font-bold text-slate-400 block mb-0.5">Operating Hours</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. 7:30 AM - 5:00 PM"
+                                value={timeVal}
+                                onChange={(e) => {
+                                  const newTimeVal = e.target.value;
+                                  setDatasource((prev: any) => {
+                                    const next = { ...prev };
+                                    const cUs = { ...(next["contact-us"] || {}) };
+                                    const timings = { ...(cUs["office-timings"] || {}) };
+                                    timings[dayKey] = newTimeVal;
+                                    cUs["office-timings"] = timings;
+                                    next["contact-us"] = cUs;
+                                    const summaryText = Object.entries(timings).map(([k, v]) => `${k}: ${v}`).join(" | ");
+                                    next.footer = { ...(next.footer || {}), officeHours: summaryText };
+                                    setJsonText(JSON.stringify(next, null, 2));
+                                    return next;
+                                  });
+                                }}
+                                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              title="Delete Timing Slot"
+                              onClick={() => {
+                                setDatasource((prev: any) => {
+                                  const next = { ...prev };
+                                  const cUs = { ...(next["contact-us"] || {}) };
+                                  const timings = { ...(cUs["office-timings"] || {}) };
+                                  delete timings[dayKey];
+                                  cUs["office-timings"] = timings;
+                                  next["contact-us"] = cUs;
+                                  const summaryText = Object.entries(timings).map(([k, v]) => `${k}: ${v}`).join(" | ");
+                                  next.footer = { ...(next.footer || {}), officeHours: summaryText };
+                                  setJsonText(JSON.stringify(next, null, 2));
+                                  return next;
+                                });
+                              }}
+                              className="self-end sm:self-center p-1.5 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        ));
+                      })()}
+                    </div>
                   </div>
 
                   <div>

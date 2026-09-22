@@ -3,7 +3,7 @@ import { Clock, Mail, MapPin, Navigation, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
-import { text } from "@/lib/site-data";
+import { getOfficeTimingsList, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
 const DETAILS = [
@@ -40,12 +40,12 @@ export function Contact() {
   const address = (contact.Address as Record<string, unknown>) ?? {};
   const fallbackAddress = [address.address, address.district, address.state, address["Post-Office"]].map((value) => text(value)).filter(Boolean).join(", ");
   const fallbackPhone = Array.isArray(contact.phone) ? text(contact.phone[0]) : text(contact.phone);
-  const office = (contact["office-timings"] as Record<string, unknown>) ?? {};
+
+  const officeTimings = getOfficeTimingsList(contact, footerConfig);
 
   const addressText = text(footerConfig.address) || fallbackAddress || "Main Road, Near RMC, Khetrajpur, Sambalpur, Odisha - 768006";
   const phone = text(footerConfig.phone) || fallbackPhone || "+91 8114320555";
   const emailText = text(footerConfig.email) || text(contact.email) || "Ipssbp75@gmail.com";
-  const officeHoursText = text(footerConfig.officeHours) || text(office["Monday-Friday"]) || "7:30 AM - 5:00 PM";
 
   const mapCoordinates = (contact.map as Record<string, unknown>) ?? {};
   const latitude = text(mapCoordinates.latitude).match(/-?\d+(?:\.\d+)?/)?.[0];
@@ -77,7 +77,20 @@ export function Contact() {
               { ...DETAILS[0], value: addressText, note: text(address.name, "Indian Public School") },
               { ...DETAILS[1], value: phone, note: "School office" },
               { ...DETAILS[2], value: emailText, note: "Admissions & general enquiries" },
-              { ...DETAILS[3], value: officeHoursText, note: "Campus visits by appointment" },
+              {
+                ...DETAILS[3],
+                value: (
+                  <div className="mt-1 space-y-1">
+                    {officeTimings.map((item) => (
+                      <div key={item.days} className="flex flex-wrap items-baseline justify-between gap-x-2 text-sm font-semibold">
+                        <span className="text-xs text-muted-foreground font-medium">{item.days}:</span>
+                        <span className="text-foreground font-bold">{item.hours}</span>
+                      </div>
+                    ))}
+                  </div>
+                ),
+                note: "Campus visits by appointment",
+              },
             ].map(({ icon: Icon, label, value, note }) => (
               <motion.li
                 key={label}
@@ -93,7 +106,11 @@ export function Contact() {
                 <p className="mt-4 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                   {label}
                 </p>
-                <p className="mt-1 text-base font-semibold">{value}</p>
+                {typeof value === "string" ? (
+                  <p className="mt-1 text-base font-semibold">{value}</p>
+                ) : (
+                  value
+                )}
                 <p className="mt-1 text-xs text-muted-foreground">{note}</p>
               </motion.li>
             ))}

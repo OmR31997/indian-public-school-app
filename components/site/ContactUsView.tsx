@@ -49,7 +49,7 @@ import {
 import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
 import { useSiteData } from "@/components/site/SiteDataProvider";
-import { text } from "@/lib/site-data";
+import { getOfficeTimingsList, text, type OfficeTimingItem } from "@/lib/site-data";
 import fallbackHeroImage from "@/assets/campus-aerial.jpg";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
@@ -99,12 +99,12 @@ export function ContactUsView() {
     .filter(Boolean)
     .join(", ");
   const fallbackPhone = Array.isArray(contact.phone) ? text(contact.phone[0]) : text(contact.phone);
-  const office = (contact["office-timings"] as Record<string, unknown>) ?? {};
+
+  const officeTimings = getOfficeTimingsList(contact, footerConfig);
 
   const addressText = text(footerConfig.address) || fallbackAddress || "Main Road, Near RMC, Khetrajpur, Sambalpur, Odisha - 768006";
   const phoneText = text(footerConfig.phone) || fallbackPhone || "+91 8114320555";
   const emailText = text(footerConfig.email) || text(contact.email) || "Ipssbp75@gmail.com";
-  const officeHoursText = text(footerConfig.officeHours) || text(office["Monday-Friday"]) || "7:30 AM - 5:00 PM (Mon-Sat)";
 
   const mapCoordinates = (contact.map as Record<string, unknown>) ?? {};
   const latitude = text(mapCoordinates.latitude).match(/-?\d+(?:\.\d+)?/)?.[0];
@@ -349,7 +349,7 @@ export function ContactUsView() {
               {
                 icon: Clock,
                 title: "Office Hours",
-                value: officeHoursText,
+                timings: officeTimings,
                 subtitle: "Visits by appointment",
                 actionText: "Book Visit",
                 actionHref: "#contact-form",
@@ -371,7 +371,18 @@ export function ContactUsView() {
                     <h3 className="mt-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
                       {card.title}
                     </h3>
-                    <p className="mt-1 text-base font-bold text-foreground break-words">{card.value}</p>
+                    {card.timings ? (
+                      <div className="mt-2 space-y-1">
+                        {card.timings.map((item: OfficeTimingItem) => (
+                          <div key={item.days} className="flex flex-wrap items-baseline justify-between gap-x-2 text-xs sm:text-sm font-bold">
+                            <span className="text-xs font-medium text-muted-foreground">{item.days}:</span>
+                            <span className="text-foreground">{item.hours}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-1 text-base font-bold text-foreground break-words">{card.value}</p>
+                    )}
                     <p className="mt-1 text-xs text-muted-foreground">{card.subtitle}</p>
                   </div>
                   <div className="mt-5 pt-4 border-t border-border/60">

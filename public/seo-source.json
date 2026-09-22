@@ -23,7 +23,7 @@
   ],
   "description": "Indian Public School is a premier CBSE co-educational school in Sambalpur, Odisha. Modern campus, digital smart classrooms, science & computer labs, sports & arts education, experienced faculty, and holistic student development. Admissions open for session 2026–27.",
   "slogan": "Learn · Lead · Inspire",
-  "foundingDate": "2010",
+  "foundingDate": "2009",
   "founder": {
     "@type": "Organization",
     "name": "K.S. Dalmia Education Trust"
@@ -42,7 +42,7 @@
     {
       "@type": "Organization",
       "name": "Ez-Softech Pvt. Ltd.",
-      "url": "https://ezsoftech.com"
+      "url": "https://www.ezsofttech.in"
     }
   ],
   "location": "Main Road, Near RMC, Khetrajpur, Sambalpur, Odisha 768006",
@@ -90,18 +90,19 @@
   "telephone": "+91 8114320555",
   "sameAs": [
     "https://www.facebook.com/IPSSBP",
+    "https://www.instagram.com/indian_public_school_sambalpur",
     "https://www.youtube.com/ipssbp"
   ],
   "additionalProperty": [
     {
       "@type": "PropertyValue",
       "name": "CBSE Affiliation Number",
-      "value": "1530211"
+      "value": "530152"
     },
     {
       "@type": "PropertyValue",
       "name": "School Code",
-      "value": "53123"
+      "value": "15389"
     }
   ],
   "hasCredential": {

@@ -120,6 +120,42 @@ export function imageUrls(record: SiteRecord): string[] {
   return value.filter((item): item is string => typeof item === "string" && item.length > 0);
 }
 
+export interface OfficeTimingItem {
+  days: string;
+  hours: string;
+}
+
+export function getOfficeTimingsList(
+  contactData: Record<string, unknown> | undefined,
+  footerConfig: Record<string, unknown> | undefined
+): OfficeTimingItem[] {
+  const office = (contactData?.["office-timings"] as Record<string, unknown>) ?? {};
+  const entries = Object.entries(office).filter(
+    ([_, v]) => typeof v === "string" && (v as string).trim() !== ""
+  );
+
+  if (entries.length > 0) {
+    return entries.map(([days, hours]) => ({ days, hours: String(hours) }));
+  }
+
+  const footerHours = typeof footerConfig?.officeHours === "string" ? footerConfig.officeHours.trim() : "";
+  if (footerHours) {
+    if (footerHours.includes("|")) {
+      return footerHours.split("|").map((part) => {
+        const [d, h] = part.split(":");
+        return { days: d?.trim() || "Hours", hours: h?.trim() || part.trim() };
+      });
+    }
+    return [{ days: "Office Hours", hours: footerHours }];
+  }
+
+  return [
+    { days: "Monday-Friday", hours: "7:30 AM - 5:00 PM" },
+    { days: "Saturday", hours: "9:00 AM - 1:00 PM" },
+    { days: "Sunday", hours: "8:00 AM - 2:00 PM" },
+  ];
+}
+
 export function getWhatsAppConfig(siteData?: SiteData | null): Required<WhatsAppSetting> {
   const home = siteData?.home?.[0] as SiteRecord | undefined;
   const identityObj = (home?.identity as SiteRecord | undefined) ?? {};
@@ -145,3 +181,4 @@ export function getWhatsAppConfig(siteData?: SiteData | null): Required<WhatsApp
     position,
   };
 }
+
