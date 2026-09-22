@@ -112,7 +112,7 @@ export function Footer() {
     "Main Road, Near RMC, Khetrajpur, Sambalpur, Odisha - 768006";
 
   const phoneText = text(footerConfig.phone) || fallbackPhone || "+91 8114320555";
-  const emailText = text(footerConfig.email) || text(contact.email) || "Ipssbp75@gmail.com";
+  const emailText = text(footerConfig.email) || text(contact.email) || "info@indianpublicschool.in";
   const brandTitle = text(footerConfig.logoText) || "Indian Public School";
   const brandSubTitle = text(footerConfig.logoSubText) || "Learn · Lead · Inspire";
   const aboutText =

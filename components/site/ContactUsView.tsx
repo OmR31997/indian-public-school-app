@@ -104,7 +104,7 @@ export function ContactUsView() {
 
   const addressText = text(footerConfig.address) || fallbackAddress || "Main Road, Near RMC, Khetrajpur, Sambalpur, Odisha - 768006";
   const phoneText = text(footerConfig.phone) || fallbackPhone || "+91 8114320555";
-  const emailText = text(footerConfig.email) || text(contact.email) || "Ipssbp75@gmail.com";
+  const emailText = text(footerConfig.email) || text(contact.email) || "info@indianpublicschool.in";
 
   const mapCoordinates = (contact.map as Record<string, unknown>) ?? {};
   const latitude = text(mapCoordinates.latitude).match(/-?\d+(?:\.\d+)?/)?.[0];
