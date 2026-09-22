@@ -32,11 +32,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes: { path: string; priority: number; changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never" }[] = [
     { path: "", priority: 1.0, changeFrequency: "daily" },
-    { path: "/admission", priority: 0.95, changeFrequency: "daily" },
     { path: "/contact-us", priority: 0.85, changeFrequency: "monthly" },
     { path: "/careers", priority: 0.75, changeFrequency: "monthly" },
-    { path: "/gallery", priority: 0.75, changeFrequency: "weekly" },
-    { path: "/photo-album", priority: 0.7, changeFrequency: "weekly" },
+    { path: "/gallery-album", priority: 0.75, changeFrequency: "weekly" },
     { path: "/press-release", priority: 0.75, changeFrequency: "weekly" },
   ];
 
@@ -45,17 +43,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Add default core dynamic pages if not already extracted
   const corePages = [
     "/about",
-    "/about-us",
-    "/about-us/mission-vision",
-    "/about-us/director-message",
-    "/about-us/chairman-message",
-    "/about-us/principal-message",
+    "/about/school-establishment",
+    "/about/our-mission",
+    "/about/core-value",
+    "/about/director-message",
+    "/about/chairman-message",
+    "/about/principal-message",
     "/admission/curriculum",
-    "/admission/admission-procedure",
-    "/admission/fee-structure",
-    "/infrastructure/school-building",
-    "/infrastructure/laboratories",
-    "/mandatory-disclosure",
+    "/admissions/policy",
+    "/admissions/procedure",
+    "/admission/registration-form",
+    "/download/mandatory/certificate-of-recognition",
+    "/download/mandatory/cbse-affiliation",
+    "/download/mandatory/public-disclosure"
   ];
 
   corePages.forEach((route) => dynamicRoutesSet.add(route));
@@ -91,4 +91,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   return Array.from(sitemapEntriesMap.values());
-}
+}
