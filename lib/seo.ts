@@ -18,7 +18,13 @@ export const getSeoSourceData = () => {
 
 export const getSchoolJsonLd = () => {
   const baseUrl = getBaseUrl();
-  const campusImages = (seoSource.images || []).map((img) =>
+  const rawSeo = seoSource as Record<string, any>;
+  const imagesList: string[] = Array.isArray(rawSeo.image)
+    ? rawSeo.image
+    : Array.isArray(rawSeo.images)
+    ? rawSeo.images
+    : [];
+  const campusImages = imagesList.map((img: string) =>
     img.startsWith("http") ? img : `${baseUrl}${img.startsWith("/") ? "" : "/"}${img}`
   );
 
@@ -33,6 +39,8 @@ export const getSchoolJsonLd = () => {
     photos: campusImages,
     description: seoSource.description,
     slogan: seoSource.slogan,
+    foundingDate: seoSource.foundingDate,
+    founder: seoSource.founder,
     address: seoSource.address,
     geo: seoSource.geo,
     telephone: [seoSource.telephone, "+91 97351 81684"],
@@ -40,10 +48,10 @@ export const getSchoolJsonLd = () => {
     sameAs: seoSource.sameAs,
     additionalProperty: seoSource.additionalProperty,
     hasCredential: seoSource.hasCredential,
-    aggregateRating: seoSource.aggregateRating,
-    review: seoSource.review,
+    aggregateRating: rawSeo.aggregateRating,
+    review: rawSeo.review,
     amenityFeature: seoSource.amenityFeature,
-    openingHours: seoSource.openingHours,
+    openingHours: rawSeo.openingHours,
     openingHoursSpecification: seoSource.openingHoursSpecification,
     offers: seoSource.offers,
     hasOfferCatalog: seoSource.hasOfferCatalog,
@@ -56,17 +64,18 @@ export const getPageSeoMetadata = (
   overrides?: Partial<Metadata>
 ): Metadata => {
   const baseUrl = getBaseUrl();
+  const rawSeo = seoSource as Record<string, any>;
   const pagesConfig = seoSource.pages as Record<string, SeoPageConfig>;
   const pageData = pagesConfig[pageKey] || {
     title: `${pageKey.charAt(0).toUpperCase() + pageKey.slice(1)} | ${seoSource.name}`,
     description: seoSource.description,
-    keywords: seoSource.keywords,
+    keywords: rawSeo.keywords,
     image: "/assets/campus-aerial.jpg",
   };
 
   const canonicalUrl = `${baseUrl}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
 
-  const defaultKeywords = Array.isArray(seoSource.keywords) ? seoSource.keywords : [];
+  const defaultKeywords = Array.isArray(rawSeo.keywords) ? rawSeo.keywords : [];
   const pageKeywords = Array.isArray(pageData.keywords) ? pageData.keywords : [];
   const mergedKeywords = Array.from(new Set([...pageKeywords, ...defaultKeywords]));
 

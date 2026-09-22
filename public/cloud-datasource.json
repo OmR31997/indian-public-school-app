@@ -43,7 +43,7 @@
         "certified_board": {
           "title": "CBSE Affiliated School",
           "code": "Affiliation No. 1530211 | School Code: 53123",
-          "badgeUrl": "",
+          "badgeUrl": "/assets/Logos/AAKASH_FOUNDATION_LOGO.jpg",
           "description": "Affiliated to Central Board of Secondary Education, New Delhi",
           "linkUrl": "/mandatory-disclosure",
           "enabled": true
@@ -51,7 +51,7 @@
         "trust_board": {
           "trustName": "K.S. Dalmia Education Trust",
           "regNo": "Established under KS Dalmia Education Trust",
-          "logoUrl": "",
+          "logoUrl": "assets/Logos/DALMIA_LOGO.png",
           "description": "Dedicated to character building, academic excellence, and holistic personality development.",
           "linkUrl": "/about-us/school-establishment",
           "enabled": true

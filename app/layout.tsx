@@ -12,8 +12,7 @@ export const metadata: Metadata = {
     template: `%s | ${seoData.name}`,
   },
   description: seoData.pages.home.description,
-  keywords: seoData.keywords,
-  authors: seoData.authors,
+  keywords: seoData.pages.home.keywords,
   creator: seoData.name,
   publisher: seoData.name,
   formatDetection: {
@@ -58,7 +57,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || (seoData as { googleSiteVerification?: string }).googleSiteVerification || "engKHLFSN6vuogQ4pzJdacKjgrNZzocgJb57R9GmsE0",
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "engKHLFSN6vuogQ4pzJdacKjgrNZzocgJb57R9GmsE0",
   },
 };
 

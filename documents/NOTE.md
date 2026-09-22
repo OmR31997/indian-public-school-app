@@ -15,3 +15,8 @@ Toolbar & Tabs: Switch between Visual Editor, Live Preview, and Raw HTML source 
 Hyperlink Creator: Custom hyperlink modal with styling options (plain text, action buttons, pill badges, target options).
 Image Studio & Crop/Resize Tool: Custom React modal for image manipulation.
 Cloudinary Integration: Uses Cloudinary only as the backend asset storage service for uploaded images.
+
+# Flow
+1. Fixed Pages: Home, Contact Us, Gallery, Careers.
+2. Other Pages: All Other Page Content.
+3. Other Content: Header, Footer.
