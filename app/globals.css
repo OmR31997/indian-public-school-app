@@ -4,6 +4,7 @@
 @source "../components";
 @source "../hooks";
 @source "../lib";
+@source "../public";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -250,42 +251,97 @@
   color: #1e293b;
 }
 
-/* Allow elements with inline style="color: ..." to take full precedence */
-.dynamic-page-content [style*="color:"] {
-  color: inherit;
+/* Ensure inline border, background, margin, padding & box-shadow styles take precedence over prose resets */
+.dynamic-page-content div[style],
+.dynamic-page-content section[style],
+.dynamic-page-content article[style],
+.dynamic-page-content blockquote[style],
+.dynamic-page-content table[style] {
+  box-sizing: border-box;
 }
 
-/* Dark section containers (e.g. Hero banners, stats bars, navy cards) MUST preserve white text for all headings and text */
-.dynamic-page-content section[style*="#102a4c"],
-.dynamic-page-content section[style*="#0f172a"],
-.dynamic-page-content div[style*="#102a4c"],
-.dynamic-page-content div[style*="#0f172a"] {
-  color: #ffffff;
-}
-
-.dynamic-page-content section[style*="#102a4c"] h1,
-.dynamic-page-content section[style*="#102a4c"] h2,
-.dynamic-page-content section[style*="#102a4c"] h3,
-.dynamic-page-content section[style*="#0f172a"] h1,
-.dynamic-page-content section[style*="#0f172a"] h2,
-.dynamic-page-content section[style*="#0f172a"] h3,
-.dynamic-page-content div[style*="#102a4c"] h1,
-.dynamic-page-content div[style*="#102a4c"] h2,
-.dynamic-page-content div[style*="#102a4c"] h3,
-.dynamic-page-content div[style*="#0f172a"] h1,
-.dynamic-page-content div[style*="#0f172a"] h2,
-.dynamic-page-content div[style*="#0f172a"] h3 {
+/* 1. DARK NAVY CARDS & SECTIONS: MUST ALWAYS PRESERVE DARK NAVY BACKGROUND AND WHITE/LIGHT TEXT */
+.dynamic-page-content section[style*="102a4c" i],
+.dynamic-page-content section[style*="0f172a" i],
+.dynamic-page-content section[style*="1a5d9c" i],
+.dynamic-page-content section[style*="linear-gradient" i],
+.dynamic-page-content section[style*="rgb(16" i],
+.dynamic-page-content section[style*="rgb(15" i],
+.dynamic-page-content div[style*="102a4c" i],
+.dynamic-page-content div[style*="0f172a" i],
+.dynamic-page-content div[style*="1a5d9c" i],
+.dynamic-page-content div[style*="091e3a" i],
+.dynamic-page-content div[style*="0b192c" i],
+.dynamic-page-content div[style*="112240" i],
+.dynamic-page-content div[style*="linear-gradient" i],
+.dynamic-page-content div[style*="rgb(16" i],
+.dynamic-page-content div[style*="rgb(15" i],
+.dynamic-page-content [class*="bg-navy" i],
+.dynamic-page-content [class*="bg-slate-900" i],
+.dynamic-page-content [class*="bg-slate-950" i] {
+  background-color: #102a4c !important;
   color: #ffffff !important;
 }
 
-/* Light cards explicitly maintain dark navy headings */
-.dynamic-page-content div[style*="#ffffff"] h1,
-.dynamic-page-content div[style*="#ffffff"] h2,
-.dynamic-page-content div[style*="#ffffff"] h3,
-.dynamic-page-content div[style*="#f8fafc"] h1,
-.dynamic-page-content div[style*="#f8fafc"] h2,
-.dynamic-page-content div[style*="#f8fafc"] h3 {
-  color: #0f172a;
+/* Headings inside dark navy containers */
+.dynamic-page-content [style*="102a4c" i] h1,
+.dynamic-page-content [style*="102a4c" i] h2,
+.dynamic-page-content [style*="102a4c" i] h3,
+.dynamic-page-content [style*="102a4c" i] h4,
+.dynamic-page-content [style*="0f172a" i] h1,
+.dynamic-page-content [style*="0f172a" i] h2,
+.dynamic-page-content [style*="0f172a" i] h3,
+.dynamic-page-content [style*="0f172a" i] h4,
+.dynamic-page-content [style*="1a5d9c" i] h1,
+.dynamic-page-content [style*="1a5d9c" i] h2,
+.dynamic-page-content [style*="1a5d9c" i] h3,
+.dynamic-page-content [style*="1a5d9c" i] h4,
+.dynamic-page-content [style*="linear-gradient" i] h1,
+.dynamic-page-content [style*="linear-gradient" i] h2,
+.dynamic-page-content [style*="linear-gradient" i] h3,
+.dynamic-page-content [style*="linear-gradient" i] h4,
+.dynamic-page-content [class*="bg-navy" i] h1,
+.dynamic-page-content [class*="bg-navy" i] h2,
+.dynamic-page-content [class*="bg-navy" i] h3,
+.dynamic-page-content [class*="bg-slate-900" i] h1,
+.dynamic-page-content [class*="bg-slate-900" i] h2,
+.dynamic-page-content [class*="bg-slate-900" i] h3 {
+  color: #ffffff !important;
+}
+
+/* Paragraphs & spans inside dark navy containers */
+.dynamic-page-content [style*="102a4c" i] p,
+.dynamic-page-content [style*="0f172a" i] p,
+.dynamic-page-content [style*="1a5d9c" i] p,
+.dynamic-page-content [style*="linear-gradient" i] p,
+.dynamic-page-content [style*="102a4c" i] span,
+.dynamic-page-content [style*="0f172a" i] span,
+.dynamic-page-content [style*="1a5d9c" i] span,
+.dynamic-page-content [style*="linear-gradient" i] span {
+  color: inherit;
+}
+
+/* 2. LIGHT CARDS & CONTAINERS: MUST ALWAYS PRESERVE DARK NAVY TEXT (NEVER INVISIBLE WHITE TEXT) */
+.dynamic-page-content div[style*="ffffff" i] h1,
+.dynamic-page-content div[style*="ffffff" i] h2,
+.dynamic-page-content div[style*="ffffff" i] h3,
+.dynamic-page-content div[style*="f8fafc" i] h1,
+.dynamic-page-content div[style*="f8fafc" i] h2,
+.dynamic-page-content div[style*="f8fafc" i] h3 {
+  color: #0f172a !important;
+}
+
+/* Prevent white/light text on light card background */
+.dynamic-page-content div[style*="ffffff" i] p,
+.dynamic-page-content div[style*="f8fafc" i] p {
+  color: #334155;
+}
+
+/* Image bounds & responsive layout consistency */
+.dynamic-page-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* Universal Media Compatibility & Aspect Ratio Utilities */

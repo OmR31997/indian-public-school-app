@@ -1533,7 +1533,7 @@ export function RichTextBox({
 
           {activeTab === "preview" && (
             <div
-              className={`w-full p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base ${isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
+              className={`w-full p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base dynamic-page-content ${isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
                 }`}
               dangerouslySetInnerHTML={{
                 __html:

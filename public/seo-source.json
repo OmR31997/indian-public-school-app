@@ -1,23 +1,23 @@
 {
   "@context": "https://schema.org",
   "@type": "School",
-  "@id": "https://indian-public-school-app.vercel.app/#school",
+  "@id": "https://indianpublicschool.devs.surf/#school",
   "name": "Indian Public School",
   "alternateName": "IPS Sambalpur",
   "legalName": "Indian Public School",
-  "url": "https://indian-public-school-app.vercel.app/",
-  "logo": "https://indian-public-school-app.vercel.app/assets/Logos/IPSLOGO.png",
+  "url": "https://indianpublicschool.devs.surf/",
+  "logo": "https://indianpublicschool.devs.surf/assets/Logos/IPSLOGO.png",
   "image": [
-    "https://indian-public-school-app.vercel.app/assets/campus-aerial.jpg",
-    "https://indian-public-school-app.vercel.app/assets/hero-campus.jpg",
-    "https://indian-public-school-app.vercel.app/assets/about-classroom.jpg",
-    "https://indian-public-school-app.vercel.app/assets/facility-lab.jpg",
-    "https://indian-public-school-app.vercel.app/assets/facility-computer.jpg",
-    "https://indian-public-school-app.vercel.app/assets/facility-library.jpg",
-    "https://indian-public-school-app.vercel.app/assets/facility-sports.jpg",
-    "https://indian-public-school-app.vercel.app/assets/achievements.jpg",
-    "https://indian-public-school-app.vercel.app/assets/life-arts.jpg",
-    "https://indian-public-school-app.vercel.app/assets/life-kids.jpg"
+    "https://indianpublicschool.devs.surf/assets/campus-aerial.jpg",
+    "https://indianpublicschool.devs.surf/assets/hero-campus.jpg",
+    "https://indianpublicschool.devs.surf/assets/about-classroom.jpg",
+    "https://indianpublicschool.devs.surf/assets/facility-lab.jpg",
+    "https://indianpublicschool.devs.surf/assets/facility-computer.jpg",
+    "https://indianpublicschool.devs.surf/assets/facility-library.jpg",
+    "https://indianpublicschool.devs.surf/assets/facility-sports.jpg",
+    "https://indianpublicschool.devs.surf/assets/achievements.jpg",
+    "https://indianpublicschool.devs.surf/assets/life-arts.jpg",
+    "https://indianpublicschool.devs.surf/assets/life-kids.jpg"
   ],
   "description": "Indian Public School is a CBSE co-educational school in Sambalpur, Odisha, offering school education from Pre-Primary to Class XII with academic learning, digital classrooms, science and computer laboratories, library, sports, arts and student development programs.",
   "slogan": "Learn · Lead · Inspire",
@@ -185,7 +185,7 @@
   "offers": {
     "@type": "Offer",
     "name": "Admissions 2026-27",
-    "url": "https://indian-public-school-app.vercel.app/admission",
+    "url": "https://indianpublicschool.devs.surf/admission",
     "availability": "https://schema.org/InStock"
   },
   "hasOfferCatalog": {
@@ -209,18 +209,18 @@
       }
     ]
   },
-  "publishingPrinciples": "https://indian-public-school-app.vercel.app/about",
+  "publishingPrinciples": "https://indianpublicschool.devs.surf/about",
   "potentialAction": {
     "@type": "ApplyAction",
     "name": "Apply for Admission",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://indian-public-school-app.vercel.app/admission"
+      "urlTemplate": "https://indianpublicschool.devs.surf/admission"
     }
   },
   "pages": {
     "home": {
-      "url": "https://indian-public-school-app.vercel.app/",
+      "url": "https://indianpublicschool.devs.surf/",
       "title": "Indian Public School Sambalpur | CBSE School in Odisha",
       "description": "Indian Public School is a CBSE co-educational school in Sambalpur, Odisha, offering education from Pre-Primary to Class XII with modern learning facilities, academics, sports and student development.",
       "keywords": [
@@ -243,10 +243,10 @@
         "CBSE School near Khetrajpur Sambalpur",
         "Top Schools in Western Odisha"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/hero-campus.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/hero-campus.jpg"
     },
     "admission": {
-      "url": "https://indian-public-school-app.vercel.app/admission",
+      "url": "https://indianpublicschool.devs.surf/admission",
       "title": "School Admission 2026-27 | Indian Public School Sambalpur",
       "description": "Apply for admission at Indian Public School, Sambalpur for the 2026-27 academic session. Find admission information, eligibility, documents, registration details and contact information.",
       "keywords": [
@@ -273,10 +273,10 @@
         "Class 11 Science Commerce Admission",
         "Nursery to Class 12 Admission Sambalpur"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/about-classroom.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/about-classroom.jpg"
     },
     "academics": {
-      "url": "https://indian-public-school-app.vercel.app/academics",
+      "url": "https://indianpublicschool.devs.surf/academics",
       "title": "Academics | CBSE School Education from Pre-Primary to Class XII",
       "description": "Explore the academic programs at Indian Public School, Sambalpur, covering Pre-Primary, Primary, Middle, Secondary and Senior Secondary CBSE education.",
       "keywords": [
@@ -296,10 +296,10 @@
         "Science school Sambalpur",
         "Commerce school Sambalpur"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/about-classroom.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/about-classroom.jpg"
     },
     "infrastructure": {
-      "url": "https://indian-public-school-app.vercel.app/infrastructure",
+      "url": "https://indianpublicschool.devs.surf/infrastructure",
       "title": "School Infrastructure & Facilities | Indian Public School Sambalpur",
       "description": "Explore the campus infrastructure and learning facilities at Indian Public School, Sambalpur, including classrooms, laboratories, library, sports and student facilities.",
       "keywords": [
@@ -318,10 +318,10 @@
         "safe school transport Sambalpur",
         "CCTV school security Sambalpur"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/campus-aerial.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/campus-aerial.jpg"
     },
     "contact": {
-      "url": "https://indian-public-school-app.vercel.app/contact",
+      "url": "https://indianpublicschool.devs.surf/contact",
       "title": "Contact Indian Public School Sambalpur | Address & Phone",
       "description": "Contact Indian Public School in Sambalpur, Odisha. Find the school address, phone numbers, email and admission enquiry information.",
       "keywords": [
@@ -336,10 +336,10 @@
         "CBSE school near Sambalpur",
         "schools in Sambalpur Odisha"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/campus-aerial.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/campus-aerial.jpg"
     },
     "careers": {
-      "url": "https://indian-public-school-app.vercel.app/careers",
+      "url": "https://indianpublicschool.devs.surf/careers",
       "title": "Teacher Jobs & Careers | Indian Public School Sambalpur",
       "description": "Explore teaching and non-teaching career opportunities at Indian Public School, Sambalpur, and learn how to apply for available positions.",
       "keywords": [
@@ -353,10 +353,10 @@
         "teaching jobs Sambalpur",
         "non teaching jobs Sambalpur school"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/achievements.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/achievements.jpg"
     },
     "gallery": {
-      "url": "https://indian-public-school-app.vercel.app/gallery",
+      "url": "https://indianpublicschool.devs.surf/gallery",
       "title": "School Campus, Events & Photo Gallery | Indian Public School",
       "description": "Explore campus photographs, school events, sports activities, science exhibitions, annual functions and student activities at Indian Public School, Sambalpur.",
       "keywords": [
@@ -370,10 +370,10 @@
         "school sports events Sambalpur",
         "school science exhibition Sambalpur"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/facility-sports.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/facility-sports.jpg"
     },
     "pressRelease": {
-      "url": "https://indian-public-school-app.vercel.app/press-release",
+      "url": "https://indianpublicschool.devs.surf/press-release",
       "title": "News & Press Releases | Indian Public School Sambalpur",
       "description": "Read official news, announcements, press releases, student achievements and school updates from Indian Public School, Sambalpur.",
       "keywords": [
@@ -386,7 +386,7 @@
         "school announcements Sambalpur",
         "CBSE achievements Sambalpur"
       ],
-      "image": "https://indian-public-school-app.vercel.app/assets/achievements.jpg"
+      "image": "https://indianpublicschool.devs.surf/assets/achievements.jpg"
     }
   }
 }
