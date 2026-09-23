@@ -287,22 +287,32 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <section className="relative overflow-hidden bg-slate-950 py-10 sm:py-14 text-white shadow-lg border-b border-gold/30">
-
+      <section className="relative overflow-hidden bg-[#091b36] py-12 sm:py-16 text-white shadow-xl border-b-2 border-gold/40">
+        {/* Background Image & Rich Brand Color Overlay */}
         <div className="absolute inset-0 z-0">
           <img
             src={bannerImg}
             alt={title}
-            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] scale-105"
+            className="h-full w-full object-cover object-center filter brightness-[0.45] contrast-[1.1] opacity-75 scale-105 transition-transform duration-700 hover:scale-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-navy-950/90 to-slate-950/95" />
-          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[1px]" />
+          {/* Deep Navy Brand Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#07162c]/95 via-[#102a4c]/85 to-[#091c36]/95" />
+          
+          {/* Glowing Ambient Mesh & Accent Spotlights */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-transparent opacity-80 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-blue-600/30 via-transparent to-transparent opacity-70 pointer-events-none" />
+          
+          {/* Subtle Glass Backdrop Overlay */}
+          <div className="absolute inset-0 bg-[#102a4c]/20 backdrop-blur-[1px]" />
+          
+          {/* Bottom Gold Light Beam */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f4bd4f] to-transparent opacity-90" />
         </div>
 
         <div className="container-page relative z-10 max-w-5xl flex flex-col items-start gap-4">
           <nav
             aria-label="Breadcrumb"
-            className="inline-flex flex-wrap items-center gap-2.5 rounded-full border border-gold/40 bg-slate-950/75 px-5 py-2 text-xs font-semibold text-white/95 shadow-xl backdrop-blur-md sm:text-sm"
+            className="inline-flex flex-wrap items-center gap-2.5 rounded-full border border-gold/40 bg-[#07172e]/85 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
           >
             <GraduationCap className="size-4 text-gold shrink-0 mr-0.5" />
             {breadcrumbs.map((item, idx) => {
@@ -327,11 +337,12 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
             })}
           </nav>
 
-          <div className="mt-2 space-y-2">
-            <span className="inline-block rounded-md bg-gold/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold border border-gold/40">
+          <div className="mt-2 space-y-2.5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gold/25 via-amber-500/15 to-transparent px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#ffd983] border border-gold/50 shadow-sm backdrop-blur-xs">
+              <span className="h-2 w-2 rounded-full bg-[#f4bd4f] animate-pulse" />
               Official School Document & Information
             </span>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight">
               {title}
             </h1>
           </div>
