@@ -186,12 +186,36 @@ export function Navbar() {
   const menuCardItems = homeData(siteData).menuCard;
   const legacyApiNav = Array.isArray(menuCardItems) ? (menuCardItems as Record<string, unknown>[]) : [];
 
+  const KNOWN_SECTIONS = new Set([
+    "about",
+    "academics",
+    "admissions",
+    "infrastructure",
+    "student-life",
+    "gallery",
+    "contact",
+    "campus-life",
+    "enquiry",
+    "home",
+  ]);
+
   const normalizeHref = (rawUrl?: string): string => {
     const url = (rawUrl || "/").trim();
-    if (!url) return "/";
-    if (url.startsWith("/") || url.startsWith("http")) return url;
+    if (!url || url === "/") return "/";
+    if (
+      url.startsWith("http://") ||
+      url.startsWith("https://") ||
+      url.startsWith("mailto:") ||
+      url.startsWith("tel:")
+    ) {
+      return url;
+    }
+    if (url.startsWith("/")) return url;
     if (url.startsWith("#")) return `/${url}`;
-    return `/#${url}`;
+    if (KNOWN_SECTIONS.has(url.toLowerCase())) {
+      return `/#${url.toLowerCase()}`;
+    }
+    return `/${url}`;
   };
 
   const mapSubItem = (s: ApiSubMenuItem): NavSubItem => {
@@ -232,6 +256,32 @@ export function Navbar() {
   const visibleNavigation = hasNavOverflow ? navigation.slice(0, 8) : navigation;
   const overflowNavigation = hasNavOverflow ? navigation.slice(8) : [];
 
+  const handleNavClick = (href: string, e?: React.MouseEvent) => {
+    setOpen(false);
+    document.body.style.overflow = "";
+
+    if (href.includes("#")) {
+      const hashIndex = href.indexOf("#");
+      const hash = href.slice(hashIndex + 1);
+      const targetPath = href.slice(0, hashIndex) || "/";
+
+      const isCurrentPageHome =
+        typeof window !== "undefined" &&
+        (window.location.pathname === "/" || window.location.pathname === targetPath);
+
+      if (isCurrentPageHome && hash) {
+        const targetElement = document.getElementById(hash);
+        if (targetElement) {
+          if (e) e.preventDefault();
+          setTimeout(() => {
+            targetElement.scrollIntoView({ behavior: "smooth" });
+            window.history.pushState(null, "", `/#${hash}`);
+          }, 120);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -264,7 +314,7 @@ export function Navbar() {
       )}
     >
       <nav className="container-page flex h-16 items-center justify-between gap-4 lg:h-20">
-        <Link href="/" className="group flex items-center gap-3">
+        <Link href="/" onClick={(e) => handleNavClick("/", e)} className="group flex items-center gap-3">
           {customLogoUrl ? (
             <img
               src={customLogoUrl}
@@ -294,6 +344,7 @@ export function Navbar() {
               <li key={`${item.href || "navigation-item"}-${index}`} className="group relative">
                 <Link
                   href={item.href}
+                  onClick={(e) => handleNavClick(item.href, e)}
                   className="relative flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
                 >
                   <span className="relative">
@@ -323,6 +374,7 @@ export function Navbar() {
                           <div key={sIdx} className="group/sub relative">
                             <Link
                               href={targetHref}
+                              onClick={(e) => handleNavClick(targetHref, e)}
                               className="flex items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
                             >
                               <span>{sub.title}</span>
@@ -347,15 +399,19 @@ export function Navbar() {
                                 )}
                               >
                                 <div className="w-56 rounded-2xl border border-border/80 bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
-                                  {sub.subItems.map((sub3, s3Idx) => (
-                                    <Link
-                                      key={s3Idx}
-                                      href={sub3.linkUrl || targetHref}
-                                      className="block rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
-                                    >
-                                      {sub3.title}
-                                    </Link>
-                                  ))}
+                                  {sub.subItems.map((sub3, s3Idx) => {
+                                    const sub3Href = sub3.linkUrl || targetHref;
+                                    return (
+                                      <Link
+                                        key={s3Idx}
+                                        href={sub3Href}
+                                        onClick={(e) => handleNavClick(sub3Href, e)}
+                                        className="block rounded-xl px-3.5 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-primary/10 hover:text-primary"
+                                      >
+                                        {sub3.title}
+                                      </Link>
+                                    );
+                                  })}
                                 </div>
                               </div>
                             )}
@@ -395,6 +451,7 @@ export function Navbar() {
           </Button>
           <Link
             href="/contact-us"
+            onClick={(e) => handleNavClick("/contact-us", e)}
             className="grid size-10 place-items-center rounded-full border border-border text-foreground transition-colors hover:bg-secondary xl:hidden"
             aria-label="Contact school"
           >
@@ -454,6 +511,8 @@ export function Navbar() {
                 const itemKey = `item-${index}`;
                 const hasSub = item.subItems.length > 0;
                 const isExpanded = Boolean(expandedMobile[itemKey]);
+                const isHashOrPlaceholder =
+                  !item.href || item.href === "/" || item.href === "#" || item.href.includes("#");
 
                 return (
                   <motion.li
@@ -465,25 +524,29 @@ export function Navbar() {
                     className="rounded-xl bg-secondary/30 border border-border/40 overflow-hidden"
                   >
                     <div className="flex items-center justify-between px-4 py-2.5">
-                      <Link
-                        href={item.href}
-                        onClick={(e) => {
-                          if (hasSub && (item.href === "/" || item.href === "#" || item.href.endsWith("#"))) {
-                            toggleMobileExpand(itemKey, e);
-                          } else {
-                            setOpen(false);
-                          }
-                        }}
-                        className="flex-1 text-base font-semibold transition-colors hover:text-primary"
-                      >
-                        {item.label}
-                      </Link>
+                      {hasSub && isHashOrPlaceholder ? (
+                        <button
+                          type="button"
+                          onClick={(e) => toggleMobileExpand(itemKey, e)}
+                          className="flex-1 text-left text-base font-semibold transition-colors hover:text-primary cursor-pointer flex items-center justify-between pr-2"
+                        >
+                          <span>{item.label}</span>
+                        </button>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          onClick={(e) => handleNavClick(item.href, e)}
+                          className="flex-1 text-base font-semibold transition-colors hover:text-primary"
+                        >
+                          {item.label}
+                        </Link>
+                      )}
 
                       {hasSub && (
                         <button
                           type="button"
                           onClick={(e) => toggleMobileExpand(itemKey, e)}
-                          className="grid size-8 place-items-center rounded-lg border border-border/60 bg-background/80 text-foreground/80 hover:bg-primary/10 hover:text-primary transition-colors"
+                          className="grid size-8 place-items-center rounded-lg border border-border/60 bg-background/80 text-foreground/80 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
                           aria-label={`Toggle ${item.label} sub menu`}
                         >
                           <ChevronDown
@@ -515,28 +578,35 @@ export function Navbar() {
                                 ? sub.subItems[0].linkUrl
                                 : sub.linkUrl || item.href;
 
+                            const isSubHashOrPlaceholder =
+                              !targetHref || targetHref === "/" || targetHref === "#" || targetHref.includes("#");
+
                             return (
                               <div key={sIdx} className="rounded-lg bg-card/60 p-1.5 border border-border/40 space-y-1">
                                 <div className="flex items-center justify-between px-2 py-1">
-                                  <Link
-                                    href={targetHref}
-                                    onClick={(e) => {
-                                      if (hasLevel3 && (sub.linkUrl === "/" || sub.linkUrl === "#")) {
-                                        toggleMobileExpand(subKey, e);
-                                      } else {
-                                        setOpen(false);
-                                      }
-                                    }}
-                                    className="flex-1 text-xs font-semibold text-foreground/90 transition-colors hover:text-primary"
-                                  >
-                                    {sub.title}
-                                  </Link>
+                                  {hasLevel3 && isSubHashOrPlaceholder ? (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => toggleMobileExpand(subKey, e)}
+                                      className="flex-1 text-left text-xs font-semibold text-foreground/90 transition-colors hover:text-primary cursor-pointer"
+                                    >
+                                      {sub.title}
+                                    </button>
+                                  ) : (
+                                    <Link
+                                      href={targetHref}
+                                      onClick={(e) => handleNavClick(targetHref, e)}
+                                      className="flex-1 text-xs font-semibold text-foreground/90 transition-colors hover:text-primary"
+                                    >
+                                      {sub.title}
+                                    </Link>
+                                  )}
 
                                   {hasLevel3 && (
                                     <button
                                       type="button"
                                       onClick={(e) => toggleMobileExpand(subKey, e)}
-                                      className="grid size-6 place-items-center rounded bg-secondary text-muted-foreground hover:text-primary"
+                                      className="grid size-6 place-items-center rounded bg-secondary text-muted-foreground hover:text-primary cursor-pointer"
                                     >
                                       <ChevronDown
                                         size={13}
@@ -558,16 +628,19 @@ export function Navbar() {
                                       transition={{ duration: 0.2 }}
                                       className="overflow-hidden ml-2 pl-2 border-l border-primary/20 space-y-1 pt-1"
                                     >
-                                      {sub.subItems.map((sub3, s3Idx) => (
-                                        <Link
-                                          key={s3Idx}
-                                          href={sub3.linkUrl || targetHref}
-                                          onClick={() => setOpen(false)}
-                                          className="block rounded-md px-2 py-1 text-[11px] font-medium text-foreground/75 transition-colors hover:bg-primary/10 hover:text-primary"
-                                        >
-                                          {sub3.title}
-                                        </Link>
-                                      ))}
+                                      {sub.subItems.map((sub3, s3Idx) => {
+                                        const sub3Href = sub3.linkUrl || targetHref;
+                                        return (
+                                          <Link
+                                            key={s3Idx}
+                                            href={sub3Href}
+                                            onClick={(e) => handleNavClick(sub3Href, e)}
+                                            className="block rounded-md px-2 py-1 text-[11px] font-medium text-foreground/75 transition-colors hover:bg-primary/10 hover:text-primary"
+                                          >
+                                            {sub3.title}
+                                          </Link>
+                                        );
+                                      })}
                                     </motion.div>
                                   )}
                                 </AnimatePresence>
@@ -591,6 +664,7 @@ export function Navbar() {
                   type="button"
                   onClick={() => {
                     setOpen(false);
+                    document.body.style.overflow = "";
                     openAdmissionModal();
                   }}
                   className="w-full rounded-full cursor-pointer bg-[#1a5d9c] hover:bg-[#102a4c] text-white font-bold"
@@ -621,7 +695,10 @@ export function Navbar() {
                   <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2 mb-2">
                     <Link
                       href={item.href}
-                      onClick={() => setMoreModalOpen(false)}
+                      onClick={(e) => {
+                        setMoreModalOpen(false);
+                        handleNavClick(item.href, e);
+                      }}
                       className="font-display text-sm font-bold text-foreground transition-colors hover:text-primary flex items-center gap-1.5 group-hover/card:text-primary"
                     >
                       <span>{item.label}</span>
@@ -647,7 +724,10 @@ export function Navbar() {
                           <div key={sIdx} className="rounded-lg bg-background/70 p-2 border border-border/40 space-y-1">
                             <Link
                               href={targetHref}
-                              onClick={() => setMoreModalOpen(false)}
+                              onClick={(e) => {
+                                setMoreModalOpen(false);
+                                handleNavClick(targetHref, e);
+                              }}
                               className="flex items-center justify-between text-xs font-semibold text-foreground/90 transition-colors hover:text-primary"
                             >
                               <span className="flex items-center gap-1.5">
@@ -659,16 +739,22 @@ export function Navbar() {
 
                             {hasLevel3 && (
                               <div className="pl-3.5 space-y-1 border-l border-gold/30 ml-1 pt-0.5">
-                                {sub.subItems.map((sub3, s3Idx) => (
-                                  <Link
-                                    key={s3Idx}
-                                    href={sub3.linkUrl || targetHref}
-                                    onClick={() => setMoreModalOpen(false)}
-                                    className="block text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary hover:translate-x-0.5"
-                                  >
-                                    • {sub3.title}
-                                  </Link>
-                                ))}
+                                {sub.subItems.map((sub3, s3Idx) => {
+                                  const sub3Href = sub3.linkUrl || targetHref;
+                                  return (
+                                    <Link
+                                      key={s3Idx}
+                                      href={sub3Href}
+                                      onClick={(e) => {
+                                        setMoreModalOpen(false);
+                                        handleNavClick(sub3Href, e);
+                                      }}
+                                      className="block text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary hover:translate-x-0.5"
+                                    >
+                                      • {sub3.title}
+                                    </Link>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
@@ -679,16 +765,6 @@ export function Navbar() {
                     <p className="text-[11px] text-muted-foreground/70 italic py-1">Direct link</p>
                   )}
                 </div>
-
-                {/* <div className="mt-3 pt-2 border-t border-border/30 flex items-center justify-end">
-                  <Link
-                    href={item.href}
-                    onClick={() => setMoreModalOpen(false)}
-                    className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-                  >
-                    Open {item.label} &rarr;
-                  </Link>
-                </div> */}
               </div>
             ))}
           </div>

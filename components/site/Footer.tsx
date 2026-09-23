@@ -21,8 +21,40 @@ interface ApiMenuItem {
   subItems?: ApiMenuItem[];
 }
 
+const KNOWN_SECTIONS = new Set([
+  "about",
+  "academics",
+  "admissions",
+  "infrastructure",
+  "student-life",
+  "gallery",
+  "contact",
+  "campus-life",
+  "enquiry",
+  "home",
+]);
+
+function normalizeHref(rawUrl?: string): string {
+  const url = (rawUrl || "/").trim();
+  if (!url || url === "/") return "/";
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("mailto:") ||
+    url.startsWith("tel:")
+  ) {
+    return url;
+  }
+  if (url.startsWith("/")) return url;
+  if (url.startsWith("#")) return `/${url}`;
+  if (KNOWN_SECTIONS.has(url.toLowerCase())) {
+    return `/#${url.toLowerCase()}`;
+  }
+  return `/${url}`;
+}
+
 function getItemHref(item: ApiMenuItem): string {
-  // If item has 3rd level subItems, directly point to the first published child's link
+  // If item has subItems, directly point to the first published child's link
   if (Array.isArray(item.subItems) && item.subItems.length > 0) {
     const publishedChild = item.subItems.find(
       (child) => child.isPublished !== false && Boolean(child.targetUrl?.trim() || child.linkUrl?.trim() || child.slug?.trim())
@@ -34,16 +66,11 @@ function getItemHref(item: ApiMenuItem): string {
 
   const explicitTarget = (item.targetUrl || item.linkUrl || "").trim();
   if (explicitTarget && explicitTarget !== "#") {
-    if (explicitTarget.startsWith("/") || explicitTarget.startsWith("http")) return explicitTarget;
-    if (explicitTarget.startsWith("#")) return `/${explicitTarget}`;
-    return `/#${explicitTarget}`;
+    return normalizeHref(explicitTarget);
   }
 
   const slugTarget = (item.slug || "/").trim();
-  if (!slugTarget || slugTarget === "/") return "/";
-  if (slugTarget.startsWith("/") || slugTarget.startsWith("http")) return slugTarget;
-  if (slugTarget.startsWith("#")) return `/${slugTarget}`;
-  return `/#${slugTarget}`;
+  return normalizeHref(slugTarget);
 }
 
 const DEFAULT_FOOTER_COLUMNS = [

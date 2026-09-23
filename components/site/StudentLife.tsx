@@ -27,7 +27,7 @@ export function StudentLife() {
     : [];
 
   return (
-    <section className="py-20 lg:py-32">
+    <section id="student-life" className="py-20 lg:py-32">
       <div className="container-page">
         <SectionHeading
           eyebrow={text(section.heading) || "Student Life"}
