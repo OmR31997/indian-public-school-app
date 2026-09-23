@@ -107,9 +107,17 @@ export function textList(value: unknown): string[] {
 }
 
 export function imageUrl(value: unknown): string {
-  if (typeof value === "string") return value;
+  if (typeof value === "string") {
+    const url = value.trim();
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:") || url.startsWith("/")) {
+      return url;
+    }
+    return `/${url}`;
+  }
   if (Array.isArray(value)) {
-    return value.find((item): item is string => typeof item === "string" && item.length > 0) ?? "";
+    const found = value.find((item): item is string => typeof item === "string" && item.trim().length > 0);
+    return found ? imageUrl(found) : "";
   }
   return "";
 }

@@ -5,7 +5,7 @@ import axios from "axios";
 import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
-import { homeData, text } from "@/lib/site-data";
+import { homeData, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
 
@@ -227,7 +227,7 @@ export function Footer() {
                 <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30">
                   {certifiedBoard.badgeUrl ? (
                     <img
-                      src={String(certifiedBoard.badgeUrl)}
+                      src={imageUrl(certifiedBoard.badgeUrl)}
                       alt={String(certifiedBoard.title || "Certified Board")}
                       className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
                     />
@@ -269,7 +269,7 @@ export function Footer() {
                 <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30">
                   {trustBoard.logoUrl ? (
                     <img
-                      src={String(trustBoard.logoUrl)}
+                      src={imageUrl(trustBoard.logoUrl)}
                       alt={String(trustBoard.trustName || "Trust Board")}
                       className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
                     />

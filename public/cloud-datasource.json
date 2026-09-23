@@ -51,9 +51,9 @@
         "trust_board": {
           "trustName": "K.S. Dalmia Education Trust",
           "regNo": "Established under KS Dalmia Education Trust",
-          "logoUrl": "assets/Logos/DALMIA_LOGO.png",
+          "logoUrl": "/assets/Logos/DALMIA_LOGO.png",
           "description": "Dedicated to character building, academic excellence, and holistic personality development.",
-          "linkUrl": "/about-us/school-establishment",
+          "linkUrl": "/about/school-establishment",
           "enabled": true
         }
       },
