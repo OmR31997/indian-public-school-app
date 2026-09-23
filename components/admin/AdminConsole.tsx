@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import fallbackSiteData from "@/public/cloud-datasource.json";
 import {
+  AlertCircle,
   Bell,
   ChevronDown,
   ChevronRight,
@@ -315,7 +316,7 @@ const resources: Resource[] = [
     description: "Navigation structure (up to 3 levels)",
     icon: Menu,
     fields: ["title", "level", "parentId", "category", "isPublished", "order", "createdAt", "updatedAt"],
-    inputs: { title: "text", parentId: "select", targetUrl: "text", category: "select", order: "number", isPublished: "boolean" },
+    inputs: { title: "text", parentId: "select", targetUrl: "text", order: "number", isPublished: "boolean" },
     options: { category: ["Header", "Footer", "Quick Links", "Sidebar"] },
   },
   {
@@ -1066,9 +1067,22 @@ export function AdminConsole() {
           )}
         </div>
       </header>
-      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setFormOpen(true); }} onDelete={remove} token={token} />}</div>
+      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }} onDelete={remove} token={token} />}</div>
     </section>
-    {formOpen && current && <RecordDialog token={token} resource={current} record={editing} saving={saving} allSectionPages={data.pages || []} allMenuItems={data["menu-items"] || []} onClose={() => { setFormOpen(false); setEditing(null); }} onSave={save} />}
+    {formOpen && current && (
+      <RecordDialog
+        token={token}
+        resource={current}
+        record={editing}
+        saving={saving}
+        formError={error}
+        allSectionPages={data.pages || []}
+        allMenuItems={data["menu-items"] || []}
+        onClose={() => { setFormOpen(false); setEditing(null); setError(""); }}
+        onClearError={() => setError("")}
+        onSave={save}
+      />
+    )}
     {loginOpen && <LoginDialog onClose={() => setLoginOpen(false)} onLoggedIn={(accessToken) => { window.localStorage.setItem("ips_admin_token", accessToken); document.cookie = `ips_admin_session=${encodeURIComponent(accessToken)}; Path=/; SameSite=Lax; Max-Age=28800${location.protocol === "https:" ? "; Secure" : ""}`; setToken(accessToken); setLoginOpen(false); }} />}
     {changePasswordOpen && token && <ChangePasswordDialog token={token} onClose={() => setChangePasswordOpen(false)} />}
   </main>;
@@ -5012,7 +5026,7 @@ function HomeLayoutEditorModal({
   );
 }
 
-function RecordDialog({ token, resource, record, saving, allSectionPages = [], allMenuItems = [], onClose, onSave }: { token: string; resource: Resource; record: RecordItem | null; saving: boolean; allSectionPages?: RecordItem[]; allMenuItems?: RecordItem[]; onClose: () => void; onSave: (value: Record<string, unknown>) => void }) {
+function RecordDialog({ token, resource, record, saving, formError, allSectionPages = [], allMenuItems = [], onClose, onClearError, onSave }: { token: string; resource: Resource; record: RecordItem | null; saving: boolean; formError?: string; allSectionPages?: RecordItem[]; allMenuItems?: RecordItem[]; onClose: () => void; onClearError?: () => void; onSave: (value: Record<string, unknown>) => void }) {
   if (resource.key === "school-settings" && (record?.key === "site_datasource" || !record)) {
     return (
       <HomeLayoutEditorModal
@@ -5052,7 +5066,10 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
   const [uploadError, setUploadError] = useState<string>("");
   const [galleryPickerField, setGalleryPickerField] = useState<string | null>(null);
 
-  const setValue = (field: string, value: unknown) => setValues((previous) => ({ ...previous, [field]: value }));
+  const setValue = (field: string, value: unknown) => {
+    if (onClearError && formError) onClearError();
+    setValues((previous) => ({ ...previous, [field]: value }));
+  };
 
   const handleFileUpload = async (field: string, file: File) => {
     setUploading(field);
@@ -5119,6 +5136,9 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const payload = { ...values };
+    if (resource.key === "menu-items") {
+      payload.category = record?.category || "Header";
+    }
     if (!payload.redirectUrl && payload.attachmentUrl) {
       payload.redirectUrl = String(payload.attachmentUrl);
     }
@@ -5149,6 +5169,20 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 grid gap-4 sm:grid-cols-2">
+          {formError && (
+            <div className="sm:col-span-2 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-900 shadow-2xs animate-in fade-in duration-150">
+              <AlertCircle size={18} className="shrink-0 text-red-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-bold text-red-950 text-sm">Action Failed</p>
+                <p className="mt-0.5 text-red-800 leading-relaxed font-medium">{formError}</p>
+              </div>
+              {onClearError && (
+                <button type="button" onClick={onClearError} className="rounded-lg p-1 text-red-400 hover:bg-red-100 hover:text-red-700 transition cursor-pointer">
+                  <X size={15} />
+                </button>
+              )}
+            </div>
+          )}
           {uploadError && (
             <div className="sm:col-span-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-700">
               {uploadError}
@@ -5157,7 +5191,7 @@ function RecordDialog({ token, resource, record, saving, allSectionPages = [], a
           {Object.entries(resource.inputs).map(([field, type]) => {
             const required = isRequiredField(field, resource.key, Boolean(record));
             return (
-              <label key={field} className={type === "textarea" || type === "file" || type === "richtext" || field === "role" ? "sm:col-span-2" : ""}>
+              <label key={field} className={type === "textarea" || type === "file" || type === "richtext" || field === "role" || field === "targetUrl" || field === "redirectUrl" || field === "linkUrl" ? "sm:col-span-2" : ""}>
                 <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
                   {titleCase(field)}
                   {required && <span className="ml-1 font-bold text-red-500" title="Required field">*</span>}
