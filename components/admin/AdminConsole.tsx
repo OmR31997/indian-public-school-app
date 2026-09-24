@@ -1308,19 +1308,19 @@ function MediaDetailDialog({
                   {Object.entries(item)
                     .filter(([key]) => key !== "_id" && key !== "__v")
                     .map(([key, val]) => (
-                    <tr key={key} className="hover:bg-slate-50/50">
-                      <td className="w-1/3 whitespace-nowrap bg-slate-50/70 px-4 py-3 font-bold text-slate-600">
-                        {titleCase(key)}
-                      </td>
-                      <td className="break-all px-4 py-3 font-mono text-slate-800">
-                        {Array.isArray(val)
-                          ? val.join(", ")
-                          : typeof val === "object" && val !== null
-                            ? JSON.stringify(val)
-                            : String(val ?? "")}
-                      </td>
-                    </tr>
-                  ))}
+                      <tr key={key} className="hover:bg-slate-50/50">
+                        <td className="w-1/3 whitespace-nowrap bg-slate-50/70 px-4 py-3 font-bold text-slate-600">
+                          {titleCase(key)}
+                        </td>
+                        <td className="break-all px-4 py-3 font-mono text-slate-800">
+                          {Array.isArray(val)
+                            ? val.join(", ")
+                            : typeof val === "object" && val !== null
+                              ? JSON.stringify(val)
+                              : String(val ?? "")}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -2524,15 +2524,13 @@ function ResourceView({
                                 <span
                                   className={
                                     field === "isRead"
-                                      ? `rounded-full px-2.5 py-1 text-xs font-bold ${
-                                          item[field]
-                                            ? "bg-slate-100 text-slate-600"
-                                            : "bg-red-100 text-red-700 border border-red-200 animate-pulse"
-                                        }`
+                                      ? `rounded-full px-2.5 py-1 text-xs font-bold ${item[field]
+                                        ? "bg-slate-100 text-slate-600"
+                                        : "bg-red-100 text-red-700 border border-red-200 animate-pulse"
+                                      }`
                                       : typeof item[field] === "boolean"
-                                        ? `rounded-full px-2.5 py-1 text-xs font-bold ${
-                                            item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
-                                          }`
+                                        ? `rounded-full px-2.5 py-1 text-xs font-bold ${item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                                        }`
                                         : ""
                                   }
                                 >
@@ -3437,8 +3435,8 @@ function HomeLayoutEditorModal({
                         Array.isArray(datasource?.home?.[0]?.identity?.whatsapp?.presetMessages)
                           ? datasource.home[0].identity.whatsapp.presetMessages.join(", ")
                           : Array.isArray(datasource?.whatsapp?.presetMessages)
-                          ? datasource.whatsapp.presetMessages.join(", ")
-                          : "Admission Inquiry 🎓, Fee Structure 💰, Schedule Campus Visit 🏫, General Query 💬"
+                            ? datasource.whatsapp.presetMessages.join(", ")
+                            : "Admission Inquiry 🎓, Fee Structure 💰, Schedule Campus Visit 🏫, General Query 💬"
                       }
                       onChange={(e) => {
                         const items = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
@@ -4294,8 +4292,8 @@ function HomeLayoutEditorModal({
             const descText = Array.isArray(sec7Data.description)
               ? sec7Data.description[0] || ""
               : typeof sec7Data.description === "string"
-              ? sec7Data.description
-              : "";
+                ? sec7Data.description
+                : "";
 
             return (
               <div className="space-y-5">
@@ -5676,7 +5674,7 @@ function RecordDialog({ token, resource, record, saving, formError, allSectionPa
 }
 
 function LoginDialog({ onClose, onLoggedIn }: { onClose: () => void; onLoggedIn: (token: string) => void }) {
-  const [email, setEmail] = useState("admin@indianpublicschool.in"); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("admin.ips@gmail.com"); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
   const submit = async (event: React.FormEvent) => { event.preventDefault(); setLoading(true); setError(""); try { const response = await axios.post(`${API_URL}/auth/login`, { email, password }); const payload = response.data?.data ?? response.data; if (!payload.accessToken) throw new Error("The API did not return an access token."); onLoggedIn(payload.accessToken); } catch (reason) { setError(axios.isAxiosError(reason) ? String(reason.response?.data?.message || "Sign in failed.") : "Sign in failed."); } finally { setLoading(false); } };
   return <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4"><form onSubmit={submit} className="w-full max-w-md rounded-2xl bg-white p-7 shadow-2xl"><div className="flex items-start justify-between"><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fdf3da] text-[#b7790a]"><ShieldCheck /></div><button type="button" onClick={onClose} className="text-slate-400"><X /></button></div><h2 className="mt-5 font-display text-2xl font-bold text-[#102a4c]">Administrator sign in</h2><p className="mt-1 text-sm text-slate-500">Sign in to publish or update school information.</p>{error && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}<label className="mt-5 block text-sm font-bold text-slate-600">Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal outline-none focus:border-[#1a5d9c]" /></label><label className="mt-4 block text-sm font-bold text-slate-600">Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal outline-none focus:border-[#1a5d9c]" /></label><button disabled={loading} className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-3 text-sm font-bold text-white disabled:opacity-60">{loading && <LoaderCircle size={16} className="animate-spin" />} Sign in securely</button></form></div>;
 }

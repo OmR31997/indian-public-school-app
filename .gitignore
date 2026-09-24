@@ -43,3 +43,6 @@ next-env.d.ts
 # generated pdf/html documents
 /documents/*.pdf
 /documents/*.html
+
+# Documents (To be uploaded in future)
+/public/assets/Documents

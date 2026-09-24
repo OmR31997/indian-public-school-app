@@ -173,28 +173,28 @@ export function Footer() {
 
   const footerColumns = dbMenuItems.length
     ? dbMenuItems
-        .filter((parent) => parent.isPublished !== false)
-        .map((parent) => {
-          const subLinks = Array.isArray(parent.subItems) && parent.subItems.length > 0
-            ? parent.subItems
-                .filter((sub) => sub.isPublished !== false)
-                .map((sub) => ({
-                  title: sub.title,
-                  href: getItemHref(sub),
-                }))
-            : [
-                {
-                  title: parent.title,
-                  href: getItemHref(parent),
-                },
-              ];
+      .filter((parent) => parent.isPublished !== false)
+      .map((parent) => {
+        const subLinks = Array.isArray(parent.subItems) && parent.subItems.length > 0
+          ? parent.subItems
+            .filter((sub) => sub.isPublished !== false)
+            .map((sub) => ({
+              title: sub.title,
+              href: getItemHref(sub),
+            }))
+          : [
+            {
+              title: parent.title,
+              href: getItemHref(parent),
+            },
+          ];
 
-          return {
-            title: parent.title,
-            links: subLinks,
-          };
-        })
-        .filter((col) => col.links.length > 0)
+        return {
+          title: parent.title,
+          links: subLinks,
+        };
+      })
+      .filter((col) => col.links.length > 0)
     : DEFAULT_FOOTER_COLUMNS;
 
   const socialLinks = [
@@ -381,7 +381,7 @@ export function Footer() {
           <p className="text-xs text-navy-foreground/60">
             {copyrightText}
           </p>
-          <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
               { title: "Privacy Policy", href: "/privacy-policy" },
               { title: "Terms of Use", href: "/terms" },
@@ -397,6 +397,16 @@ export function Footer() {
                 </Link>
               </li>
             ))}
+            <li key="Admin Panel Link">
+              <Link
+                href="/admin"
+                title="Admin Panel"
+                className="inline-flex items-center gap-1.5 text-xs text-navy-foreground/60 transition-colors hover:text-gold"
+              >
+                <i className="bi bi-person-gear text-xs text-gold" />
+                Admin Panel
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

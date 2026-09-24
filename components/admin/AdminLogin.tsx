@@ -10,7 +10,7 @@ const API_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/
 export function AdminLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("admin@indianpublicschool.in");
+  const [email, setEmail] = useState("admin.ips@gmail.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
