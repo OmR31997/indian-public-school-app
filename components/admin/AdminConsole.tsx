@@ -491,6 +491,22 @@ function itemId(item: RecordItem) {
   return String(item.publicId || item.id || item._id || item.menuId || "");
 }
 
+function getItemPhoto(item?: RecordItem | null): string | null {
+  if (!item) return null;
+  const photo =
+    item.profileImageUrl ||
+    item.avatar ||
+    item.photo ||
+    item.image ||
+    item.fileUrl ||
+    item.src ||
+    (Array.isArray(item.fileUrls) ? item.fileUrls[0] : null);
+  if (typeof photo === "string" && photo.trim() && photo.startsWith("http")) {
+    return imageUrl(photo.trim());
+  }
+  return null;
+}
+
 function formatValue(field: string, value: unknown, item?: RecordItem, allItems: RecordItem[] = []) {
   if (field === "isRead") {
     return value === true ? "Read" : "Unread";
@@ -539,6 +555,24 @@ function formatValue(field: string, value: unknown, item?: RecordItem, allItems:
   if (Array.isArray(value)) return `${value.length} asset${value.length === 1 ? "" : "s"}`;
   if (typeof value === "string" && (value.startsWith("http://") || value.startsWith("https://"))) {
     return value.split("/").pop() || value;
+  }
+  if (typeof value === "string" && (value.includes("<p") || value.includes("<div") || value.includes("<span"))) {
+    const clean = value.replace(/<[^>]*>?/gm, "").trim();
+    return clean.length > 40 ? `${clean.slice(0, 40)}…` : clean || "Rich HTML Content";
+  }
+  if (field === "value" || typeof value === "object" || (typeof value === "string" && (value.trim().startsWith("{") || value.trim().startsWith("[")))) {
+    let parsed: any = value;
+    if (typeof value === "string") {
+      try { parsed = JSON.parse(value); } catch { parsed = null; }
+    }
+    if (parsed && typeof parsed === "object") {
+      if (parsed.home && Array.isArray(parsed.home)) {
+        const h = parsed.home[0] || {};
+        const notice = h.identity?.header?.noticeText || h.header?.noticeText || "";
+        return notice ? `Home Site Layout (Notice: "${notice.slice(0, 24)}...")` : "Home Site Layout & Sections";
+      }
+      return "Configured Settings";
+    }
   }
   if (typeof value === "string" && value.length > 42) return `${value.slice(0, 42)}…`;
   if (typeof value === "object") return "Configured";
@@ -1094,6 +1128,227 @@ function Overview({ data, loading, onNavigate }: { data: Partial<Record<Resource
   return <div className="space-y-7"><div className="overflow-hidden rounded-2xl bg-[#102a4c] p-7 text-white shadow-xl"><div className="relative z-10 max-w-xl"><span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#ffd983]"><Sparkles size={13} /> Operations at a glance</span><h2 className="mt-4 font-display text-3xl font-bold leading-tight">Everything your school needs, in one calm workspace.</h2><p className="mt-3 text-sm leading-6 text-blue-100">Manage people, public content and day-to-day communication from the same dashboard.</p></div><div className="pointer-events-none absolute right-12 top-24 hidden h-52 w-52 rounded-full border-[32px] border-[#f4bd4f]/20 lg:block" /></div><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(({ key, label, icon: Icon, tint }) => <button key={key} onClick={() => onNavigate(key)} className="group rounded-2xl border border-slate-100 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className={`grid h-10 w-10 place-items-center rounded-xl ${tint}`}><Icon size={20} /></div><p className="mt-5 text-3xl font-bold text-[#102a4c]">{loading ? "—" : data[key]?.length ?? 0}</p><div className="mt-1 flex items-center justify-between"><p className="text-sm text-slate-500">{label}</p><ChevronRight className="text-slate-300 transition group-hover:translate-x-1" size={17} /></div></button>)}</div><div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]"><section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"><div className="mb-5 flex items-center justify-between"><div><h3 className="font-display text-xl font-bold text-[#102a4c]">Recent enquiries</h3><p className="text-sm text-slate-500">Follow up with prospective families</p></div><button onClick={() => onNavigate("inquiries")} className="text-sm font-bold text-[#1a5d9c]">View all</button></div><div className="space-y-3">{(data.inquiries || []).slice(0, 4).map((item) => <div key={itemId(item)} className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3"><div className="grid h-9 w-9 place-items-center rounded-full bg-[#dce9f8] text-sm font-bold text-[#1a5d9c]">{String(item.name || "?").slice(0, 1)}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-slate-700">{String(item.name || "New enquiry")}</p><p className="truncate text-xs text-slate-500">{String(item.inquiryType || "General inquiry")}</p></div><span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-800">{String(item.status || "Pending")}</span></div>)}{!loading && !data.inquiries?.length && <Empty text="No enquiries yet" />}</div></section><section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"><h3 className="font-display text-xl font-bold text-[#102a4c]">Quick actions</h3><div className="mt-4 space-y-2">{actions.map((action) => <button key={action.key} onClick={() => onNavigate(action.key)} className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-[#edf5fc]"><div className="grid h-9 w-9 place-items-center rounded-lg bg-[#fdf3da] text-[#b7790a]"><Plus size={17} /></div><div><p className="text-sm font-bold text-slate-700">{action.title}</p><p className="text-xs text-slate-500">{action.text}</p></div></button>)}</div></section></div></div>;
 }
 
+function StructuredHomeSettingsView({ homeData }: { homeData: any }) {
+  if (!homeData) return null;
+
+  const header = homeData.identity?.header || homeData.header || {};
+  const footer = homeData.identity?.footer || homeData.footer || {};
+  const sections = homeData.sections || {};
+  const hero = sections.hero || {};
+  const banner = sections.banner || {};
+  const quickCards = Array.isArray(sections.quickCards) ? sections.quickCards : [];
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/60 to-slate-50 p-4 shadow-xs">
+      {/* Identity & Notice Bar */}
+      <div className="rounded-xl border border-blue-200 bg-white p-4 shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
+          <div className="flex items-center gap-2">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-blue-50 text-[#1a5d9c]">
+              <Sparkles size={15} />
+            </span>
+            <div>
+              <h4 className="font-bold text-sm text-[#102a4c]">{header.logoText || "Indian Public School"}</h4>
+              <p className="text-[11px] text-slate-400">{header.logoSubText || "School Identity & Header"}</p>
+            </div>
+          </div>
+          {header.noticeText && (
+            <span className="rounded-full bg-amber-100 border border-amber-200 px-3 py-1 text-xs font-bold text-amber-800">
+              Notice Active
+            </span>
+          )}
+        </div>
+
+        {header.noticeText && (
+          <div className="mb-3 rounded-xl bg-[#102a4c] p-3 text-white shadow-xs">
+            <p className="text-[10px] uppercase tracking-wider font-bold text-[#ffd983]">Banner Notice Text</p>
+            <p className="text-xs font-semibold mt-0.5">{header.noticeText}</p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-600">
+          <div><span className="text-slate-400">Phone:</span> {header.phone || "—"}</div>
+          <div><span className="text-slate-400">Email:</span> {header.email || "—"}</div>
+          <div><span className="text-slate-400">CTA Button:</span> {header.ctaText || "—"}</div>
+          <div><span className="text-slate-400">CTA Link:</span> {header.ctaUrl || "—"}</div>
+        </div>
+      </div>
+
+      {/* Hero & Banner Section Card */}
+      {(hero.title || banner.noticeTitle) && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {hero.title && (
+            <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Hero Section</span>
+              <p className="text-xs font-bold text-[#102a4c] mt-1 line-clamp-2">{hero.title}</p>
+              {hero.subtitle && <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{hero.subtitle}</p>}
+            </div>
+          )}
+
+          {banner.noticeTitle && (
+            <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Announcement Banner</span>
+              <p className="text-xs font-bold text-slate-800 mt-1">{banner.noticeTitle}</p>
+              {banner.noticeSubtitle && <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{banner.noticeSubtitle}</p>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Quick Cards Count */}
+      {quickCards.length > 0 && (
+        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+            Quick Action Cards ({quickCards.length})
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {quickCards.map((qc: any, idx: number) => (
+              <span key={idx} className="rounded-lg bg-blue-50 border border-blue-100 px-2 py-1 text-xs font-bold text-[#1a5d9c]">
+                {qc.title || `Card #${idx + 1}`}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Live Sections List */}
+      <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+          Configured Home Sections ({Object.keys(sections).length})
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {Object.keys(sections).map((sKey) => (
+            <span key={sKey} className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-700">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              {sKey}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StructuredDetailValue({ keyName, val, item }: { keyName: string; val: unknown; item: RecordItem }) {
+  const [showRawJson, setShowRawJson] = useState(false);
+
+  // 1. Check if val or item is Home Page Site Layout settings
+  let homeData: any = null;
+  if (typeof val === "object" && val !== null) {
+    if ("home" in (val as object) && Array.isArray((val as any).home)) {
+      homeData = (val as any).home[0];
+    }
+  } else if (typeof val === "string" && (val.trim().startsWith("{") || val.trim().startsWith("["))) {
+    try {
+      const parsed = JSON.parse(val);
+      if (parsed && typeof parsed === "object" && "home" in parsed && Array.isArray(parsed.home)) {
+        homeData = parsed.home[0];
+      }
+    } catch {
+      // not JSON
+    }
+  }
+
+  if (homeData) {
+    return (
+      <div className="space-y-3 font-sans">
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 border border-blue-200 px-3 py-1 text-xs font-bold text-[#1a5d9c]">
+            <Sparkles size={13} /> Visual Home Site Layout View
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowRawJson(!showRawJson)}
+            className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+          >
+            {showRawJson ? "Hide Raw JSON" : "Show Raw JSON Code"}
+          </button>
+        </div>
+
+        <StructuredHomeSettingsView homeData={homeData} />
+
+        {showRawJson && (
+          <pre className="max-h-60 overflow-auto rounded-xl bg-slate-900 p-3 text-[11px] text-emerald-400 font-mono">
+            {typeof val === "string" ? val : JSON.stringify(val, null, 2)}
+          </pre>
+        )}
+      </div>
+    );
+  }
+
+  // 2. Rich HTML Content (e.g. textContent in pages)
+  if (typeof val === "string" && (val.includes("<p") || val.includes("<div") || val.includes("<h") || val.includes("<br"))) {
+    return (
+      <div className="space-y-2 font-sans">
+        <div
+          className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800 max-h-60 overflow-y-auto leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: val }}
+        />
+        <button
+          type="button"
+          onClick={() => setShowRawJson(!showRawJson)}
+          className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+        >
+          {showRawJson ? "Hide Raw HTML Source" : "View Source HTML"}
+        </button>
+        {showRawJson && (
+          <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-[11px] text-slate-200 font-mono break-all whitespace-pre-wrap">
+            {val}
+          </pre>
+        )}
+      </div>
+    );
+  }
+
+  // 3. Image URLs (profileImageUrl, avatar, image, photo, marksheetUrl, fileUrl)
+  if (typeof val === "string" && (val.startsWith("http://") || val.startsWith("https://"))) {
+    const isImg = /\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(val) || val.includes("cloudinary") || val.includes("/uploads/");
+    if (isImg) {
+      return (
+        <div className="flex items-center gap-3 font-sans">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageUrl(val)} alt={keyName} className="h-12 w-12 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0" />
+          <div className="min-w-0 flex-1">
+            <a href={val} target="_blank" rel="noopener noreferrer" className="truncate text-xs font-bold text-[#1a5d9c] hover:underline block">
+              {val}
+            </a>
+            <span className="text-[10px] text-slate-400 font-medium">Image Asset</span>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <a href={val} target="_blank" rel="noopener noreferrer" className="break-all text-xs font-bold text-[#1a5d9c] hover:underline font-sans">
+        {val}
+      </a>
+    );
+  }
+
+  // 4. Arrays & Generic Objects
+  if (Array.isArray(val)) {
+    return (
+      <div className="flex flex-wrap gap-1 font-sans">
+        {val.map((itemVal, i) => (
+          <span key={i} className="rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-xs text-slate-700 font-medium">
+            {typeof itemVal === "object" ? JSON.stringify(itemVal) : String(itemVal)}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  if (typeof val === "object" && val !== null) {
+    return (
+      <pre className="max-h-48 overflow-auto rounded-xl bg-slate-950 p-3 text-[11px] text-blue-300 font-mono">
+        {JSON.stringify(val, null, 2)}
+      </pre>
+    );
+  }
+
+  // 5. Plain primitive values
+  return <span className="font-semibold text-slate-800 font-sans">{String(val ?? "—")}</span>;
+}
+
 function MediaDetailDialog({
   item,
   onClose,
@@ -1115,6 +1370,9 @@ function MediaDetailDialog({
     else if (typeof val === "string" && val.trim()) list.push(val.trim());
 
     if (item.profileImageUrl && typeof item.profileImageUrl === "string") list.push(item.profileImageUrl);
+    if (item.avatar && typeof item.avatar === "string") list.push(item.avatar);
+    if (item.image && typeof item.image === "string") list.push(item.image);
+    if (item.photo && typeof item.photo === "string") list.push(item.photo);
     if (item.marksheetUrl && typeof item.marksheetUrl === "string") list.push(item.marksheetUrl);
     if (Array.isArray(item.documents)) {
       item.documents.forEach((d: unknown) => {
@@ -1135,7 +1393,7 @@ function MediaDetailDialog({
     return Array.from(new Set(list.filter((s) => s && s.startsWith("http"))));
   };
 
-  const urls = getMediaUrls(item.fileUrl || item.url || item.path || item.attachmentUrl || item.avatar);
+  const urls = getMediaUrls(item.fileUrl || item.url || item.path || item.attachmentUrl || item.avatar || item.profileImageUrl || item.image || item.photo);
   const primaryUrl = urls[activeUrlIndex] || urls[0] || "";
   const title = String(item.eventName || item.title || item.name || item.originalname || item.album || "Media Item");
   const album = String(item.eventType || item.album || item.category || "General");
@@ -1312,12 +1570,8 @@ function MediaDetailDialog({
                         <td className="w-1/3 whitespace-nowrap bg-slate-50/70 px-4 py-3 font-bold text-slate-600">
                           {titleCase(key)}
                         </td>
-                        <td className="break-all px-4 py-3 font-mono text-slate-800">
-                          {Array.isArray(val)
-                            ? val.join(", ")
-                            : typeof val === "object" && val !== null
-                              ? JSON.stringify(val)
-                              : String(val ?? "")}
+                        <td className="break-all px-4 py-3 text-slate-800">
+                          <StructuredDetailValue keyName={key} val={val} item={item} />
                         </td>
                       </tr>
                     ))}
@@ -2515,6 +2769,52 @@ function ResourceView({
                                       </div>
                                     )}
                                   </div>
+                                </td>
+                              );
+                            }
+
+                            if (field === "name") {
+                              const photo = getItemPhoto(item);
+                              return (
+                                <td key={field} className="max-w-[240px] px-5 py-4 text-sm text-slate-800">
+                                  <div className="flex items-center gap-3">
+                                    {photo ? (
+                                      /* eslint-disable-next-line @next/next/no-img-element */
+                                      <img
+                                        src={photo}
+                                        alt={String(item.name || "Pic")}
+                                        className="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
+                                      />
+                                    ) : (resource.key === "students" || resource.key === "staff" || resource.key === "users" || resource.key === "reviews") ? (
+                                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-slate-200 border border-slate-300 text-xs font-bold text-[#102a4c] shadow-2xs">
+                                        {String(item.name || "?").trim().slice(0, 1).toUpperCase()}
+                                      </div>
+                                    ) : null}
+                                    <div className="min-w-0 flex-1">
+                                      <p className="font-bold text-[#102a4c] truncate">{formatValue(field, item[field], item, items)}</p>
+                                      {resource.key === "staff" && Boolean(item.designation || item.department) && (
+                                        <p className="text-[11px] text-slate-400 truncate">
+                                          {[String(item.designation || ""), String(item.department || "")].filter(Boolean).join(" • ")}
+                                        </p>
+                                      )}
+                                      {resource.key === "students" && Boolean(item.grade || item.section) && (
+                                        <p className="text-[11px] text-slate-400 truncate">
+                                          Class: Grade {String(item.grade || "")}{item.section ? `-${String(item.section)}` : ""}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                              );
+                            }
+
+                            if (resource.key === "school-settings" && field === "value") {
+                              const formatted = formatValue(field, item[field], item, items);
+                              return (
+                                <td key={field} className="max-w-[260px] px-5 py-4 text-sm text-slate-700">
+                                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-bold text-[#1a5d9c]">
+                                    <Sparkles size={13} /> {formatted}
+                                  </span>
                                 </td>
                               );
                             }
