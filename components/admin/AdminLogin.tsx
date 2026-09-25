@@ -25,7 +25,7 @@ export function AdminLogin() {
       if (!payload.accessToken) throw new Error("The API did not return an access token.");
 
       window.localStorage.setItem("ips_admin_token", payload.accessToken);
-      document.cookie = `ips_admin_session=${encodeURIComponent(payload.accessToken)}; Path=/; SameSite=Lax; Max-Age=28800${location.protocol === "https:" ? "; Secure" : ""}`;
+      document.cookie = `ips_admin_session=${encodeURIComponent(payload.accessToken)}; Path=/; SameSite=Lax; Max-Age=604800${location.protocol === "https:" ? "; Secure" : ""}`;
       const next = searchParams.get("next");
       router.replace(next?.startsWith("/admin") ? next : "/admin");
       router.refresh();

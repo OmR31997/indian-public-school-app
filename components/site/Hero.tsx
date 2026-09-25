@@ -29,9 +29,9 @@ export function Hero() {
   const home = homeData(useSiteData());
   const hero = (home.hero as Record<string, unknown>) ?? {};
   const content = firstSection({ content: hero.content }, "content");
-  const words = text(content.title, "Where Curiosity Meets Excellence")
-    .split(/(?=[A-Z])|\s+/)
-    .filter(Boolean);
+  const rawTitle = text(content.title, "Where Curiosity Meets Excellence");
+  const formattedTitle = rawTitle.replace(/([a-z])([A-Z])/g, "$1 $2");
+  const words = formattedTitle.split(/\s+/).filter(Boolean);
   const heroImage =
     imageUrl(Array.isArray(hero.fileUrls) ? hero.fileUrls[0] : "") ||
     fallbackHeroImage.src;
@@ -60,7 +60,7 @@ export function Hero() {
           alt="Students walking through the Indian Public School campus at golden hour"
           width={1920}
           height={1200}
-          className="size-full scale-[1.35] object-cover object-[30%_85%]"
+          className="size-full object-cover object-[70%_20%] lg:object-[75%_25%]"
         />
       </motion.div>
       <motion.div
