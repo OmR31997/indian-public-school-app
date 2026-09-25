@@ -17,7 +17,9 @@ import { EASE } from "@/lib/motion-presets";
 import { firstSection, homeData, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
+import { SmartImage } from "@/components/ui/SmartImage";
 import fallbackHeroImage from "@/assets/hero-campus.jpg";
+import fallbackSiteData from "@/public/cloud-datasource.json";
 
 const BADGES = [
   { icon: ShieldCheck, label: "CBSE Affiliated" },
@@ -32,9 +34,15 @@ export function Hero() {
   const rawTitle = text(content.title, "Where Curiosity Meets Excellence");
   const formattedTitle = rawTitle.replace(/([a-z])([A-Z])/g, "$1 $2");
   const words = formattedTitle.split(/\s+/).filter(Boolean);
+
+  const fallbackHeroConfig = (fallbackSiteData.home[0]?.hero as Record<string, unknown>) ?? {};
+  const jsonHeroImage = imageUrl(Array.isArray(fallbackHeroConfig.fileUrls) ? fallbackHeroConfig.fileUrls[0] : "");
+
   const heroImage =
     imageUrl(Array.isArray(hero.fileUrls) ? hero.fileUrls[0] : "") ||
+    jsonHeroImage ||
     fallbackHeroImage.src;
+
   const badges = Array.isArray(content.icoBtn)
     ? (content.icoBtn as Record<string, unknown>[])
     : [];
@@ -55,11 +63,13 @@ export function Hero() {
   return (
     <section id="home" ref={ref} className="relative isolate overflow-hidden">
       <motion.div style={{ y, scale }} className="absolute inset-0 -z-20">
-        <img
+        <SmartImage
           src={heroImage}
+          fallbackSrc={jsonHeroImage || fallbackHeroImage.src}
           alt="Students walking through the Indian Public School campus at golden hour"
           width={1920}
           height={1200}
+          containerClassName="size-full"
           className="size-full object-cover object-[70%_20%] lg:object-[75%_25%]"
         />
       </motion.div>

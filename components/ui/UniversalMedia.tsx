@@ -446,9 +446,7 @@ export function UniversalMedia({
       onClick={() => onMediaClick?.(currentSrc, "image")}
     >
       {!imageLoaded && !imageError && (
-        <div className="absolute inset-0 grid place-items-center bg-slate-100 dark:bg-slate-800">
-          <LoaderCircle size={24} className="animate-spin text-slate-400" />
-        </div>
+        <div className="absolute inset-0 bg-slate-200/80 dark:bg-slate-800/80 animate-pulse z-0" />
       )}
 
       {/* eslint-disable-next-line @next/next/no-img-element */}

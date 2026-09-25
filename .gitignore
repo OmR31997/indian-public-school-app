@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Documents (To be uploaded in future)
 /public/assets/Documents
+
+# Documents
+documents/

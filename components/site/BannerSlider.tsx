@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { homeData, imageUrl } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
+import { SmartImage } from "@/components/ui/SmartImage";
+
 export function BannerSlider() {
   const home = homeData(useSiteData());
   const banner = (home.banner as Record<string, unknown>) ?? {};
@@ -30,8 +32,8 @@ export function BannerSlider() {
     <section aria-label="School highlights" className="bg-secondary/40 py-10 lg:py-14">
       <div className="container-page">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-lift">
-          <img
-            src={images[index]}
+          <SmartImage
+            src={images[index]!}
             alt={`Indian Public School highlight ${index + 1}`}
             className="aspect-[16/7] w-full object-cover"
           />
