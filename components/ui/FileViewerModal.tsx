@@ -360,9 +360,10 @@ export function FileViewerModal({
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-xl border border-blue-600/40 bg-blue-600/20 px-3 py-1.5 text-xs font-bold text-blue-300 hover:bg-blue-600/30 transition"
-              title="Open stream in new browser tab"
+              title="Open stream in new browser page/tab"
             >
               <ExternalLink size={14} />
+              <span>Open in New Page</span>
             </a>
 
             <button

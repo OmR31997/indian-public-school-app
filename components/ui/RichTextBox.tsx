@@ -508,8 +508,77 @@ export function RichTextBox({
   const [selectedAnchorEl, setSelectedAnchorEl] = useState<HTMLAnchorElement | null>(null);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isInternalChangeRef = useRef(false);
   const valueOnTabSwitchRef = useRef(value);
+
+  // Sync state with native HTML5 fullscreen changes (e.g. Esc key press)
+  useEffect(() => {
+    const handleFsChange = () => {
+      const doc = document as any;
+      const isFs = !!(
+        doc.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullScreenElement ||
+        doc.msFullscreenElement
+      );
+      setIsFullscreen(isFs);
+    };
+
+    document.addEventListener("fullscreenchange", handleFsChange);
+    document.addEventListener("webkitfullscreenchange", handleFsChange);
+    document.addEventListener("mozfullscreenchange", handleFsChange);
+    document.addEventListener("MSFullscreenChange", handleFsChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFsChange);
+      document.removeEventListener("webkitfullscreenchange", handleFsChange);
+      document.removeEventListener("mozfullscreenchange", handleFsChange);
+      document.removeEventListener("MSFullscreenChange", handleFsChange);
+    };
+  }, []);
+
+  const toggleNativeFullscreen = () => {
+    const doc = document as any;
+    const elem = containerRef.current as any;
+
+    const isNativeFs = !!(
+      doc.fullscreenElement ||
+      doc.webkitFullscreenElement ||
+      doc.mozFullScreenElement ||
+      doc.msFullscreenElement
+    );
+
+    if (!isNativeFs) {
+      if (elem) {
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen().catch(() => setIsFullscreen(true));
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        } else {
+          setIsFullscreen(true);
+        }
+      } else {
+        setIsFullscreen(true);
+      }
+    } else {
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen().catch(() => setIsFullscreen(false));
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen();
+      } else if (doc.mozCancelFullScreen) {
+        doc.mozCancelFullScreen();
+      } else if (doc.msExitFullscreen) {
+        doc.msExitFullscreen();
+      } else {
+        setIsFullscreen(false);
+      }
+    }
+  };
 
   // Update valueOnTabSwitchRef when value changes externally while not editing
   useEffect(() => {
@@ -517,6 +586,23 @@ export function RichTextBox({
       valueOnTabSwitchRef.current = value;
     }
   }, [value]);
+
+  // BroadcastChannel Listener to receive real-time edits from full-page editor tab
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const channel = new BroadcastChannel("rte_sync_channel");
+      channel.onmessage = (event) => {
+        if (event.data?.value !== undefined) {
+          isInternalChangeRef.current = true;
+          onChange(event.data.value);
+        }
+      };
+      return () => {
+        channel.close();
+      };
+    } catch (e) { }
+  }, [onChange]);
 
   // Initialize iframe document ONLY when switching tabs to "visual" mode
   useEffect(() => {
@@ -1445,9 +1531,10 @@ export function RichTextBox({
 
   return (
     <div
-      className={`rounded-3xl border border-slate-200 bg-white transition-all shadow-xs overflow-hidden ${isFullscreen
-        ? "fixed inset-3 z-50 flex flex-col shadow-2xl ring-1 ring-slate-900/20"
-        : "relative"
+      ref={containerRef}
+      className={`bg-white transition-all overflow-hidden ${isFullscreen
+        ? "fixed inset-0 z-[9999] h-screen w-screen flex flex-col p-0 rounded-none border-0 shadow-none"
+        : "relative rounded-3xl border border-slate-200 shadow-xs"
         }`}
     >
       {/* Top Header Bar */}
@@ -1510,9 +1597,28 @@ export function RichTextBox({
 
           <button
             type="button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-2xs cursor-pointer"
-            title={isFullscreen ? "Exit Fullscreen Workspace" : "Expand Fullscreen Workspace"}
+            onClick={() => {
+              const syncKey = "rte_sync_" + Date.now();
+              if (typeof window !== "undefined") {
+                localStorage.setItem(syncKey, value || "");
+                window.open(`/admin/editor?key=${syncKey}`, "_blank");
+              }
+            }}
+            className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/70 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] hover:bg-blue-100 transition shadow-2xs cursor-pointer"
+            title="Open Full Interactive CMS Editor with All Tools in New Tab"
+          >
+            <ExternalLink size={13} />
+            <span>Open Editor in New Tab</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleNativeFullscreen}
+            className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-2xs cursor-pointer ${isFullscreen
+              ? "bg-slate-900 text-white border border-slate-900 hover:bg-slate-800"
+              : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+              }`}
+            title={isFullscreen ? "Exit Fullscreen (Esc)" : "Full Native Device Screen Workspace"}
           >
             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
             <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
@@ -2736,11 +2842,10 @@ export function RichTextBox({
               <button
                 type="button"
                 onClick={() => setTableActiveTab("builder")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-                  tableActiveTab === "builder"
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${tableActiveTab === "builder"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
               >
                 <Table size={14} />
                 <span>Visual Grid Builder</span>
@@ -2748,11 +2853,10 @@ export function RichTextBox({
               <button
                 type="button"
                 onClick={() => setTableActiveTab("csv")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-                  tableActiveTab === "csv"
-                    ? "bg-teal-600 text-white shadow-md"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${tableActiveTab === "csv"
+                  ? "bg-teal-600 text-white shadow-md"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
               >
                 <Grid size={14} />
                 <span>CSV / Excel File & Data Import</span>
@@ -2838,11 +2942,10 @@ export function RichTextBox({
                               setTableHeaderBg(preset.bg);
                               setTableHeaderColor(preset.text);
                             }}
-                            className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer text-xs font-bold ${
-                              tableHeaderBg === preset.bg
-                                ? "border-blue-500 bg-blue-500/20 text-white ring-1 ring-blue-500"
-                                : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
-                            }`}
+                            className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer text-xs font-bold ${tableHeaderBg === preset.bg
+                              ? "border-blue-500 bg-blue-500/20 text-white ring-1 ring-blue-500"
+                              : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
+                              }`}
                           >
                             <span className="h-4 w-4 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: preset.bg }} />
                             <span>{preset.name}</span>
@@ -2867,11 +2970,10 @@ export function RichTextBox({
                             key={b.name}
                             type="button"
                             onClick={() => setTableBorderColor(b.color)}
-                            className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer text-xs font-bold ${
-                              tableBorderColor === b.color
-                                ? "border-blue-500 bg-blue-500/20 text-white ring-1 ring-blue-500"
-                                : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
-                            }`}
+                            className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer text-xs font-bold ${tableBorderColor === b.color
+                              ? "border-blue-500 bg-blue-500/20 text-white ring-1 ring-blue-500"
+                              : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
+                              }`}
                           >
                             <span className="h-4 w-4 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: b.color }} />
                             <span>{b.name}</span>
@@ -3058,11 +3160,10 @@ S.No, Class, Students, Fee Status
                           setDocStudioSubtitle("Word Document or Google Doc");
                         }
                       }}
-                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
-                        docType === "word"
-                          ? "border-blue-500 bg-blue-600 text-white shadow-md"
-                          : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"
-                      }`}
+                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${docType === "word"
+                        ? "border-blue-500 bg-blue-600 text-white shadow-md"
+                        : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"
+                        }`}
                     >
                       <FileText size={15} />
                       <span>Word / Google Doc</span>
@@ -3075,11 +3176,10 @@ S.No, Class, Students, Fee Status
                           setDocStudioSubtitle("Excel Worksheet or Google Sheet");
                         }
                       }}
-                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
-                        docType === "excel"
-                          ? "border-emerald-500 bg-emerald-600 text-white shadow-md"
-                          : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"
-                      }`}
+                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${docType === "excel"
+                        ? "border-emerald-500 bg-emerald-600 text-white shadow-md"
+                        : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"
+                        }`}
                     >
                       <FileSpreadsheet size={15} />
                       <span>Excel / Google Sheet</span>
@@ -3128,11 +3228,10 @@ S.No, Class, Students, Fee Status
                         key={t.id}
                         type="button"
                         onClick={() => setDocStudioTheme(t.id as any)}
-                        className={`flex flex-col text-left p-3 rounded-2xl border transition cursor-pointer ${
-                          docStudioTheme === t.id
-                            ? `${docType === "word" ? "border-blue-500 bg-blue-500/15 text-white ring-1 ring-blue-500/50" : "border-emerald-500 bg-emerald-500/15 text-white ring-1 ring-emerald-500/50"}`
-                            : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                        }`}
+                        className={`flex flex-col text-left p-3 rounded-2xl border transition cursor-pointer ${docStudioTheme === t.id
+                          ? `${docType === "word" ? "border-blue-500 bg-blue-500/15 text-white ring-1 ring-blue-500/50" : "border-emerald-500 bg-emerald-500/15 text-white ring-1 ring-emerald-500/50"}`
+                          : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                          }`}
                       >
                         <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                           <i className={`${t.icon} ${docType === "word" ? "text-blue-400" : "text-emerald-400"}`} />
@@ -3208,19 +3307,19 @@ S.No, Class, Students, Fee Status
                         __html:
                           docType === "word"
                             ? generateWordCardHtml({
-                                url: docStudioUrl,
-                                title: docStudioTitle,
-                                subtitle: docStudioSubtitle,
-                                buttonText: docStudioButtonText,
-                                theme: docStudioTheme,
-                              })
+                              url: docStudioUrl,
+                              title: docStudioTitle,
+                              subtitle: docStudioSubtitle,
+                              buttonText: docStudioButtonText,
+                              theme: docStudioTheme,
+                            })
                             : generateExcelCardHtml({
-                                url: docStudioUrl,
-                                title: docStudioTitle,
-                                subtitle: docStudioSubtitle,
-                                buttonText: docStudioButtonText,
-                                theme: docStudioTheme,
-                              }),
+                              url: docStudioUrl,
+                              title: docStudioTitle,
+                              subtitle: docStudioSubtitle,
+                              buttonText: docStudioButtonText,
+                              theme: docStudioTheme,
+                            }),
                       }}
                     />
                   )}
@@ -3243,25 +3342,24 @@ S.No, Class, Students, Fee Status
                       const htmlSnippet =
                         docType === "word"
                           ? generateWordCardHtml({
-                              url: docStudioUrl,
-                              title: docStudioTitle,
-                              subtitle: docStudioSubtitle,
-                              buttonText: docStudioButtonText,
-                              theme: docStudioTheme,
-                            })
+                            url: docStudioUrl,
+                            title: docStudioTitle,
+                            subtitle: docStudioSubtitle,
+                            buttonText: docStudioButtonText,
+                            theme: docStudioTheme,
+                          })
                           : generateExcelCardHtml({
-                              url: docStudioUrl,
-                              title: docStudioTitle,
-                              subtitle: docStudioSubtitle,
-                              buttonText: docStudioButtonText,
-                              theme: docStudioTheme,
-                            });
+                            url: docStudioUrl,
+                            title: docStudioTitle,
+                            subtitle: docStudioSubtitle,
+                            buttonText: docStudioButtonText,
+                            theme: docStudioTheme,
+                          });
                       insertHTML(htmlSnippet);
                       setIsDocStudioOpen(false);
                     }}
-                    className={`flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-extrabold text-white shadow-lg hover:brightness-110 disabled:opacity-50 transition cursor-pointer ${
-                      docType === "word" ? "bg-gradient-to-r from-blue-600 to-indigo-600" : "bg-gradient-to-r from-emerald-600 to-teal-600"
-                    }`}
+                    className={`flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-extrabold text-white shadow-lg hover:brightness-110 disabled:opacity-50 transition cursor-pointer ${docType === "word" ? "bg-gradient-to-r from-blue-600 to-indigo-600" : "bg-gradient-to-r from-emerald-600 to-teal-600"
+                      }`}
                   >
                     <Check size={16} />
                     <span>Apply & Insert Document Card</span>
