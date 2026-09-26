@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Search, Image as ImageIcon, ChevronLeft, ChevronRight, Download, ExternalLink, Sparkles, Filter, LayoutGrid } from "lucide-react";
+import { X, Search, Image as ImageIcon, ChevronLeft, ChevronRight, Download, ExternalLink, Filter, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { EASE } from "@/lib/motion-presets";
 import { cn } from "@/lib/utils";
@@ -522,7 +522,6 @@ export function GalleryAlbumClient({
             </div>
 
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 text-xs font-semibold text-gold">
-              <Sparkles className="size-3.5" />
               <span>{isAlbumMode ? "Curated Photo Albums (/album/*)" : "Official Media & Photo Repository"}</span>
             </div>
 

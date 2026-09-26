@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Sparkles, Filter, Scissors, Video, Music, FileText, File, Eye } from "lucide-react";
+import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Filter, Scissors, Video, Music, FileText, File, Eye } from "lucide-react";
 import axios from "axios";
 import { getOptionalApi, unwrapCollection, API_URL } from "@/lib/api-client";
 import { ImageStudioModal } from "./ImageStudioModal";
@@ -338,7 +338,7 @@ export function CloudinaryGalleryModal({
         <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
           <div>
             <h2 className="font-display text-xl font-bold text-[#102a4c] flex items-center gap-2">
-              <Sparkles className="text-amber-500" size={20} />
+              <ImageIcon className="text-amber-500" size={20} />
               {title}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -391,7 +391,7 @@ export function CloudinaryGalleryModal({
           {categories.map((cat) => {
             const isSelected = activeCategory.toLowerCase() === cat.toLowerCase();
             const isSpecial = cat === "All" || cat === "Videos" || cat === "Documents" || cat === "Audio" || cat === "Images";
-            const displayLabel = isSpecial ? cat : `📁 ${formatCategoryDisplay(cat)}`;
+            const displayLabel = isSpecial ? cat : formatCategoryDisplay(cat);
 
             return (
               <button
@@ -474,7 +474,7 @@ export function CloudinaryGalleryModal({
                         <div className="relative h-full w-full bg-slate-950 flex items-center justify-center overflow-hidden">
                           <PdfCanvasThumbnail url={item.url} alt={item.title} className="h-full w-full" />
                           <span className="absolute bottom-1 right-1.5 rounded-md bg-red-950/90 border border-red-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-200 shadow-md pointer-events-none">
-                            📄 PDF PREVIEW
+                            PDF PREVIEW
                           </span>
                         </div>
                       ) : fileType === "document" ? (
@@ -519,7 +519,7 @@ export function CloudinaryGalleryModal({
                       <p className="text-xs font-bold text-[#102a4c] truncate">{item.title}</p>
                       <div className="mt-1 flex items-center justify-between gap-1.5">
                         <span className="inline-block text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md truncate max-w-full">
-                          📁 {formatCategoryDisplay(normalizeCategoryKey(item.category || item.directory || "General"))}
+                          {formatCategoryDisplay(normalizeCategoryKey(item.category || item.directory || "General"))}
                         </span>
                       </div>
                     </div>

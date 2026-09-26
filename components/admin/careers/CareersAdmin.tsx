@@ -20,7 +20,6 @@ import {
   UserX,
   Clock,
   Award,
-  Sparkles,
   ChevronRight,
   X,
   UploadCloud,
@@ -976,7 +975,7 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                 disabled={savingPost}
                 className="px-5 py-2 rounded-xl text-xs font-bold bg-[#102a4c] hover:bg-[#1a5d9c] text-white shadow-md flex items-center gap-2"
               >
-                {savingPost ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 text-[#f4bd4f]" />}
+                {savingPost ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Briefcase className="w-4 h-4 text-[#f4bd4f]" />}
                 <span>{editingPost ? "Update Opening" : "Create Opening"}</span>
               </button>
             </div>

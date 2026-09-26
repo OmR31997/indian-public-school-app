@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GraduationCap, ShieldCheck, FileText, Calendar, Sparkles } from "lucide-react";
+import { GraduationCap, ShieldCheck, FileText, Calendar } from "lucide-react";
 import { AdmissionForm } from "@/components/site/AdmissionApplicationModal";
 import { getPageSeoMetadata } from "@/lib/seo";
 
@@ -66,7 +66,6 @@ export default function AdmissionPage() {
           <div className="mb-8 border-b border-slate-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase text-amber-800 border border-amber-300 mb-2">
-                <Sparkles className="size-3.5" />
                 Official Application Form
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#102a4c] tracking-tight">

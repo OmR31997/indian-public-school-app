@@ -17,7 +17,6 @@ import {
   Music,
   Eye,
   BookOpen,
-  Sparkles,
   LoaderCircle,
   AlertCircle
 } from "lucide-react";

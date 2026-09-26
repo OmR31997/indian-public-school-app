@@ -15,7 +15,6 @@ import {
   AlertCircle,
   LoaderCircle,
   Eye,
-  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isPdfFile, isDocumentFile, getPdfProxyUrl, getGoogleDocsViewerUrl } from "@/lib/file-preview";

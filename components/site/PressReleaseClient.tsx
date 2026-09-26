@@ -13,7 +13,6 @@ import {
   ExternalLink,
   Newspaper,
   Calendar,
-  Sparkles,
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
@@ -390,7 +389,6 @@ export function PressReleaseClient() {
         {/* Results Info Bar */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-8 text-sm text-slate-600">
           <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-gold" />
             <span>
               Showing <strong className="text-slate-900 font-semibold">{filteredImages.length}</strong> press release media item{filteredImages.length !== 1 ? "s" : ""}
             </span>

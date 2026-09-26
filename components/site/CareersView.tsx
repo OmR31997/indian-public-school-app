@@ -10,7 +10,6 @@ import {
   Upload,
   X,
   LoaderCircle,
-  Sparkles,
   ArrowRight,
   GraduationCap,
   Award,
@@ -232,7 +231,6 @@ export function CareersView() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-[#ffd983] border border-white/20 shadow-xs">
-            <Sparkles className="w-4 h-4 text-[#f4bd4f]" />
             <span>Join Our Educator Family</span>
           </div>
 

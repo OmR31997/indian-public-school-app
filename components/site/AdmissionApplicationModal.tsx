@@ -14,7 +14,6 @@ import {
   Loader2,
   FileText,
   User,
-  Sparkles,
   X,
   ChevronRight,
   ShieldCheck,
@@ -809,7 +808,6 @@ export function AdmissionApplicationModal() {
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-amber-800 border border-amber-200">
-                  <Sparkles className="size-3.5 text-amber-600" />
                   Academic Session 2026–27
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-[#102a4c] tracking-tight flex items-center gap-2">

@@ -10,7 +10,7 @@ import {
   isPdfFile,
   isCloudinaryUrl
 } from "@/lib/file-preview";
-import { Crop, Trash2, Sparkles as SparklesIcon, RefreshCw, Scissors } from "lucide-react";
+import { Crop, Trash2, RefreshCw, Scissors } from "lucide-react";
 import {
   Bold,
   Italic,
@@ -40,7 +40,6 @@ import {
   Table,
   LayoutGrid,
   ChevronDown,
-  Sparkles,
   Square,
   Badge,
   LayoutTemplate,
@@ -113,13 +112,13 @@ export function generatePdfCardHtml(data: {
   const maxHeight = data.maxHeight || 420;
 
   if (theme === "badge") {
-    return `<a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 0.55rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin: 8px 0; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);">📄 ${title} &rarr;</a><p><br></p>`;
+    return `<a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 0.55rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin: 8px 0; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);">${title} &rarr;</a><p><br></p>`;
   }
 
   if (theme === "banner") {
     return `<div style="margin: 16px 0; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px 20px; background: #ffffff; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06); flex-wrap: wrap;">
       <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: bold; flex-shrink: 0;">📄</div>
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0;">PDF</div>
         <div style="min-width: 0;">
           <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem; line-height: 1.3;">${title}</div>
           ${subtitle ? `<div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">${subtitle}</div>` : `<div style="font-size: 0.75rem; color: #dc2626; font-weight: 600; margin-top: 2px;">PDF Document &bull; Click to View / Download</div>`}
@@ -133,7 +132,7 @@ export function generatePdfCardHtml(data: {
     return `<div style="margin: 20px 0; border: 1px solid #334155; border-radius: 20px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);">
       <div style="padding: 14px 20px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="background: #ef4444; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">📄 PDF Document</span>
+          <span style="background: #ef4444; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">PDF Document</span>
           <span style="color: #f8fafc; font-weight: 700; font-size: 0.9rem;">${title}</span>
         </div>
         <a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background: #38bdf8; color: #0f172a; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);">${buttonText} &rarr;</a>
@@ -149,7 +148,7 @@ export function generatePdfCardHtml(data: {
   return `<div style="margin: 20px 0; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background: #ffffff; box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.08);">
     <div style="padding: 14px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
       <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">📄 PDF Document</span>
+        <span style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">PDF Document</span>
         <span style="color: #0f172a; font-weight: 700; font-size: 0.9rem;">${title}</span>
       </div>
       <a href="${inlineUrl}" target="_blank" rel="noopener noreferrer" style="background: #1a5d9c; color: #ffffff; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(26, 93, 156, 0.25);">${buttonText} &rarr;</a>
@@ -569,7 +568,7 @@ export function RichTextBox({
     } else if (linkStyle === "outline-button") {
       htmlSnippet = `<a href="${url}" ${targetAttr} style="border: 2px solid #1a5d9c; color: #1a5d9c; background-color: #ffffff; font-weight: 700; padding: 0.6rem 1.25rem; border-radius: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin: 4px 2px;">${text} &rarr;</a>`;
     } else if (linkStyle === "pill-badge") {
-      htmlSnippet = `<a href="${url}" ${targetAttr} style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 700; padding: 0.35rem 0.9rem; border-radius: 9999px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; margin: 4px 2px;">🔗 ${text}</a>`;
+      htmlSnippet = `<a href="${url}" ${targetAttr} style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 700; padding: 0.35rem 0.9rem; border-radius: 9999px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; margin: 4px 2px;">${text}</a>`;
     } else {
       htmlSnippet = `<a href="${url}" ${targetAttr} style="color: #1a5d9c; text-decoration: underline; font-weight: 600;">${text}</a>`;
     }
@@ -894,7 +893,7 @@ export function RichTextBox({
       id: "stats",
       title: "School Stat Counters",
       subtitle: "4 Metric Stat Blocks",
-      icon: Sparkles,
+      icon: LayoutGrid,
       color: "bg-violet-600 text-white",
     },
     {
@@ -1875,7 +1874,7 @@ export function RichTextBox({
                   <label className="text-xs font-bold text-slate-700">
                     Redirect Destination URL <span className="text-red-500">*</span>
                   </label>
-                  <span className="text-[11px] font-semibold text-blue-600">Quick Page Presets 👇</span>
+                  <span className="text-[11px] font-semibold text-blue-600">Quick Page Presets</span>
                 </div>
                 <input
                   type="text"

@@ -50,7 +50,7 @@ export function useInquiryNotifications(
   const tokenRef = useRef(token);
 
   const refreshNotifications = useCallback(async () => {
-    // 🛑 Zero Server Load: Skip HTTP requests completely if browser tab is hidden/inactive or no token
+    // Zero Server Load: Skip HTTP requests completely if browser tab is hidden/inactive or no token
     if (typeof document !== "undefined" && document.hidden) {
       return;
     }

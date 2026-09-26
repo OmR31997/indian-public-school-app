@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Search,
   MessageSquare,
-  Sparkles,
   GraduationCap,
   Star,
   AlertCircle,
@@ -303,7 +302,7 @@ export function ContactUsView() {
 
           <div className="mt-6 max-w-3xl">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1 text-xs font-semibold tracking-wide text-gold border border-gold/30 uppercase">
-              <Sparkles className="size-3.5" /> Get In Touch
+              Get In Touch
             </span>
             <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-5xl font-serif">
               We&apos;re Here to Assist You

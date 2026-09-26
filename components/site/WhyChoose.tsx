@@ -5,7 +5,7 @@ import {
   HeartHandshake,
   Palette,
   ShieldCheck,
-  Sparkles,
+  Building2,
   Trophy,
   Users,
 } from "lucide-react";
@@ -50,7 +50,7 @@ const FEATURES = [
     text: "CCTV coverage, trained staff, medical room and GPS-tracked transport.",
   },
   {
-    icon: Sparkles,
+    icon: Building2,
     title: "Modern Infrastructure",
     text: "Airy classrooms, well-equipped labs, library and activity spaces.",
   },

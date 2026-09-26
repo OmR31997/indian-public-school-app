@@ -10,7 +10,7 @@ import {
   Building2,
   Play,
   ShieldCheck,
-  Sparkles,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EASE } from "@/lib/motion-presets";
@@ -23,7 +23,7 @@ import fallbackSiteData from "@/public/cloud-datasource.json";
 
 const BADGES = [
   { icon: ShieldCheck, label: "CBSE Affiliated" },
-  { icon: Sparkles, label: "Holistic Education" },
+  { icon: GraduationCap, label: "Holistic Education" },
   { icon: Building2, label: "Modern Campus" },
 ];
 

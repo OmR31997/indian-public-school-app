@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GraduationCap, Sparkles, BookOpen } from "lucide-react";
+import { GraduationCap, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PageLoaderProps {
@@ -53,7 +53,6 @@ export function PageLoader({
 
       {/* School Name Tag */}
       <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-50 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#102a4c] shadow-xs mb-2">
-        <Sparkles className="size-3 text-amber-500" />
         Indian Public School
       </div>
 

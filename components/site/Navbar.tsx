@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import { ChevronDown, ChevronRight, ExternalLink, GraduationCap, LayoutGrid, Menu, Phone, Sparkles, X } from "lucide-react";
+import { ChevronDown, ChevronRight, ExternalLink, GraduationCap, LayoutGrid, Menu, Phone, X } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

@@ -9,7 +9,6 @@ import {
   FlipHorizontal,
   FlipVertical,
   Sliders,
-  Sparkles,
   Palette,
   Check,
   X,
@@ -519,7 +518,7 @@ export function ImageStudioModal({
         <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
-              <Sparkles size={20} className="text-white animate-pulse" />
+              <Sliders size={20} className="text-white" />
             </div>
             <div>
               <h3 className="text-base font-extrabold text-white flex items-center gap-2">
