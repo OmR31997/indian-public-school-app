@@ -95,22 +95,13 @@ export function getCloudinaryPdfThumbnailUrl(url?: string | null, page = 1, widt
   const trimmed = normalizePdfUrl(url);
 
   if (isCloudinaryUrl(trimmed)) {
+    if (trimmed.includes("/raw/upload/")) {
+      return `/api/pdf-proxy?url=${encodeURIComponent(trimmed)}`;
+    }
     if (trimmed.includes("/image/upload/")) {
       const parts = trimmed.split("/image/upload/");
       const transformation = `pg_${page},f_jpg,w_${width},q_auto,c_limit/`;
-      let rest = parts[1];
-      if (rest.toLowerCase().endsWith(".pdf")) {
-        rest = rest.substring(0, rest.length - 4) + ".jpg";
-      }
-      return `${parts[0]}/image/upload/${transformation}${rest}`;
-    }
-    if (trimmed.includes("/raw/upload/")) {
-      const parts = trimmed.split("/raw/upload/");
-      const transformation = `pg_${page},f_jpg,w_${width},q_auto,c_limit/`;
-      let rest = parts[1];
-      if (rest.toLowerCase().endsWith(".pdf")) {
-        rest = rest.substring(0, rest.length - 4) + ".jpg";
-      }
+      const rest = parts[1];
       return `${parts[0]}/image/upload/${transformation}${rest}`;
     }
   }
@@ -131,13 +122,26 @@ export function getCloudinaryInlineViewerUrl(url?: string | null): string {
   return normalizePdfUrl(url);
 }
 
+export function getAbsoluteFileUrl(url?: string | null): string {
+  if (!url) return "";
+  const clean = getCloudinaryInlineViewerUrl(url);
+  if (clean.startsWith("http://") || clean.startsWith("https://")) {
+    return clean;
+  }
+  if (typeof window !== "undefined" && window.location?.origin) {
+    const relativePath = clean.startsWith("/") ? clean : `/${clean}`;
+    return `${window.location.origin}${relativePath}`;
+  }
+  return clean;
+}
+
 /**
  * Returns an embedded Google Docs / Office Online Viewer URL suitable for rendering inside an <iframe> or opening in new tab.
  */
 export function getGoogleDocsViewerUrl(url?: string | null): string {
   if (!url) return "";
-  const inlineUrl = getCloudinaryInlineViewerUrl(url);
-  return `https://docs.google.com/viewer?url=${encodeURIComponent(inlineUrl)}&embedded=true`;
+  const fullUrl = getAbsoluteFileUrl(url);
+  return `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
 }
 
 export function isWordFile(url?: string | null): boolean {
@@ -186,8 +190,11 @@ export function isGoogleSheetUrl(url?: string | null): boolean {
 export function getGoogleDocEmbedUrl(url?: string | null): string {
   if (!url) return "";
   if (isGoogleDocUrl(url)) {
-    if (url.includes("/preview")) return url;
-    return url.replace(/\/(edit|view|pub|mobilebasic).*$/i, "/preview");
+    let clean = url.trim();
+    if (clean.includes("/preview")) return clean;
+    clean = clean.replace(/\/(edit|view|pub|mobilebasic).*$/i, "");
+    clean = clean.replace(/\/$/, "");
+    return `${clean}/preview`;
   }
   return getGoogleDocsViewerUrl(url);
 }
@@ -195,16 +202,19 @@ export function getGoogleDocEmbedUrl(url?: string | null): string {
 export function getGoogleSheetEmbedUrl(url?: string | null): string {
   if (!url) return "";
   if (isGoogleSheetUrl(url)) {
-    if (url.includes("/preview")) return url;
-    return url.replace(/\/(edit|view|pub|pubhtml).*$/i, "/preview");
+    let clean = url.trim();
+    if (clean.includes("/preview") || clean.includes("/pubhtml")) return clean;
+    clean = clean.replace(/\/(edit|view|pub|pubhtml).*$/i, "");
+    clean = clean.replace(/\/$/, "");
+    return `${clean}/preview`;
   }
   return getGoogleDocsViewerUrl(url);
 }
 
 export function getOfficeViewerUrl(url?: string | null): string {
   if (!url) return "";
-  const cleanUrl = getCloudinaryInlineViewerUrl(url);
-  return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(cleanUrl)}`;
+  const fullUrl = getAbsoluteFileUrl(url);
+  return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
 }
 
 export function getDocumentViewerUrl(url?: string | null): string {
@@ -214,4 +224,5 @@ export function getDocumentViewerUrl(url?: string | null): string {
   if (isWordFile(url) || isExcelFile(url)) return getOfficeViewerUrl(url);
   return getGoogleDocsViewerUrl(url);
 }
+
 

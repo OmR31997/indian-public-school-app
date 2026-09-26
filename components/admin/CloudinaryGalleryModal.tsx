@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Filter, Scissors, Video, Music, FileText, File, Eye } from "lucide-react";
+import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Filter, Scissors, Video, Music, FileText, File, Eye, FileSpreadsheet } from "lucide-react";
 import axios from "axios";
 import { getOptionalApi, unwrapCollection, API_URL } from "@/lib/api-client";
 import { ImageStudioModal } from "./ImageStudioModal";
 import { FileViewerModal } from "@/components/ui/FileViewerModal";
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
-import { getCloudinaryPdfThumbnailUrl, isPdfFile, isDocumentFile } from "@/lib/file-preview";
+import { getCloudinaryPdfThumbnailUrl, isPdfFile, isDocumentFile, isWordFile, isExcelFile, isGoogleDocUrl, isGoogleSheetUrl } from "@/lib/file-preview";
 
 interface CloudinaryGalleryModalProps {
   isOpen: boolean;
@@ -477,12 +477,28 @@ export function CloudinaryGalleryModal({
                             PDF PREVIEW
                           </span>
                         </div>
+                      ) : isExcelFile(item.url) ? (
+                        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 p-2 text-center text-white">
+                          <FileSpreadsheet size={32} className="text-emerald-400 mb-1" />
+                          <p className="line-clamp-1 text-[10px] font-bold text-slate-200">{item.title}</p>
+                          <span className="mt-1 rounded-md bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-300">
+                            {isGoogleSheetUrl(item.url) ? "GOOGLE SHEET" : item.url.toLowerCase().endsWith(".csv") ? "CSV SPREADSHEET" : "EXCEL (.XLSX)"}
+                          </span>
+                        </div>
+                      ) : isWordFile(item.url) ? (
+                        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 p-2 text-center text-white">
+                          <FileText size={32} className="text-blue-400 mb-1" />
+                          <p className="line-clamp-1 text-[10px] font-bold text-slate-200">{item.title}</p>
+                          <span className="mt-1 rounded-md bg-blue-500/20 border border-blue-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-blue-300">
+                            {isGoogleDocUrl(item.url) ? "GOOGLE DOC" : "WORD (.DOCX)"}
+                          </span>
+                        </div>
                       ) : fileType === "document" ? (
                         <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-2 text-center text-white">
-                          <FileText size={30} className="text-blue-400 mb-1" />
+                          <FileText size={32} className="text-blue-400 mb-1" />
                           <p className="line-clamp-1 text-[10px] font-semibold text-slate-200">{item.title}</p>
                           <span className="mt-1 rounded-md bg-blue-500/30 px-1.5 py-0.5 text-[9px] font-bold uppercase text-blue-200">
-                            DOC / PDF
+                            DOCUMENT
                           </span>
                         </div>
                       ) : (

@@ -18,27 +18,57 @@ export async function GET(request: NextRequest) {
     targetUrl = `${origin}${targetUrl.startsWith("/") ? "" : "/"}${targetUrl}`;
   }
 
-  try {
-    const res = await fetch(targetUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-    });
+  // Build list of candidate URLs to handle Cloudinary raw vs image path variations
+  const candidates: string[] = [targetUrl];
 
-    if (!res.ok) {
-      console.warn(`PDF Proxy remote fetch HTTP status ${res.status} for URL: ${targetUrl}`);
-      return new NextResponse(`Failed to fetch file from remote server: ${res.status} ${res.statusText}`, {
-        status: res.status,
+  if (targetUrl.includes("res.cloudinary.com")) {
+    if (targetUrl.includes("/image/upload/")) {
+      candidates.push(targetUrl.replace("/image/upload/", "/raw/upload/"));
+    } else if (targetUrl.includes("/raw/upload/")) {
+      candidates.push(targetUrl.replace("/raw/upload/", "/image/upload/"));
+    }
+
+    const cleanTarget = targetUrl.split("?")[0].split("#")[0];
+    const extMatch = cleanTarget.match(/\.([a-z0-9]+)$/i);
+    if (!extMatch) {
+      ["pdf", "xlsx", "xls", "csv", "docx", "doc"].forEach((ext) => {
+        candidates.push(`${targetUrl}.${ext}`);
+        if (targetUrl.includes("/image/upload/")) {
+          candidates.push(targetUrl.replace("/image/upload/", "/raw/upload/") + `.${ext}`);
+        }
+      });
+    }
+  }
+
+  try {
+    let res: Response | null = null;
+
+    for (const urlToTry of candidates) {
+      try {
+        const r = await fetch(urlToTry, {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          },
+        });
+        if (r.ok) {
+          res = r;
+          break;
+        }
+      } catch {
+        // Try next candidate URL
+      }
+    }
+
+    if (!res || !res.ok) {
+      console.warn(`Document Proxy remote fetch failed for target: ${targetUrl}`);
+      return new NextResponse(`Failed to fetch file from remote server: ${res ? res.status : 404}`, {
+        status: res ? res.status : 404,
       });
     }
 
-    const rawType = res.headers.get("content-type") || "application/pdf";
-    const contentType =
-      rawType.includes("octet-stream") || rawType.includes("text/plain")
-        ? "application/pdf"
-        : rawType;
-
+    const rawType = res.headers.get("content-type") || "application/octet-stream";
+    const contentType = rawType.includes("text/html") ? "application/octet-stream" : rawType;
     const arrayBuffer = await res.arrayBuffer();
 
     return new NextResponse(arrayBuffer, {
@@ -52,7 +82,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (err: any) {
-    console.error("PDF Proxy Internal Error for target:", targetUrl, err);
-    return new NextResponse(`PDF Proxy Error: ${err?.message || err}`, { status: 500 });
+    console.error("Document Proxy Internal Error for target:", targetUrl, err);
+    return new NextResponse(`Document Proxy Error: ${err?.message || err}`, { status: 500 });
   }
 }
