@@ -269,8 +269,8 @@ function childCards(page: Content): Content[] {
   return candidates.flatMap((candidate) =>
     Array.isArray(candidate)
       ? candidate
-          .map(asRecord)
-          .filter((item): item is Content => item !== null)
+        .map(asRecord)
+        .filter((item): item is Content => item !== null)
       : [],
   );
 }
@@ -326,8 +326,8 @@ export async function generateMetadata({
     typeof page?.title === "string"
       ? page.title
       : typeof page?.heading === "string"
-      ? page.heading
-      : label(slug.at(-1) ?? "Indian Public School");
+        ? page.heading
+        : label(slug.at(-1) ?? "Indian Public School");
   return { title: `${title} | Indian Public School` };
 }
 
@@ -376,8 +376,8 @@ export default async function ContentPage({
     typeof activePage.title === "string"
       ? activePage.title
       : typeof activePage.heading === "string"
-      ? activePage.heading
-      : fallbackTitle;
+        ? activePage.heading
+        : fallbackTitle;
 
   const description = contentText(activePage);
   if (description.length === 0) {
@@ -406,10 +406,10 @@ export default async function ContentPage({
     typeof activePage?.heroImage === "string" && activePage.heroImage
       ? (activePage.heroImage as string)
       : typeof activePage?.bannerImage === "string" && activePage.bannerImage
-      ? (activePage.bannerImage as string)
-      : typeof activePage?.image === "string" && activePage.image
-      ? (activePage.image as string)
-      : fallbackHeroImage.src;
+        ? (activePage.bannerImage as string)
+        : typeof activePage?.image === "string" && activePage.image
+          ? (activePage.image as string)
+          : fallbackHeroImage.src;
 
   return (
     <main className="flex-1">
@@ -456,10 +456,10 @@ export default async function ContentPage({
           </nav>
 
           <div className="mt-2 space-y-2.5">
-            <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gold/25 via-amber-500/15 to-transparent px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#ffd983] border border-gold/50 shadow-sm backdrop-blur-xs">
+            {/* <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gold/25 via-amber-500/15 to-transparent px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#ffd983] border border-gold/50 shadow-sm backdrop-blur-xs">
               <span className="h-2 w-2 rounded-full bg-[#f4bd4f] animate-pulse" />
               Official School Document & Information
-            </span>
+            </span> */}
             <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight">
               {title}
             </h1>
@@ -560,8 +560,8 @@ export default async function ContentPage({
                 typeof card.title === "string"
                   ? card.title
                   : typeof card.heading === "string"
-                  ? card.heading
-                  : `Feature ${index + 1}`;
+                    ? card.heading
+                    : `Feature ${index + 1}`;
               const cardSubTitle = typeof card["sub-title"] === "string" ? card["sub-title"] : "";
               const cardDesc = contentText(card);
               const cardList = stringList(card.list);
