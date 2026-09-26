@@ -1,0 +1,30 @@
+[
+  {
+    "_id": "6aa8aac2d8e8f8ffe666eded",
+    "publicId": "USR-MU21KPGC-73J3N",
+    "email": "admin.ips@gmail.com",
+    "name": "Super Admin",
+    "role": "Super Admin",
+    "allowedModules": [
+      "*"
+    ],
+    "status": "ACTIVE",
+    "createdAt": "2026-09-15T02:17:38.268Z",
+    "updatedAt": "2026-09-25T12:46:06.777Z",
+    "lastLoginAt": "2026-09-25T10:04:36.959Z"
+  },
+  {
+    "_id": "6ab004e5fe7bc0749598618d",
+    "email": "admin@indianpublicschool.in",
+    "name": "Super Admin",
+    "role": "Super Admin",
+    "allowedModules": [
+      "*"
+    ],
+    "status": "ACTIVE",
+    "publicId": "USR-MUA0FXNZ-RFUDF",
+    "createdAt": "2026-09-20T16:08:05.470Z",
+    "updatedAt": "2026-09-25T04:08:34.913Z",
+    "__v": 0
+  }
+]

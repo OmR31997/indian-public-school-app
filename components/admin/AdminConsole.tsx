@@ -1442,10 +1442,10 @@ function MediaDetailDialog({
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
-          {/* Media Preview Container */}
-          <div className="group relative flex min-h-[260px] max-h-[440px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 p-3">
-            {primaryUrl ? (
-              fileType === "video" ? (
+          {/* Media Preview Container - Only shown when media URL is attached */}
+          {Boolean(primaryUrl) && (
+            <div className="group relative flex min-h-[260px] max-h-[440px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 p-3">
+              {fileType === "video" ? (
                 <video src={primaryUrl} controls autoPlay muted className="max-h-[400px] w-auto max-w-full rounded-xl object-contain shadow-lg" />
               ) : fileType === "audio" ? (
                 <div className="flex flex-col items-center gap-4 p-8 text-center text-white">
@@ -1484,11 +1484,9 @@ function MediaDetailDialog({
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={primaryUrl} alt={title} className="max-h-[380px] w-auto max-w-full rounded-xl object-contain shadow-lg" />
-              )
-            ) : (
-              <div className="text-sm text-slate-400">No media preview available</div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Multiple Attached Files Selector */}
           {urls.length > 1 && (
@@ -1512,22 +1510,24 @@ function MediaDetailDialog({
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4">
             <div className="flex items-center gap-2">
-              <button
-                onClick={copyUrl}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-100 cursor-pointer"
-              >
-                {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-                <span>{copied ? "Copied URL!" : "Copy Media URL"}</span>
-              </button>
               {primaryUrl && (
-                <button
-                  type="button"
-                  onClick={() => setIsViewerOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-bold text-[#1a5d9c] shadow-sm transition hover:bg-blue-100 cursor-pointer"
-                >
-                  <Eye size={16} />
-                  <span>Preview Full Media</span>
-                </button>
+                <>
+                  <button
+                    onClick={copyUrl}
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-100 cursor-pointer"
+                  >
+                    {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
+                    <span>{copied ? "Copied URL!" : "Copy Media URL"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsViewerOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-bold text-[#1a5d9c] shadow-sm transition hover:bg-blue-100 cursor-pointer"
+                  >
+                    <Eye size={16} />
+                    <span>Preview Full Media</span>
+                  </button>
+                </>
               )}
             </div>
 

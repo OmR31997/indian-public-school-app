@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getWhatsAppConfig, homeData, text } from "@/lib/site-data";
+import { buildMenuHierarchy, getWhatsAppConfig, homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 import {
@@ -144,9 +144,13 @@ export function AnnouncementBar() {
 
 export function Navbar() {
   const siteData = useSiteData();
-  const initialMenuItems = Array.isArray(siteData?.menuItems) && siteData.menuItems.length > 0
-    ? (siteData.menuItems as unknown as ApiMenuItem[])
-    : [];
+  const rawMenuItems = (siteData?.menuItems && siteData.menuItems.length > 0)
+    ? siteData.menuItems
+    : (siteData?.menuitems && (siteData.menuitems as unknown[]).length > 0)
+      ? siteData.menuitems
+      : [];
+
+  const initialMenuItems = buildMenuHierarchy(rawMenuItems as any[]) as ApiMenuItem[];
 
   const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>(initialMenuItems);
   const [scrolled, setScrolled] = useState(false);
@@ -164,6 +168,12 @@ export function Navbar() {
   };
 
   useEffect(() => {
+    if (initialMenuItems.length > 0 && dbMenuItems.length === 0) {
+      setDbMenuItems(initialMenuItems);
+    }
+  }, [initialMenuItems, dbMenuItems.length]);
+
+  useEffect(() => {
     let isMounted = true;
     axios
       .get(`${API_URL}/menu-items`, { params: { publishedOnly: "true" } })
@@ -172,11 +182,11 @@ export function Navbar() {
         const payload = res.data?.data ?? res.data;
         const list = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
         if (list.length > 0) {
-          setDbMenuItems(list);
+          setDbMenuItems(buildMenuHierarchy(list) as ApiMenuItem[]);
         }
       })
       .catch(() => {
-        /* Fallback cleanly to static NAV if unreached */
+        /* Fallback cleanly to siteData hierarchy */
       });
     return () => {
       isMounted = false;

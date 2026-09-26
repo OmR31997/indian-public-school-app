@@ -1,0 +1,52 @@
+[
+  {
+    "_id": "6aab628e57ac46acecbf8381",
+    "batch": "2020-2022",
+    "name": "Pradip",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453146/indian-public-school/assets/Review/Anonymous.png",
+    "feedback": "Great school. All the teachers we had cares about both academic and personal growth. We have 3 kids so we didn’t just get lucky. It’s a small enough school so kids don’t get lost but big enough to have all the extra curricular activities to keep kids busy and be social. Love, love, love this school.",
+    "isApproved": true,
+    "publicId": "REV-MU4ZMK78-EHGVT",
+    "rating": 3
+  },
+  {
+    "_id": "6aab628e57ac46acecbf8382",
+    "batch": "2020-2022",
+    "name": "Abhishek Prakash Jha",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453145/indian-public-school/assets/Review/AbhishekPrakashJha.jpg",
+    "feedback": "good School, good environment.",
+    "isApproved": true,
+    "publicId": "REV-MU4ZMK9Q-4PKS3",
+    "rating": 5
+  },
+  {
+    "_id": "6aab628f57ac46acecbf8383",
+    "name": "Shriyansh Shekhar Lenka",
+    "batch": "2021-2022",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453151/indian-public-school/assets/Review/ShreyanshSekharJha.jpg",
+    "feedback": "Satisfied with studies and overall performance of the child.",
+    "isApproved": true,
+    "publicId": "REV-MU4ZMKC8-RVSB5",
+    "rating": 5
+  },
+  {
+    "_id": "6aab628f57ac46acecbf8384",
+    "name": "Samay Palta Singh",
+    "batch": "2021-2022",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453154/indian-public-school/assets/Review/SmayPatlaSingh.jpg",
+    "feedback": "Good studies and good overall performance .Good improvement shown .",
+    "isApproved": true,
+    "publicId": "REV-MU4ZMKER-9F7NY",
+    "rating": 3
+  },
+  {
+    "_id": "6aab628f57ac46acecbf8385",
+    "name": "Ansh Singh",
+    "batch": "2021-2023",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453149/indian-public-school/assets/Review/AnshSingh.jpg",
+    "feedback": "Studies are good ..... satisfied with the academics and management of the school .",
+    "isApproved": true,
+    "publicId": "REV-MU4ZMKH5-2JKWS",
+    "rating": 5
+  }
+]

@@ -5,7 +5,7 @@ import axios from "axios";
 import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
-import { homeData, imageUrl, text } from "@/lib/site-data";
+import { buildMenuHierarchy, homeData, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
 
@@ -149,7 +149,21 @@ export function Footer() {
     text(footerConfig.copyright) ||
     `© ${new Date().getFullYear()} Indian Public School. All rights reserved.`;
 
-  const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>([]);
+  const rawMenuItems = (siteData?.menuItems && siteData.menuItems.length > 0)
+    ? siteData.menuItems
+    : (siteData?.menuitems && (siteData.menuitems as unknown[]).length > 0)
+      ? siteData.menuitems
+      : [];
+
+  const initialMenuItems = buildMenuHierarchy(rawMenuItems as any[]) as ApiMenuItem[];
+
+  const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>(initialMenuItems);
+
+  useEffect(() => {
+    if (initialMenuItems.length > 0 && dbMenuItems.length === 0) {
+      setDbMenuItems(initialMenuItems);
+    }
+  }, [initialMenuItems, dbMenuItems.length]);
 
   useEffect(() => {
     let isMounted = true;
@@ -160,7 +174,7 @@ export function Footer() {
         const payload = res.data?.data ?? res.data;
         const list = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
         if (list.length > 0) {
-          setDbMenuItems(list);
+          setDbMenuItems(buildMenuHierarchy(list) as ApiMenuItem[]);
         }
       })
       .catch(() => {

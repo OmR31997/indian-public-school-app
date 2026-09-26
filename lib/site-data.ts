@@ -37,12 +37,107 @@ export interface WhatsAppSetting {
   position?: "bottom-left" | "bottom-right";
 }
 
+export interface ApiMenuItem {
+  _id?: string;
+  menuId?: string;
+  title: string;
+  slug?: string;
+  targetUrl?: string;
+  linkUrl?: string;
+  parentId?: string | null;
+  level?: number;
+  category?: string;
+  isPublished?: boolean;
+  order?: number;
+  subItems?: ApiMenuItem[];
+  [key: string]: unknown;
+}
+
+export function buildMenuHierarchy(flatItems: any[]): ApiMenuItem[] {
+  if (!Array.isArray(flatItems) || flatItems.length === 0) return [];
+
+  const alreadyNested = flatItems.some(
+    (item) => Array.isArray(item.subItems) && item.subItems.length > 0
+  );
+  if (alreadyNested) {
+    return flatItems as ApiMenuItem[];
+  }
+
+  const validItems = flatItems.filter((item) => {
+    if (item.isPublished === false) return false;
+    if (item.category && String(item.category).toLowerCase() !== "header") return false;
+    return true;
+  });
+
+  validItems.sort((a, b) => {
+    const levelA = Number(a.level) || 1;
+    const levelB = Number(b.level) || 1;
+    if (levelA !== levelB) return levelA - levelB;
+    const orderA = Number(a.order) || 0;
+    const orderB = Number(b.order) || 0;
+    return orderA - orderB;
+  });
+
+  const nodeMap = new Map<string, ApiMenuItem>();
+  const idToNodeMap = new Map<string, ApiMenuItem>();
+
+  validItems.forEach((item) => {
+    const targetUrl =
+      item.targetUrl ||
+      item.linkUrl ||
+      item.redirectUrl ||
+      (item.slug ? `/${item.slug}` : "/");
+
+    const node: ApiMenuItem = {
+      _id: String(item._id || item.menuId || item.id),
+      menuId: item.menuId ? String(item.menuId) : undefined,
+      slug: item.slug ? String(item.slug) : undefined,
+      title: String(item.title || item.heading || ""),
+      targetUrl,
+      linkUrl: targetUrl,
+      order: Number(item.order) || 0,
+      level: Number(item.level) || 1,
+      isPublished: item.isPublished !== false,
+      subItems: [],
+    };
+
+    const nodeKey = String(item._id || item.menuId);
+    nodeMap.set(nodeKey, node);
+    if (item._id) idToNodeMap.set(String(item._id), node);
+    if (item.menuId) idToNodeMap.set(String(item.menuId), node);
+    if (item.slug) idToNodeMap.set(String(item.slug), node);
+  });
+
+  const rootNodes: ApiMenuItem[] = [];
+
+  validItems.forEach((item) => {
+    const nodeKey = String(item._id || item.menuId);
+    const node = nodeMap.get(nodeKey);
+    if (!node) return;
+
+    const parentIdStr = item.parentId ? String(item.parentId).trim() : null;
+    if (parentIdStr) {
+      const parentNode = idToNodeMap.get(parentIdStr);
+      if (parentNode && parentNode !== node) {
+        parentNode.subItems!.push(node);
+      } else {
+        rootNodes.push(node);
+      }
+    } else {
+      rootNodes.push(node);
+    }
+  });
+
+  return rootNodes;
+}
+
 export interface SiteData {
   home: SiteRecord[];
   news?: SiteRecord[];
   galleryItems?: SiteRecord[];
   reviewsItems?: SiteRecord[];
   menuItems?: SiteRecord[];
+  menuitems?: SiteRecord[];
   site_logo?: SiteLogoSetting;
   certified_board?: CertifiedBoardSetting;
   trust_board?: TrustBoardSetting;
@@ -52,6 +147,13 @@ export interface SiteData {
 
 export async function getSiteData(): Promise<SiteData> {
   const fallback = fallbackSiteData as SiteData;
+  const rawFallbackMenuitems = Array.isArray(fallback.menuItems)
+    ? fallback.menuItems
+    : Array.isArray(fallback.menuitems)
+      ? fallback.menuitems
+      : [];
+  const fallbackMenuitemsTree = buildMenuHierarchy(rawFallbackMenuitems as SiteRecord[]);
+
   const [siteResponse, newsResponse, galleryResponse, reviewsResponse, menuItemsResponse] = await Promise.all([
     getOptionalApi<SiteData | { value?: SiteData; _doc?: { value?: SiteData } }>("/regarding/datasource"),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/news", { limit: 8, page: 1, sortOrder: "desc" }),
@@ -71,6 +173,10 @@ export async function getSiteData(): Promise<SiteData> {
     ? fallback.reviews as SiteRecord[]
     : [];
 
+  const finalMenuItems = apiMenuItems.length > 0
+    ? buildMenuHierarchy(apiMenuItems)
+    : fallbackMenuitemsTree;
+
   return {
     ...fallback,
     ...siteData,
@@ -80,7 +186,8 @@ export async function getSiteData(): Promise<SiteData> {
     news: apiNews.length ? apiNews : fallback.news,
     galleryItems: apiGallery.length ? apiGallery : fallbackGallery,
     reviewsItems: apiReviews.length ? apiReviews : fallbackReviews,
-    menuItems: apiMenuItems.length ? apiMenuItems : [],
+    menuItems: finalMenuItems,
+    menuitems: rawFallbackMenuitems as SiteRecord[],
   };
 }
 
