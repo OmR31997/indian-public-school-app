@@ -132,10 +132,86 @@ export function getCloudinaryInlineViewerUrl(url?: string | null): string {
 }
 
 /**
- * Returns an embedded Google Docs Viewer URL suitable for rendering inside an <iframe>.
+ * Returns an embedded Google Docs / Office Online Viewer URL suitable for rendering inside an <iframe> or opening in new tab.
  */
 export function getGoogleDocsViewerUrl(url?: string | null): string {
   if (!url) return "";
   const inlineUrl = getCloudinaryInlineViewerUrl(url);
   return `https://docs.google.com/viewer?url=${encodeURIComponent(inlineUrl)}&embedded=true`;
 }
+
+export function isWordFile(url?: string | null): boolean {
+  if (!url || typeof url !== "string") return false;
+  const clean = getCleanUrl(url).toLowerCase();
+  const lowercaseUrl = url.toLowerCase();
+  return (
+    clean.endsWith(".doc") ||
+    clean.endsWith(".docx") ||
+    lowercaseUrl.includes(".doc") ||
+    lowercaseUrl.includes(".docx") ||
+    lowercaseUrl.includes("format=doc") ||
+    lowercaseUrl.includes("format=docx") ||
+    lowercaseUrl.includes("docs.google.com/document")
+  );
+}
+
+export function isExcelFile(url?: string | null): boolean {
+  if (!url || typeof url !== "string") return false;
+  const clean = getCleanUrl(url).toLowerCase();
+  const lowercaseUrl = url.toLowerCase();
+  return (
+    clean.endsWith(".xls") ||
+    clean.endsWith(".xlsx") ||
+    clean.endsWith(".csv") ||
+    lowercaseUrl.includes(".xls") ||
+    lowercaseUrl.includes(".xlsx") ||
+    lowercaseUrl.includes(".csv") ||
+    lowercaseUrl.includes("format=xls") ||
+    lowercaseUrl.includes("format=xlsx") ||
+    lowercaseUrl.includes("format=csv") ||
+    lowercaseUrl.includes("docs.google.com/spreadsheets")
+  );
+}
+
+export function isGoogleDocUrl(url?: string | null): boolean {
+  if (!url || typeof url !== "string") return false;
+  return url.toLowerCase().includes("docs.google.com/document");
+}
+
+export function isGoogleSheetUrl(url?: string | null): boolean {
+  if (!url || typeof url !== "string") return false;
+  return url.toLowerCase().includes("docs.google.com/spreadsheets");
+}
+
+export function getGoogleDocEmbedUrl(url?: string | null): string {
+  if (!url) return "";
+  if (isGoogleDocUrl(url)) {
+    if (url.includes("/preview")) return url;
+    return url.replace(/\/(edit|view|pub|mobilebasic).*$/i, "/preview");
+  }
+  return getGoogleDocsViewerUrl(url);
+}
+
+export function getGoogleSheetEmbedUrl(url?: string | null): string {
+  if (!url) return "";
+  if (isGoogleSheetUrl(url)) {
+    if (url.includes("/preview")) return url;
+    return url.replace(/\/(edit|view|pub|pubhtml).*$/i, "/preview");
+  }
+  return getGoogleDocsViewerUrl(url);
+}
+
+export function getOfficeViewerUrl(url?: string | null): string {
+  if (!url) return "";
+  const cleanUrl = getCloudinaryInlineViewerUrl(url);
+  return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(cleanUrl)}`;
+}
+
+export function getDocumentViewerUrl(url?: string | null): string {
+  if (!url) return "";
+  if (isGoogleDocUrl(url)) return getGoogleDocEmbedUrl(url);
+  if (isGoogleSheetUrl(url)) return getGoogleSheetEmbedUrl(url);
+  if (isWordFile(url) || isExcelFile(url)) return getOfficeViewerUrl(url);
+  return getGoogleDocsViewerUrl(url);
+}
+

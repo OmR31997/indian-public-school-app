@@ -8,7 +8,15 @@ import {
   getCloudinaryPdfThumbnailUrl,
   getCloudinaryInlineViewerUrl,
   isPdfFile,
-  isCloudinaryUrl
+  isCloudinaryUrl,
+  getCleanUrl,
+  getGoogleDocsViewerUrl,
+  isWordFile,
+  isExcelFile,
+  getOfficeViewerUrl,
+  isGoogleDocUrl,
+  isGoogleSheetUrl,
+  getDocumentViewerUrl,
 } from "@/lib/file-preview";
 import { Crop, Trash2, RefreshCw, Scissors } from "lucide-react";
 import {
@@ -65,6 +73,9 @@ import {
   Check,
   X,
   MousePointerClick,
+  File,
+  Download,
+  Grid,
 } from "lucide-react";
 
 interface RichTextBoxProps {
@@ -93,6 +104,233 @@ const HIGHLIGHT_COLORS = [
   { name: "Orange Highlight", value: "#fed7aa" },
   { name: "Light Gray", value: "#e2e8f0" },
 ];
+
+export function parseCsvTo2DArray(text: string): string[][] {
+  if (!text || !text.trim()) return [];
+  const lines = text.trim().split(/\r?\n/);
+  const result: string[][] = [];
+
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    let delimiter = ",";
+    if (line.includes("\t")) delimiter = "\t";
+    else if (line.includes(";") && !line.includes(",")) delimiter = ";";
+
+    const regex = new RegExp(`(?:^|${delimiter})(?:"([^"]*)"|([^"${delimiter}]*))`, "g");
+    const row: string[] = [];
+    let match;
+    while ((match = regex.exec(line)) !== null) {
+      const val = match[1] !== undefined ? match[1] : match[2];
+      row.push(val ? val.trim() : "");
+    }
+    if (row.length > 0) {
+      result.push(row);
+    }
+  }
+
+  return result;
+}
+
+export function generateCustomTableHtml(data: {
+  rows?: number;
+  cols?: number;
+  hasHeader?: boolean;
+  zebra?: boolean;
+  borderColor?: string;
+  headerBg?: string;
+  headerColor?: string;
+  customData?: string[][];
+}): string {
+  const hasHeader = data.hasHeader !== false;
+  const zebra = !!data.zebra;
+  const borderColor = data.borderColor || "#cbd5e1";
+  const headerBg = data.headerBg || "#102a4c";
+  const headerColor = data.headerColor || "#ffffff";
+
+  let grid: string[][] = [];
+  if (data.customData && data.customData.length > 0) {
+    grid = data.customData;
+  } else {
+    const rCount = Math.max(1, Math.min(30, data.rows || 4));
+    const cCount = Math.max(1, Math.min(15, data.cols || 4));
+
+    grid = [];
+    for (let r = 0; r < rCount; r++) {
+      const row: string[] = [];
+      for (let c = 0; c < cCount; c++) {
+        if (r === 0 && hasHeader) {
+          row.push(`Column Header ${c + 1}`);
+        } else {
+          row.push(`Row ${r} Item ${c + 1}`);
+        }
+      }
+      grid.push(row);
+    }
+  }
+
+  let tableHtml = `<div style="margin: 1.25rem 0; overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; border: 1px solid ${borderColor}; font-size: 0.9rem; font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 8px; overflow: hidden;">`;
+
+  if (hasHeader && grid.length > 0) {
+    tableHtml += `<thead><tr style="background-color: ${headerBg}; color: ${headerColor};">`;
+    grid[0].forEach((cellVal) => {
+      tableHtml += `<th style="border: 1px solid ${borderColor}; padding: 10px 14px; text-align: left; font-weight: 700;">${cellVal || "&nbsp;"}</th>`;
+    });
+    tableHtml += `</tr></thead>`;
+  }
+
+  const startRow = hasHeader ? 1 : 0;
+  tableHtml += `<tbody>`;
+  for (let r = startRow; r < grid.length; r++) {
+    const isEven = r % 2 === 0;
+    const rowBg = zebra && isEven ? "#f8fafc" : "#ffffff";
+    tableHtml += `<tr style="background-color: ${rowBg};">`;
+    grid[r].forEach((cellVal) => {
+      tableHtml += `<td style="border: 1px solid ${borderColor}; padding: 10px 14px; color: #334155;">${cellVal || "&nbsp;"}</td>`;
+    });
+    tableHtml += `</tr>`;
+  }
+  tableHtml += `</tbody></table></div><p><br></p>`;
+
+  return tableHtml;
+}
+
+export function generateWordCardHtml(data: {
+  url: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  theme?: "light" | "dark" | "banner" | "badge";
+}): string {
+  const isGDoc = isGoogleDocUrl(data.url);
+  const docsViewerUrl = getDocumentViewerUrl(data.url);
+  const cleanUrl = isGDoc ? data.url : (getCleanUrl(data.url) || data.url);
+  const title = data.title?.trim() || (isGDoc ? "Google Document" : "Official Word Document");
+  const subtitle = data.subtitle?.trim() || (isGDoc ? "Google Docs Document (Interactive Preview)" : "Word Document / Google Doc");
+  const buttonText = data.buttonText?.trim() || (isGDoc ? "Open Google Doc" : "View Document");
+  const theme = data.theme || "light";
+
+  if (theme === "badge") {
+    return `<a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-weight: 700; padding: 0.55rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin: 8px 0; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.15);">${title} &rarr;</a><p><br></p>`;
+  }
+
+  if (theme === "banner") {
+    return `<div style="margin: 16px 0; border: 1px solid #cbd5e1; border-radius: 16px; padding: 16px 20px; background: #ffffff; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06); flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #dbeafe; color: #1d4ed8; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0;">${isGDoc ? "GDOC" : "DOCX"}</div>
+        <div style="min-width: 0;">
+          <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem; line-height: 1.3;">${title}</div>
+          <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">${subtitle} &bull; Click to View / Open</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background: #1e40af; color: #ffffff; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25); white-space: nowrap;">${buttonText} &rarr;</a>
+        ${!isGDoc ? `<a href="${cleanUrl}" download target="_blank" rel="noopener noreferrer" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; white-space: nowrap;">Download File</a>` : ""}
+      </div>
+    </div><p><br></p>`;
+  }
+
+  if (theme === "dark") {
+    return `<div style="margin: 20px 0; border: 1px solid #1e3a8a; border-radius: 20px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);">
+      <div style="padding: 16px 22px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="background: #2563eb; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">${isGDoc ? "Google Doc" : "Word Document"}</span>
+          <span style="color: #f8fafc; font-weight: 700; font-size: 0.95rem;">${title}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background: #38bdf8; color: #0f172a; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">${buttonText} &rarr;</a>
+          ${!isGDoc ? `<a href="${cleanUrl}" download target="_blank" rel="noopener noreferrer" style="background: #334155; color: #f8fafc; padding: 8px 14px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none;">Download</a>` : ""}
+        </div>
+      </div>
+      <div style="padding: 16px 22px; background: #020617; color: #94a3b8; font-size: 0.85rem;">${subtitle}</div>
+    </div><p><br></p>`;
+  }
+
+  // Default Light Card
+  return `<div style="margin: 20px 0; border: 1px solid #bfdbfe; border-radius: 20px; overflow: hidden; background: #ffffff; box-shadow: 0 4px 20px -4px rgba(30, 64, 175, 0.08);">
+    <div style="padding: 16px 22px; background: #eff6ff; border-bottom: 1px solid #dbeafe; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; border-radius: 10px; background: #2563eb; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem;">${isGDoc ? "GDOC" : "DOC"}</div>
+        <div>
+          <div style="color: #1e3a8a; font-weight: 800; font-size: 1rem;">${title}</div>
+          <div style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">${subtitle}</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background: #1d4ed8; color: #ffffff; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(29, 78, 216, 0.25);">${buttonText} &rarr;</a>
+        ${!isGDoc ? `<a href="${cleanUrl}" download target="_blank" rel="noopener noreferrer" style="background: #ffffff; color: #1e3a8a; border: 1px solid #bfdbfe; padding: 8px 14px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none;">Download</a>` : ""}
+      </div>
+    </div>
+  </div><p><br></p>`;
+}
+
+export function generateExcelCardHtml(data: {
+  url: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  theme?: "light" | "dark" | "banner" | "badge";
+}): string {
+  const isGSheet = isGoogleSheetUrl(data.url);
+  const docsViewerUrl = getDocumentViewerUrl(data.url);
+  const cleanUrl = isGSheet ? data.url : (getCleanUrl(data.url) || data.url);
+  const title = data.title?.trim() || (isGSheet ? "Google Spreadsheet" : "Official Excel Spreadsheet");
+  const subtitle = data.subtitle?.trim() || (isGSheet ? "Google Sheets Spreadsheet (Interactive Preview)" : "Excel Worksheet / Google Sheet");
+  const buttonText = data.buttonText?.trim() || (isGSheet ? "Open Google Sheet" : "View Spreadsheet");
+  const theme = data.theme || "light";
+
+  if (theme === "badge") {
+    return `<a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-weight: 700; padding: 0.55rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin: 8px 0; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.15);">${title} &rarr;</a><p><br></p>`;
+  }
+
+  if (theme === "banner") {
+    return `<div style="margin: 16px 0; border: 1px solid #cbd5e1; border-radius: 16px; padding: 16px 20px; background: #ffffff; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06); flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0;">${isGSheet ? "SHEET" : "XLSX"}</div>
+        <div style="min-width: 0;">
+          <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem; line-height: 1.3;">${title}</div>
+          <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">${subtitle} &bull; Click to View / Open</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background: #15803d; color: #ffffff; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25); white-space: nowrap;">${buttonText} &rarr;</a>
+        ${!isGSheet ? `<a href="${cleanUrl}" download target="_blank" rel="noopener noreferrer" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; white-space: nowrap;">Download Sheet</a>` : ""}
+      </div>
+    </div><p><br></p>`;
+  }
+
+  if (theme === "dark") {
+    return `<div style="margin: 20px 0; border: 1px solid #166534; border-radius: 20px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);">
+      <div style="padding: 16px 22px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="background: #16a34a; color: #ffffff; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">${isGSheet ? "Google Sheet" : "Excel Spreadsheet"}</span>
+          <span style="color: #f8fafc; font-weight: 700; font-size: 0.95rem;">${title}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background: #4ade80; color: #052e16; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">${buttonText} &rarr;</a>
+          ${!isGSheet ? `<a href="${cleanUrl}" download target="_blank" rel="noopener noreferrer" style="background: #334155; color: #f8fafc; padding: 8px 14px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none;">Download</a>` : ""}
+        </div>
+      </div>
+      <div style="padding: 16px 22px; background: #020617; color: #94a3b8; font-size: 0.85rem;">${subtitle}</div>
+    </div><p><br></p>`;
+  }
+
+  // Default Light Card
+  return `<div style="margin: 20px 0; border: 1px solid #bbf7d0; border-radius: 20px; overflow: hidden; background: #ffffff; box-shadow: 0 4px 20px -4px rgba(21, 128, 61, 0.08);">
+    <div style="padding: 16px 22px; background: #f0fdf4; border-bottom: 1px solid #dcfce7; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; border-radius: 10px; background: #16a34a; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem;">${isGSheet ? "SHEET" : "XLS"}</div>
+        <div>
+          <div style="color: #14532d; font-weight: 800; font-size: 1rem;">${title}</div>
+          <div style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">${subtitle}</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="${docsViewerUrl}" target="_blank" rel="noopener noreferrer" style="background: #15803d; color: #ffffff; padding: 8px 18px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);">${buttonText} &rarr;</a>
+        ${!isGSheet ? `<a href="${cleanUrl}" download target="_blank" rel="noopener noreferrer" style="background: #ffffff; color: #14532d; border: 1px solid #bbf7d0; padding: 8px 14px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; text-decoration: none;">Download</a>` : ""}
+      </div>
+    </div>
+  </div><p><br></p>`;
+}
 
 export function generatePdfCardHtml(data: {
   url: string;
@@ -179,6 +417,32 @@ export function RichTextBox({
   const [selectedImageEl, setSelectedImageEl] = useState<HTMLImageElement | null>(null);
   const [selectedBlockEl, setSelectedBlockEl] = useState<HTMLElement | null>(null);
 
+  // Table Customizer & CSV Import Studio States
+  const [isTableStudioOpen, setIsTableStudioOpen] = useState(false);
+  const [tableActiveTab, setTableActiveTab] = useState<"builder" | "csv">("builder");
+  const [tableRows, setTableRows] = useState(4);
+  const [tableCols, setTableCols] = useState(4);
+  const [tableHasHeader, setTableHasHeader] = useState(true);
+  const [tableZebra, setTableZebra] = useState(true);
+  const [tableBorderColor, setTableBorderColor] = useState("#cbd5e1");
+  const [tableHeaderBg, setTableHeaderBg] = useState("#102a4c");
+  const [tableHeaderColor, setTableHeaderColor] = useState("#ffffff");
+  const [tableCsvText, setTableCsvText] = useState("");
+
+  // Word & Excel Document Studio Modal States
+  const [isDocStudioOpen, setIsDocStudioOpen] = useState(false);
+  const [docType, setDocType] = useState<"word" | "excel">("word");
+  const [docStudioUrl, setDocStudioUrl] = useState("");
+  const [docStudioTitle, setDocStudioTitle] = useState("");
+  const [docStudioSubtitle, setDocStudioSubtitle] = useState("");
+  const [docStudioButtonText, setDocStudioButtonText] = useState("Open Document");
+  const [docStudioTheme, setDocStudioTheme] = useState<"light" | "dark" | "banner" | "badge">("light");
+
+  // Selected Table Elements inside Iframe Canvas
+  const [selectedTableEl, setSelectedTableEl] = useState<HTMLTableElement | null>(null);
+  const [selectedTableCellEl, setSelectedTableCellEl] = useState<HTMLTableCellElement | null>(null);
+  const [selectedTableRowEl, setSelectedTableRowEl] = useState<HTMLTableRowElement | null>(null);
+
   // PDF Studio Customizer States
   const [isPdfStudioOpen, setIsPdfStudioOpen] = useState(false);
   const [pdfStudioUrl, setPdfStudioUrl] = useState("");
@@ -195,6 +459,43 @@ export function RichTextBox({
       setPdfStudioTitle(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
     }
     setIsPdfStudioOpen(true);
+  };
+
+  const openTableStudio = () => {
+    setIsTableStudioOpen(true);
+  };
+
+  const openDocStudio = (type: "word" | "excel", url = "") => {
+    let activeType = type;
+    if (url) {
+      if (isGoogleSheetUrl(url) || isExcelFile(url)) activeType = "excel";
+      if (isGoogleDocUrl(url) || isWordFile(url)) activeType = "word";
+    }
+    setDocType(activeType);
+
+    if (url) {
+      setDocStudioUrl(url);
+      if (isGoogleDocUrl(url)) {
+        setDocStudioTitle("Google Document");
+        setDocStudioSubtitle("Google Docs Document (Live Interactive Preview)");
+        setDocStudioButtonText("Open Google Doc");
+      } else if (isGoogleSheetUrl(url)) {
+        setDocStudioTitle("Google Spreadsheet");
+        setDocStudioSubtitle("Google Sheets Spreadsheet (Live Interactive Preview)");
+        setDocStudioButtonText("Open Google Sheet");
+      } else {
+        const rawFileName = url.split("/").pop() || "Document";
+        const cleanName = rawFileName.replace(/\.(docx|doc|xlsx|xls|csv)$/i, "").replace(/[-_]/g, " ");
+        setDocStudioTitle(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
+        setDocStudioSubtitle(activeType === "word" ? "Word / Google Doc (.docx / .doc / Google Doc)" : "Excel / Google Sheet (.xlsx / .csv / Google Sheet)");
+        setDocStudioButtonText(activeType === "word" ? "View Word / Google Doc" : "View Sheet / Spreadsheet");
+      }
+    } else {
+      setDocStudioTitle(activeType === "word" ? "Official Word / Google Doc" : "Official Excel / Google Sheet");
+      setDocStudioSubtitle(activeType === "word" ? "Word Document or Google Doc" : "Excel Worksheet or Google Sheet");
+      setDocStudioButtonText(activeType === "word" ? "View Document" : "View Spreadsheet");
+    }
+    setIsDocStudioOpen(true);
   };
 
   // Link Creator / Hyperlink Modal States
@@ -275,7 +576,7 @@ export function RichTextBox({
               .wysiwyg-selected-block { outline: 2px dashed #1a5d9c !important; outline-offset: 4px !important; box-shadow: 0 0 0 4px rgba(26, 93, 156, 0.12) !important; border-radius: 8px; }
               hr { border: none; border-top: 2px solid #e2e8f0; margin: 1.5rem 0; }
               pre { background: #0f172a; color: #38bdf8; padding: 16px; border-radius: 14px; font-family: monospace; overflow-x: auto; }
-              table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #cbd5e1; }
+              table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
               th, td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; }
               th { background-color: #f1f5f9; font-weight: 700; color: #0f172a; }
             </style>
@@ -304,7 +605,7 @@ export function RichTextBox({
         onChange(currentBodyHtml === "<br>" ? "" : currentBodyHtml);
       };
 
-      // Image, Link & Component selection listener inside iframe
+      // Image, Link, Table & Component selection listener inside iframe
       const handleDocClick = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
 
@@ -316,11 +617,17 @@ export function RichTextBox({
           setSelectedBlockEl(null);
           setSelectedImageEl(null);
           setSelectedAnchorEl(null);
+          setSelectedTableEl(null);
+          setSelectedTableCellEl(null);
+          setSelectedTableRowEl(null);
           return;
         }
 
         const imgEl = (target && target.tagName === "IMG" ? target : target?.closest?.("img")) as HTMLImageElement | null;
         const anchorEl = (target && target.tagName === "A" ? target : target?.closest?.("a")) as HTMLAnchorElement | null;
+        const tableEl = (target && target.tagName === "TABLE" ? target : target?.closest?.("table")) as HTMLTableElement | null;
+        const cellEl = (target && (target.tagName === "TD" || target.tagName === "TH") ? target : target?.closest?.("td, th")) as HTMLTableCellElement | null;
+        const rowEl = (target && target.tagName === "TR" ? target : target?.closest?.("tr")) as HTMLTableRowElement | null;
 
         let blockContainer: HTMLElement | null = null;
         const closestComp = target.closest("section, div, blockquote, table, figure, h1, h2, h3, p, pre") as HTMLElement | null;
@@ -340,6 +647,16 @@ export function RichTextBox({
           setSelectedAnchorEl(anchorEl);
         } else {
           setSelectedAnchorEl(null);
+        }
+
+        if (tableEl) {
+          setSelectedTableEl(tableEl);
+          setSelectedTableCellEl(cellEl);
+          setSelectedTableRowEl(rowEl);
+        } else {
+          setSelectedTableEl(null);
+          setSelectedTableCellEl(null);
+          setSelectedTableRowEl(null);
         }
 
         if (blockContainer) {
@@ -365,6 +682,23 @@ export function RichTextBox({
 
         if (compId === "pdfCard") {
           openPdfStudio();
+          return;
+        }
+        if (compId === "wordCard") {
+          openDocStudio("word");
+          return;
+        }
+        if (compId === "excelCard") {
+          openDocStudio("excel");
+          return;
+        }
+        if (compId === "customTable") {
+          openTableStudio();
+          return;
+        }
+        if (compId === "csvTable") {
+          setIsTableStudioOpen(true);
+          setTableActiveTab("csv");
           return;
         }
         if (compId === "hyperlink") {
@@ -468,6 +802,121 @@ export function RichTextBox({
     const currentBodyHtml = doc.body.innerHTML;
     isInternalChangeRef.current = true;
     onChange(currentBodyHtml === "<br>" ? "" : currentBodyHtml);
+  };
+
+  const addTableRowAbove = () => {
+    if (!selectedTableEl) return;
+    const targetRow = selectedTableRowEl || selectedTableEl.querySelector("tr");
+    if (!targetRow) return;
+    const colCount = targetRow.children.length || 3;
+    const newRow = document.createElement("tr");
+    for (let i = 0; i < colCount; i++) {
+      const td = document.createElement("td");
+      td.textContent = "New Data";
+      newRow.appendChild(td);
+    }
+    targetRow.parentNode?.insertBefore(newRow, targetRow);
+    syncIframeToState();
+  };
+
+  const addTableRowBelow = () => {
+    if (!selectedTableEl) return;
+    const targetRow = selectedTableRowEl || selectedTableEl.querySelector("tr:last-child");
+    if (!targetRow) return;
+    const colCount = targetRow.children.length || 3;
+    const newRow = document.createElement("tr");
+    for (let i = 0; i < colCount; i++) {
+      const td = document.createElement("td");
+      td.textContent = "New Data";
+      newRow.appendChild(td);
+    }
+    targetRow.parentNode?.insertBefore(newRow, targetRow.nextSibling);
+    syncIframeToState();
+  };
+
+  const addTableColumnLeft = () => {
+    if (!selectedTableEl) return;
+    const colIndex = selectedTableCellEl ? selectedTableCellEl.cellIndex : 0;
+    const rows = Array.from(selectedTableEl.querySelectorAll("tr"));
+    rows.forEach((row, rowIndex) => {
+      const isHeaderRow = row.parentNode?.nodeName === "THEAD" || rowIndex === 0;
+      const newCell = document.createElement(isHeaderRow ? "th" : "td");
+      newCell.textContent = isHeaderRow ? "New Header" : "New Data";
+      const targetCell = row.children[colIndex];
+      if (targetCell) {
+        row.insertBefore(newCell, targetCell);
+      } else {
+        row.appendChild(newCell);
+      }
+    });
+    syncIframeToState();
+  };
+
+  const addTableColumnRight = () => {
+    if (!selectedTableEl) return;
+    const colIndex = selectedTableCellEl ? selectedTableCellEl.cellIndex : 0;
+    const rows = Array.from(selectedTableEl.querySelectorAll("tr"));
+    rows.forEach((row, rowIndex) => {
+      const isHeaderRow = row.parentNode?.nodeName === "THEAD" || rowIndex === 0;
+      const newCell = document.createElement(isHeaderRow ? "th" : "td");
+      newCell.textContent = isHeaderRow ? "New Header" : "New Data";
+      const targetCell = row.children[colIndex];
+      if (targetCell && targetCell.nextSibling) {
+        row.insertBefore(newCell, targetCell.nextSibling);
+      } else {
+        row.appendChild(newCell);
+      }
+    });
+    syncIframeToState();
+  };
+
+  const deleteTableRow = () => {
+    if (!selectedTableRowEl) return;
+    const parentTable = selectedTableRowEl.closest("table");
+    selectedTableRowEl.remove();
+    setSelectedTableRowEl(null);
+    setSelectedTableCellEl(null);
+    if (parentTable && parentTable.querySelectorAll("tr").length === 0) {
+      parentTable.remove();
+      setSelectedTableEl(null);
+    }
+    syncIframeToState();
+  };
+
+  const deleteTableColumn = () => {
+    if (!selectedTableEl || !selectedTableCellEl) return;
+    const colIndex = selectedTableCellEl.cellIndex;
+    const rows = Array.from(selectedTableEl.querySelectorAll("tr"));
+    rows.forEach((row) => {
+      if (row.children[colIndex]) {
+        row.children[colIndex].remove();
+      }
+    });
+    setSelectedTableCellEl(null);
+    syncIframeToState();
+  };
+
+  const toggleHeaderCell = () => {
+    if (!selectedTableCellEl) return;
+    const currentTag = selectedTableCellEl.tagName.toLowerCase();
+    const newTag = currentTag === "th" ? "td" : "th";
+    const newCell = document.createElement(newTag);
+    newCell.innerHTML = selectedTableCellEl.innerHTML;
+    Array.from(selectedTableCellEl.attributes).forEach((attr) => {
+      newCell.setAttribute(attr.name, attr.value);
+    });
+    selectedTableCellEl.parentNode?.replaceChild(newCell, selectedTableCellEl);
+    setSelectedTableCellEl(newCell as HTMLTableCellElement);
+    syncIframeToState();
+  };
+
+  const deleteEntireTable = () => {
+    if (!selectedTableEl) return;
+    selectedTableEl.remove();
+    setSelectedTableEl(null);
+    setSelectedTableCellEl(null);
+    setSelectedTableRowEl(null);
+    syncIframeToState();
   };
 
   const execCommand = (command: string, arg?: string) => {
@@ -641,6 +1090,14 @@ export function RichTextBox({
 
   const getComponentHtmlSnippet = (type: string): string => {
     switch (type) {
+      case "customTable":
+        return generateCustomTableHtml({ rows: 4, cols: 4, hasHeader: true, zebra: true });
+      case "wordCard":
+        return generateWordCardHtml({ url: "https://example.com/document.docx", title: "Official Word Document", theme: "light" });
+      case "excelCard":
+        return generateExcelCardHtml({ url: "https://example.com/spreadsheet.xlsx", title: "Official Excel Spreadsheet", theme: "light" });
+      case "csvTable":
+        return generateCustomTableHtml({ rows: 5, cols: 4, hasHeader: true, zebra: true, headerBg: "#059669" });
       case "ctaBanner":
         return `<section style="background: linear-gradient(135deg, #102a4c 0%, #1a5d9c 100%); color: #ffffff; padding: 2rem; border-radius: 1.25rem; margin-bottom: 2rem; box-shadow: 0 10px 20px -5px rgba(16,42,76,0.25);">
   <h3 style="font-size: 1.5rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem; color: #ffffff;">Need Assistance or Have Questions?</h3>
@@ -826,6 +1283,23 @@ export function RichTextBox({
       openPdfStudio();
       return;
     }
+    if (type === "wordCard") {
+      openDocStudio("word");
+      return;
+    }
+    if (type === "excelCard") {
+      openDocStudio("excel");
+      return;
+    }
+    if (type === "customTable") {
+      openTableStudio();
+      return;
+    }
+    if (type === "csvTable") {
+      setIsTableStudioOpen(true);
+      setTableActiveTab("csv");
+      return;
+    }
     const htmlSnippet = getComponentHtmlSnippet(type);
     if (htmlSnippet) {
       insertHTML(htmlSnippet);
@@ -841,9 +1315,30 @@ export function RichTextBox({
       color: "bg-sky-600 text-white",
     },
     {
+      id: "customTable",
+      title: "Data Table & CSV Importer",
+      subtitle: "Build custom HTML grid or import CSV data",
+      icon: Table,
+      color: "bg-[#102a4c] text-white",
+    },
+    {
+      id: "wordCard",
+      title: "Word / Google Doc Card",
+      subtitle: "Embed Word (.docx) or Google Doc card",
+      icon: FileText,
+      color: "bg-blue-700 text-white",
+    },
+    {
+      id: "excelCard",
+      title: "Excel / Google Sheet Card",
+      subtitle: "Embed Excel (.xlsx) or Google Sheet card",
+      icon: FileSpreadsheet,
+      color: "bg-emerald-700 text-white",
+    },
+    {
       id: "pdfCard",
-      title: "PDF Document Card Embed",
-      subtitle: "Customize layout & embed PDF document",
+      title: "PDF Document Studio Card",
+      subtitle: "Customize & embed PDF preview card",
       icon: FileText,
       color: "bg-rose-600 text-white",
     },
@@ -1238,7 +1733,7 @@ export function RichTextBox({
 
           <div className="h-5 w-px bg-slate-200 mx-0.5" />
 
-          {/* Media Links & Quote */}
+          {/* Media Links, Table & Quote */}
           <div className="flex items-center rounded-xl border border-slate-200/80 bg-white p-0.5 shadow-2xs">
             <button
               type="button"
@@ -1255,6 +1750,24 @@ export function RichTextBox({
               className="rounded-lg p-1.5 hover:bg-slate-100 hover:text-slate-900"
             >
               <ImageIcon size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={openTableStudio}
+              title="Interactive Table Builder Studio & CSV Data Import"
+              className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50 transition cursor-pointer"
+            >
+              <Table size={15} className="text-[#1a5d9c]" />
+              <span>Table</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => openDocStudio("word")}
+              title="Word (.docx) & Excel (.xlsx) Document Card Studio"
+              className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold text-emerald-700 hover:bg-emerald-50 transition cursor-pointer"
+            >
+              <FileSpreadsheet size={15} className="text-emerald-600" />
+              <span>Doc/Excel</span>
             </button>
             <button
               type="button"
@@ -1514,6 +2027,79 @@ export function RichTextBox({
                       className="rounded-lg border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-bold text-red-600 hover:bg-red-100 transition"
                     >
                       Remove
+                    </button>
+                  </div>
+                )}
+                {selectedTableEl && (
+                  <div className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-xl animate-in fade-in flex-wrap">
+                    <span className="text-[11px] font-extrabold text-indigo-950 flex items-center gap-1">
+                      <Table size={13} className="text-indigo-600" /> Table Actions:
+                    </span>
+                    <button
+                      type="button"
+                      onClick={addTableRowAbove}
+                      className="rounded-lg bg-white border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-indigo-100 transition cursor-pointer"
+                      title="Add Row Above"
+                    >
+                      + Row Above
+                    </button>
+                    <button
+                      type="button"
+                      onClick={addTableRowBelow}
+                      className="rounded-lg bg-white border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-indigo-100 transition cursor-pointer"
+                      title="Add Row Below"
+                    >
+                      + Row Below
+                    </button>
+                    <button
+                      type="button"
+                      onClick={addTableColumnLeft}
+                      className="rounded-lg bg-white border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-indigo-100 transition cursor-pointer"
+                      title="Add Column Left"
+                    >
+                      + Col Left
+                    </button>
+                    <button
+                      type="button"
+                      onClick={addTableColumnRight}
+                      className="rounded-lg bg-white border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-indigo-100 transition cursor-pointer"
+                      title="Add Column Right"
+                    >
+                      + Col Right
+                    </button>
+                    <button
+                      type="button"
+                      onClick={deleteTableRow}
+                      className="rounded-lg border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800 hover:bg-amber-100 transition cursor-pointer"
+                      title="Delete Current Row"
+                    >
+                      Del Row
+                    </button>
+                    <button
+                      type="button"
+                      onClick={deleteTableColumn}
+                      className="rounded-lg border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800 hover:bg-amber-100 transition cursor-pointer"
+                      title="Delete Current Column"
+                    >
+                      Del Col
+                    </button>
+                    {selectedTableCellEl && (
+                      <button
+                        type="button"
+                        onClick={toggleHeaderCell}
+                        className="rounded-lg bg-indigo-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-indigo-700 transition cursor-pointer"
+                        title="Toggle Header (TH/TD)"
+                      >
+                        Header ({selectedTableCellEl.tagName.toUpperCase()})
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={deleteEntireTable}
+                      className="rounded-lg border border-red-200 bg-red-600 px-2 py-0.5 text-[10px] font-extrabold text-white hover:bg-red-700 transition cursor-pointer"
+                      title="Delete Entire Table"
+                    >
+                      Delete Table
                     </button>
                   </div>
                 )}
@@ -2108,6 +2694,579 @@ export function RichTextBox({
                   <Check size={14} />
                   <span>{editingAnchorEl ? "Update Link" : "Insert Hyperlink"}</span>
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Table Builder & CSV Import Studio Modal */}
+      {isTableStudioOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-6 py-4 backdrop-blur-xs">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-2xl bg-blue-500/20 text-blue-400">
+                  <Table size={20} />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-extrabold text-white flex items-center gap-2">
+                    Interactive Table Builder & Data Import Studio
+                    <span className="rounded-md bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-300">
+                      Table Tool
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Generate custom grid tables, set header styling or import raw CSV / Excel data directly into HTML table
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsTableStudioOpen(false)}
+                className="rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Mode Tabs */}
+            <div className="flex border-b border-slate-800 bg-slate-950 px-6 py-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setTableActiveTab("builder")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                  tableActiveTab === "builder"
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                }`}
+              >
+                <Table size={14} />
+                <span>Visual Grid Builder</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTableActiveTab("csv")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                  tableActiveTab === "csv"
+                    ? "bg-teal-600 text-white shadow-md"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                }`}
+              >
+                <Grid size={14} />
+                <span>CSV / Excel File & Data Import</span>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 overflow-hidden">
+              {/* Left Column Controls */}
+              <div className="lg:col-span-5 flex flex-col overflow-y-auto border-r border-slate-800 bg-slate-900/60 p-5 space-y-4 scrollbar-thin">
+                {tableActiveTab === "builder" ? (
+                  <>
+                    {/* Rows & Columns */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                          Number of Rows
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={30}
+                          value={tableRows}
+                          onChange={(e) => setTableRows(Math.max(1, Math.min(30, Number(e.target.value))))}
+                          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-100 outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                          Number of Columns
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={15}
+                          value={tableCols}
+                          onChange={(e) => setTableCols(Math.max(1, Math.min(15, Number(e.target.value))))}
+                          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-100 outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Checkbox Toggles */}
+                    <div className="space-y-2 pt-1">
+                      <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={tableHasHeader}
+                          onChange={(e) => setTableHasHeader(e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>Include Header Row (&lt;th&gt;)</span>
+                      </label>
+                      <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={tableZebra}
+                          onChange={(e) => setTableZebra(e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>Zebra Striping Row Colors</span>
+                      </label>
+                    </div>
+
+                    {/* Header Background Preset */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                        Header Background Color
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { name: "School Navy", bg: "#102a4c", text: "#ffffff" },
+                          { name: "Emerald Green", bg: "#059669", text: "#ffffff" },
+                          { name: "Royal Blue", bg: "#1a5d9c", text: "#ffffff" },
+                          { name: "Slate Light", bg: "#f1f5f9", text: "#0f172a" },
+                          { name: "Amber Gold", bg: "#d97706", text: "#ffffff" },
+                          { name: "Dark Slate", bg: "#0f172a", text: "#ffffff" },
+                        ].map((preset) => (
+                          <button
+                            key={preset.name}
+                            type="button"
+                            onClick={() => {
+                              setTableHeaderBg(preset.bg);
+                              setTableHeaderColor(preset.text);
+                            }}
+                            className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer text-xs font-bold ${
+                              tableHeaderBg === preset.bg
+                                ? "border-blue-500 bg-blue-500/20 text-white ring-1 ring-blue-500"
+                                : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
+                            }`}
+                          >
+                            <span className="h-4 w-4 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: preset.bg }} />
+                            <span>{preset.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Border Color */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                        Table Border Color
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { name: "Classic Gray", color: "#cbd5e1" },
+                          { name: "School Navy", color: "#102a4c" },
+                          { name: "Royal Blue", color: "#1a5d9c" },
+                          { name: "Soft Slate", color: "#e2e8f0" },
+                        ].map((b) => (
+                          <button
+                            key={b.name}
+                            type="button"
+                            onClick={() => setTableBorderColor(b.color)}
+                            className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer text-xs font-bold ${
+                              tableBorderColor === b.color
+                                ? "border-blue-500 bg-blue-500/20 text-white ring-1 ring-blue-500"
+                                : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-700"
+                            }`}
+                          >
+                            <span className="h-4 w-4 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: b.color }} />
+                            <span>{b.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* CSV Upload / Paste */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                        Upload CSV / Excel File
+                      </label>
+                      <input
+                        type="file"
+                        accept=".csv,.txt,.tsv,.xlsx,.xls,.docx"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const content = event.target?.result as string;
+                            if (content) {
+                              setTableCsvText(content);
+                            }
+                          };
+                          reader.readAsText(file);
+                        }}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 p-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-1 file:text-xs file:font-bold file:text-white hover:file:bg-blue-700 cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                        Or Paste Raw CSV / TSV Data
+                      </label>
+                      <textarea
+                        rows={10}
+                        value={tableCsvText}
+                        onChange={(e) => setTableCsvText(e.target.value)}
+                        placeholder="Paste tabular data copied from Excel or comma separated values:
+S.No, Class, Students, Fee Status
+1, Grade Nursery, 45, Paid
+2, Grade KG, 50, Pending..."
+                        className="w-full font-mono text-xs leading-relaxed rounded-xl border border-slate-700 bg-slate-950 p-3.5 text-slate-200 outline-none focus:border-teal-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={tableHasHeader}
+                          onChange={(e) => setTableHasHeader(e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-teal-600 focus:ring-teal-500"
+                        />
+                        <span>Treat First Line as Table Header</span>
+                      </label>
+                      <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={tableZebra}
+                          onChange={(e) => setTableZebra(e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-teal-600 focus:ring-teal-500"
+                        />
+                        <span>Zebra Striping Row Colors</span>
+                      </label>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Right Column: Live Table Preview (7 cols) */}
+              <div className="lg:col-span-7 flex flex-col overflow-hidden bg-slate-950 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <Eye size={14} className="text-blue-400" /> Live Interactive Table Preview:
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-mono">Mode: {tableActiveTab}</span>
+                </div>
+
+                <div className="flex-1 overflow-y-auto rounded-2xl border border-slate-800 bg-white p-5 scrollbar-thin">
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: generateCustomTableHtml({
+                        rows: tableRows,
+                        cols: tableCols,
+                        hasHeader: tableHasHeader,
+                        zebra: tableZebra,
+                        borderColor: tableBorderColor,
+                        headerBg: tableHeaderBg,
+                        headerColor: tableHeaderColor,
+                        customData: tableActiveTab === "csv" && tableCsvText.trim() ? parseCsvTo2DArray(tableCsvText) : undefined,
+                      }),
+                    }}
+                  />
+                </div>
+
+                {/* Footer Controls */}
+                <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsTableStudioOpen(false)}
+                    className="rounded-xl border border-slate-700 px-5 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const htmlSnippet = generateCustomTableHtml({
+                        rows: tableRows,
+                        cols: tableCols,
+                        hasHeader: tableHasHeader,
+                        zebra: tableZebra,
+                        borderColor: tableBorderColor,
+                        headerBg: tableHeaderBg,
+                        headerColor: tableHeaderColor,
+                        customData: tableActiveTab === "csv" && tableCsvText.trim() ? parseCsvTo2DArray(tableCsvText) : undefined,
+                      });
+                      insertHTML(htmlSnippet);
+                      setIsTableStudioOpen(false);
+                    }}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-xs font-extrabold text-white shadow-lg hover:brightness-110 transition cursor-pointer"
+                  >
+                    <Check size={16} />
+                    <span>Apply & Insert Table</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Word & Excel Document Studio Modal */}
+      {isDocStudioOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-6 py-4 backdrop-blur-xs">
+              <div className="flex items-center gap-3">
+                <div className={`grid h-10 w-10 place-items-center rounded-2xl ${docType === "word" ? "bg-blue-500/20 text-blue-400" : "bg-emerald-500/20 text-emerald-400"}`}>
+                  {docType === "word" ? <FileText size={20} /> : <FileSpreadsheet size={20} />}
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-extrabold text-white flex items-center gap-2">
+                    {docType === "word" ? "Word & Google Doc Customizer Studio" : "Excel & Google Sheet Customizer Studio"}
+                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${docType === "word" ? "bg-blue-500/20 text-blue-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+                      {docType === "word" ? ".DOCX / .DOC / Google Doc" : ".XLSX / .CSV / Google Sheet"}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Customize layout theme, document title, subtitle & action buttons for Word, Excel, Google Docs & Sheets
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDocStudioOpen(false)}
+                className="rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 overflow-hidden">
+              {/* Left Column Controls */}
+              <div className="lg:col-span-5 flex flex-col overflow-y-auto border-r border-slate-800 bg-slate-900/60 p-5 space-y-4 scrollbar-thin">
+                {/* Document Type Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Document Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDocType("word");
+                        if (!docStudioSubtitle || docStudioSubtitle.includes("Excel")) {
+                          setDocStudioSubtitle("Word Document or Google Doc");
+                        }
+                      }}
+                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                        docType === "word"
+                          ? "border-blue-500 bg-blue-600 text-white shadow-md"
+                          : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      <FileText size={15} />
+                      <span>Word / Google Doc</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDocType("excel");
+                        if (!docStudioSubtitle || docStudioSubtitle.includes("Word")) {
+                          setDocStudioSubtitle("Excel Worksheet or Google Sheet");
+                        }
+                      }}
+                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                        docType === "excel"
+                          ? "border-emerald-500 bg-emerald-600 text-white shadow-md"
+                          : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      <FileSpreadsheet size={15} />
+                      <span>Excel / Google Sheet</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* File URL Input & Gallery */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Document File URL
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={docStudioUrl}
+                      onChange={(e) => setDocStudioUrl(e.target.value)}
+                      placeholder={docType === "word" ? "Paste Word doc URL..." : "Paste Excel spreadsheet URL..."}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-200 outline-none focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsGalleryOpen(true)}
+                      className="shrink-0 flex items-center gap-1 rounded-xl bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-700 transition cursor-pointer"
+                      title="Select File from Cloudinary Gallery"
+                    >
+                      <ImageIcon size={14} />
+                      <span>Gallery</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Theme Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Card Theme & Layout Preset
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: "light", name: "Modern Light Card", icon: "bi bi-sun-fill", desc: "Clean white card with preview" },
+                      { id: "dark", name: "Dark Executive", icon: "bi bi-moon-stars-fill", desc: "Dark theme with glowing accent" },
+                      { id: "banner", name: "Compact Banner", icon: "bi bi-file-earmark-text-fill", desc: "Single row horizontal download bar" },
+                      { id: "badge", name: "Minimal Pill Badge", icon: "bi bi-tag-fill", desc: "Rounded pill action link badge" },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setDocStudioTheme(t.id as any)}
+                        className={`flex flex-col text-left p-3 rounded-2xl border transition cursor-pointer ${
+                          docStudioTheme === t.id
+                            ? `${docType === "word" ? "border-blue-500 bg-blue-500/15 text-white ring-1 ring-blue-500/50" : "border-emerald-500 bg-emerald-500/15 text-white ring-1 ring-emerald-500/50"}`
+                            : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                        }`}
+                      >
+                        <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                          <i className={`${t.icon} ${docType === "word" ? "text-blue-400" : "text-emerald-400"}`} />
+                          <span>{t.name}</span>
+                        </span>
+                        <span className="text-[10px] text-slate-400 mt-1 leading-tight">{t.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Document Title */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Document Title
+                  </label>
+                  <input
+                    type="text"
+                    value={docStudioTitle}
+                    onChange={(e) => setDocStudioTitle(e.target.value)}
+                    placeholder={docType === "word" ? "e.g. CBSE Syllabus 2026-27" : "e.g. Fee Structure Schedule 2026-27"}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-100 outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Subtitle */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Subtitle / Description
+                  </label>
+                  <input
+                    type="text"
+                    value={docStudioSubtitle}
+                    onChange={(e) => setDocStudioSubtitle(e.target.value)}
+                    placeholder="e.g. Official document details..."
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-slate-300 outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Button Label */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Action Button Label
+                  </label>
+                  <input
+                    type="text"
+                    value={docStudioButtonText}
+                    onChange={(e) => setDocStudioButtonText(e.target.value)}
+                    placeholder="e.g. View Document"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-200 outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Right Column: Live Interactive Preview */}
+              <div className="lg:col-span-7 flex flex-col overflow-hidden bg-slate-950 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <Eye size={14} className={docType === "word" ? "text-blue-400" : "text-emerald-400"} /> Live Interactive Preview:
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-mono">Theme: {docStudioTheme}</span>
+                </div>
+
+                <div className="flex-1 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900/60 p-5 scrollbar-thin">
+                  {!docStudioUrl ? (
+                    <div className="flex h-full flex-col items-center justify-center text-slate-500 gap-2 p-8">
+                      {docType === "word" ? <FileText size={48} className="text-slate-700" /> : <FileSpreadsheet size={48} className="text-slate-700" />}
+                      <p className="text-xs font-medium">Select or paste document URL to preview custom card</p>
+                    </div>
+                  ) : (
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          docType === "word"
+                            ? generateWordCardHtml({
+                                url: docStudioUrl,
+                                title: docStudioTitle,
+                                subtitle: docStudioSubtitle,
+                                buttonText: docStudioButtonText,
+                                theme: docStudioTheme,
+                              })
+                            : generateExcelCardHtml({
+                                url: docStudioUrl,
+                                title: docStudioTitle,
+                                subtitle: docStudioSubtitle,
+                                buttonText: docStudioButtonText,
+                                theme: docStudioTheme,
+                              }),
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Apply Button */}
+                <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsDocStudioOpen(false)}
+                    className="rounded-xl border border-slate-700 px-5 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!docStudioUrl}
+                    onClick={() => {
+                      if (!docStudioUrl) return;
+                      const htmlSnippet =
+                        docType === "word"
+                          ? generateWordCardHtml({
+                              url: docStudioUrl,
+                              title: docStudioTitle,
+                              subtitle: docStudioSubtitle,
+                              buttonText: docStudioButtonText,
+                              theme: docStudioTheme,
+                            })
+                          : generateExcelCardHtml({
+                              url: docStudioUrl,
+                              title: docStudioTitle,
+                              subtitle: docStudioSubtitle,
+                              buttonText: docStudioButtonText,
+                              theme: docStudioTheme,
+                            });
+                      insertHTML(htmlSnippet);
+                      setIsDocStudioOpen(false);
+                    }}
+                    className={`flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-extrabold text-white shadow-lg hover:brightness-110 disabled:opacity-50 transition cursor-pointer ${
+                      docType === "word" ? "bg-gradient-to-r from-blue-600 to-indigo-600" : "bg-gradient-to-r from-emerald-600 to-teal-600"
+                    }`}
+                  >
+                    <Check size={16} />
+                    <span>Apply & Insert Document Card</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
