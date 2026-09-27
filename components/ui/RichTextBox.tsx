@@ -972,7 +972,69 @@ export function RichTextBox({
               a.wysiwyg-selected-link { outline: 2px dashed #1a5d9c !important; outline-offset: 3px !important; background-color: rgba(26, 93, 156, 0.08) !important; border-radius: 4px; }
               img { max-width: 100%; height: auto; border-radius: 12px; margin: 12px 0; box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.2s ease; }
               img.wysiwyg-selected-img { outline: 3px solid #2563eb !important; outline-offset: 3px !important; box-shadow: 0 0 20px rgba(37, 99, 235, 0.35) !important; }
-              .wysiwyg-selected-block { outline: 2px dashed #1a5d9c !important; outline-offset: 4px !important; box-shadow: 0 0 0 4px rgba(26, 93, 156, 0.12) !important; border-radius: 8px; }
+              .wysiwyg-selected-block { outline: 2px dashed #1a5d9c !important; outline-offset: 4px !important; box-shadow: 0 0 0 4px rgba(26, 93, 156, 0.12) !important; border-radius: 8px; position: relative !important; }
+              .wysiwyg-resize-handle {
+                position: absolute !important;
+                width: 14px !important;
+                height: 14px !important;
+                background-color: #1a5d9c !important;
+                border: 2px solid #ffffff !important;
+                border-radius: 4px !important;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+                z-index: 99999 !important;
+                cursor: nwse-resize !important;
+                user-select: none !important;
+              }
+              .wysiwyg-resize-handle.bottom-right {
+                bottom: -6px !important;
+                right: -6px !important;
+              }
+              .wysiwyg-block-toolbar {
+                position: absolute !important;
+                top: -38px !important;
+                right: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 4px !important;
+                background: #0f172a !important;
+                color: #ffffff !important;
+                padding: 3px 8px !important;
+                border-radius: 8px !important;
+                font-size: 11px !important;
+                font-weight: 700 !important;
+                font-family: system-ui, sans-serif !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
+                z-index: 99999 !important;
+                user-select: none !important;
+              }
+              .wysiwyg-block-toolbar button {
+                background: rgba(255,255,255,0.18) !important;
+                color: #ffffff !important;
+                border: none !important;
+                border-radius: 4px !important;
+                padding: 3px 7px !important;
+                font-size: 11px !important;
+                font-weight: 700 !important;
+                cursor: pointer !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 4px !important;
+              }
+              .wysiwyg-block-toolbar button:hover {
+                background: rgba(255,255,255,0.35) !important;
+              }
+              .wysiwyg-block-toolbar button.btn-delete {
+                background: #ef4444 !important;
+              }
+              .wysiwyg-block-toolbar button.btn-delete:hover {
+                background: #dc2626 !important;
+              }
+              .wysiwyg-block-toolbar button.btn-add-line {
+                background: #10b981 !important;
+              }
+              .wysiwyg-block-toolbar button.btn-add-line:hover {
+                background: #059669 !important;
+              }
               hr { border: none; border-top: 2px solid #e2e8f0; margin: 1.5rem 0; }
               pre { background: #0f172a; color: #38bdf8; padding: 16px; border-radius: 14px; font-family: monospace; overflow-x: auto; }
               table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
@@ -997,28 +1059,36 @@ export function RichTextBox({
 
             checkEmpty();
 
+            const getCleanHtmlFromDoc = (d: Document): string => {
+                const clone = d.body.cloneNode(true) as HTMLElement;
+                clone.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+                clone.querySelectorAll("figure.wysiwyg-img-container").forEach((fig) => {
+                    const img = fig.querySelector("img");
+                    if (img) {
+                        fig.parentNode?.insertBefore(img, fig);
+                    }
+                    fig.remove();
+                });
+                clone.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+                clone.querySelectorAll("img.wysiwyg-selected-img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
+                clone.querySelectorAll("a.wysiwyg-selected-link").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
+                const html = clone.innerHTML;
+                return html === "<br>" ? "" : html;
+            };
+
             const syncContent = () => {
                 checkEmpty();
-                const currentBodyHtml = doc.body.innerHTML;
+                const cleanHtml = getCleanHtmlFromDoc(doc);
                 isInternalChangeRef.current = true;
-                onChange(currentBodyHtml === "<br>" ? "" : currentBodyHtml);
+                onChange(cleanHtml);
             };
 
             // Image, Link, Table & Component selection listener inside iframe
             const handleDocClick = (e: MouseEvent) => {
                 const target = e.target as HTMLElement;
 
-                doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
-                doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
-                doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
-
-                if (!target || target === doc.body || target === doc.documentElement) {
-                    setSelectedBlockEl(null);
-                    setSelectedImageEl(null);
-                    setSelectedAnchorEl(null);
-                    setSelectedTableEl(null);
-                    setSelectedTableCellEl(null);
-                    setSelectedTableRowEl(null);
+                // Do not clear selection if clicking inside toolbar or resize handle
+                if (target?.closest?.(".wysiwyg-block-toolbar") || target?.closest?.(".wysiwyg-resize-handle")) {
                     return;
                 }
 
@@ -1028,17 +1098,185 @@ export function RichTextBox({
                 const cellEl = (target && (target.tagName === "TD" || target.tagName === "TH") ? target : target?.closest?.("td, th")) as HTMLTableCellElement | null;
                 const rowEl = (target && target.tagName === "TR" ? target : target?.closest?.("tr")) as HTMLTableRowElement | null;
 
-                let blockContainer: HTMLElement | null = null;
-                const closestComp = target.closest("section, div, blockquote, table, figure, h1, h2, h3, p, pre") as HTMLElement | null;
-                if (closestComp && closestComp !== doc.body) {
-                    blockContainer = closestComp;
-                }
-
+                // Handle Image Resizing Container
                 if (imgEl) {
                     imgEl.classList.add("wysiwyg-selected-img");
                     setSelectedImageEl(imgEl);
-                } else {
-                    setSelectedImageEl(null);
+
+                    let container: HTMLElement;
+                    if (imgEl.parentElement && imgEl.parentElement.classList.contains("wysiwyg-img-container")) {
+                        container = imgEl.parentElement;
+                    } else {
+                        container = doc.createElement("figure");
+                        container.className = "wysiwyg-img-container";
+                        container.style.position = "relative";
+                        container.style.display = imgEl.style.display === "block" ? "block" : "inline-block";
+                        container.style.margin = imgEl.style.margin || "12px 0";
+                        container.style.maxWidth = "100%";
+                        container.style.width = imgEl.style.width || "auto";
+                        imgEl.parentNode?.insertBefore(container, imgEl);
+                        container.appendChild(imgEl);
+                    }
+
+                    container.classList.add("wysiwyg-selected-block");
+                    setSelectedBlockEl(container);
+
+                    if (!container.querySelector(".wysiwyg-resize-handle")) {
+                        const tb = doc.createElement("div");
+                        tb.className = "wysiwyg-block-toolbar";
+                        tb.contentEditable = "false";
+                        tb.innerHTML = `
+                            <span style="opacity:0.8; font-family:monospace;">&lt;img&gt;</span>
+                            <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Image">+ Text Below</button>
+                            <button type="button" class="btn-delete" title="Delete Image">&times; Remove</button>
+                        `;
+
+                        tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
+                            evt.stopPropagation();
+                            evt.preventDefault();
+                            container.remove();
+                            setSelectedBlockEl(null);
+                            setSelectedImageEl(null);
+                            syncContent();
+                        });
+
+                        tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
+                            evt.stopPropagation();
+                            evt.preventDefault();
+                            const newP = doc.createElement("p");
+                            newP.innerHTML = "<br>";
+                            container.insertAdjacentElement("afterend", newP);
+
+                            const sel = doc.getSelection();
+                            if (sel) {
+                                const range = doc.createRange();
+                                range.setStart(newP, 0);
+                                range.collapse(true);
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            }
+                            syncContent();
+                        });
+
+                        container.appendChild(tb);
+
+                        const handle = doc.createElement("div");
+                        handle.className = "wysiwyg-resize-handle bottom-right";
+                        handle.title = "Drag corner to extend or reduce image size";
+                        handle.contentEditable = "false";
+
+                        let startX = 0;
+                        let startY = 0;
+                        let startW = 0;
+                        let startH = 0;
+
+                        const onMouseMove = (moveEv: MouseEvent) => {
+                            const dx = moveEv.clientX - startX;
+                            const dy = moveEv.clientY - startY;
+                            const newW = Math.max(60, startW + dx);
+                            imgEl.style.width = newW + "px";
+                            imgEl.style.maxWidth = "100%";
+                            container.style.width = newW + "px";
+                            container.style.maxWidth = "100%";
+                            if (Math.abs(dy) > 15) {
+                                const newH = Math.max(40, startH + dy);
+                                imgEl.style.height = newH + "px";
+                            } else {
+                                imgEl.style.height = "auto";
+                            }
+                        };
+
+                        const onMouseUp = () => {
+                            doc.removeEventListener("mousemove", onMouseMove);
+                            doc.removeEventListener("mouseup", onMouseUp);
+                            window.removeEventListener("mousemove", onMouseMove);
+                            window.removeEventListener("mouseup", onMouseUp);
+                            syncContent();
+                        };
+
+                        handle.addEventListener("mousedown", (mEv: MouseEvent) => {
+                            mEv.stopPropagation();
+                            mEv.preventDefault();
+                            startX = mEv.clientX;
+                            startY = mEv.clientY;
+                            startW = imgEl.offsetWidth || container.offsetWidth;
+                            startH = imgEl.offsetHeight || container.offsetHeight;
+
+                            doc.addEventListener("mousemove", onMouseMove);
+                            doc.addEventListener("mouseup", onMouseUp);
+                            window.addEventListener("mousemove", onMouseMove);
+                            window.addEventListener("mouseup", onMouseUp);
+                        });
+
+                        container.appendChild(handle);
+                    }
+                    return;
+                }
+
+                const isComponentContainer = (el: HTMLElement): boolean => {
+                    if (!el || el === doc.body || el === doc.documentElement) return false;
+                    const tag = el.tagName.toLowerCase();
+                    if (tag === "section" || tag === "table" || tag === "figure" || tag === "blockquote") return true;
+                    if (tag === "div") {
+                        const style = (el.getAttribute("style") || "").toLowerCase();
+                        const classNames = (el.className || "").toLowerCase();
+                        return (
+                            style.includes("border") ||
+                            style.includes("background") ||
+                            style.includes("display: flex") ||
+                            style.includes("display: grid") ||
+                            classNames.includes("card") ||
+                            classNames.includes("banner")
+                        );
+                    }
+                    return false;
+                };
+
+                let topBlock: HTMLElement | null = null;
+                let curr: HTMLElement | null = target;
+                while (curr && curr.parentElement && curr.parentElement !== doc.body && curr.parentElement.tagName !== "BODY") {
+                    if (isComponentContainer(curr)) {
+                        topBlock = curr;
+                        break;
+                    }
+                    curr = curr.parentElement;
+                }
+                if (!topBlock && curr && curr !== doc.body && isComponentContainer(curr)) {
+                    topBlock = curr;
+                }
+
+                const targetForResizing = topBlock;
+
+                // If clicking on the already selected target element that has handle, keep handles intact without flickering
+                if (targetForResizing && targetForResizing.querySelector(".wysiwyg-resize-handle")) {
+                    return;
+                }
+
+                // Clean up old handles & classes when selecting a new element or background
+                doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+                doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+                doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
+                doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
+
+                if (!targetForResizing) {
+                    if (!anchorEl && !tableEl) {
+                        setSelectedBlockEl(null);
+                        setSelectedImageEl(null);
+                        setSelectedAnchorEl(null);
+                        setSelectedTableEl(null);
+                        setSelectedTableCellEl(null);
+                        setSelectedTableRowEl(null);
+                    }
+                    if (anchorEl) {
+                        anchorEl.classList.add("wysiwyg-selected-link");
+                        setSelectedAnchorEl(anchorEl);
+                    }
+                    if (tableEl) {
+                        setSelectedTableEl(tableEl);
+                        setSelectedTableCellEl(cellEl);
+                        setSelectedTableRowEl(rowEl);
+                    }
+                    return;
                 }
 
                 if (anchorEl) {
@@ -1052,17 +1290,189 @@ export function RichTextBox({
                     setSelectedTableEl(tableEl);
                     setSelectedTableCellEl(cellEl);
                     setSelectedTableRowEl(rowEl);
-                } else {
-                    setSelectedTableEl(null);
-                    setSelectedTableCellEl(null);
-                    setSelectedTableRowEl(null);
                 }
 
-                if (blockContainer) {
-                    blockContainer.classList.add("wysiwyg-selected-block");
-                    setSelectedBlockEl(blockContainer);
-                } else {
-                    setSelectedBlockEl(null);
+                if (targetForResizing) {
+                    targetForResizing.classList.add("wysiwyg-selected-block");
+                    setSelectedBlockEl(targetForResizing);
+
+                    const currentPos = doc.defaultView?.getComputedStyle(targetForResizing).position;
+                    if (!currentPos || currentPos === "static") {
+                        targetForResizing.style.position = "relative";
+                    }
+
+                    // Attach Floating Action Toolbar directly to block inside iframe
+                    const tb = doc.createElement("div");
+                    tb.className = "wysiwyg-block-toolbar";
+                    tb.contentEditable = "false";
+                    tb.innerHTML = `
+                        <span style="opacity:0.8; font-family:monospace;">&lt;${targetForResizing.tagName.toLowerCase()}&gt;</span>
+                        <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Component">+ Text Below</button>
+                        <button type="button" class="btn-move-up" title="Move Up">&uarr;</button>
+                        <button type="button" class="btn-move-down" title="Move Down">&darr;</button>
+                        <button type="button" class="btn-delete" title="Delete Component">&times; Remove</button>
+                    `;
+
+                    tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        targetForResizing.remove();
+                        setSelectedBlockEl(null);
+                        setSelectedImageEl(null);
+                        syncContent();
+                    });
+
+                    tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        const newP = doc.createElement("p");
+                        newP.innerHTML = "<br>";
+                        targetForResizing.insertAdjacentElement("afterend", newP);
+
+                        const sel = doc.getSelection();
+                        if (sel) {
+                            const range = doc.createRange();
+                            range.setStart(newP, 0);
+                            range.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        }
+                        syncContent();
+                    });
+
+                    tb.querySelector(".btn-move-up")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        if (targetForResizing.previousElementSibling) {
+                            targetForResizing.parentNode?.insertBefore(targetForResizing, targetForResizing.previousElementSibling);
+                            syncContent();
+                        }
+                    });
+
+                    tb.querySelector(".btn-move-down")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        if (targetForResizing.nextElementSibling) {
+                            targetForResizing.parentNode?.insertBefore(targetForResizing.nextElementSibling, targetForResizing);
+                            syncContent();
+                        }
+                    });
+
+                    targetForResizing.appendChild(tb);
+
+                    // Attach Corner Drag Resize Handle
+                    const handle = doc.createElement("div");
+                    handle.className = "wysiwyg-resize-handle bottom-right";
+                    handle.title = "Drag to resize component width & height";
+                    handle.contentEditable = "false";
+
+                    let startX = 0;
+                    let startY = 0;
+                    let startW = 0;
+                    let startH = 0;
+
+                    const onMouseMove = (moveEv: MouseEvent) => {
+                        const dx = moveEv.clientX - startX;
+                        const dy = moveEv.clientY - startY;
+                        const newW = Math.max(120, startW + dx);
+                        targetForResizing.style.width = newW + "px";
+                        targetForResizing.style.maxWidth = "100%";
+                        if (Math.abs(dy) > 15) {
+                            const newH = Math.max(40, startH + dy);
+                            targetForResizing.style.height = newH + "px";
+                        }
+                    };
+
+                    const onMouseUp = () => {
+                        doc.removeEventListener("mousemove", onMouseMove);
+                        doc.removeEventListener("mouseup", onMouseUp);
+                        window.removeEventListener("mousemove", onMouseMove);
+                        window.removeEventListener("mouseup", onMouseUp);
+                        syncContent();
+                    };
+
+                    handle.addEventListener("mousedown", (mEv: MouseEvent) => {
+                        mEv.stopPropagation();
+                        mEv.preventDefault();
+                        startX = mEv.clientX;
+                        startY = mEv.clientY;
+                        startW = targetForResizing.offsetWidth;
+                        startH = targetForResizing.offsetHeight;
+
+                        doc.addEventListener("mousemove", onMouseMove);
+                        doc.addEventListener("mouseup", onMouseUp);
+                        window.addEventListener("mousemove", onMouseMove);
+                        window.addEventListener("mouseup", onMouseUp);
+                    });
+
+                    targetForResizing.appendChild(handle);
+                }
+            };
+
+            // Keyboard Event listener inside iframe for Delete, Backspace & Enter keys
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === "Delete" || e.key === "Backspace") {
+                    const selectedBlock = doc.querySelector(".wysiwyg-selected-block") as HTMLElement;
+                    const selectedImg = doc.querySelector("img.wysiwyg-selected-img") as HTMLElement;
+                    const selectedLink = doc.querySelector("a.wysiwyg-selected-link") as HTMLElement;
+
+                    const activeTarget = selectedImg || selectedLink || selectedBlock;
+                    if (activeTarget && activeTarget !== doc.body) {
+                        const sel = doc.getSelection();
+                        const isTextSelection = sel && sel.toString().length > 0;
+                        const activeElem = doc.activeElement as HTMLElement;
+                        const isInsideFormInput = activeElem && (activeElem.tagName === "INPUT" || activeElem.tagName === "TEXTAREA");
+
+                        if (isInsideFormInput) return;
+
+                        if (selectedImg || selectedLink) {
+                            e.preventDefault();
+                            activeTarget.remove();
+                            setSelectedImageEl(null);
+                            setSelectedAnchorEl(null);
+                            setSelectedBlockEl(null);
+                            syncContent();
+                            return;
+                        }
+
+                        if (selectedBlock) {
+                            if (e.key === "Delete" || !isTextSelection) {
+                                let topEl: HTMLElement = selectedBlock;
+                                while (topEl.parentElement && topEl.parentElement !== doc.body && topEl.parentElement.tagName !== "BODY") {
+                                    topEl = topEl.parentElement;
+                                }
+                                e.preventDefault();
+                                topEl.remove();
+                                setSelectedBlockEl(null);
+                                setSelectedImageEl(null);
+                                syncContent();
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                if (e.key === "Enter") {
+                    const sel = doc.getSelection();
+                    if (sel && sel.rangeCount > 0) {
+                        const range = sel.getRangeAt(0);
+                        const container = range.startContainer.parentElement;
+                        const topBlock = container?.closest("section, blockquote, figure, table, div") as HTMLElement;
+
+                        if (topBlock && topBlock !== doc.body && (e.shiftKey || e.ctrlKey)) {
+                            e.preventDefault();
+                            const newP = doc.createElement("p");
+                            newP.innerHTML = "<br>";
+                            topBlock.insertAdjacentElement("afterend", newP);
+
+                            const newRange = doc.createRange();
+                            newRange.setStart(newP, 0);
+                            newRange.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(newRange);
+                            syncContent();
+                        }
+                    }
                 }
             };
 
@@ -1117,8 +1527,8 @@ export function RichTextBox({
                 }
             };
 
-            doc.addEventListener("click", handleDocClick);
             doc.addEventListener("mousedown", handleDocClick);
+            doc.addEventListener("keydown", handleKeyDown);
             doc.addEventListener("dragover", handleDragOver);
             doc.addEventListener("drop", handleDrop);
             doc.addEventListener("input", syncContent);
@@ -1188,8 +1598,13 @@ export function RichTextBox({
 
     const deleteSelectedImage = () => {
         if (!selectedImageEl) return;
-        selectedImageEl.remove();
+        if (selectedImageEl.parentElement?.classList.contains("wysiwyg-img-container")) {
+            selectedImageEl.parentElement.remove();
+        } else {
+            selectedImageEl.remove();
+        }
         setSelectedImageEl(null);
+        setSelectedBlockEl(null);
         syncIframeToState();
     };
 
@@ -1337,11 +1752,42 @@ export function RichTextBox({
         const doc = iframe.contentDocument || iframe.contentWindow?.document;
         if (!doc) return;
 
-        iframe.contentWindow?.focus();
-        doc.execCommand("insertHTML", false, htmlSnippet);
-        const updatedHtml = doc.body.innerHTML;
-        isInternalChangeRef.current = true;
-        onChange(updatedHtml);
+        try {
+            iframe.contentWindow?.focus();
+            const sel = iframe.contentWindow?.getSelection() || doc.getSelection();
+
+            let inserted = false;
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (doc.body.contains(range.commonAncestorContainer)) {
+                    const tempDiv = doc.createElement("div");
+                    tempDiv.innerHTML = htmlSnippet;
+                    const frag = doc.createDocumentFragment();
+                    let child: Node | null;
+                    let lastInserted: Node | null = null;
+                    while ((child = tempDiv.firstChild)) {
+                        lastInserted = frag.appendChild(child);
+                    }
+                    range.deleteContents();
+                    range.insertNode(frag);
+                    if (lastInserted) {
+                        range.setStartAfter(lastInserted);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                    inserted = true;
+                }
+            }
+
+            if (!inserted) {
+                doc.body.insertAdjacentHTML("beforeend", htmlSnippet);
+            }
+        } catch (err) {
+            doc.body.insertAdjacentHTML("beforeend", htmlSnippet);
+        }
+
+        syncIframeToState();
     };
 
     const handleFormatBlock = (formatTag: string) => {
@@ -1460,6 +1906,41 @@ export function RichTextBox({
         setIsGalleryOpen(true);
     };
 
+    const insertParagraphAfterSelectedBlock = () => {
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+
+        const targetEl =
+            selectedBlockEl ||
+            selectedImageEl ||
+            selectedAnchorEl ||
+            selectedTableEl ||
+            (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) ||
+            (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement);
+
+        if (!targetEl || !doc) return;
+
+        let topEl: HTMLElement = targetEl;
+        while (topEl.parentElement && topEl.parentElement !== doc.body && topEl.parentElement.tagName !== "BODY") {
+            topEl = topEl.parentElement;
+        }
+
+        const newP = doc.createElement("p");
+        newP.innerHTML = "<br>";
+        topEl.insertAdjacentElement("afterend", newP);
+
+        const sel = doc.getSelection();
+        if (sel) {
+            const range = doc.createRange();
+            range.setStart(newP, 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        syncIframeToState();
+    };
+
     const deleteSelectedBlock = () => {
         const iframe = iframeRef.current;
         const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
@@ -1468,18 +1949,28 @@ export function RichTextBox({
             selectedBlockEl ||
             selectedImageEl ||
             selectedAnchorEl ||
+            selectedTableEl ||
             (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) ||
             (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement) ||
             (doc?.querySelector("a.wysiwyg-selected-link") as HTMLElement);
 
         if (!targetEl) return;
 
-        targetEl.remove();
+        let topEl: HTMLElement = targetEl;
+        if (doc) {
+            while (topEl.parentElement && topEl.parentElement !== doc.body && topEl.parentElement.tagName !== "BODY") {
+                topEl = topEl.parentElement;
+            }
+        }
+
+        topEl.remove();
         setSelectedBlockEl(null);
         setSelectedImageEl(null);
         setSelectedAnchorEl(null);
+        setSelectedTableEl(null);
 
         if (doc) {
+            doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
             doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
             doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
             doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
@@ -2228,17 +2719,28 @@ export function RichTextBox({
                         </button>
                     </div>
 
-                    {/* Remove Selected Element Button in Top Toolbar */}
+                    {/* Remove Selected Element & Add Text Below in Top Toolbar */}
                     {(selectedBlockEl || selectedImageEl || selectedAnchorEl) && (
-                        <button
-                            type="button"
-                            onClick={deleteSelectedBlock}
-                            title="Remove selected component or element from visual canvas"
-                            className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-600 px-3 py-1 text-xs font-extrabold text-white shadow-2xs hover:bg-red-700 transition cursor-pointer animate-in fade-in"
-                        >
-                            <Trash2 size={13} />
-                            <span>Remove Selected</span>
-                        </button>
+                        <div className="flex items-center gap-1.5 animate-in fade-in">
+                            <button
+                                type="button"
+                                onClick={insertParagraphAfterSelectedBlock}
+                                className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-600 px-3 py-1 text-xs font-extrabold text-white shadow-2xs hover:bg-emerald-700 transition cursor-pointer"
+                                title="Insert a plain text paragraph below selected component"
+                            >
+                                <Plus size={13} />
+                                <span>+ Text Below</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={deleteSelectedBlock}
+                                title="Remove selected component or element from visual canvas"
+                                className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-600 px-3 py-1 text-xs font-extrabold text-white shadow-2xs hover:bg-red-700 transition cursor-pointer"
+                            >
+                                <Trash2 size={13} />
+                                <span>Remove Selected</span>
+                            </button>
+                        </div>
                     )}
 
                     {/* Clear Format */}
@@ -2342,19 +2844,30 @@ export function RichTextBox({
 
                             <div className="flex items-center gap-1.5 flex-wrap">
                                 {(selectedBlockEl || selectedImageEl || selectedAnchorEl) && (
-                                    <button
-                                        type="button"
-                                        onClick={deleteSelectedBlock}
-                                        className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:bg-red-700 transition cursor-pointer animate-in fade-in"
-                                        title="Remove selected component or element from visual canvas"
-                                    >
-                                        <Trash2 size={13} />
-                                        <span>Remove Component</span>
-                                    </button>
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={insertParagraphAfterSelectedBlock}
+                                            className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:bg-emerald-700 transition cursor-pointer animate-in fade-in"
+                                            title="Insert a clean plain text line below selected component"
+                                        >
+                                            <Plus size={13} />
+                                            <span>+ Text Line Below</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={deleteSelectedBlock}
+                                            className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:bg-red-700 transition cursor-pointer animate-in fade-in"
+                                            title="Remove selected component or element from visual canvas"
+                                        >
+                                            <Trash2 size={13} />
+                                            <span>Remove Component</span>
+                                        </button>
+                                    </>
                                 )}
 
                                 {/* Quick Resizes */}
-                                <span className="text-[10px] font-extrabold text-blue-800 uppercase">Size:</span>
+                                <span className="text-[10px] font-extrabold text-blue-800 uppercase">Width:</span>
                                 {[25, 50, 75, 100].map((pct) => (
                                     <button
                                         key={pct}
@@ -2362,13 +2875,13 @@ export function RichTextBox({
                                         onClick={() => {
                                             const iframe = iframeRef.current;
                                             const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
-                                            const targetImg = selectedImageEl || (doc?.querySelector("img.wysiwyg-selected-img") as HTMLImageElement) || (doc?.querySelector("img") as HTMLImageElement);
-                                            if (targetImg) {
-                                                targetImg.style.width = pct === 100 ? "100%" : `${pct}%`;
-                                                targetImg.style.height = "auto";
+                                            const target = selectedBlockEl || selectedImageEl || (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) || (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement);
+                                            if (target) {
+                                                target.style.width = pct === 100 ? "100%" : `${pct}%`;
+                                                target.style.maxWidth = "100%";
                                                 syncIframeToState();
                                             } else {
-                                                alert("Please click an image in the editor first, or click 'Crop, Resize & Compress Studio' to process image.");
+                                                alert("Please click a component, banner, or image in the editor to select it first.");
                                             }
                                         }}
                                         className="rounded-lg border border-blue-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-700 hover:bg-blue-100 transition"
