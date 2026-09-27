@@ -20,7 +20,7 @@ import {
     getDocumentViewerUrl,
     getPdfProxyUrl,
 } from "@/lib/file-preview";
-import { Crop, Trash2, RefreshCw, Scissors, Loader2 } from "lucide-react";
+import { Crop, Trash2, RefreshCw, Scissors, Loader2, Ban } from "lucide-react";
 import {
     Bold,
     Italic,
@@ -68,6 +68,8 @@ import {
     ExternalLink,
     Link2,
     Globe,
+    ArrowUp,
+    Paintbrush,
     ArrowRight,
     FileText,
     Phone,
@@ -1003,8 +1005,9 @@ export function RichTextBox({
                 font-size: 11px !important;
                 font-weight: 700 !important;
                 font-family: system-ui, sans-serif !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
-                z-index: 99999 !important;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.35) !important;
+                border: 1px solid rgba(255,255,255,0.2) !important;
+                z-index: 999999 !important;
                 user-select: none !important;
               }
               .wysiwyg-block-toolbar button {
@@ -1050,11 +1053,40 @@ export function RichTextBox({
             doc.write(htmlTemplate);
             doc.close();
 
+            // Extract page background color if value was previously wrapped in wysiwyg-page-wrapper
+            const existingWrapper = doc.body.querySelector(".wysiwyg-page-wrapper") as HTMLElement;
+            if (existingWrapper) {
+                if (existingWrapper.style.backgroundColor) {
+                    doc.body.style.backgroundColor = existingWrapper.style.backgroundColor;
+                }
+                doc.body.innerHTML = existingWrapper.innerHTML;
+            }
+
             const checkEmpty = () => {
-                const bodyHtml = doc.body.innerHTML;
-                const isEmpty = !bodyHtml || bodyHtml === "<br>" || bodyHtml.trim() === "";
-                doc.body.setAttribute("data-empty", String(isEmpty));
-                doc.body.setAttribute("data-placeholder", placeholder);
+                if (!doc || !doc.body) return;
+                const body = doc.body;
+                const hasMediaOrElements = body.querySelector("img, table, iframe, figure, div, section, blockquote, hr, svg, video, audio, h1, h2, h3, ul, ol, a") !== null;
+                const textContent = body.textContent?.replace(/\u8203|\u200B|\s/g, "") || "";
+                const rawHtml = body.innerHTML.trim();
+                const isHtmlEmpty = !rawHtml || rawHtml === "<br>" || rawHtml === "<p><br></p>" || rawHtml === "<p></p>" || rawHtml === "<div><br></div>";
+
+                let isEmpty = true;
+                if (hasMediaOrElements) {
+                    isEmpty = false;
+                } else if (body.children.length > 0) {
+                    const first = body.firstElementChild as HTMLElement;
+                    const tag = first?.tagName?.toLowerCase();
+                    if ((tag === "p" || tag === "div") && !first.querySelector("img, table, iframe, figure, svg, hr") && !first.textContent?.trim()) {
+                        isEmpty = true;
+                    } else {
+                        isEmpty = false;
+                    }
+                } else if (textContent) {
+                    isEmpty = false;
+                }
+
+                body.setAttribute("data-empty", String(isEmpty));
+                body.setAttribute("data-placeholder", placeholder || "Write page rich text content, headings, formatting...");
             };
 
             checkEmpty();
@@ -1073,7 +1105,19 @@ export function RichTextBox({
                 clone.querySelectorAll("img.wysiwyg-selected-img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
                 clone.querySelectorAll("a.wysiwyg-selected-link").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
                 const html = clone.innerHTML;
-                return html === "<br>" ? "" : html;
+                if (html === "<br>") return "";
+
+                const bodyBg = d.body.style.backgroundColor;
+                if (bodyBg && bodyBg !== "transparent" && bodyBg !== "rgba(0, 0, 0, 0)") {
+                    const firstChild = clone.firstElementChild;
+                    if (clone.children.length === 1 && firstChild && firstChild.classList.contains("wysiwyg-page-wrapper")) {
+                        (firstChild as HTMLElement).style.backgroundColor = bodyBg;
+                        return clone.innerHTML;
+                    } else {
+                        return `<div class="wysiwyg-page-wrapper" style="background-color: ${bodyBg}; padding: 24px; border-radius: 16px; min-height: 100%;">${html}</div>`;
+                    }
+                }
+                return html;
             };
 
             const syncContent = () => {
@@ -1125,10 +1169,20 @@ export function RichTextBox({
                         const tb = doc.createElement("div");
                         tb.className = "wysiwyg-block-toolbar";
                         tb.contentEditable = "false";
+
+                        const isImgNearTop = container.offsetTop < 42 || container.getBoundingClientRect().top < 42;
+                        if (isImgNearTop) {
+                            tb.style.setProperty("top", "6px", "important");
+                            tb.style.setProperty("right", "6px", "important");
+                        } else {
+                            tb.style.setProperty("top", "-38px", "important");
+                            tb.style.setProperty("right", "0px", "important");
+                        }
+
                         tb.innerHTML = `
                             <span style="opacity:0.8; font-family:monospace;">&lt;img&gt;</span>
-                            <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Image">+ Text Below</button>
-                            <button type="button" class="btn-delete" title="Delete Image">&times; Remove</button>
+                            <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
+                            <button type="button" class="btn-delete" title="Delete Image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
                         `;
 
                         tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
@@ -1292,31 +1346,81 @@ export function RichTextBox({
                     setSelectedTableRowEl(rowEl);
                 }
 
-                if (targetForResizing) {
-                    targetForResizing.classList.add("wysiwyg-selected-block");
-                    setSelectedBlockEl(targetForResizing);
+                const bindBlockSelection = (targetBlock: HTMLElement) => {
+                    doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+                    doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
 
-                    const currentPos = doc.defaultView?.getComputedStyle(targetForResizing).position;
+                    targetBlock.classList.add("wysiwyg-selected-block");
+                    setSelectedBlockEl(targetBlock);
+
+                    // Check for parent component container box
+                    let parentBlock: HTMLElement | null = null;
+                    let pCurr: HTMLElement | null = targetBlock.parentElement;
+                    while (pCurr && pCurr !== doc.body && pCurr.tagName !== "BODY") {
+                        if (isComponentContainer(pCurr)) {
+                            parentBlock = pCurr;
+                            break;
+                        }
+                        pCurr = pCurr.parentElement;
+                    }
+
+                    const currentPos = doc.defaultView?.getComputedStyle(targetBlock).position;
                     if (!currentPos || currentPos === "static") {
-                        targetForResizing.style.position = "relative";
+                        targetBlock.style.position = "relative";
                     }
 
                     // Attach Floating Action Toolbar directly to block inside iframe
                     const tb = doc.createElement("div");
                     tb.className = "wysiwyg-block-toolbar";
                     tb.contentEditable = "false";
+
+                    const isNearTop = targetBlock.offsetTop < 45 || targetBlock.getBoundingClientRect().top < 45;
+                    const isOverflowHidden = doc.defaultView?.getComputedStyle(targetBlock).overflow !== "visible";
+
+                    if (isNearTop || isOverflowHidden) {
+                        tb.style.setProperty("top", "6px", "important");
+                        tb.style.setProperty("right", "6px", "important");
+                    } else {
+                        tb.style.setProperty("top", "-38px", "important");
+                        tb.style.setProperty("right", "0px", "important");
+                    }
+
+                    const parentBtnHtml = parentBlock
+                        ? `<button type="button" class="btn-select-parent" title="Switch selection to Outer Parent Box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="m18 15-6-6-6 6"/></svg>Outer Box (&lt;${parentBlock.tagName.toLowerCase()}&gt;)</button>`
+                        : ``;
+
                     tb.innerHTML = `
-                        <span style="opacity:0.8; font-family:monospace;">&lt;${targetForResizing.tagName.toLowerCase()}&gt;</span>
-                        <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Component">+ Text Below</button>
-                        <button type="button" class="btn-move-up" title="Move Up">&uarr;</button>
-                        <button type="button" class="btn-move-down" title="Move Down">&darr;</button>
-                        <button type="button" class="btn-delete" title="Delete Component">&times; Remove</button>
+                        <span style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
+                        ${parentBtnHtml}
+                        <label style="display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,0.18); padding:2px 6px; border-radius:4px; cursor:pointer;" title="Change Component Background Color">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.6 1.95-1.5.28-1.02-.32-2.12-1.35-2.42-.42-.12-.7-.47-.7-.91 0-.6.44-1.09 1.04-1.15.59-.06 1.13.34 1.25.93.38 1.83 1.94 3.05 3.81 3.05 2.21 0 4-1.79 4-4 0-4.42-3.58-8-8-8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/></svg>
+                            <span style="font-size:10px; font-weight:800;">BG</span>
+                            <input type="color" class="btn-bg-picker" style="width:16px; height:16px; border:none; padding:0; background:none; cursor:pointer;" />
+                        </label>
+                        <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
+                        <button type="button" class="btn-move-up" title="Move Up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
+                        <button type="button" class="btn-move-down" title="Move Down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+                        <button type="button" class="btn-delete" title="Delete Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
                     `;
+
+                    if (parentBlock) {
+                        tb.querySelector(".btn-select-parent")?.addEventListener("mousedown", (evt) => {
+                            evt.stopPropagation();
+                            evt.preventDefault();
+                            bindBlockSelection(parentBlock!);
+                        });
+                    }
+
+                    tb.querySelector(".btn-bg-picker")?.addEventListener("input", (evt: any) => {
+                        evt.stopPropagation();
+                        applyBgToElement(targetBlock, evt.target.value);
+                        syncContent();
+                    });
 
                     tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
                         evt.stopPropagation();
                         evt.preventDefault();
-                        targetForResizing.remove();
+                        targetBlock.remove();
                         setSelectedBlockEl(null);
                         setSelectedImageEl(null);
                         syncContent();
@@ -1327,7 +1431,7 @@ export function RichTextBox({
                         evt.preventDefault();
                         const newP = doc.createElement("p");
                         newP.innerHTML = "<br>";
-                        targetForResizing.insertAdjacentElement("afterend", newP);
+                        targetBlock.insertAdjacentElement("afterend", newP);
 
                         const sel = doc.getSelection();
                         if (sel) {
@@ -1343,8 +1447,8 @@ export function RichTextBox({
                     tb.querySelector(".btn-move-up")?.addEventListener("mousedown", (evt) => {
                         evt.stopPropagation();
                         evt.preventDefault();
-                        if (targetForResizing.previousElementSibling) {
-                            targetForResizing.parentNode?.insertBefore(targetForResizing, targetForResizing.previousElementSibling);
+                        if (targetBlock.previousElementSibling) {
+                            targetBlock.parentNode?.insertBefore(targetBlock, targetBlock.previousElementSibling);
                             syncContent();
                         }
                     });
@@ -1352,18 +1456,18 @@ export function RichTextBox({
                     tb.querySelector(".btn-move-down")?.addEventListener("mousedown", (evt) => {
                         evt.stopPropagation();
                         evt.preventDefault();
-                        if (targetForResizing.nextElementSibling) {
-                            targetForResizing.parentNode?.insertBefore(targetForResizing.nextElementSibling, targetForResizing);
+                        if (targetBlock.nextElementSibling) {
+                            targetBlock.parentNode?.insertBefore(targetBlock.nextElementSibling, targetBlock);
                             syncContent();
                         }
                     });
 
-                    targetForResizing.appendChild(tb);
+                    targetBlock.appendChild(tb);
 
                     // Attach Corner Drag Resize Handle
                     const handle = doc.createElement("div");
                     handle.className = "wysiwyg-resize-handle bottom-right";
-                    handle.title = "Drag to resize component width & height";
+                    handle.title = "Drag corner to extend or reduce size";
                     handle.contentEditable = "false";
 
                     let startX = 0;
@@ -1375,11 +1479,11 @@ export function RichTextBox({
                         const dx = moveEv.clientX - startX;
                         const dy = moveEv.clientY - startY;
                         const newW = Math.max(120, startW + dx);
-                        targetForResizing.style.width = newW + "px";
-                        targetForResizing.style.maxWidth = "100%";
+                        targetBlock.style.width = newW + "px";
+                        targetBlock.style.maxWidth = "100%";
                         if (Math.abs(dy) > 15) {
                             const newH = Math.max(40, startH + dy);
-                            targetForResizing.style.height = newH + "px";
+                            targetBlock.style.height = newH + "px";
                         }
                     };
 
@@ -1396,8 +1500,8 @@ export function RichTextBox({
                         mEv.preventDefault();
                         startX = mEv.clientX;
                         startY = mEv.clientY;
-                        startW = targetForResizing.offsetWidth;
-                        startH = targetForResizing.offsetHeight;
+                        startW = targetBlock.offsetWidth;
+                        startH = targetBlock.offsetHeight;
 
                         doc.addEventListener("mousemove", onMouseMove);
                         doc.addEventListener("mouseup", onMouseUp);
@@ -1405,7 +1509,11 @@ export function RichTextBox({
                         window.addEventListener("mouseup", onMouseUp);
                     });
 
-                    targetForResizing.appendChild(handle);
+                    targetBlock.appendChild(handle);
+                };
+
+                if (targetForResizing) {
+                    bindBlockSelection(targetForResizing);
                 }
             };
 
@@ -1612,7 +1720,15 @@ export function RichTextBox({
         const iframe = iframeRef.current;
         if (!iframe) return;
         const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!doc) return;
+        if (!doc || !doc.body) return;
+
+        const hasMediaOrElements = doc.body.querySelector("img, table, iframe, figure, div, section, blockquote, hr, svg, video, audio, h1, h2, h3, ul, ol, a") !== null;
+        const textContent = doc.body.textContent?.replace(/\u8203|\u200B|\s/g, "") || "";
+        const rawHtml = doc.body.innerHTML.trim();
+        const isHtmlEmpty = !rawHtml || rawHtml === "<br>" || rawHtml === "<p><br></p>" || rawHtml === "<p></p>" || rawHtml === "<div><br></div>";
+        const isEmpty = !hasMediaOrElements && !textContent && isHtmlEmpty;
+        doc.body.setAttribute("data-empty", String(isEmpty));
+
         const currentBodyHtml = doc.body.innerHTML;
         isInternalChangeRef.current = true;
         onChange(currentBodyHtml === "<br>" ? "" : currentBodyHtml);
@@ -1976,6 +2092,102 @@ export function RichTextBox({
             doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
         }
         syncIframeToState();
+    };
+
+    const applyBgToElement = (el: HTMLElement, col: string) => {
+        if (!el) return;
+        const applySingle = (target: HTMLElement) => {
+            if (col === "transparent") {
+                target.style.setProperty("background", "transparent", "important");
+                target.style.setProperty("background-color", "transparent", "important");
+                target.style.backgroundImage = "none";
+            } else {
+                target.style.setProperty("background", col, "important");
+                target.style.setProperty("background-color", col, "important");
+                target.style.backgroundImage = "none";
+            }
+        };
+
+        applySingle(el);
+
+        el.querySelectorAll<HTMLElement>("div, section, th, td, blockquote").forEach((child) => {
+            const styleAttr = child.getAttribute("style") || "";
+            if (styleAttr.includes("background") || styleAttr.includes("linear-gradient")) {
+                applySingle(child);
+            }
+        });
+    };
+
+    const updateBlockBgColor = (color: string) => {
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        const target =
+            selectedBlockEl ||
+            selectedImageEl ||
+            (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) ||
+            (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement);
+
+        if (!target) {
+            alert("Please click on a box, card, banner, or component in the editor first to select it.");
+            return;
+        }
+
+        let topEl: HTMLElement = target;
+        if (doc) {
+            while (topEl.parentElement && topEl.parentElement !== doc.body && topEl.parentElement.tagName !== "BODY") {
+                const tag = topEl.tagName.toLowerCase();
+                if (tag === "section" || tag === "figure" || tag === "blockquote" || tag === "table" || tag === "div") {
+                    break;
+                }
+                topEl = topEl.parentElement;
+            }
+        }
+
+        applyBgToElement(topEl, color);
+        syncIframeToState();
+    };
+
+    const selectParentBlock = () => {
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        const currentSelected = selectedBlockEl || (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement);
+        if (!currentSelected || !doc) {
+            alert("Please click on a box or component in the editor canvas first to select it.");
+            return;
+        }
+
+        let parent = currentSelected.parentElement;
+        while (parent && parent !== doc.body && parent.tagName !== "BODY") {
+            const tag = parent.tagName.toLowerCase();
+            if (tag === "section" || tag === "div" || tag === "figure" || tag === "blockquote" || tag === "table") {
+                break;
+            }
+            parent = parent.parentElement;
+        }
+
+        if (parent && parent !== doc.body) {
+            doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+            doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+
+            parent.classList.add("wysiwyg-selected-block");
+            setSelectedBlockEl(parent);
+            syncIframeToState();
+        } else {
+            alert("The selected box is already at the top-most level of the page.");
+        }
+    };
+
+    const updatePageBgColor = (color: string) => {
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        if (doc) {
+            if (color === "transparent") {
+                doc.body.style.backgroundColor = "transparent";
+            } else {
+                doc.body.style.backgroundColor = color;
+            }
+            syncIframeToState();
+        }
     };
 
     const getComponentHtmlSnippet = (type: string): string => {
@@ -2376,10 +2588,12 @@ export function RichTextBox({
                     </button>
                     <button
                         type="button"
+                        disabled={!selectedImageEl}
                         onClick={() => openStudioForTargetImage()}
-                        className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:brightness-110 transition ml-2 cursor-pointer"
+                        className={`flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs transition ml-2 ${!selectedImageEl ? "opacity-45 cursor-not-allowed hover:brightness-100" : "hover:brightness-110 cursor-pointer"}`}
+                        title={!selectedImageEl ? "Not Allowed / Not Applicable — Select an image in the editor first to open Image Studio" : "Image Studio (Crop, Resize, Compress)"}
                     >
-                        <Scissors size={13} />
+                        {!selectedImageEl ? <Ban size={13} className="text-white/80" /> : <Scissors size={13} />}
                         <span>Image Studio (Crop, Resize, Compress)</span>
                     </button>
                 </div>
@@ -2847,6 +3061,15 @@ export function RichTextBox({
                                     <>
                                         <button
                                             type="button"
+                                            onClick={selectParentBlock}
+                                            className="flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-600 px-3 py-1.5 text-xs font-extrabold text-white shadow-xs hover:bg-indigo-700 transition cursor-pointer animate-in fade-in"
+                                            title="Select Outer Parent Box / Container"
+                                        >
+                                            <ArrowUp size={13} />
+                                            <span>Select Outer Box</span>
+                                        </button>
+                                        <button
+                                            type="button"
                                             onClick={insertParagraphAfterSelectedBlock}
                                             className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:bg-emerald-700 transition cursor-pointer animate-in fade-in"
                                             title="Insert a clean plain text line below selected component"
@@ -2867,57 +3090,146 @@ export function RichTextBox({
                                 )}
 
                                 {/* Quick Resizes */}
-                                <span className="text-[10px] font-extrabold text-blue-800 uppercase">Width:</span>
-                                {[25, 50, 75, 100].map((pct) => (
-                                    <button
-                                        key={pct}
-                                        type="button"
-                                        onClick={() => {
-                                            const iframe = iframeRef.current;
-                                            const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
-                                            const target = selectedBlockEl || selectedImageEl || (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) || (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement);
-                                            if (target) {
-                                                target.style.width = pct === 100 ? "100%" : `${pct}%`;
-                                                target.style.maxWidth = "100%";
-                                                syncIframeToState();
-                                            } else {
-                                                alert("Please click a component, banner, or image in the editor to select it first.");
-                                            }
-                                        }}
-                                        className="rounded-lg border border-blue-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-700 hover:bg-blue-100 transition"
-                                    >
-                                        {pct}%
-                                    </button>
-                                ))}
+                                <span className={`text-[10px] font-extrabold uppercase ${(!selectedBlockEl && !selectedImageEl) ? "text-slate-400" : "text-blue-800"}`}>Width:</span>
+                                {[25, 50, 75, 100].map((pct) => {
+                                    const isDisabled = !selectedBlockEl && !selectedImageEl;
+                                    return (
+                                        <button
+                                            key={pct}
+                                            type="button"
+                                            disabled={isDisabled}
+                                            onClick={() => {
+                                                const iframe = iframeRef.current;
+                                                const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+                                                const target = selectedBlockEl || selectedImageEl || (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) || (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement);
+                                                if (target) {
+                                                    target.style.width = pct === 100 ? "100%" : `${pct}%`;
+                                                    target.style.maxWidth = "100%";
+                                                    syncIframeToState();
+                                                }
+                                            }}
+                                            className={`rounded-lg border px-2 py-1 text-[11px] font-bold transition ${
+                                                isDisabled
+                                                    ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 cursor-not-allowed"
+                                                    : "border-blue-200 bg-white text-slate-700 hover:bg-blue-100 cursor-pointer"
+                                            }`}
+                                            title={isDisabled ? "Not Allowed / Not Applicable — Select a block box or image first" : `Quick resize width to ${pct}%`}
+                                        >
+                                            {pct}%
+                                        </button>
+                                    );
+                                })}
 
                                 <div className="h-4 w-px bg-blue-200 mx-0.5" />
 
                                 {/* Alignment */}
-                                <span className="text-[10px] font-extrabold text-blue-800 uppercase">Align:</span>
-                                <button
-                                    type="button"
-                                    onClick={() => applyImageAlignment("left")}
-                                    title="Float Left Wrap"
-                                    className="rounded-lg border border-blue-200 bg-white p-1 text-slate-700 hover:bg-blue-100 transition"
-                                >
-                                    <AlignLeft size={13} />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyImageAlignment("center")}
-                                    title="Center Block"
-                                    className="rounded-lg border border-blue-200 bg-white p-1 text-slate-700 hover:bg-blue-100 transition"
-                                >
-                                    <AlignCenter size={13} />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => applyImageAlignment("right")}
-                                    title="Float Right Wrap"
-                                    className="rounded-lg border border-blue-200 bg-white p-1 text-slate-700 hover:bg-blue-100 transition"
-                                >
-                                    <AlignRight size={13} />
-                                </button>
+                                <span className={`text-[10px] font-extrabold uppercase ${!selectedImageEl ? "text-slate-400" : "text-blue-800"}`}>Align:</span>
+                                {[
+                                    { align: "left" as const, Icon: AlignLeft, title: "Float Left Wrap" },
+                                    { align: "center" as const, Icon: AlignCenter, title: "Center Block" },
+                                    { align: "right" as const, Icon: AlignRight, title: "Float Right Wrap" },
+                                ].map(({ align, Icon, title }) => {
+                                    const isDisabled = !selectedImageEl;
+                                    return (
+                                        <button
+                                            key={align}
+                                            type="button"
+                                            disabled={isDisabled}
+                                            onClick={() => applyImageAlignment(align)}
+                                            title={isDisabled ? "Not Allowed / Not Applicable — Select an inserted image first" : title}
+                                            className={`rounded-lg border p-1 transition ${
+                                                isDisabled
+                                                    ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 cursor-not-allowed"
+                                                    : "border-blue-200 bg-white text-slate-700 hover:bg-blue-100 cursor-pointer"
+                                            }`}
+                                        >
+                                            {isDisabled ? <Ban size={13} className="text-slate-400" /> : <Icon size={13} />}
+                                        </button>
+                                    );
+                                })}
+
+                                <div className="h-4 w-px bg-blue-200 mx-0.5" />
+
+                                {/* Box / Component Background Color Customizer */}
+                                {(() => {
+                                    const isDisabled = !selectedBlockEl && !selectedImageEl;
+                                    return (
+                                        <div
+                                            className={`flex items-center gap-1 border rounded-xl px-2 py-0.5 shadow-2xs transition ${
+                                                isDisabled ? "bg-slate-100 border-slate-200 opacity-50" : "bg-white/90 border-blue-200"
+                                            }`}
+                                            title={isDisabled ? "Not Allowed / Not Applicable — Select a component box first to change background" : "Pick Custom Box Background Color"}
+                                        >
+                                            {isDisabled ? <Ban size={12} className="text-slate-400" /> : <Palette size={12} className="text-indigo-600" />}
+                                            <span className={`text-[10px] font-black uppercase ${isDisabled ? "text-slate-400" : "text-blue-900"}`}>Box BG:</span>
+                                            <input
+                                                type="color"
+                                                disabled={isDisabled}
+                                                title={isDisabled ? "Not Allowed / Not Applicable — Select a component box first" : "Pick Custom Box Background Color"}
+                                                onChange={(e) => updateBlockBgColor(e.target.value)}
+                                                className={`w-5 h-5 rounded border border-slate-300 p-0 bg-transparent ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+                                            />
+                                            {[
+                                                { name: "Navy", value: "#0f172a" },
+                                                { name: "Blue", value: "#1a5d9c" },
+                                                { name: "Sky", value: "#f0f9ff" },
+                                                { name: "Green", value: "#ecfdf5" },
+                                                { name: "Amber", value: "#fffbe6" },
+                                                { name: "Rose", value: "#fff1f2" },
+                                                { name: "White", value: "#ffffff" },
+                                                { name: "Clear", value: "transparent" },
+                                            ].map((c) => (
+                                                <button
+                                                    key={c.name}
+                                                    type="button"
+                                                    disabled={isDisabled}
+                                                    title={isDisabled ? "Not Allowed / Not Applicable — Select a component box first" : `Set Component BG to ${c.name}`}
+                                                    onClick={() => updateBlockBgColor(c.value)}
+                                                    className={`w-4 h-4 rounded-full border border-slate-300 transition shadow-2xs flex items-center justify-center text-[8px] font-bold ${
+                                                        isDisabled ? "opacity-40 cursor-not-allowed" : "hover:scale-110 cursor-pointer"
+                                                    }`}
+                                                    style={{ backgroundColor: c.value === "transparent" ? "#ffffff" : c.value }}
+                                                >
+                                                    {c.value === "transparent" ? <X size={9} className="text-slate-500" /> : null}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
+
+                                <div className="h-4 w-px bg-blue-200 mx-0.5" />
+
+                                {/* Full Page / Canvas Background Color Customizer */}
+                                <div className="flex items-center gap-1 bg-white/90 border border-emerald-200 rounded-xl px-2 py-0.5 shadow-2xs">
+                                    <Paintbrush size={12} className="text-emerald-600" />
+                                    <span className="text-[10px] font-black text-emerald-950 uppercase">Page BG:</span>
+                                    <input
+                                        type="color"
+                                        title="Pick Custom Canvas Page Background Color"
+                                        onChange={(e) => updatePageBgColor(e.target.value)}
+                                        className="w-5 h-5 rounded cursor-pointer border border-slate-300 p-0 bg-transparent"
+                                    />
+                                    {[
+                                        { name: "White", value: "#ffffff" },
+                                        { name: "Navy", value: "#0f172a" },
+                                        { name: "Warm", value: "#fffbeb" },
+                                        { name: "Sky", value: "#f0f9ff" },
+                                        { name: "Emerald", value: "#ecfdf5" },
+                                        { name: "Night", value: "#020617" },
+                                        { name: "Reset", value: "transparent" },
+                                    ].map((c) => (
+                                        <button
+                                            key={c.name}
+                                            type="button"
+                                            title={`Set Entire Canvas Page BG to ${c.name}`}
+                                            onClick={() => updatePageBgColor(c.value)}
+                                            className="w-4 h-4 rounded-full border border-slate-300 hover:scale-110 transition shadow-2xs flex items-center justify-center text-[8px] font-bold cursor-pointer"
+                                            style={{ backgroundColor: c.value === "transparent" ? "#ffffff" : c.value }}
+                                        >
+                                            {c.value === "transparent" ? <X size={9} className="text-slate-500" /> : null}
+                                        </button>
+                                    ))}
+                                </div>
 
                                 <div className="h-4 w-px bg-blue-200 mx-0.5" />
 
