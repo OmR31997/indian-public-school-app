@@ -22,7 +22,7 @@ import {
 } from "@/lib/file-preview";
 import { imageUrl } from "@/lib/site-data";
 import { RecordItem, Resource } from "../types/admin.types";
-import { titleCase } from "../utils/admin.helpers";
+import { titleCase, decodeHtmlEntities, getPreviewUrl } from "../utils/admin.helpers";
 
 export function StructuredDetailValue({
   keyName,
@@ -33,8 +33,6 @@ export function StructuredDetailValue({
   val: unknown;
   item: RecordItem;
 }) {
-  const [showRawJson, setShowRawJson] = useState(false);
-
   if (val === null || val === undefined || val === "") {
     return <span className="text-slate-400 italic text-xs">—</span>;
   }
@@ -51,33 +49,28 @@ export function StructuredDetailValue({
     );
   }
 
-  if (
-    keyName === "message" ||
-    keyName === "content" ||
-    keyName === "description" ||
-    keyName === "details" ||
-    keyName === "bio"
-  ) {
-    if (typeof val === "string" && (val.includes("<p>") || val.includes("<div>") || val.includes("<br>"))) {
+  if (typeof val === "string") {
+    const decoded = decodeHtmlEntities(val).trim();
+    const isHtml =
+      decoded.includes("<") &&
+      decoded.includes(">") &&
+      (/<[a-z][\s\S]*>/i.test(decoded) ||
+        decoded.includes("<div") ||
+        decoded.includes("<p") ||
+        decoded.includes("<span") ||
+        decoded.includes("<table") ||
+        decoded.includes("<center") ||
+        decoded.includes("<img") ||
+        decoded.includes("<h") ||
+        decoded.includes("<section") ||
+        decoded.includes("<br"));
+
+    if (isHtml) {
       return (
-        <div className="space-y-2">
-          <div
-            className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800 max-h-60 overflow-y-auto leading-relaxed font-sans"
-            dangerouslySetInnerHTML={{ __html: val }}
-          />
-          <button
-            type="button"
-            onClick={() => setShowRawJson(!showRawJson)}
-            className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer"
-          >
-            {showRawJson ? "Hide Raw HTML Source" : "View Source HTML"}
-          </button>
-          {showRawJson && (
-            <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-[11px] text-slate-200 font-mono break-all whitespace-pre-wrap">
-              {val}
-            </pre>
-          )}
-        </div>
+        <div
+          className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-800 max-h-[500px] overflow-y-auto leading-relaxed font-sans shadow-xs"
+          dangerouslySetInnerHTML={{ __html: decoded }}
+        />
       );
     }
   }
@@ -210,6 +203,7 @@ export function MediaDetailDialog({
   const album = String(item.eventType || item.album || item.category || "General");
   const fileType = getFileType(primaryUrl);
   const isPdf = isPdfFile(primaryUrl);
+  const pagePreviewUrl = getPreviewUrl(item);
 
   const copyUrl = () => {
     if (!primaryUrl) return;
@@ -224,9 +218,22 @@ export function MediaDetailDialog({
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-6 py-4">
           <div className="min-w-0 pr-4">
-            <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#1a5d9c] border border-blue-200/50">
-              {resource?.label || album || "Record Inspector"}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#1a5d9c] border border-blue-200/50">
+                {resource?.label || album || "Record Inspector"}
+              </span>
+              {pagePreviewUrl && (
+                <a
+                  href={pagePreviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-emerald-700 transition"
+                  title="Open live page preview in new tab"
+                >
+                  <ExternalLink size={11} /> Live Page Preview
+                </a>
+              )}
+            </div>
             <h2 className="mt-1 truncate text-lg font-bold text-[#102a4c]">{title}</h2>
           </div>
           <button

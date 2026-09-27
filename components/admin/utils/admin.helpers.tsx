@@ -168,6 +168,57 @@ export function getItemPhoto(item?: RecordItem | null): string | null {
   return null;
 }
 
+export function decodeHtmlEntities(str: string): string {
+  if (!str || typeof str !== "string") return "";
+  let decoded = str;
+  for (let i = 0; i < 3; i++) {
+    if (
+      decoded.includes("&lt;") ||
+      decoded.includes("&gt;") ||
+      decoded.includes("&quot;") ||
+      decoded.includes("&#39;") ||
+      decoded.includes("&amp;") ||
+      decoded.includes("&nbsp;")
+    ) {
+      const next = decoded
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, "&")
+        .replace(/&nbsp;/g, " ");
+      if (next === decoded) break;
+      decoded = next;
+    } else {
+      break;
+    }
+  }
+  return decoded;
+}
+
+export function getPreviewUrl(item: RecordItem): string | null {
+  if (!item || typeof item !== "object") return null;
+  if (typeof item.slug === "string" && item.slug.trim()) {
+    const s = item.slug.trim();
+    if (s === "home" || s === "/") return "/";
+    return s.startsWith("/") ? s : `/${s}`;
+  }
+  if (typeof item.targetUrl === "string" && item.targetUrl.trim()) {
+    return item.targetUrl.trim();
+  }
+  if (typeof item.path === "string" && item.path.trim()) {
+    const p = item.path.trim();
+    return p.startsWith("/") ? p : `/${p}`;
+  }
+  if (typeof item.url === "string" && item.url.trim() && item.url.startsWith("/")) {
+    return item.url.trim();
+  }
+  if (typeof item.linkUrl === "string" && item.linkUrl.trim() && item.linkUrl.startsWith("/")) {
+    return item.linkUrl.trim();
+  }
+  return null;
+}
+
 export function formatValue(field: string, value: unknown, item?: RecordItem, allItems: RecordItem[] = []) {
   if (field === "isRead") {
     return value === true ? "Read" : "Unread";
@@ -212,15 +263,32 @@ export function formatValue(field: string, value: unknown, item?: RecordItem, al
       return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
     }
   }
+
   if (typeof value === "boolean") return value ? "Published" : "Draft";
   if (Array.isArray(value)) return `${value.length} asset${value.length === 1 ? "" : "s"}`;
-  if (typeof value === "string" && (value.startsWith("http://") || value.startsWith("https://"))) {
-    return value.split("/").pop() || value;
+
+  if (typeof value === "string") {
+    const decoded = decodeHtmlEntities(value).trim();
+    if (decoded.startsWith("http://") || decoded.startsWith("https://")) {
+      return decoded.split("/").pop() || decoded;
+    }
+    if (
+      decoded.includes("<") &&
+      decoded.includes(">") &&
+      (/<[a-z][\s\S]*>/i.test(decoded) ||
+        decoded.includes("<div") ||
+        decoded.includes("<p") ||
+        decoded.includes("<section") ||
+        decoded.includes("<span") ||
+        decoded.includes("<table") ||
+        decoded.includes("<center") ||
+        decoded.includes("<img"))
+    ) {
+      const clean = decoded.replace(/<[^>]*>?/gm, " ").replace(/\s+/g, " ").trim();
+      return clean.length > 40 ? `${clean.slice(0, 40)}…` : clean || "Rich UI Layout Content";
+    }
   }
-  if (typeof value === "string" && (value.includes("<p") || value.includes("<div") || value.includes("<span"))) {
-    const clean = value.replace(/<[^>]*>?/gm, "").trim();
-    return clean.length > 40 ? `${clean.slice(0, 40)}…` : clean || "Rich HTML Content";
-  }
+
   if (field === "value" || typeof value === "object" || (typeof value === "string" && (value.trim().startsWith("{") || value.trim().startsWith("[")))) {
     let parsed: any = value;
     if (typeof value === "string") {
@@ -235,7 +303,11 @@ export function formatValue(field: string, value: unknown, item?: RecordItem, al
       return "Configured Settings";
     }
   }
-  if (typeof value === "string" && value.length > 42) return `${value.slice(0, 42)}…`;
+  if (typeof value === "string") {
+    const decoded = decodeHtmlEntities(value).trim();
+    if (decoded.length > 42) return `${decoded.slice(0, 42)}…`;
+    return decoded;
+  }
   if (typeof value === "object") return "Configured";
   return String(value);
 }

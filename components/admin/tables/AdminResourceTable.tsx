@@ -25,12 +25,13 @@ import {
   Save,
   Crown,
   ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { imageUrl } from "@/lib/site-data";
 import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
-import { isSuperAdminRole, itemId, formatValue } from "../utils/admin.helpers";
+import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
 import { MediaDetailDialog } from "../modals/MediaDetailDialog";
 
 function Empty({ text }: { text: string }) {
@@ -975,6 +976,7 @@ export function ResourceView({
                 ) : items.length > 0 ? (
                   items.map((item) => {
                     const isSuperUser = resource.key === "users" && isSuperAdminRole(item.role);
+                    const rowPreviewUrl = getPreviewUrl(item);
                     return (
                       <tr key={itemId(item)} className="transition hover:bg-slate-50/80">
                         {resource.fields.map((field) => {
@@ -1011,9 +1013,20 @@ export function ResourceView({
                             </td>
                           );
                         })}
-                        {(canEdit || canDelete || isMediaResource) && (
+                        {(canEdit || canDelete || isMediaResource || rowPreviewUrl) && (
                           <td className="whitespace-nowrap px-5 py-4">
                             <div className="flex items-center justify-end gap-1">
+                              {rowPreviewUrl && (
+                                <a
+                                  href={rowPreviewUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="rounded-lg p-2 text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700"
+                                  title="Preview live page in new tab"
+                                >
+                                  <ExternalLink size={16} />
+                                </a>
+                              )}
                               <button
                                 onClick={() => setDetailItem(item)}
                                 className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
