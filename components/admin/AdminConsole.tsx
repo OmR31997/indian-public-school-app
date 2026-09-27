@@ -1350,11 +1350,13 @@ function StructuredDetailValue({ keyName, val, item }: { keyName: string; val: u
 
 function MediaDetailDialog({
   item,
+  resource,
   onClose,
   onEdit,
   onDelete,
 }: {
   item: RecordItem;
+  resource?: Resource;
   onClose: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -1394,7 +1396,7 @@ function MediaDetailDialog({
 
   const urls = getMediaUrls(item.fileUrl || item.url || item.path || item.attachmentUrl || item.avatar || item.profileImageUrl || item.image || item.photo);
   const primaryUrl = urls[activeUrlIndex] || urls[0] || "";
-  const title = String(item.eventName || item.title || item.name || item.originalname || item.album || "Media Item");
+  const title = String(item.eventName || item.title || item.name || item.originalname || item.album || item.key || "Record Item");
   const album = String(item.eventType || item.album || item.category || "General");
   const fileType = getFileType(primaryUrl);
   const isPdf = isPdfFile(primaryUrl);
@@ -1407,26 +1409,74 @@ function MediaDetailDialog({
     }
   };
 
+  const renderHeaderIcon = () => {
+    if (primaryUrl) {
+      if (fileType === "video") return <Video size={20} />;
+      if (fileType === "audio") return <Music size={20} />;
+      if (fileType === "document" || isPdf) return <FileText size={20} />;
+      if (fileType === "image") return <ImageIcon size={20} />;
+    }
+
+    if (resource && resource.icon) {
+      const IconComp = resource.icon;
+      return <IconComp size={20} />;
+    }
+
+    if (item.inquiryType || item.message || item.contact) return <ClipboardList size={20} />;
+    if (item.grade || item.section || item.parentName) return <GraduationCap size={20} />;
+    if (item.designation || item.department) return <Users size={20} />;
+    if (item.role || item.password) return <ShieldCheck size={20} />;
+    if (item.qualification) return <Briefcase size={20} />;
+    if (item.feedback || item.rating) return <MessageSquareHeart size={20} />;
+    if (item.key && item.category) return <Settings size={20} />;
+    if (item.level || item.parentId) return <Menu size={20} />;
+
+    return <FileText size={20} />;
+  };
+
+  const renderHeaderSubtitle = () => {
+    if ((resource && resource.key === "gallery") || item.album || item.directory) {
+      return (
+        <>
+          Album: <span className="font-semibold text-[#1a5d9c]">{album}</span>
+        </>
+      );
+    }
+
+    if (resource) {
+      const subCat = item.inquiryType || item.category || item.grade || item.role || item.eventType || item.department;
+      return (
+        <>
+          <span className="font-semibold text-slate-700">{resource.label} Record</span>
+          {subCat && (
+            <span className="ml-1.5 font-medium text-[#1a5d9c]">
+              • {String(subCat)}
+            </span>
+          )}
+        </>
+      );
+    }
+
+    const fallbackCat = item.inquiryType || item.category || item.grade || item.role || item.eventType || item.department;
+    return (
+      <span className="font-semibold text-[#1a5d9c]">
+        {fallbackCat ? String(fallbackCat) : "Record Overview"}
+      </span>
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="max-h-[90vh] w-full max-w-3xl flex flex-col overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100">
         <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4 shrink-0 rounded-t-3xl z-10">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-[#1a5d9c]">
-              {fileType === "video" ? (
-                <Video size={20} />
-              ) : fileType === "audio" ? (
-                <Music size={20} />
-              ) : fileType === "document" ? (
-                <FileText size={20} />
-              ) : (
-                <ImageIcon size={20} />
-              )}
+              {renderHeaderIcon()}
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#102a4c]">{title}</h2>
               <p className="text-xs text-slate-500">
-                Album: <span className="font-semibold text-[#1a5d9c]">{album}</span>
+                {renderHeaderSubtitle()}
                 {urls.length > 1 && (
                   <span className="ml-2 rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-800">
                     {urls.length} Attached Files
@@ -1435,7 +1485,7 @@ function MediaDetailDialog({
               </p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100">
+          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 cursor-pointer">
             <X size={20} />
           </button>
         </div>
@@ -1506,51 +1556,71 @@ function MediaDetailDialog({
             </div>
           )}
 
-          {/* Quick Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4">
-            <div className="flex items-center gap-2">
-              {primaryUrl && (
+          {/* Quick Actions & Record Controls */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-3.5 shadow-2xs">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600">
+              {primaryUrl ? (
                 <>
                   <button
+                    type="button"
                     onClick={copyUrl}
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-100 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-slate-100 hover:text-slate-900 cursor-pointer active:scale-95"
                   >
-                    {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
+                    {copied ? <Check size={15} className="text-emerald-600" /> : <Copy size={15} />}
                     <span>{copied ? "Copied URL!" : "Copy Media URL"}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsViewerOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-bold text-[#1a5d9c] shadow-sm transition hover:bg-blue-100 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-bold text-[#1a5d9c] shadow-2xs transition hover:bg-blue-100 cursor-pointer active:scale-95"
                   >
-                    <Eye size={16} />
+                    <Eye size={15} />
                     <span>Preview Full Media</span>
                   </button>
                 </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="grid h-7 w-7 place-items-center rounded-lg bg-blue-100/70 text-[#1a5d9c]">
+                    <SlidersHorizontal size={14} />
+                  </div>
+                  <span className="font-bold text-slate-700">Record Actions</span>
+                  {Boolean(item.status) && (
+                    <span className="ml-1 inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-[#1a5d9c] border border-blue-200/60">
+                      {String(item.status)}
+                    </span>
+                  )}
+                  {Boolean(item.createdAt) && (
+                    <span className="hidden sm:inline-block text-[11px] font-normal text-slate-400">
+                      • Created {new Date(String(item.createdAt)).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 
             <div className="flex items-center gap-2">
               {onEdit && (
                 <button
+                  type="button"
                   onClick={() => {
                     onClose();
                     onEdit();
                   }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-300"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900 cursor-pointer active:scale-95"
                 >
-                  <Pencil size={15} /> Edit
+                  <Pencil size={14} className="text-slate-500" /> Edit
                 </button>
               )}
               {onDelete && (
                 <button
+                  type="button"
                   onClick={() => {
                     onClose();
                     onDelete();
                   }}
-                  className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-bold text-red-600 transition hover:bg-red-100"
+                  className="inline-flex items-center gap-2 rounded-xl border border-red-200/80 bg-red-50/80 px-4 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100 hover:border-red-300 hover:text-red-700 cursor-pointer active:scale-95"
                 >
-                  <Trash2 size={15} /> Delete
+                  <Trash2 size={14} className="text-red-500" /> Delete
                 </button>
               )}
             </div>
@@ -2947,6 +3017,7 @@ function ResourceView({
       {detailItem && (
         <MediaDetailDialog
           item={detailItem}
+          resource={resource}
           onClose={() => setDetailItem(null)}
           onEdit={canEdit ? () => onEdit(detailItem) : undefined}
           onDelete={canDelete && !(resource.key === "users" && isSuperAdminRole(detailItem.role)) ? () => onDelete(detailItem) : undefined}
