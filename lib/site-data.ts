@@ -37,6 +37,27 @@ export interface WhatsAppSetting {
   position?: "bottom-left" | "bottom-right";
 }
 
+export interface PopupBannerSetting {
+  enabled?: boolean;
+  delaySeconds?: number;
+  imageUrl?: string;
+  showTitle?: boolean;
+  title?: string;
+  subtitle?: string;
+  enquiryButtonText?: string;
+  closeButtonText?: string;
+  onlyOncePerSession?: boolean;
+  modalWidth?: "sm" | "md" | "lg" | "xl" | "full" | "custom";
+  imageWidth?: number;
+  imageMaxHeight?: number;
+  imageFit?: "contain" | "cover" | "fill";
+  imagePosition?: "center" | "top" | "bottom";
+  aspectRatio?: "auto" | "16/9" | "16/10" | "4/3" | "1/1" | "3/2" | "2/1";
+  bannerStyle?: "card" | "full-bleed" | "side-by-side";
+  imageBorderRadius?: number;
+  showImageZoomOnClick?: boolean;
+}
+
 export interface ApiMenuItem {
   _id?: string;
   menuId?: string;
@@ -142,6 +163,7 @@ export interface SiteData {
   certified_board?: CertifiedBoardSetting;
   trust_board?: TrustBoardSetting;
   whatsapp?: WhatsAppSetting;
+  popupBanner?: PopupBannerSetting;
   [key: string]: unknown;
 }
 
@@ -296,4 +318,52 @@ export function getWhatsAppConfig(siteData?: SiteData | null): Required<WhatsApp
     position,
   };
 }
+
+export function getPopupBannerConfig(siteData?: SiteData | null): Required<PopupBannerSetting> {
+  const home = siteData?.home?.[0] as SiteRecord | undefined;
+  const identityObj = (home?.identity as SiteRecord | undefined) ?? {};
+  const pb = (identityObj?.popupBanner as PopupBannerSetting | undefined) ?? (siteData?.popupBanner as PopupBannerSetting | undefined) ?? {};
+
+  const enabled = pb.enabled !== false;
+  const delaySeconds = typeof pb.delaySeconds === "number" ? pb.delaySeconds : (Number(pb.delaySeconds) || 3);
+  const imageUrl = text(pb.imageUrl) || "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
+  const showTitle = pb.showTitle !== false;
+  const title = showTitle ? (pb.title !== undefined ? text(pb.title) : "Admissions Open 2026–27") : "";
+  const rawSubtitle = text(pb.subtitle) || "";
+  const subtitle = rawSubtitle.toLowerCase().includes("enroll your child") ? "" : rawSubtitle;
+  const enquiryButtonText = text(pb.enquiryButtonText) || "Enquiry Now";
+  const closeButtonText = text(pb.closeButtonText) || "Close";
+  const onlyOncePerSession = pb.onlyOncePerSession === true;
+  const modalWidth = (["sm", "md", "lg", "xl", "full", "custom"].includes(pb.modalWidth || "") ? pb.modalWidth : "lg") as "sm" | "md" | "lg" | "xl" | "full" | "custom";
+  const imageWidth = typeof pb.imageWidth === "number" ? pb.imageWidth : (Number(pb.imageWidth) || 600);
+  const imageMaxHeight = typeof pb.imageMaxHeight === "number" ? pb.imageMaxHeight : (Number(pb.imageMaxHeight) || 400);
+  const imageFit = (pb.imageFit === "contain" || pb.imageFit === "fill") ? pb.imageFit : "cover";
+  const imagePosition = (pb.imagePosition === "top" || pb.imagePosition === "bottom") ? pb.imagePosition : "center";
+  const aspectRatio = (["16/9", "16/10", "4/3", "1/1", "3/2", "2/1"].includes(pb.aspectRatio || "") ? pb.aspectRatio : "16/10") as "auto" | "16/9" | "16/10" | "4/3" | "1/1" | "3/2" | "2/1";
+  const bannerStyle = (pb.bannerStyle === "card" || pb.bannerStyle === "side-by-side") ? pb.bannerStyle : "full-bleed";
+  const imageBorderRadius = typeof pb.imageBorderRadius === "number" ? pb.imageBorderRadius : (Number(pb.imageBorderRadius) || 24);
+  const showImageZoomOnClick = pb.showImageZoomOnClick !== false;
+
+  return {
+    enabled,
+    delaySeconds,
+    imageUrl,
+    showTitle,
+    title,
+    subtitle,
+    enquiryButtonText,
+    closeButtonText,
+    onlyOncePerSession,
+    modalWidth,
+    imageWidth,
+    imageMaxHeight,
+    imageFit,
+    imagePosition,
+    aspectRatio,
+    bannerStyle,
+    imageBorderRadius,
+    showImageZoomOnClick,
+  };
+}
+
 

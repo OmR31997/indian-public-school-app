@@ -11,6 +11,7 @@ import { WhatsAppChat } from "@/components/site/WhatsAppChat";
 import { SiteDataProvider } from "@/components/site/SiteDataProvider";
 import { FileViewerProvider } from "@/components/ui/FileViewerContext";
 import { AdmissionApplicationModal } from "@/components/site/AdmissionApplicationModal";
+import { PopupBannerModal } from "@/components/site/PopupBannerModal";
 import type { SiteData } from "@/lib/site-data";
 
 export function PublicLayoutClient({
@@ -31,6 +32,7 @@ export function PublicLayoutClient({
         <WhatsAppChat />
         <BackToTop />
         <AdmissionApplicationModal />
+        <PopupBannerModal />
       </FileViewerProvider>
     </SiteDataProvider>
   );

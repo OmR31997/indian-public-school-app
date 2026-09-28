@@ -16,6 +16,7 @@ import fallbackSiteData from "@/public/cloud-datasource.json";
 import { RecordItem } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
 import { HomeHeroTab } from "./home-layout/HomeHeroTab";
+import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 
 export function HomeLayoutEditorModal({
   token,
@@ -34,6 +35,7 @@ export function HomeLayoutEditorModal({
     | "header"
     | "footer"
     | "whatsapp"
+    | "popupBanner"
     | "hero"
     | "banner"
     | "quickCards"
@@ -52,6 +54,7 @@ export function HomeLayoutEditorModal({
   >("header");
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>("");
+  const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
 
   const initialValue = useMemo(() => {
     let val = record?.value;
@@ -130,6 +133,7 @@ export function HomeLayoutEditorModal({
     const headerObj = { ...(finalVal.header || currentIdentity.header || {}) };
     const footerObj = { ...(finalVal.footer || currentIdentity.footer || {}) };
     const waObj = { ...(finalVal.whatsapp || currentIdentity.whatsapp || {}) };
+    const popupObj = { ...(finalVal.popupBanner || currentIdentity.popupBanner || {}) };
     const logoObj = { ...(finalVal.site_logo || currentIdentity.site_logo || {}) };
     const certObj = { ...(finalVal.certified_board || currentIdentity.certified_board || {}) };
     const trustObj = { ...(finalVal.trust_board || currentIdentity.trust_board || {}) };
@@ -139,6 +143,7 @@ export function HomeLayoutEditorModal({
       header: headerObj,
       footer: footerObj,
       whatsapp: waObj,
+      popupBanner: popupObj,
       site_logo: logoObj,
       certified_board: certObj,
       trust_board: trustObj,
@@ -150,6 +155,7 @@ export function HomeLayoutEditorModal({
       header: headerObj,
       footer: footerObj,
       whatsapp: waObj,
+      popupBanner: popupObj,
       site_logo: logoObj,
       certified_board: certObj,
       trust_board: trustObj,
@@ -284,6 +290,27 @@ export function HomeLayoutEditorModal({
     });
   };
 
+  const updatePopupBannerField = (field: string, val: any) => {
+    setDatasource((prev: any) => {
+      const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
+      const firstHome = { ...(homeList[0] || {}) };
+      const identityObj = { ...(firstHome.identity || {}) };
+      const pbObj = { ...(identityObj.popupBanner || prev?.popupBanner || {}), [field]: val };
+
+      identityObj.popupBanner = pbObj;
+      firstHome.identity = identityObj;
+      homeList[0] = firstHome;
+
+      const next = {
+        ...prev,
+        popupBanner: pbObj,
+        home: homeList,
+      };
+      setJsonText(JSON.stringify(next, null, 2));
+      return next;
+    });
+  };
+
   const addItemToSection = (secKey: string, defaultObj: any) => {
     updateHome((prev) => {
       const secList = [...(prev[secKey] || [{}])];
@@ -372,6 +399,7 @@ export function HomeLayoutEditorModal({
             { id: "header", label: "Header Config", icon: "bi-card-heading" },
             { id: "footer", label: "Footer Config", icon: "bi-layout-text-window" },
             { id: "whatsapp", label: "WhatsApp Widget", icon: "bi-whatsapp" },
+            { id: "popupBanner", label: "Pop-Up Banner", icon: "bi-[#1a5d9c] bi-window-pop" },
             { id: "hero", label: "Hero Poster", icon: "bi-person-standing" },
             { id: "banner", label: "Banner Slider", icon: "bi-flag-fill" },
             { id: "quickCards", label: "Quick Cards", icon: "bi-grid-3x3-gap" },
@@ -1073,6 +1101,441 @@ export function HomeLayoutEditorModal({
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* TAB: Pop-Up Banner Studio */}
+          {activeTab === "popupBanner" && (
+            <div className="space-y-6">
+              {/* Settings Card */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                  <div>
+                    <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                      <i className="bi bi-window-pop text-amber-600 text-lg" /> Visitor Pop-Up Announcement Modal Studio
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Configure automated promotional pop-up modal displayed after visitor lands on the site.
+                    </p>
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
+                    <input
+                      type="checkbox"
+                      checked={(datasource?.home?.[0]?.identity?.popupBanner?.enabled ?? datasource?.popupBanner?.enabled) !== false}
+                      onChange={(e) => updatePopupBannerField("enabled", e.target.checked)}
+                      className="size-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                    />
+                    <span className="text-xs font-bold text-slate-800">Enable Pop-Up Banner (ON/OFF)</span>
+                  </label>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">
+                      Display Delay Timer (Seconds after page visit)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={60}
+                        placeholder="e.g. 3"
+                        value={datasource?.home?.[0]?.identity?.popupBanner?.delaySeconds ?? datasource?.popupBanner?.delaySeconds ?? 3}
+                        onChange={(e) => updatePopupBannerField("delaySeconds", Math.max(0, parseInt(e.target.value) || 0))}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                      />
+                      <span className="text-xs font-bold text-slate-500 shrink-0">Seconds</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-end pb-1">
+                    <label className="flex items-center gap-2.5 cursor-pointer bg-white px-3 py-2 rounded-xl border border-slate-200 w-full shadow-2xs">
+                      <input
+                        type="checkbox"
+                        checked={(datasource?.home?.[0]?.identity?.popupBanner?.onlyOncePerSession ?? datasource?.popupBanner?.onlyOncePerSession) === true}
+                        onChange={(e) => updatePopupBannerField("onlyOncePerSession", e.target.checked)}
+                        className="size-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                      />
+                      <div>
+                        <span className="text-xs font-bold text-slate-700 block">Show Once Per Session</span>
+                        <span className="text-[10px] text-slate-500 block">Don&apos;t re-open pop-up if visitor dismissed it in current browser session</span>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold text-slate-600">Pop-Up Modal Title Headline</label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={(datasource?.home?.[0]?.identity?.popupBanner?.showTitle ?? datasource?.popupBanner?.showTitle) !== false}
+                          onChange={(e) => updatePopupBannerField("showTitle", e.target.checked)}
+                          className="size-3.5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        />
+                        <span className="text-[10px] font-bold text-slate-700">Display Title Overlay</span>
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Leave blank to hide title, or type custom headline (e.g. Admissions Open 2026–27)"
+                      value={datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title ?? ""}
+                      onChange={(e) => updatePopupBannerField("title", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Pop-Up Subtitle / Description</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Indian Public School"
+                      value={
+                        (datasource?.home?.[0]?.identity?.popupBanner?.subtitle ?? datasource?.popupBanner?.subtitle ?? "").toLowerCase().includes("enroll your child")
+                          ? ""
+                          : (datasource?.home?.[0]?.identity?.popupBanner?.subtitle ?? datasource?.popupBanner?.subtitle ?? "")
+                      }
+                      onChange={(e) => updatePopupBannerField("subtitle", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Enquiry Button Label</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Enquiry Now"
+                      value={datasource?.home?.[0]?.identity?.popupBanner?.enquiryButtonText ?? datasource?.popupBanner?.enquiryButtonText ?? "Enquiry Now"}
+                      onChange={(e) => updatePopupBannerField("enquiryButtonText", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Close Button Label</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Close"
+                      value={datasource?.home?.[0]?.identity?.popupBanner?.closeButtonText ?? datasource?.popupBanner?.closeButtonText ?? "Close"}
+                      onChange={(e) => updatePopupBannerField("closeButtonText", e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Image Chooser & Gallery Modal */}
+                <div className="space-y-3 pt-2 border-t border-slate-200">
+                  <label className="text-xs font-bold text-[#102a4c] flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <ImageIcon size={15} className="text-amber-500" /> Image Source (Upload File, Select from Gallery, or Paste URL)
+                    </span>
+                  </label>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <input
+                      type="text"
+                      placeholder="https://res.cloudinary.com/... or /assets/..."
+                      value={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl ?? datasource?.popupBanner?.imageUrl ?? ""}
+                      onChange={(e) => updatePopupBannerField("imageUrl", e.target.value)}
+                      className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setIsGalleryOpen(true)}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-800 px-3.5 py-2 text-xs font-bold text-white hover:bg-slate-900 transition cursor-pointer shrink-0 shadow-2xs"
+                    >
+                      <ImageIcon size={14} />
+                      <span>Choose from Gallery</span>
+                    </button>
+
+                    <label className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 transition cursor-pointer shrink-0 shadow-2xs">
+                      <UploadCloud size={16} />
+                      <span>{uploading ? "Uploading..." : "Upload File"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const url = await uploadImage(file, "PopUpBanner");
+                            if (url) updatePopupBannerField("imageUrl", url);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* ADMIN INTERACTIVE IMAGE RESIZING & COVERAGE STUDIO CONTROLS */}
+                <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 space-y-4">
+                  <h4 className="text-xs font-bold text-[#082A52] flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <i className="bi bi-aspect-ratio-fill text-amber-600" /> Admin Pop-Up Studio: Screen Area Coverage & Resizing
+                    </span>
+                    <span className="text-[10px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                      Area Coverage Manager
+                    </span>
+                  </h4>
+
+                  {/* Coverage Size Presets */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-600 block">Pop-Up Screen Area Coverage Presets</label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {[
+                        { label: "Compact (450px)", width: 450, height: 320, preset: "sm" },
+                        { label: "Medium (600px)", width: 600, height: 400, preset: "md" },
+                        { label: "Large (760px)", width: 760, height: 460, preset: "lg" },
+                        { label: "Extra Wide (920px)", width: 920, height: 520, preset: "xl" },
+                        { label: "Full Hero (95%)", width: 1100, height: 600, preset: "full" },
+                      ].map((item) => (
+                        <button
+                          key={item.preset}
+                          type="button"
+                          onClick={() => {
+                            updatePopupBannerField("modalWidth", item.preset);
+                            updatePopupBannerField("imageWidth", item.width);
+                            updatePopupBannerField("imageMaxHeight", item.height);
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                            (datasource?.home?.[0]?.identity?.popupBanner?.modalWidth ?? datasource?.popupBanner?.modalWidth ?? "lg") === item.preset
+                              ? "bg-amber-500 text-white border-amber-600 shadow-xs"
+                              : "bg-white text-slate-700 border-slate-200 hover:bg-amber-100/50"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2 border-t border-amber-200/60">
+                    {/* Image Fit Mode */}
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Fit Mode</label>
+                      <select
+                        value={datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "cover"}
+                        onChange={(e) => updatePopupBannerField("imageFit", e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-amber-500"
+                      >
+                        <option value="cover">Cover (Full Bleed Poster)</option>
+                        <option value="contain">Contain (Show Entire Image)</option>
+                        <option value="fill">Fill (Stretch to Fill)</option>
+                      </select>
+                    </div>
+
+                    {/* Aspect Ratio */}
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Aspect Ratio</label>
+                      <select
+                        value={datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10"}
+                        onChange={(e) => updatePopupBannerField("aspectRatio", e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-amber-500"
+                      >
+                        <option value="16/10">16:10 Full Bleed Poster</option>
+                        <option value="16/9">16:9 Landscape Banner</option>
+                        <option value="4/3">4:3 Standard Card</option>
+                        <option value="1/1">1:1 Square</option>
+                        <option value="3/2">3:2 Photo</option>
+                        <option value="2/1">2:1 Wide Panorama</option>
+                      </select>
+                    </div>
+
+                    {/* Image Focus Position */}
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Focus Position</label>
+                      <select
+                        value={datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center"}
+                        onChange={(e) => updatePopupBannerField("imagePosition", e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-amber-500"
+                      >
+                        <option value="center">Center</option>
+                        <option value="top">Top Focus</option>
+                        <option value="bottom">Bottom Focus</option>
+                      </select>
+                    </div>
+
+                    {/* Click to Zoom on Frontend */}
+                    <div className="flex items-center pt-5">
+                      <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-slate-200 w-full">
+                        <input
+                          type="checkbox"
+                          checked={(datasource?.home?.[0]?.identity?.popupBanner?.showImageZoomOnClick ?? datasource?.popupBanner?.showImageZoomOnClick) !== false}
+                          onChange={(e) => updatePopupBannerField("showImageZoomOnClick", e.target.checked)}
+                          className="size-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        />
+                        <span className="text-[11px] font-bold text-slate-700">Allow Image Lightbox Zoom</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Sliders for Image Width (px) & Height (px) */}
+                  <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-amber-200/60">
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                          <i className="bi bi-arrows-expand-vertical text-amber-600 rotate-90" /> Container Width (px)
+                        </label>
+                        <span className="text-xs font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                          {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={320}
+                        max={1100}
+                        step={10}
+                        value={datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}
+                        onChange={(e) => {
+                          updatePopupBannerField("imageWidth", parseInt(e.target.value));
+                          updatePopupBannerField("modalWidth", "custom");
+                        }}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ew-resize accent-amber-500"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                          <i className="bi bi-arrows-expand-vertical text-amber-600" /> Container Height (px)
+                        </label>
+                        <span className="text-xs font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                          {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={200}
+                        max={750}
+                        step={10}
+                        value={datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}
+                        onChange={(e) => updatePopupBannerField("imageMaxHeight", parseInt(e.target.value))}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ns-resize accent-amber-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* LIVE INTERACTIVE ADMIN CANVAS PREVIEW (WITH EXACT CANVAS RESIZE HANDLE MATCHING SCREENSHOT) */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
+                      <i className="bi bi-eye-fill text-[#0284c7] text-sm" /> Admin Live Canvas Studio (Drag Blue Corner Handle to Resize)
+                    </label>
+                    <span className="text-[11px] font-semibold text-slate-600 font-mono bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
+                      Covering Area: {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px × {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px
+                    </span>
+                  </div>
+
+                  <div className="relative rounded-3xl border border-slate-200 bg-slate-900/90 p-6 sm:p-8 flex flex-col items-center justify-center min-h-[380px]">
+                    {/* Blue Dashed Selection Container Frame matching screenshot */}
+                    <div className="relative p-1.5 rounded-[28px] border-2 border-dashed border-[#0284c7] transition-all">
+                      {/* Floating Dark Control Toolbar above matching screenshot */}
+                      <div className="absolute -top-4 left-4 z-40 flex items-center gap-2 rounded-xl bg-slate-950 px-3 py-1 text-[11px] font-bold text-white shadow-xl border border-slate-800">
+                        <span className="font-mono text-slate-400">&lt;div&gt;</span>
+                        <span className="bg-slate-800 px-2.5 py-0.5 rounded-lg text-slate-200 flex items-center gap-1">
+                          <i className="bi bi-chevron-up text-[9px]" /> Outer Box (&lt;div&gt;)
+                        </span>
+                        <span className="bg-[#0284c7] px-2 py-0.5 rounded-md text-white font-mono text-[10px]">
+                          {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600} × {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}
+                        </span>
+                      </div>
+
+                      {/* Mockup Full Bleed Poster Card Container */}
+                      <div
+                        className="relative w-full rounded-[24px] border border-amber-400/40 bg-slate-950 text-white shadow-2xl overflow-hidden flex flex-col justify-end group transition-all"
+                        style={{
+                          width: `${datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px`,
+                          maxWidth: "100%",
+                          height: `${datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px`,
+                        }}
+                      >
+                        {/* Background Image Poster */}
+                        <img
+                          src={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85"}
+                          alt="Admin Banner Preview"
+                          className="absolute inset-0 w-full h-full"
+                          style={{
+                            objectFit: (datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "cover") as any,
+                            objectPosition: datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center",
+                          }}
+                        />
+
+                        {/* Scrim Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent pointer-events-none" />
+
+                        {/* Bottom Content Preview */}
+                        <div className="relative z-10 p-4 flex items-end justify-between gap-3">
+                          <div className="space-y-0.5 max-w-[55%]">
+                            {(datasource?.home?.[0]?.identity?.popupBanner?.showTitle ?? datasource?.popupBanner?.showTitle) !== false && (datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title) && (
+                              <h4 className="text-sm sm:text-base font-extrabold text-white leading-tight drop-shadow-md">
+                                {datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title}
+                              </h4>
+                            )}
+                            {datasource?.home?.[0]?.identity?.popupBanner?.subtitle && !(datasource?.home?.[0]?.identity?.popupBanner?.subtitle || "").toLowerCase().includes("enroll your child") && (
+                              <p className="text-[10px] font-bold text-[#F4C430] uppercase tracking-wider drop-shadow-xs">
+                                {datasource?.home?.[0]?.identity?.popupBanner?.subtitle}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-extrabold text-[10px] px-3 py-1 rounded-full shadow-md flex items-center gap-1 border border-amber-400/30">
+                              <i className="bi bi-pencil-square text-[10px] text-[#F4C430]" />
+                              {datasource?.home?.[0]?.identity?.popupBanner?.enquiryButtonText ?? "Enquiry Now"}
+                            </span>
+
+                            <span className="bg-gradient-to-r from-red-600 to-red-700 text-white font-extrabold text-[10px] px-3 py-1 rounded-full shadow-md flex items-center gap-1 border border-red-400/30">
+                              <i className="bi bi-x-lg text-[9px]" />
+                              {datasource?.home?.[0]?.identity?.popupBanner?.closeButtonText ?? "Close"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Solid Blue Square Drag Handle at Corner matching screenshot */}
+                      <div
+                        className="absolute -bottom-3 -right-3 size-6 bg-[#0284c7] border-2 border-white rounded-md shadow-xl grid place-items-center cursor-nwse-resize z-50 hover:scale-125 transition-transform"
+                        title="Drag corner handle to adjust width & height live"
+                        onMouseDown={(e) => {
+                          const startX = e.clientX;
+                          const startY = e.clientY;
+                          const startW = datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? 600;
+                          const startH = datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? 400;
+                          const onMouseMove = (moveEv: MouseEvent) => {
+                            const deltaX = moveEv.clientX - startX;
+                            const deltaY = moveEv.clientY - startY;
+                            const newW = Math.max(320, Math.min(1100, startW + deltaX));
+                            const newH = Math.max(200, Math.min(750, startH + deltaY));
+                            updatePopupBannerField("imageWidth", newW);
+                            updatePopupBannerField("imageMaxHeight", newH);
+                            updatePopupBannerField("modalWidth", "custom");
+                          };
+                          const onMouseUp = () => {
+                            window.removeEventListener("mousemove", onMouseMove);
+                            window.removeEventListener("mouseup", onMouseUp);
+                          };
+                          window.addEventListener("mousemove", onMouseMove);
+                          window.addEventListener("mouseup", onMouseUp);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cloudinary Gallery Modal Integration */}
+              <CloudinaryGalleryModal
+                isOpen={isGalleryOpen}
+                onClose={() => setIsGalleryOpen(false)}
+                onSelectImage={(url) => {
+                  updatePopupBannerField("imageUrl", url);
+                  setIsGalleryOpen(false);
+                }}
+                title="Choose Pop-Up Announcement Image from Gallery"
+              />
             </div>
           )}
 

@@ -40,6 +40,16 @@
           ],
           "position": "bottom-left"
         },
+        "popupBanner": {
+          "enabled": true,
+          "delaySeconds": 3,
+          "imageUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85",
+          "title": "Admissions Open for Session 2026–27",
+          "subtitle": "",
+          "enquiryButtonText": "Enquiry Now",
+          "closeButtonText": "Close",
+          "onlyOncePerSession": false
+        },
         "certified_board": {
           "title": "CBSE Affiliated School",
           "code": "Affiliation No. 1530211 | School Code: 53123",

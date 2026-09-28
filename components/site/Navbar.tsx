@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import { ChevronDown, ChevronRight, ExternalLink, GraduationCap, LayoutGrid, Menu, Phone, X } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronRight, ExternalLink, GraduationCap, Menu, Phone, X } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -429,7 +429,7 @@ export function Navbar() {
                 aria-label="View additional pages"
                 title="View additional pages"
               >
-                <LayoutGrid size={16} className="transition-transform duration-300 group-hover:scale-110" />
+                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:scale-110" />
               </button>
             </li>
           )}
