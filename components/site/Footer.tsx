@@ -103,6 +103,23 @@ const FIXED_FOOTER_COLUMNS = [
   },
 ];
 
+const getFooterGridClass = (count: number) => {
+  switch (count) {
+    case 1:
+      return "grid-cols-1 max-w-xs sm:ml-auto";
+    case 2:
+      return "grid-cols-1 sm:grid-cols-2 gap-10 lg:gap-20 w-full max-w-2xl sm:ml-auto";
+    case 3:
+      return "grid-cols-2 sm:grid-cols-3 gap-8 lg:gap-12 w-full";
+    case 4:
+      return "grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-8 w-full";
+    case 5:
+      return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 w-full";
+    default:
+      return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 w-full";
+  }
+};
+
 export function Footer() {
   const siteData = useSiteData();
   const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
@@ -132,7 +149,14 @@ export function Footer() {
     text(footerConfig.copyright) ||
     `© ${new Date().getFullYear()} Indian Public School. All rights reserved.`;
 
-  const footerColumns = FIXED_FOOTER_COLUMNS;
+  const configuredColumns =
+    Array.isArray(footerConfig.columns) && footerConfig.columns.length > 0
+      ? (footerConfig.columns as any[])
+      : Array.isArray((siteData.footer as any)?.columns) && (siteData.footer as any).columns.length > 0
+        ? ((siteData.footer as any).columns as any[])
+        : FIXED_FOOTER_COLUMNS;
+
+  const footerColumns = configuredColumns;
 
   const socialLinks = [
     { icon: Facebook, label: "Facebook", href: text(footerConfig.facebook) || text(socialsObj.facebook, "https://facebook.com") },
@@ -245,7 +269,7 @@ export function Footer() {
           </div>
         )}
 
-        <div className="grid gap-10 lg:grid-cols-[1.4fr_3fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr] items-start">
           <Reveal>
             <div className="flex items-center gap-3">
               {customLogoUrl ? (
@@ -291,14 +315,14 @@ export function Footer() {
             </ul>
           </Reveal>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+          <div className={`grid ${getFooterGridClass(footerColumns.length)}`}>
             {footerColumns.map((col, i) => (
               <Reveal key={`${col.title}-${i}`} delay={i * 0.05}>
                 <h3 className="text-sm font-semibold tracking-wider text-gold uppercase">
                   {col.title}
                 </h3>
                 <ul className="mt-4 space-y-2.5">
-                  {col.links.map((linkItem, idx) => (
+                  {col.links.map((linkItem: any, idx: number) => (
                     <li key={`${linkItem.title}-${idx}`}>
                       <Link
                         href={linkItem.href}

@@ -208,6 +208,61 @@ export function HomeLayoutEditorModal({
     });
   };
 
+  const updateFooterColumns = (updater: (cols: any[]) => any[]) => {
+    setDatasource((prev: any) => {
+      const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
+      const firstHome = { ...(homeList[0] || {}) };
+      const identityObj = { ...(firstHome.identity || {}) };
+      const currentFooter = identityObj.footer || prev?.footer || {};
+      const currentCols = Array.isArray(currentFooter.columns) && currentFooter.columns.length > 0
+        ? currentFooter.columns
+        : [
+            {
+              title: "Quick Links",
+              links: [
+                { title: "Home", href: "/" },
+                { title: "About Us", href: "/#about" },
+                { title: "Academics", href: "/#academics" },
+                { title: "Admissions", href: "/admission" },
+                { title: "Contact Us", href: "/#contact" },
+              ],
+            },
+            {
+              title: "Key Pages",
+              links: [
+                { title: "Chairman's Message", href: "/about/chairman-message" },
+                { title: "Principal's Desk", href: "/about/principal-message" },
+                { title: "Campus Life", href: "/#campus-life" },
+                { title: "Gallery", href: "/#gallery" },
+              ],
+            },
+            {
+              title: "Important Links",
+              links: [
+                { title: "Enquiry", href: "/#enquiry" },
+                { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
+                { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
+              ],
+            },
+          ];
+
+      const newCols = updater(JSON.parse(JSON.stringify(currentCols)));
+      const footerObj = { ...currentFooter, columns: newCols };
+
+      identityObj.footer = footerObj;
+      firstHome.identity = identityObj;
+      homeList[0] = firstHome;
+
+      const next = {
+        ...prev,
+        footer: footerObj,
+        home: homeList,
+      };
+      setJsonText(JSON.stringify(next, null, 2));
+      return next;
+    });
+  };
+
   const updateWhatsAppField = (field: string, val: any) => {
     setDatasource((prev: any) => {
       const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
@@ -723,6 +778,200 @@ export function HomeLayoutEditorModal({
                   </div>
                 </div>
               </div>
+
+              {/* Footer Links Manager */}
+              {(() => {
+                const footerObj = datasource?.home?.[0]?.identity?.footer || datasource?.footer || {};
+                const currentCols = Array.isArray(footerObj.columns) && footerObj.columns.length > 0
+                  ? footerObj.columns
+                  : [
+                      {
+                        title: "Quick Links",
+                        links: [
+                          { title: "Home", href: "/" },
+                          { title: "About Us", href: "/#about" },
+                          { title: "Academics", href: "/#academics" },
+                          { title: "Admissions", href: "/admission" },
+                          { title: "Contact Us", href: "/#contact" },
+                        ],
+                      },
+                      {
+                        title: "Key Pages",
+                        links: [
+                          { title: "Chairman's Message", href: "/about/chairman-message" },
+                          { title: "Principal's Desk", href: "/about/principal-message" },
+                          { title: "Campus Life", href: "/#campus-life" },
+                          { title: "Gallery", href: "/#gallery" },
+                        ],
+                      },
+                      {
+                        title: "Important Links",
+                        links: [
+                          { title: "Enquiry", href: "/#enquiry" },
+                          { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
+                          { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
+                        ],
+                      },
+                    ];
+
+                return (
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                      <div>
+                        <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                          <i className="bi bi-link-45deg text-[#1a5d9c] text-lg" /> Footer Link Columns (Quick Links Manager)
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">Customize the columns and links displayed in the website footer.</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateFooterColumns(() => [
+                              {
+                                title: "Quick Links",
+                                links: [
+                                  { title: "Home", href: "/" },
+                                  { title: "About Us", href: "/#about" },
+                                  { title: "Academics", href: "/#academics" },
+                                  { title: "Admissions", href: "/admission" },
+                                  { title: "Contact Us", href: "/#contact" },
+                                ],
+                              },
+                              {
+                                title: "Key Pages",
+                                links: [
+                                  { title: "Chairman's Message", href: "/about/chairman-message" },
+                                  { title: "Principal's Desk", href: "/about/principal-message" },
+                                  { title: "Campus Life", href: "/#campus-life" },
+                                  { title: "Gallery", href: "/#gallery" },
+                                ],
+                              },
+                              {
+                                title: "Important Links",
+                                links: [
+                                  { title: "Enquiry", href: "/#enquiry" },
+                                  { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
+                                  { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
+                                ],
+                              },
+                            ]);
+                          }}
+                          className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                        >
+                          <i className="bi bi-arrow-counterclockwise mr-1" /> Reset Defaults
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateFooterColumns((cols) => [
+                              ...cols,
+                              { title: "New Column", links: [{ title: "New Link", href: "/" }] }
+                            ]);
+                          }}
+                          className="rounded-xl bg-[#1a5d9c] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c] transition-colors cursor-pointer"
+                        >
+                          <i className="bi bi-plus-lg mr-1" /> Add Column
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-3">
+                      {currentCols.map((col: any, colIdx: number) => (
+                        <div key={colIdx} className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-2xs">
+                          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                            <input
+                              type="text"
+                              value={col.title || ""}
+                              placeholder="Column Title (e.g. Quick Links)"
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateFooterColumns((cols) => {
+                                  cols[colIdx].title = val;
+                                  return cols;
+                                });
+                              }}
+                              className="w-full text-xs font-bold text-[#102a4c] border-b border-transparent hover:border-slate-300 focus:border-[#1a5d9c] outline-none px-1 py-0.5"
+                            />
+                            <button
+                              type="button"
+                              title="Delete Column"
+                              onClick={() => {
+                                updateFooterColumns((cols) => cols.filter((_, idx) => idx !== colIdx));
+                              }}
+                              className="text-slate-400 hover:text-red-500 p-1 cursor-pointer"
+                            >
+                              <i className="bi bi-trash text-xs" />
+                            </button>
+                          </div>
+
+                          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                            {Array.isArray(col.links) && col.links.map((link: any, linkIdx: number) => (
+                              <div key={linkIdx} className="p-2 rounded-lg bg-slate-50 border border-slate-100 space-y-1.5 relative group">
+                                <div className="flex items-center justify-between">
+                                  <input
+                                    type="text"
+                                    placeholder="Link Title"
+                                    value={link.title || ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      updateFooterColumns((cols) => {
+                                        cols[colIdx].links[linkIdx].title = val;
+                                        return cols;
+                                      });
+                                    }}
+                                    className="w-full text-xs font-semibold text-slate-800 bg-transparent border-b border-transparent focus:border-slate-300 outline-none"
+                                  />
+                                  <button
+                                    type="button"
+                                    title="Remove Link"
+                                    onClick={() => {
+                                      updateFooterColumns((cols) => {
+                                        cols[colIdx].links = cols[colIdx].links.filter((_: any, idx: number) => idx !== linkIdx);
+                                        return cols;
+                                      });
+                                    }}
+                                    className="text-slate-400 hover:text-red-500 text-xs ml-1 cursor-pointer"
+                                  >
+                                    <i className="bi bi-x-lg" />
+                                  </button>
+                                </div>
+                                <input
+                                  type="text"
+                                  placeholder="Target URL (e.g. /#enquiry or /about)"
+                                  value={link.href || ""}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    updateFooterColumns((cols) => {
+                                      cols[colIdx].links[linkIdx].href = val;
+                                      return cols;
+                                    });
+                                  }}
+                                  className="w-full text-[11px] font-mono text-slate-500 bg-white border border-slate-200 rounded-md px-2 py-1 outline-none"
+                                />
+                              </div>
+                            ))}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateFooterColumns((cols) => {
+                                cols[colIdx].links = Array.isArray(cols[colIdx].links) ? cols[colIdx].links : [];
+                                cols[colIdx].links.push({ title: "New Link", href: "/" });
+                                return cols;
+                              });
+                            }}
+                            className="w-full py-1.5 border border-dashed border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            <i className="bi bi-plus text-sm" /> Add Link
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
