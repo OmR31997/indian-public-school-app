@@ -42,7 +42,6 @@ export function HomeClient({ textContent }: { textContent?: string | null }) {
         <Stats />
         <WhyChoose />
         <Academics />
-        <IntroVideo />
         <BeyondClassroom />
         <Infrastructure />
         <StudentLife />
