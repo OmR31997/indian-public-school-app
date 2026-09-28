@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import { Hero } from "@/components/site/Hero";
-import { BannerSlider } from "@/components/site/BannerSlider";
 import { QuickActions } from "@/components/site/QuickActions";
 import { About } from "@/components/site/About";
 import { Stats } from "@/components/site/Stats";
@@ -26,7 +25,6 @@ export function HomeClient({ textContent }: { textContent?: string | null }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
       <main>
         <Hero />
-        <BannerSlider />
         <QuickActions />
         {textContent && textContent.trim().length > 0 && (
           <section className="bg-slate-50 py-8 border-y border-slate-100">
