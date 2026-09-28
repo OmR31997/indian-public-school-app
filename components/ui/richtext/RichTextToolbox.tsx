@@ -43,9 +43,9 @@ export const RichTextToolbox: React.FC<RichTextToolboxProps> = ({
                     </h4>
                     <p className="text-[11px] font-medium text-slate-400">Click or Drag & Drop blocks into editor</p>
                 </div>
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-blue-700">
+                {/* <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-blue-700">
                     VB Style
-                </span>
+                </span> */}
             </div>
 
             {/* Selection Quick Action Banner in Toolbox */}
