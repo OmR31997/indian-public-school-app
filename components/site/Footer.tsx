@@ -73,49 +73,32 @@ function getItemHref(item: ApiMenuItem): string {
   return normalizeHref(slugTarget);
 }
 
-const DEFAULT_FOOTER_COLUMNS = [
+const FIXED_FOOTER_COLUMNS = [
   {
-    title: "About Us",
+    title: "Quick Links",
+    links: [
+      { title: "Home", href: "/" },
+      { title: "About Us", href: "/#about" },
+      { title: "Academics", href: "/#academics" },
+      { title: "Admissions", href: "/admission" },
+      { title: "Contact Us", href: "/#contact" },
+    ],
+  },
+  {
+    title: "Key Pages",
     links: [
       { title: "Chairman's Message", href: "/about/chairman-message" },
-      { title: "Director's Message", href: "/about/director-message" },
       { title: "Principal's Desk", href: "/about/principal-message" },
-      { title: "Mission & Vision", href: "/about/mission-vision" },
-      { title: "Establishment", href: "/about/establishment" },
+      { title: "Campus Life", href: "/#campus-life" },
+      { title: "Gallery", href: "/#gallery" },
     ],
   },
   {
-    title: "Academics",
+    title: "Important Links",
     links: [
-      { title: "Curriculum & Streams", href: "/admissions/curriculum" },
-      { title: "Stream Allocation", href: "/academics/stream-allocation" },
-      { title: "Social Learning", href: "/academics/social-learning" },
-    ],
-  },
-  {
-    title: "Admissions",
-    links: [
-      { title: "Admission Policy", href: "/admissions/policy" },
-      { title: "Curriculum Prospectus", href: "/admissions/curriculum" },
-      { title: "Apply Online", href: "/admission" },
-    ],
-  },
-  {
-    title: "Campus Life",
-    links: [
-      { title: "Our Houses", href: "/life-at-ips/our-houses" },
-      { title: "Student Empowerment", href: "/life-at-ips/student-empowerment" },
-      { title: "Parent-Teacher Meeting", href: "/connectivity/parent-teacher-meeting" },
-      { title: "Societal Engagement", href: "/connectivity/societal-engagement" },
-    ],
-  },
-  {
-    title: "Infrastructure",
-    links: [
-      { title: "Science Laboratories", href: "/infrastructure/laboratories" },
-      { title: "Hostels & Dining", href: "/infrastructure/hostels" },
-      { title: "Sports Grounds", href: "/infrastructure/sports-room" },
-      { title: "Art & Performing Arts", href: "/infrastructure/art-craft" },
+      { title: "Enquiry", href: "/#enquiry" },
+      { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
+      { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
     ],
   },
 ];
@@ -149,67 +132,7 @@ export function Footer() {
     text(footerConfig.copyright) ||
     `© ${new Date().getFullYear()} Indian Public School. All rights reserved.`;
 
-  const rawMenuItems = (siteData?.menuItems && siteData.menuItems.length > 0)
-    ? siteData.menuItems
-    : (siteData?.menuitems && (siteData.menuitems as unknown[]).length > 0)
-      ? siteData.menuitems
-      : [];
-
-  const initialMenuItems = buildMenuHierarchy(rawMenuItems as any[]) as ApiMenuItem[];
-
-  const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>(initialMenuItems);
-
-  useEffect(() => {
-    if (initialMenuItems.length > 0 && dbMenuItems.length === 0) {
-      setDbMenuItems(initialMenuItems);
-    }
-  }, [initialMenuItems, dbMenuItems.length]);
-
-  useEffect(() => {
-    let isMounted = true;
-    axios
-      .get(`${API_URL}/menu-items`, { params: { publishedOnly: "true" } })
-      .then((res) => {
-        if (!isMounted) return;
-        const payload = res.data?.data ?? res.data;
-        const list = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
-        if (list.length > 0) {
-          setDbMenuItems(buildMenuHierarchy(list) as ApiMenuItem[]);
-        }
-      })
-      .catch(() => {
-        /* Keep fallback defaults if unreached */
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const footerColumns = dbMenuItems.length
-    ? dbMenuItems
-      .filter((parent) => parent.isPublished !== false)
-      .map((parent) => {
-        const subLinks = Array.isArray(parent.subItems) && parent.subItems.length > 0
-          ? parent.subItems
-            .filter((sub) => sub.isPublished !== false)
-            .map((sub) => ({
-              title: sub.title,
-              href: getItemHref(sub),
-            }))
-          : [
-            {
-              title: parent.title,
-              href: getItemHref(parent),
-            },
-          ];
-
-        return {
-          title: parent.title,
-          links: subLinks,
-        };
-      })
-      .filter((col) => col.links.length > 0)
-    : DEFAULT_FOOTER_COLUMNS;
+  const footerColumns = FIXED_FOOTER_COLUMNS;
 
   const socialLinks = [
     { icon: Facebook, label: "Facebook", href: text(footerConfig.facebook) || text(socialsObj.facebook, "https://facebook.com") },
@@ -368,7 +291,7 @@ export function Footer() {
             </ul>
           </Reveal>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
             {footerColumns.map((col, i) => (
               <Reveal key={`${col.title}-${i}`} delay={i * 0.05}>
                 <h3 className="text-sm font-semibold tracking-wider text-gold uppercase">

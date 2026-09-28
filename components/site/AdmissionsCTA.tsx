@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { Download, MessageSquare, PenLine } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EASE } from "@/lib/motion-presets";
 import {
@@ -90,16 +91,13 @@ export function AdmissionsCTA() {
             }}
             className="w-full sm:w-auto"
           >
-            <Button
-              type="button"
-              size="lg"
-              variant="gold"
-              onClick={() => openAdmissionModal()}
-              className="w-full rounded-full sm:w-auto cursor-pointer font-bold"
+            <Link
+              href="/#enquiry"
+              className="inline-flex items-center justify-center h-11 px-8 rounded-full sm:w-auto cursor-pointer font-bold bg-gold text-gold-foreground hover:bg-gold/90 transition-transform hover:scale-105"
             >
               <PenLine className="mr-1 size-4" />
-              Apply Online
-            </Button>
+              Enquiry
+            </Link>
           </motion.div>
 
           <motion.div
