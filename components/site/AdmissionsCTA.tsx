@@ -12,10 +12,15 @@ import {
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 
+import fallbackCampusBg from "@/assets/campus-aerial.jpg";
+
 export function AdmissionsCTA() {
   const section = firstSection(homeData(useSiteData()), "section-9");
-  const background = Array.isArray(section.fileUrls) ? section.fileUrls[0] : "";
-  const backgroundImage = imageUrl(background);
+  const rawBg =
+    (typeof section.bgImageUrl === "string" && section.bgImageUrl) ||
+    (typeof section.bgImage === "string" && section.bgImage) ||
+    "";
+  const backgroundImage = rawBg ? imageUrl(rawBg) : fallbackCampusBg.src;
   const reduced = useReducedMotion();
   return (
     <section id="admissions" className="relative isolate overflow-hidden">

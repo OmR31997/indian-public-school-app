@@ -284,12 +284,14 @@ export function AdminConsole() {
       if (current.key === "users") {
         const id = editing ? itemId(editing) : "";
         if (id) {
-          await securedRequest("patch", `auth/users/${id}`, values);
+          const { _id, createdAt, updatedAt, __v, ...cleanValues } = values;
+          await securedRequest("patch", `auth/users/${id}`, cleanValues);
         } else {
           await securedRequest("post", "auth/register", values);
         }
       } else {
-        const payload = { ...values };
+        const { _id, createdAt, updatedAt, __v, ...rawPayload } = values;
+        const payload: Record<string, unknown> = { ...rawPayload };
         if (current.key === "menu-items") {
           const title = String(payload.title || "").trim();
           const slug = String(payload.slug || "").trim() || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || `menu-${Date.now()}`;

@@ -1148,32 +1148,70 @@ export function HomeSectionsTab({
                   className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none"
                 />
 
-                <div className="flex items-center gap-4">
-                  {homeObj["section-9"]?.[0]?.fileUrls?.[0] && (
-                    <div className="relative h-24 w-24 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={homeObj["section-9"][0].fileUrls[0]} alt="Director" className="h-full w-full object-cover" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {/* Director Photo */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
+                    <span className="text-[11px] font-bold text-slate-700 block">Director / Intro Photo</span>
+                    <div className="flex items-center gap-3">
+                      {homeObj["section-9"]?.[0]?.fileUrls?.[0] && (
+                        <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={homeObj["section-9"][0].fileUrls[0]} alt="Director" className="h-full w-full object-cover" />
+                        </div>
+                      )}
+                      <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
+                        <UploadCloud size={14} /> Upload Director Photo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const url = await uploadImage(file);
+                              if (url) {
+                                const sec9 = [...(homeObj["section-9"] || [{}])];
+                                sec9[0] = { ...sec9[0], fileUrls: [url] };
+                                updateHome((prev) => ({ ...prev, "section-9": sec9 }));
+                              }
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
                     </div>
-                  )}
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
-                    <UploadCloud size={16} /> Upload Photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await uploadImage(file);
-                          if (url) {
-                            const sec9 = [...(homeObj["section-9"] || [{}])];
-                            sec9[0] = { ...sec9[0], fileUrls: [url] };
-                            updateHome((prev) => ({ ...prev, "section-9": sec9 }));
-                          }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
+                  </div>
+
+                  {/* Admissions Banner Background */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
+                    <span className="text-[11px] font-bold text-slate-700 block">Admissions Banner Background</span>
+                    <div className="flex items-center gap-3">
+                      {homeObj["section-9"]?.[0]?.bgImageUrl && (
+                        <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={homeObj["section-9"][0].bgImageUrl} alt="Banner Background" className="h-full w-full object-cover" />
+                        </div>
+                      )}
+                      <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
+                        <UploadCloud size={14} /> Upload Banner Background
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const url = await uploadImage(file);
+                              if (url) {
+                                const sec9 = [...(homeObj["section-9"] || [{}])];
+                                sec9[0] = { ...sec9[0], bgImageUrl: url };
+                                updateHome((prev) => ({ ...prev, "section-9": sec9 }));
+                              }
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

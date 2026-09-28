@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
         destination: "/sitemap.xml",
         permanent: true,
       },
+      {
+        source: "/pressrelease",
+        destination: "/press-release",
+        permanent: true,
+      },
     ];
   },
 };
