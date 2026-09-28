@@ -403,7 +403,9 @@ export function RecordDialog({
                       }
                     });
 
-                    const allPages = Array.from(pagesMap.entries()).map(([url, title]) => ({ url, title }));
+                    const allPages = Array.from(pagesMap.entries())
+                      .map(([url, title]) => ({ url, title }))
+                      .sort((a, b) => a.title.localeCompare(b.title));
                     const currentVal = String(values[field] || "").trim();
                     const isKnownPage = allPages.some((p) => p.url === currentVal);
 

@@ -248,6 +248,34 @@ export function AdminConsole() {
   const careerNotifications = useCareerNotifications(API_URL, token);
 
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [publishedPages, setPublishedPages] = useState<RecordItem[]>([]);
+
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/v1/pages/published`)
+      .then((res) => {
+        const items = Array.isArray(res.data) ? res.data : Array.isArray(res.data?.items) ? res.data.items : [];
+        if (items.length > 0) setPublishedPages(items);
+      })
+      .catch(() => {});
+  }, []);
+
+  const combinedPages = useMemo(() => {
+    const pageMap = new Map<string, RecordItem>();
+    ((fallbackSiteData.pages as RecordItem[]) || []).forEach((p) => {
+      const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
+      if (id) pageMap.set(id, p);
+    });
+    (publishedPages || []).forEach((p) => {
+      const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
+      if (id) pageMap.set(id, p);
+    });
+    (data.pages || []).forEach((p) => {
+      const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
+      if (id) pageMap.set(id, p);
+    });
+    return Array.from(pageMap.values());
+  }, [data.pages, publishedPages]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -636,7 +664,7 @@ export function AdminConsole() {
         record={editing}
         saving={saving}
         formError={error}
-        allSectionPages={data.pages || []}
+        allSectionPages={combinedPages}
         allMenuItems={data["menu-items"] || []}
         onClose={() => { setFormOpen(false); setEditing(null); setError(""); }}
         onClearError={() => setError("")}
