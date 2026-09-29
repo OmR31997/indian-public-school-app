@@ -10,14 +10,47 @@ import fallbackSiteData from "@/public/cloud-datasource.json";
 
 export interface HeroSlide {
   bannerUrl: string;
+  title?: string;
   h1?: string;
   h2?: string;
   description?: string;
+  fontSizeTitle?: "sm" | "md" | "lg" | "xl";
+  fontSizeH1?: "sm" | "md" | "lg" | "xl";
+  fontSizeH2?: "sm" | "md" | "lg" | "xl";
+  fontSizeDescription?: "sm" | "md" | "lg" | "xl";
   enableOverlay?: boolean;
   showText?: boolean;
   overlayColor?: string;
   overlayOpacity?: number;
 }
+
+const TITLE_SIZE_CLASSES: Record<string, string> = {
+  sm: "text-[10px] px-2.5 py-0.5",
+  md: "text-xs px-3.5 py-1",
+  lg: "text-sm px-4 py-1.5",
+  xl: "text-base px-5 py-2",
+};
+
+const H1_SIZE_CLASSES: Record<string, string> = {
+  sm: "text-xl sm:text-2xl lg:text-3xl font-bold",
+  md: "text-2xl sm:text-3xl lg:text-4xl font-extrabold",
+  lg: "text-3xl sm:text-4xl lg:text-5xl font-extrabold",
+  xl: "text-4xl sm:text-5xl lg:text-6xl font-extrabold",
+};
+
+const H2_SIZE_CLASSES: Record<string, string> = {
+  sm: "text-xl sm:text-2xl lg:text-3xl font-bold",
+  md: "text-2xl sm:text-3xl lg:text-4xl font-extrabold",
+  lg: "text-3xl sm:text-4xl lg:text-5xl font-extrabold",
+  xl: "text-4xl sm:text-5xl lg:text-6xl font-extrabold",
+};
+
+const DESC_SIZE_CLASSES: Record<string, string> = {
+  sm: "text-xs sm:text-sm",
+  md: "text-sm sm:text-base lg:text-lg",
+  lg: "text-base sm:text-lg lg:text-xl",
+  xl: "text-lg sm:text-xl lg:text-2xl",
+};
 
 export function Hero() {
   const home = homeData(useSiteData());
@@ -67,16 +100,18 @@ export function Hero() {
   // Flexible Text Visibility Toggle (Can be turned ON/OFF per slide)
   const showText = currentSlide.showText !== false;
 
-  const rawH1 = text(currentSlide.h1, showText ? "Where Curiosity Meets Excellence" : "");
-  const rawH2 = text(currentSlide.h2, showText ? "Admissions Open 2026–27" : "");
-  const rawDescription = text(
-    currentSlide.description,
-    showText ? "Empowering young minds with knowledge, character, creativity and confidence for a brighter tomorrow." : ""
-  );
+  // Pure optional extraction with zero hardcoded fallbacks
+  const rawTitle = showText && currentSlide.title ? text(currentSlide.title, "").trim() : "";
+  const rawH1 = showText && currentSlide.h1 ? text(currentSlide.h1, "").trim() : "";
+  const rawH2 = showText && currentSlide.h2 ? text(currentSlide.h2, "").trim() : "";
+  const rawDescription = showText && currentSlide.description ? text(currentSlide.description, "").trim() : "";
 
-  const formattedH1 = rawH1.replace(/([a-z])([A-Z])/g, "$1 $2");
-  const words = formattedH1.split(/\s+/).filter(Boolean);
-  const hasTextContent = showText && (words.length > 0 || rawH2 || rawDescription);
+  const titleSizeClass = TITLE_SIZE_CLASSES[currentSlide.fontSizeTitle || "md"] || TITLE_SIZE_CLASSES.md;
+  const h1SizeClass = H1_SIZE_CLASSES[currentSlide.fontSizeH1 || "md"] || H1_SIZE_CLASSES.md;
+  const h2SizeClass = H2_SIZE_CLASSES[currentSlide.fontSizeH2 || "md"] || H2_SIZE_CLASSES.md;
+  const descSizeClass = DESC_SIZE_CLASSES[currentSlide.fontSizeDescription || "md"] || DESC_SIZE_CLASSES.md;
+
+  const hasTextContent = showText && (Boolean(rawTitle) || Boolean(rawH1) || Boolean(rawH2) || Boolean(rawDescription));
 
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -106,7 +141,7 @@ export function Hero() {
           <SmartImage
             src={currentSlide.bannerUrl}
             fallbackSrc={jsonHeroImage || fallbackHeroImage.src}
-            alt={rawH1 || "Indian Public School Campus Banner"}
+            alt={rawH1 || rawTitle || "Indian Public School Campus Banner"}
             width={1920}
             height={1080}
             containerClassName="size-full"
@@ -134,9 +169,9 @@ export function Hero() {
         />
       )}
 
-      {/* Main Banner Content (H1, H2, Description) - Rendered ONLY if showText === true */}
+      {/* Main Banner Content (Title, H1, H2, Description) - Rendered ONLY if showText === true */}
       {hasTextContent && (
-        <div className="container-page relative z-10 py-20 lg:py-28 flex flex-col justify-center">
+        <div className="container-page relative z-10 py-20 lg:py-28 flex flex-col justify-center px-12 sm:px-16 lg:px-20">
           <AnimatePresence mode="wait">
             <motion.div
               key={"content-" + currentIndex}
@@ -146,52 +181,49 @@ export function Hero() {
               transition={{ duration: 0.5 }}
               className={`max-w-4xl ${!enableOverlay ? "drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] bg-black/40 p-6 sm:p-8 rounded-3xl backdrop-blur-xs border border-white/10" : ""}`}
             >
-              {/* H2 Subheading / Session Badge */}
-              {rawH2 && (
-                <motion.h2
+              {/* 1. Green Title Badge (Rendered ONLY if provided) */}
+              {rawTitle && (
+                <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, ease: EASE }}
-                  className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/15 px-4 py-1.5 text-xs font-bold tracking-[0.16em] text-emerald-300 uppercase backdrop-blur-md shadow-md"
+                  className={`inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/15 font-bold tracking-[0.16em] text-emerald-300 uppercase backdrop-blur-md shadow-md mb-4 ${titleSizeClass}`}
                 >
-                  <span>{rawH2}</span>
+                  <span>{rawTitle}</span>
+                </motion.div>
+              )}
+
+              {/* 2. White H1 Main Heading (Rendered ONLY if provided) */}
+              {rawH1 && (
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+                  className={`font-display font-extrabold leading-[1.08] text-white drop-shadow-lg ${h1SizeClass}`}
+                >
+                  {rawH1}
+                </motion.h1>
+              )}
+
+              {/* 3. Yellow H2 Secondary Heading (Rendered ONLY if provided) */}
+              {rawH2 && (
+                <motion.h2
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
+                  className={`mt-1 font-display font-extrabold leading-[1.08] bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent drop-shadow-md ${h2SizeClass}`}
+                >
+                  {rawH2}
                 </motion.h2>
               )}
 
-              {/* H1 Main Heading */}
-              {words.length > 0 && (
-                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.08] text-white sm:text-6xl lg:text-7xl drop-shadow-lg">
-                  {words.map((word, i) => (
-                    <motion.span
-                      key={word + i}
-                      className="mr-[0.28em] inline-block"
-                      initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                      transition={{
-                        duration: 0.6,
-                        delay: 0.08 + i * 0.06,
-                        ease: EASE,
-                      }}
-                    >
-                      {word === "Excellence" || word === "Future" || word === "Leaders" ? (
-                        <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
-                          {word}
-                        </span>
-                      ) : (
-                        word
-                      )}
-                    </motion.span>
-                  ))}
-                </h1>
-              )}
-
-              {/* Description Paragraph */}
+              {/* 4. Description Paragraph (Rendered ONLY if provided) */}
               {rawDescription && (
                 <motion.p
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.35, ease: EASE }}
-                  className="mt-6 max-w-2xl text-base leading-relaxed text-slate-100 sm:text-lg lg:text-xl font-normal drop-shadow-md"
+                  className={`mt-6 max-w-2xl leading-relaxed text-slate-100 font-normal drop-shadow-md ${descSizeClass}`}
                 >
                   {rawDescription}
                 </motion.p>
@@ -208,17 +240,17 @@ export function Hero() {
             type="button"
             aria-label="Previous Slide"
             onClick={goToPrev}
-            className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-2 text-white backdrop-blur-md transition hover:bg-black/70 hover:scale-110 cursor-pointer"
+            className="absolute left-3 sm:left-6 lg:left-8 top-1/2 z-20 -translate-y-1/2 text-white/75 hover:text-white transition-all duration-300 hover:scale-125 active:scale-95 cursor-pointer group focus:outline-none p-2"
           >
-            <ChevronLeft size={22} />
+            <ChevronLeft size={36} className="transition-transform group-hover:-translate-x-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
           </button>
           <button
             type="button"
             aria-label="Next Slide"
             onClick={goToNext}
-            className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-2 text-white backdrop-blur-md transition hover:bg-black/70 hover:scale-110 cursor-pointer"
+            className="absolute right-3 sm:right-6 lg:right-8 top-1/2 z-20 -translate-y-1/2 text-white/75 hover:text-white transition-all duration-300 hover:scale-125 active:scale-95 cursor-pointer group focus:outline-none p-2"
           >
-            <ChevronRight size={22} />
+            <ChevronRight size={36} className="transition-transform group-hover:translate-x-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
           </button>
 
           {/* Indicator Dots */}
@@ -257,9 +289,14 @@ function useMemoSlides(
         imageUrl(item.imageUrl) ||
         jsonHeroImage ||
         fallbackImage,
-      h1: item.h1 ?? item.title ?? content.h1 ?? content.title ?? "Where Curiosity Meets Excellence",
-      h2: item.h2 ?? item.session ?? content.h2 ?? content.session ?? "Admissions Open 2026–27",
-      description: item.description ?? content.description ?? "",
+      title: item.title ?? content.title,
+      h1: item.h1 ?? content.h1,
+      h2: item.h2 ?? content.h2,
+      description: item.description ?? content.description,
+      fontSizeTitle: item.fontSizeTitle,
+      fontSizeH1: item.fontSizeH1,
+      fontSizeH2: item.fontSizeH2,
+      fontSizeDescription: item.fontSizeDescription,
       enableOverlay: item.enableOverlay ?? hero.enableOverlay ?? true,
       showText: item.showText ?? hero.showText ?? true,
       overlayColor: item.overlayColor || hero.overlayColor || "#0a192f",
@@ -274,9 +311,14 @@ function useMemoSlides(
 
   return listToUse.map((url) => ({
     bannerUrl: imageUrl(url) || fallbackImage,
-    h1: content.h1 || content.title || "Where Curiosity Meets Excellence",
-    h2: content.h2 || content.session || "Admissions Open 2026–27",
-    description: content.description || "",
+    title: content.title,
+    h1: content.h1,
+    h2: content.h2,
+    description: content.description,
+    fontSizeTitle: hero.fontSizeTitle as any,
+    fontSizeH1: hero.fontSizeH1 as any,
+    fontSizeH2: hero.fontSizeH2 as any,
+    fontSizeDescription: hero.fontSizeDescription as any,
     enableOverlay: (content.enableOverlay ?? hero.enableOverlay) !== false,
     showText: (content.showText ?? hero.showText) !== false,
     overlayColor: content.overlayColor || hero.overlayColor || "#0a192f",

@@ -39,11 +39,11 @@ export function BannerSlider() {
           />
           {images.length > 1 ? (
             <>
-              <button type="button" aria-label="Previous banner" onClick={() => changeSlide(-1)} className="absolute top-1/2 left-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-background/85 shadow-soft backdrop-blur hover:bg-background">
-                <ChevronLeft className="size-5" />
+              <button type="button" aria-label="Previous banner" onClick={() => changeSlide(-1)} className="absolute top-1/2 left-3 sm:left-4 -translate-y-1/2 text-white/75 hover:text-white transition-all hover:scale-125 active:scale-95 cursor-pointer p-2 focus:outline-none">
+                <ChevronLeft className="size-7 sm:size-8 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
               </button>
-              <button type="button" aria-label="Next banner" onClick={() => changeSlide(1)} className="absolute top-1/2 right-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-background/85 shadow-soft backdrop-blur hover:bg-background">
-                <ChevronRight className="size-5" />
+              <button type="button" aria-label="Next banner" onClick={() => changeSlide(1)} className="absolute top-1/2 right-3 sm:right-4 -translate-y-1/2 text-white/75 hover:text-white transition-all hover:scale-125 active:scale-95 cursor-pointer p-2 focus:outline-none">
+                <ChevronRight className="size-7 sm:size-8 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
               </button>
               <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
                 {images.map((_, slide) => <button key={slide} type="button" aria-label={`Show banner ${slide + 1}`} onClick={() => setIndex(slide)} className={`h-2 rounded-full transition-all ${slide === index ? "w-7 bg-gold" : "w-2 bg-background/80"}`} />)}

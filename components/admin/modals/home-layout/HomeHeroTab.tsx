@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Images,
   Clock,
-  Sparkles,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -51,21 +50,23 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
   const slides: any[] = Array.isArray(heroObj.slides) && heroObj.slides.length > 0
     ? heroObj.slides
     : fileUrls.map((url) => ({
-        bannerUrl: url,
-        h1: content.h1 || content.title || "Where Curiosity Meets Excellence",
-        h2: content.h2 || content.session || "Admissions Open 2026–27",
-        description: content.description || "",
-        enableOverlay: (content.enableOverlay ?? heroObj.enableOverlay) !== false,
-        showText: (content.showText ?? heroObj.showText) !== false,
-        overlayColor: content.overlayColor || heroObj.overlayColor || "#0a192f",
-        overlayOpacity: content.overlayOpacity ?? heroObj.overlayOpacity ?? 0.6,
-      }));
+      bannerUrl: url,
+      title: content.title || "",
+      h1: content.h1 || "",
+      h2: content.h2 || "",
+      description: content.description || "",
+      enableOverlay: (content.enableOverlay ?? heroObj.enableOverlay) !== false,
+      showText: (content.showText ?? heroObj.showText) !== false,
+      overlayColor: content.overlayColor || heroObj.overlayColor || "#0a192f",
+      overlayOpacity: content.overlayOpacity ?? heroObj.overlayOpacity ?? 0.6,
+    }));
 
   if (slides.length === 0) {
     slides.push({
       bannerUrl: heroObj.bannerUrl || "https://res.cloudinary.com/niefrrkx/image/upload/v1790328995/indian-public-school/assets/Home/file_ljuhl7.png",
-      h1: content.h1 || content.title || "Where Curiosity Meets Excellence",
-      h2: content.h2 || content.session || "Admissions Open 2026–27",
+      title: content.title || "",
+      h1: content.h1 || "",
+      h2: content.h2 || "",
       description: content.description || "",
       enableOverlay: true,
       showText: true,
@@ -85,11 +86,15 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
     if (newSlides[0]) {
       updatedContent[0] = {
         ...updatedContent[0],
+        title: newSlides[0].title,
         h1: newSlides[0].h1,
-        title: newSlides[0].h1,
         h2: newSlides[0].h2,
-        session: newSlides[0].h2,
+        session: newSlides[0].title || newSlides[0].h2,
         description: newSlides[0].description,
+        fontSizeTitle: newSlides[0].fontSizeTitle,
+        fontSizeH1: newSlides[0].fontSizeH1,
+        fontSizeH2: newSlides[0].fontSizeH2,
+        fontSizeDescription: newSlides[0].fontSizeDescription,
         enableOverlay: newSlides[0].enableOverlay,
         showText: newSlides[0].showText,
         overlayColor: newSlides[0].overlayColor,
@@ -105,6 +110,10 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
         bannerUrl: primaryBanner,
         fileUrls: updatedFileUrls,
         slideDuration: newDuration !== undefined ? newDuration : (prev.hero?.slideDuration ?? slideDuration),
+        fontSizeTitle: newSlides[0]?.fontSizeTitle,
+        fontSizeH1: newSlides[0]?.fontSizeH1,
+        fontSizeH2: newSlides[0]?.fontSizeH2,
+        fontSizeDescription: newSlides[0]?.fontSizeDescription,
         content: updatedContent,
       },
     }));
@@ -122,9 +131,10 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
   const addNewSlide = (bannerUrl: string) => {
     const newSlide = {
       bannerUrl,
-      h1: "New Slide Heading Title",
-      h2: "Session Announcement",
-      description: "Enter your slide custom description here.",
+      title: "",
+      h1: "",
+      h2: "",
+      description: "",
       enableOverlay: true,
       showText: true,
       overlayColor: "#0a192f",
@@ -255,13 +265,11 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                   onDrop={(e) => handleDrop(e, idx)}
                   onDragEnd={() => setDraggedIdx(null)}
                   onClick={() => setSelectedSlideIdx(idx)}
-                  className={`group relative aspect-video overflow-hidden rounded-xl border-2 transition cursor-grab active:cursor-grabbing ${
-                    isBeingDragged ? "opacity-40 scale-95 border-amber-400" : ""
-                  } ${
-                    isEditing
+                  className={`group relative aspect-video overflow-hidden rounded-xl border-2 transition cursor-grab active:cursor-grabbing ${isBeingDragged ? "opacity-40 scale-95 border-amber-400" : ""
+                    } ${isEditing
                       ? "border-[#1a5d9c] ring-2 ring-[#1a5d9c]/30 shadow-md"
                       : "border-slate-200 hover:border-slate-400"
-                  }`}
+                    }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={slide.bannerUrl} alt={`Slide ${idx + 1}`} className="size-full object-cover pointer-events-none" />
@@ -330,9 +338,8 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                   </div>
 
                   {/* Bottom Footer Title Bar */}
-                  <div className={`absolute inset-x-0 bottom-0 z-20 px-2 py-1 text-[10px] font-bold text-white truncate text-center backdrop-blur-xs ${
-                    isEditing ? "bg-[#1a5d9c]/90" : "bg-black/75"
-                  }`}>
+                  <div className={`absolute inset-x-0 bottom-0 z-20 px-2 py-1 text-[10px] font-bold text-white truncate text-center backdrop-blur-xs ${isEditing ? "bg-[#1a5d9c]/90" : "bg-black/75"
+                    }`}>
                     {isEditing ? "Currently Editing" : slide.h1 || `Slide ${idx + 1}`}
                   </div>
                 </div>
@@ -345,7 +352,7 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
         <div className="rounded-xl border border-[#1a5d9c]/30 bg-slate-50/80 p-5 space-y-5 shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
             <h4 className="text-xs font-bold text-[#102a4c] flex items-center gap-2">
-              <Sparkles size={16} className="text-[#1a5d9c]" /> Editing Slide #{activeSlideIdx + 1} Configuration
+              Editing Slide #{activeSlideIdx + 1} Configuration
             </h4>
 
             <div className="flex items-center gap-3">
@@ -399,41 +406,156 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
               </label>
             </div>
 
-            {/* H1 Main Heading Title (Active when showText is true) */}
+            {/* Slide Text Inputs & Font Size Controllers */}
             {currentSlide.showText !== false && (
-              <>
-                <div>
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                    H1 Main Heading Title
-                  </label>
+              <div className="sm:col-span-2 grid gap-4 sm:grid-cols-3">
+                {/* 1. Title / Green Badge Text */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-emerald-700 block">
+                      Title (Green Badge)
+                    </label>
+                  </div>
                   <input
                     type="text"
-                    placeholder="e.g. Where Curiosity Meets Excellence"
+                    placeholder="e.g. ADMISSIONS OPEN 2026–27"
+                    value={currentSlide.title || ""}
+                    onChange={(e) => updateCurrentSlideField("title", e.target.value)}
+                    className="w-full rounded-xl border border-emerald-300 bg-emerald-50/50 px-3 py-2 text-xs font-bold text-emerald-800 outline-none focus:border-emerald-500"
+                  />
+                  {/* Font Size Selector */}
+                  <div className="flex items-center gap-1 pt-0.5">
+                    <span className="text-[10px] font-bold text-slate-400 mr-0.5">Size:</span>
+                    {[
+                      { label: "S", value: "sm" },
+                      { label: "M", value: "md" },
+                      { label: "L", value: "lg" },
+                      { label: "XL", value: "xl" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => updateCurrentSlideField("fontSizeTitle", opt.value)}
+                        className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition cursor-pointer ${
+                          (currentSlide.fontSizeTitle || "md") === opt.value
+                            ? "bg-emerald-600 text-white shadow-2xs"
+                            : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. H1 Main Heading (White Text) */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-slate-700 block">
+                      H1 Main Heading (White Text)
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="e.g. Where Curiosity Meets"
                     value={currentSlide.h1 || ""}
                     onChange={(e) => updateCurrentSlideField("h1", e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-[#102a4c] outline-none focus:border-[#1a5d9c]"
                   />
+                  {/* Font Size Selector */}
+                  <div className="flex items-center gap-1 pt-0.5">
+                    <span className="text-[10px] font-bold text-slate-400 mr-0.5">Size:</span>
+                    {[
+                      { label: "S", value: "sm" },
+                      { label: "M", value: "md" },
+                      { label: "L", value: "lg" },
+                      { label: "XL", value: "xl" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => updateCurrentSlideField("fontSizeH1", opt.value)}
+                        className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition cursor-pointer ${
+                          (currentSlide.fontSizeH1 || "md") === opt.value
+                            ? "bg-[#1a5d9c] text-white shadow-2xs"
+                            : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* H2 Subheading / Badge Text */}
-                <div>
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                    H2 Subheading / Badge Text
-                  </label>
+                {/* 3. H2 Secondary Heading (Yellow Text) */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-amber-700 block">
+                      H2 Secondary Heading (Yellow Text)
+                    </label>
+                  </div>
                   <input
                     type="text"
-                    placeholder="e.g. Admissions Open 2026–27"
+                    placeholder="e.g. Excellence"
                     value={currentSlide.h2 || ""}
                     onChange={(e) => updateCurrentSlideField("h2", e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                    className="w-full rounded-xl border border-amber-300 bg-amber-50/50 px-3 py-2 text-xs font-bold text-amber-800 outline-none focus:border-amber-500"
                   />
+                  {/* Font Size Selector */}
+                  <div className="flex items-center gap-1 pt-0.5">
+                    <span className="text-[10px] font-bold text-slate-400 mr-0.5">Size:</span>
+                    {[
+                      { label: "S", value: "sm" },
+                      { label: "M", value: "md" },
+                      { label: "L", value: "lg" },
+                      { label: "XL", value: "xl" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => updateCurrentSlideField("fontSizeH2", opt.value)}
+                        className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition cursor-pointer ${
+                          (currentSlide.fontSizeH2 || "md") === opt.value
+                            ? "bg-amber-500 text-white shadow-2xs"
+                            : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Description Paragraph */}
-                <div className="sm:col-span-2">
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                    Description Text Paragraph
-                  </label>
+                {/* 4. Description Paragraph */}
+                <div className="sm:col-span-3 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-slate-600 block">
+                      Description Text Paragraph
+                    </label>
+                    {/* Font Size Selector */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-bold text-slate-400 mr-0.5">Size:</span>
+                      {[
+                        { label: "S", value: "sm" },
+                        { label: "M", value: "md" },
+                        { label: "L", value: "lg" },
+                        { label: "XL", value: "xl" },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => updateCurrentSlideField("fontSizeDescription", opt.value)}
+                          className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition cursor-pointer ${
+                            (currentSlide.fontSizeDescription || "md") === opt.value
+                              ? "bg-slate-800 text-white shadow-2xs"
+                              : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <textarea
                     rows={2}
                     placeholder="e.g. Empowering young minds with knowledge, character, creativity and confidence."
@@ -442,7 +564,7 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-[#1a5d9c] resize-y"
                   />
                 </div>
-              </>
+              </div>
             )}
           </div>
 
@@ -516,11 +638,10 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                         key={preset.value}
                         type="button"
                         onClick={() => updateCurrentSlideField("overlayColor", preset.value)}
-                        className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-semibold cursor-pointer ${
-                          currentSlide.overlayColor === preset.value
-                            ? "border-[#1a5d9c] bg-[#1a5d9c] text-white"
-                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                        }`}
+                        className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-semibold cursor-pointer ${currentSlide.overlayColor === preset.value
+                          ? "border-[#1a5d9c] bg-[#1a5d9c] text-white"
+                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                          }`}
                       >
                         <span className="size-2 rounded-full" style={{ backgroundColor: preset.value }} />
                         {preset.name}
