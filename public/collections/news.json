@@ -1,26 +1,19 @@
 [
   {
     "_id": "6aa8ab66a5a36a3f8b32c89e",
-    "title": "Timetable Coming Soon",
-    "redirectUrl": "",
+    "__v": 0,
     "attachmentUrl": "",
-    "publicId": "NEWS-MU21O80D-WKIQ2",
     "createdAt": "2026-09-15T02:20:22.285Z",
-    "updatedAt": "2026-09-15T02:20:22.285Z",
-    "__v": 0
-  },
-  {
-    "_id": "6aab628e57ac46acecbf837f",
-    "redirectUrl": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453005/indian-public-school/assets/Downloads/TimeTable.webp",
-    "title": "Pre Exam Time Table for Class 10th & 12th",
-    "createdAt": "2026-05-11T01:43:51.398Z",
-    "publicId": "NEWS-MU4ZMK3I-VBAE7"
+    "publicId": "NEWS-MU21O80D-WKIQ2",
+    "redirectUrl": "",
+    "title": "Timetable Coming Soon",
+    "updatedAt": "2026-09-15T02:20:22.285Z"
   },
   {
     "_id": "6aab628e57ac46acecbf8380",
-    "redirectUrl": "/admission/admission-form",
-    "title": "Admission Open 2026-27",
     "createdAt": "2026-09-11T01:43:51.398Z",
-    "publicId": "NEWS-MU4ZMK4W-BR1PY"
+    "publicId": "NEWS-MU4ZMK4W-BR1PY",
+    "redirectUrl": "/admission/admission-form",
+    "title": "Admission Open 2026-27"
   }
 ]

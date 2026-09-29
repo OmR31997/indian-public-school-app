@@ -1,10 +1,17 @@
 [
   {
     "_id": "6aae3629d5ec4165585f4b93",
-    "title": "Hindi Teacher",
-    "qualification": "MA Hindi",
-    "image": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453117/indian-public-school/assets/PressRelease/1631531588EducationExellenceAward.jpg",
-    "description": "",
+    "__v": 0,
+    "applicationFields": [
+      {
+        "key": "notice_period",
+        "label": "Notice Period",
+        "type": "text",
+        "required": true,
+        "options": []
+      }
+    ],
+    "createdAt": "2026-09-19T07:13:45.554Z",
     "customFields": [
       {
         "key": "experience",
@@ -17,19 +24,13 @@
         "value": "30000"
       }
     ],
-    "applicationFields": [
-      {
-        "key": "notice_period",
-        "label": "Notice Period",
-        "type": "text",
-        "required": true,
-        "options": []
-      }
-    ],
-    "isActive": true,
+    "description": "",
     "displayOrder": 0,
-    "createdAt": "2026-09-19T07:13:45.554Z",
-    "updatedAt": "2026-09-19T07:40:41.110Z",
-    "__v": 0
+    "image": "https://res.cloudinary.com/niefrrkx/image/upload/v1789453117/indian-public-school/assets/PressRelease/1631531588EducationExellenceAward.jpg",
+    "isActive": true,
+    "publicId": "JOB-MUI0JPVX-0MUSS",
+    "qualification": "MA Hindi",
+    "title": "Hindi Teacher",
+    "updatedAt": "2026-09-19T07:40:41.110Z"
   }
 ]
