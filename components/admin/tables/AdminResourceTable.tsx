@@ -774,9 +774,10 @@ export function ResourceView({
 
       <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
         {/* Header Controls */}
-        <div className="flex flex-col gap-4 border-b border-slate-200/80 bg-slate-50/70 p-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-3 py-1 text-xs font-bold text-[#1a5d9c] shadow-2xs">
+        <div className="flex flex-col gap-3 border-b border-slate-200/80 bg-slate-50/70 p-3.5 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+          {/* Left: Count Badge & Filters */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs shrink-0">
               <span className="flex h-2 w-2 rounded-full bg-[#1a5d9c]"></span>
               <span>{totalItems}</span>
               <span className="capitalize font-medium text-slate-600">{resource.label.toLowerCase()}</span>
@@ -785,9 +786,12 @@ export function ResourceView({
             {filtersConfig.map((filter) => {
               const currentValue = query.filterKey === filter.key ? query.filterValue || "All" : "All";
               return (
-                <div key={filter.key} className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs shadow-2xs transition hover:border-slate-300">
-                  <SlidersHorizontal size={13} className="text-[#1a5d9c]" />
-                  <span className="font-semibold text-slate-500">{filter.label}:</span>
+                <div
+                  key={filter.key}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs shadow-2xs transition hover:border-slate-300 focus-within:border-[#1a5d9c] shrink-0"
+                >
+                  <SlidersHorizontal size={13} className="text-[#1a5d9c] shrink-0" />
+                  <span className="font-semibold text-slate-500 shrink-0">{filter.label}:</span>
                   <select
                     value={currentValue}
                     onChange={(e) => {
@@ -798,7 +802,7 @@ export function ResourceView({
                         onQueryChange({ filterKey: filter.key, filterValue: val, page: 1 });
                       }
                     }}
-                    className="bg-transparent font-bold text-[#102a4c] outline-none cursor-pointer"
+                    className="bg-transparent font-bold text-[#102a4c] outline-none cursor-pointer pr-1"
                   >
                     {filter.options.map((opt) => (
                       <option key={opt} value={opt}>
@@ -811,7 +815,8 @@ export function ResourceView({
             })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Right: Search Box & View Mode Toggle */}
+          <div className="flex items-center gap-2.5 shrink-0 self-stretch sm:self-auto justify-between sm:justify-end">
             <div className="relative flex-1 sm:w-64 sm:flex-initial">
               <input
                 type="text"
@@ -838,7 +843,7 @@ export function ResourceView({
             </div>
 
             {isMediaResource && (
-              <div className="flex items-center rounded-xl border border-blue-200 bg-blue-50 p-1">
+              <div className="inline-flex items-center rounded-xl border border-blue-200 bg-blue-50/90 p-1 shrink-0">
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
@@ -859,19 +864,19 @@ export function ResourceView({
             )}
 
             {isMenuResource && (
-              <div className="flex items-center rounded-xl border border-blue-200 bg-blue-50 p-1">
+              <div className="inline-flex items-center rounded-xl border border-blue-200 bg-blue-50/90 p-1 shrink-0">
                 <button
                   onClick={() => setMenuViewMode("table")}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                    menuViewMode === "table" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${
+                    menuViewMode === "table" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <List size={14} /> Table View
                 </button>
                 <button
                   onClick={() => setMenuViewMode("flow")}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                    menuViewMode === "flow" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${
+                    menuViewMode === "flow" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <Workflow size={14} /> Hierarchy Wire Flow

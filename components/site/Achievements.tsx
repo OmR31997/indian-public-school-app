@@ -1,5 +1,7 @@
-import { motion } from "motion/react";
-import { Counter } from "@/components/site/Counter";
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
 import {
@@ -11,148 +13,173 @@ import {
 } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
-const NUMBERS = [
-  {
-    value: 98,
-    suffix: "%",
-    label: "Board pass rate",
-    note: "Indicative placeholder",
-  },
-  {
-    value: 60,
-    suffix: "+",
-    label: "Olympiad medals",
-    note: "Across recent sessions",
-  },
-  {
-    value: 35,
-    suffix: "+",
-    label: "Inter-school titles",
-    note: "Sports & culture",
-  },
-  {
-    value: 12,
-    suffix: "+",
-    label: "State-level athletes",
-    note: "Represented the region",
-  },
+const FALLBACK_IMAGES = [
+  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163180/indian-public-school/assets/Home/PrePrimary.jpg",
+  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163181/indian-public-school/assets/Home/PrimaryLevel.jpg",
+  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163184/indian-public-school/assets/Home/SecondaryLevel.jpg",
+  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163185/indian-public-school/assets/Home/SeniorSecondLevel.jpg",
 ];
 
 const CARDS = [
   {
-    title: "Academic Distinction",
-    text: "Consistent CBSE board results with students earning distinctions across science, commerce and humanities streams.",
+    title: "Pre-Primary Level",
+    text: "Play-based learning, cognitive and perceptual motor development designed for readiness for school.",
   },
   {
-    title: "Sporting Success",
-    text: "Regular podium finishes at district and state meets in athletics, football, chess and badminton.",
+    title: "Primary Level",
+    text: "Foundational academic education exploring enquiry, projects, reading habits and activity-based learning.",
   },
   {
-    title: "Creative Recognition",
-    text: "Awards in inter-school music, dance, debate and art competitions through the academic calendar.",
+    title: "Secondary Level",
+    text: "Guaranteeing key CBSE competencies, conceptual depth and structured academic preparation.",
+  },
+  {
+    title: "Senior Secondary Level",
+    text: "Differentiated education across Science, Commerce and Humanities for higher competitive excellence.",
   },
 ];
 
 export function Achievements() {
   const section = firstSection(homeData(useSiteData()), "section-8");
-  const cards = Array.isArray(section.cardItem)
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const rawCards = Array.isArray(section.cardItem)
     ? (section.cardItem as Record<string, unknown>[])
     : [];
-  const achievementImage = imageUrl(
-    Array.isArray(section.fileUrls) ? section.fileUrls[0] : "",
+
+  const cards = rawCards.length
+    ? rawCards
+    : CARDS.map((c) => ({ heading: c.title, description: c.text }));
+
+  const activeCard = cards[activeIndex] || cards[0];
+  const activeCardRec = activeCard as Record<string, unknown>;
+  const activeCardImg = imageUrl(
+    (activeCardRec?.fileUrl as string) || (activeCardRec?.image as string) || ""
   );
+
+  const sectionImg = imageUrl(
+    Array.isArray(section.fileUrls) ? section.fileUrls[0] : (section.fileUrl as string) || ""
+  );
+
+  const currentImage =
+    activeCardImg ||
+    sectionImg ||
+    FALLBACK_IMAGES[activeIndex % FALLBACK_IMAGES.length] ||
+    FALLBACK_IMAGES[0];
+
+  const currentTitle = text(activeCard?.heading || section.heading, "Our Courses");
+
   return (
     <section className="surface-navy relative overflow-hidden py-20 lg:py-32">
       <div className="container-page relative">
         <SectionHeading
-          eyebrow="Achievements"
-          title={text(section.heading, "Achievements")}
-          description={textList(section.description)[0]}
+          eyebrow="Academic Stages"
+          title={text(section.heading, "Our Courses")}
+          description={textList(section.description)[0] || "Explore our comprehensive CBSE curriculum across all key educational stages."}
           tone="dark"
         />
 
-        <motion.ul
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={{ show: { transition: { staggerChildren: 0.1 } } }}
-          className="mt-14 grid grid-cols-2 gap-6 lg:grid-cols-4"
-        >
-          {NUMBERS.map((n) => (
-            <motion.li
-              key={n.label}
-              variants={{
-                hidden: { opacity: 0, y: 24 },
-                show: {
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.6, ease: EASE },
-                },
-              }}
-              className="rounded-3xl border border-navy-foreground/15 bg-navy-foreground/5 p-6 backdrop-blur-sm"
-            >
-              <p className="font-display text-3xl font-semibold text-gold sm:text-4xl">
-                <Counter to={n.value} suffix={n.suffix} />
-              </p>
-              <p className="mt-3 text-sm font-semibold text-navy-foreground">
-                {n.label}
-              </p>
-              <p className="mt-1 text-xs text-navy-foreground/60">{n.note}</p>
-            </motion.li>
-          ))}
-        </motion.ul>
-
-        <div className="mt-12 grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
+        <div className="mt-14 grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
+          {/* Picture Section */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.8, ease: EASE }}
-            className="overflow-hidden rounded-3xl shadow-lift"
+            className="group relative overflow-hidden rounded-3xl border border-navy-foreground/15 bg-navy-foreground/5 shadow-2xl lg:col-span-5"
           >
-            {achievementImage ? (
-              <img
-                src={achievementImage}
-                alt="Students celebrating with trophies and certificates at a school assembly"
-                width={1200}
-                height={1200}
-                loading="lazy"
-                className="aspect-[5/4] w-full object-cover"
-              />
-            ) : null}
+            <div className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[5/4]">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentImage}
+                  src={currentImage}
+                  alt={currentTitle}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.5, ease: EASE }}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </AnimatePresence>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              <div className="absolute bottom-5 left-5 right-5 flex flex-col gap-1 text-white">
+                <span className="inline-flex max-w-fit items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-[11px] font-bold text-black shadow-sm uppercase tracking-wider">
+                  Level {String(activeIndex + 1).padStart(2, "0")}
+                </span>
+                <h4 className="font-display text-xl font-bold text-white drop-shadow-sm">
+                  {currentTitle}
+                </h4>
+              </div>
+            </div>
           </motion.div>
 
+          {/* Cards List Section */}
           <motion.ul
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
-            variants={{ show: { transition: { staggerChildren: 0.12 } } }}
-            className="space-y-4"
+            variants={{ show: { transition: { staggerChildren: 0.1 } } }}
+            className="space-y-3.5 lg:col-span-7"
           >
-            {(cards.length
-              ? cards
-              : CARDS.map((c) => ({ heading: c.title, description: c.text }))
-            ).map((c, i) => (
-              <motion.li
-                key={`${text(c.heading, "achievement-card")}-${i}`}
-                variants={{
-                  hidden: { opacity: 0, x: 30 },
-                  show: {
-                    opacity: 1,
-                    x: 0,
-                    transition: { duration: 0.6, ease: EASE },
-                  },
-                }}
-                className="rounded-2xl border border-navy-foreground/15 bg-navy-foreground/5 p-6 transition-colors hover:bg-navy-foreground/10"
-              >
-                <h3 className="text-lg text-navy-foreground">
-                  {text(c.heading)}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-navy-foreground/70">
-                  {text(c.description)}
-                </p>
-              </motion.li>
-            ))}
+            {cards.map((c, i) => {
+              const isActive = i === activeIndex;
+              const cardTitle = text(c.heading);
+              const cardDesc = text(c.description);
+
+              return (
+                <motion.li
+                  key={`${cardTitle}-${i}`}
+                  variants={{
+                    hidden: { opacity: 0, x: 24 },
+                    show: {
+                      opacity: 1,
+                      x: 0,
+                      transition: { duration: 0.5, ease: EASE },
+                    },
+                  }}
+                  onClick={() => setActiveIndex(i)}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  className={`group relative cursor-pointer overflow-hidden rounded-2xl border p-5 transition-all duration-300 ${
+                    isActive
+                      ? "border-gold bg-navy-foreground/15 shadow-lg translate-x-1"
+                      : "border-navy-foreground/15 bg-navy-foreground/5 hover:border-navy-foreground/30 hover:bg-navy-foreground/10"
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <span
+                      className={`grid size-9 shrink-0 place-items-center rounded-xl font-display text-sm font-bold transition-colors ${
+                        isActive
+                          ? "bg-gold text-black"
+                          : "bg-navy-foreground/10 text-navy-foreground group-hover:bg-gold/20 group-hover:text-gold"
+                      }`}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+
+                    <div className="flex-1">
+                      <h3
+                        className={`text-base sm:text-lg font-semibold transition-colors ${
+                          isActive ? "text-gold" : "text-navy-foreground"
+                        }`}
+                      >
+                        {cardTitle}
+                      </h3>
+                      <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-navy-foreground/75 line-clamp-2">
+                        {cardDesc}
+                      </p>
+                    </div>
+                  </div>
+
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeCardIndicator"
+                      className="absolute left-0 top-0 bottom-0 w-1.5 bg-gold rounded-r-full"
+                    />
+                  )}
+                </motion.li>
+              );
+            })}
           </motion.ul>
         </div>
       </div>

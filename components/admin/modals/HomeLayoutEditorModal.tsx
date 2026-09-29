@@ -37,7 +37,6 @@ export function HomeLayoutEditorModal({
     | "whatsapp"
     | "popupBanner"
     | "hero"
-    | "banner"
     | "quickCards"
     | "video"
     | "sec1"
@@ -460,7 +459,6 @@ export function HomeLayoutEditorModal({
             { id: "whatsapp", label: "WhatsApp Widget", icon: "bi-whatsapp" },
             { id: "popupBanner", label: "Pop-Up Banner", icon: "bi-window-stack" },
             { id: "hero", label: "Hero Poster", icon: "bi-person-standing" },
-            { id: "banner", label: "Banner Slider", icon: "bi-flag-fill" },
             { id: "quickCards", label: "Quick Cards", icon: "bi-grid-3x3-gap" },
             { id: "video", label: "Intro Video Setup", icon: "bi-camera-video-fill" },
             { id: "sec1", label: "Sec 1: About", icon: "bi-building" },
@@ -518,51 +516,7 @@ export function HomeLayoutEditorModal({
                       placeholder="e.g. Admissions Open for Session 2026-27 | Apply Online Today"
                       value={datasource?.home?.[0]?.identity?.header?.noticeText || datasource?.header?.noticeText || ""}
                       onChange={(e) => updateHeaderField("noticeText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Helpline / Contact Phone</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. +91-9876543210"
-                      value={datasource?.home?.[0]?.identity?.header?.phone || datasource?.header?.phone || ""}
-                      onChange={(e) => updateHeaderField("phone", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Official Support Email</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. info@indianpublicschool.in"
-                      value={datasource?.home?.[0]?.identity?.header?.email || datasource?.header?.email || ""}
-                      onChange={(e) => updateHeaderField("email", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Header Action Button Label</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Apply Now"
-                      value={datasource?.home?.[0]?.identity?.header?.ctaText || datasource?.header?.ctaText || ""}
-                      onChange={(e) => updateHeaderField("ctaText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Header Action Button Target Link</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. /admission"
-                      value={datasource?.home?.[0]?.identity?.header?.ctaUrl || datasource?.header?.ctaUrl || ""}
-                      onChange={(e) => updateHeaderField("ctaUrl", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
                   </div>
                 </div>
@@ -1622,81 +1576,6 @@ export function HomeLayoutEditorModal({
           {/* TAB: Hero */}
           {activeTab === "hero" && (
             <HomeHeroTab homeObj={homeObj} updateHome={updateHome} uploadImage={uploadImage} />
-          )}
-
-          {/* TAB: Banners */}
-          {activeTab === "banner" && (
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                    <i className="bi bi-flag-fill text-[#1a5d9c]" /> Sliding Banner Posters
-                  </h3>
-                  <label className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-[#102a4c]">
-                    <UploadCloud size={14} /> Upload New Banner Poster
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await uploadImage(file);
-                          if (url) {
-                            const currentUrls = Array.isArray(homeObj.banner?.fileUrls)
-                              ? homeObj.banner.fileUrls
-                              : Array.isArray(homeObj.banner)
-                                ? homeObj.banner.map((b: any) => typeof b === "string" ? b : b.fileUrl)
-                                : [];
-                            updateHome((prev) => ({
-                              ...prev,
-                              banner: { ...(typeof prev.banner === "object" && !Array.isArray(prev.banner) ? prev.banner : {}), fileUrls: [...currentUrls, url] },
-                            }));
-                          }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {(
-                    Array.isArray(homeObj.banner?.fileUrls)
-                      ? homeObj.banner.fileUrls
-                      : Array.isArray(homeObj.banner)
-                        ? homeObj.banner
-                        : []
-                  ).map((item: any, idx: number) => {
-                    const imgUrl = typeof item === "string" ? item : item?.fileUrl || "";
-                    return (
-                      <div key={idx} className="group relative aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shadow-xs">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={imgUrl} alt={`Banner ${idx + 1}`} className="h-full w-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const currentList = Array.isArray(homeObj.banner?.fileUrls)
-                              ? homeObj.banner.fileUrls
-                              : Array.isArray(homeObj.banner)
-                                ? homeObj.banner
-                                : [];
-                            const updated = currentList.filter((_: any, i: number) => i !== idx);
-                            if (Array.isArray(homeObj.banner?.fileUrls)) {
-                              updateHome((prev) => ({ ...prev, banner: { ...prev.banner, fileUrls: updated } }));
-                            } else {
-                              updateHome((prev) => ({ ...prev, banner: updated }));
-                            }
-                          }}
-                          className="absolute top-1 right-1 rounded-full bg-red-600 p-1 text-white opacity-0 transition group-hover:opacity-100"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
           )}
 
           {/* TAB: Quick Cards */}

@@ -42,6 +42,23 @@ export function Stats() {
   const items = Array.isArray(stats)
     ? (stats as Record<string, unknown>[])
     : [];
+
+  const displayItems = items.length
+    ? items
+    : STATS.map((s) => ({
+        count: `${s.value}${s.suffix}`,
+        heading: s.label,
+        "sub-heading": s.note,
+      }));
+
+  const count = displayItems.length;
+  const gridClass =
+    count === 4
+      ? "grid-cols-2 sm:grid-cols-4 lg:grid-cols-4"
+      : count === 3
+      ? "grid-cols-1 sm:grid-cols-3 lg:grid-cols-3"
+      : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5";
+
   return (
     <section className="border-y border-border bg-secondary/50 py-14 lg:py-20">
       <div className="container-page">
@@ -50,19 +67,13 @@ export function Stats() {
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
           variants={{ show: { transition: { staggerChildren: 0.1 } } }}
-          className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5"
+          className={`grid gap-x-6 gap-y-10 ${gridClass}`}
         >
-          {(items.length
-            ? items
-            : STATS.map((s) => ({
-              count: `${s.value}${s.suffix}`,
-              heading: s.label,
-              "sub-heading": s.note,
-            }))
-          ).map((s, index) => {
+          {displayItems.map((s, index) => {
             const raw = text(s.count, "0");
-            const match = raw.match(/^(\d+)(.*)$/);
-            const value = Number(match?.[1] ?? 0);
+            const match = raw.match(/^([\d,.]+)(.*)$/);
+            const numStr = match?.[1]?.replace(/,/g, "") ?? "0";
+            const value = Number(numStr);
             const suffix = match?.[2] ?? "";
             return (
               <motion.li
@@ -75,20 +86,20 @@ export function Stats() {
                     transition: { duration: 0.6, ease: EASE },
                   },
                 }}
-                className="text-center sm:text-left"
+                className="flex flex-col items-center justify-center text-center"
               >
                 <p className="font-display text-3xl leading-none font-semibold text-primary sm:text-4xl lg:text-5xl">
                   <Counter to={value} suffix={suffix} />
                 </p>
-                <p className="mt-3 text-sm font-semibold">{text(s.heading)}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-3 text-sm font-semibold text-center">{text(s.heading)}</p>
+                <p className="mt-1 text-xs text-muted-foreground text-center">
                   {text(s["sub-heading"])}
                 </p>
               </motion.li>
             );
           })}
         </motion.ul>
-        <p className="mt-10 text-center text-xs text-muted-foreground sm:text-left">
+        <p className="mt-10 text-center text-xs text-muted-foreground">
           {text(
             homeData(useSiteData())["statsNote"]
           )}

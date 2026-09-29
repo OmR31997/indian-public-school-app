@@ -78,7 +78,7 @@ function isStaffStudentOrPressItem(item: Record<string, unknown>): boolean {
 function isStaffStudentOrPressUrl(url: string): boolean {
   if (!url) return true;
   const lower = url.toLowerCase();
-  
+
   // Exclude non-image file extensions if any
   if (lower.endsWith(".pdf") || lower.endsWith(".doc") || lower.endsWith(".docx") || lower.endsWith(".mp4")) {
     return true;
@@ -275,7 +275,7 @@ export function GalleryAlbumClient({
   const siteData = useSiteData();
   const home = homeData(siteData);
   const searchParams = useSearchParams();
-  
+
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -326,8 +326,8 @@ export function GalleryAlbumClient({
             const urls = Array.isArray(item.fileUrl)
               ? item.fileUrl
               : typeof item.fileUrl === "string" && item.fileUrl.trim()
-              ? [item.fileUrl]
-              : [];
+                ? [item.fileUrl]
+                : [];
             return urls
               .filter((u: string) => !isStaffStudentOrPressUrl(u))
               .map((u: string) => ({
@@ -567,12 +567,12 @@ export function GalleryAlbumClient({
               const count = cat === "All"
                 ? filteredImages.length
                 : allImages.filter((i) => {
-                    if (isAlbumMode) {
-                      const dirPath = (i.directoryName || i.directory || "").toLowerCase().trim();
-                      if (!dirPath.startsWith("/album/")) return false;
-                    }
-                    return i.category === cat;
-                  }).length;
+                  if (isAlbumMode) {
+                    const dirPath = (i.directoryName || i.directory || "").toLowerCase().trim();
+                    if (!dirPath.startsWith("/album/")) return false;
+                  }
+                  return i.category === cat;
+                }).length;
 
               if (cat !== "All" && count === 0) return null;
               return (
@@ -653,7 +653,7 @@ export function GalleryAlbumClient({
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-108"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      
+
                       {/* Category Badge */}
                       <span className="absolute top-3 left-3 rounded-lg bg-slate-900/75 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
                         {img.category}
@@ -798,7 +798,7 @@ export function GalleryAlbumClient({
                   {filteredImages[lightboxIndex].alt}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <a
                   href={filteredImages[lightboxIndex].src}
