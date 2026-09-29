@@ -55,6 +55,36 @@ export function HomeLayoutEditorModal({
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>("");
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      setIsFullscreen(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+    onClose();
+  };
 
   const initialValue = useMemo(() => {
     let val = record?.value;
@@ -375,22 +405,51 @@ export function HomeLayoutEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100 flex flex-col">
+    <div className={`fixed inset-0 z-50 grid place-items-center bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200 ${isFullscreen ? "p-0" : "p-4"}`}>
+      <div className={`w-full overflow-hidden bg-white flex flex-col transition-all duration-300 ${
+        isFullscreen
+          ? "h-screen w-screen max-w-none max-h-none rounded-none shadow-none border-0"
+          : "max-h-[92vh] max-w-5xl rounded-3xl shadow-2xl border border-slate-100"
+      }`}>
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4 shrink-0 rounded-t-3xl">
           <div>
             <h2 className="font-display text-xl font-bold text-[#102a4c] flex items-center gap-2">
-              <LayoutDashboard className="text-amber-500" size={20} />
+              <LayoutDashboard className="text-[#1a5d9c]" size={20} />
               Home Page Complete Layout & Content Manager
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Dynamically add, remove, reorder, edit cards and upload images for any section.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.open(window.location.origin, "_blank")}
+              title="Open site preview in new tab"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-[#1a5d9c] hover:text-white hover:border-[#1a5d9c] transition-all cursor-pointer shadow-2xs"
+            >
+              <i className="bi bi-box-arrow-up-right text-xs" />
+              <span className="hidden sm:inline">Open in New Tab</span>
+            </button>
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Exit Device Full Screen Mode" : "Enter Device Full Screen Mode"}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-[#1a5d9c] hover:text-white hover:border-[#1a5d9c] transition-all cursor-pointer shadow-2xs"
+            >
+              <i className={`bi ${isFullscreen ? "bi-fullscreen-exit" : "bi-arrows-fullscreen"} text-xs`} />
+              <span className="hidden sm:inline">{isFullscreen ? "Exit Full Screen" : "Full Screen"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              title="Close Editor Modal"
+              className="rounded-xl p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 transition cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Navigation Tabs */}
@@ -399,7 +458,7 @@ export function HomeLayoutEditorModal({
             { id: "header", label: "Header Config", icon: "bi-card-heading" },
             { id: "footer", label: "Footer Config", icon: "bi-layout-text-window" },
             { id: "whatsapp", label: "WhatsApp Widget", icon: "bi-whatsapp" },
-            { id: "popupBanner", label: "Pop-Up Banner", icon: "bi-[#1a5d9c] bi-window-pop" },
+            { id: "popupBanner", label: "Pop-Up Banner", icon: "bi-window-stack" },
             { id: "hero", label: "Hero Poster", icon: "bi-person-standing" },
             { id: "banner", label: "Banner Slider", icon: "bi-flag-fill" },
             { id: "quickCards", label: "Quick Cards", icon: "bi-grid-3x3-gap" },
@@ -1112,7 +1171,7 @@ export function HomeLayoutEditorModal({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
                   <div>
                     <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                      <i className="bi bi-window-pop text-amber-600 text-lg" /> Visitor Pop-Up Announcement Modal Studio
+                      <i className="bi bi-window-stack text-[#1a5d9c] text-lg" /> Visitor Pop-Up Announcement Modal Studio
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       Configure automated promotional pop-up modal displayed after visitor lands on the site.
@@ -1124,7 +1183,7 @@ export function HomeLayoutEditorModal({
                       type="checkbox"
                       checked={(datasource?.home?.[0]?.identity?.popupBanner?.enabled ?? datasource?.popupBanner?.enabled) !== false}
                       onChange={(e) => updatePopupBannerField("enabled", e.target.checked)}
-                      className="size-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                      className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
                     />
                     <span className="text-xs font-bold text-slate-800">Enable Pop-Up Banner (ON/OFF)</span>
                   </label>
@@ -1143,7 +1202,7 @@ export function HomeLayoutEditorModal({
                         placeholder="e.g. 3"
                         value={datasource?.home?.[0]?.identity?.popupBanner?.delaySeconds ?? datasource?.popupBanner?.delaySeconds ?? 3}
                         onChange={(e) => updatePopupBannerField("delaySeconds", Math.max(0, parseInt(e.target.value) || 0))}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                       />
                       <span className="text-xs font-bold text-slate-500 shrink-0">Seconds</span>
                     </div>
@@ -1155,7 +1214,7 @@ export function HomeLayoutEditorModal({
                         type="checkbox"
                         checked={(datasource?.home?.[0]?.identity?.popupBanner?.onlyOncePerSession ?? datasource?.popupBanner?.onlyOncePerSession) === true}
                         onChange={(e) => updatePopupBannerField("onlyOncePerSession", e.target.checked)}
-                        className="size-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
                       />
                       <div>
                         <span className="text-xs font-bold text-slate-700 block">Show Once Per Session</span>
@@ -1172,7 +1231,7 @@ export function HomeLayoutEditorModal({
                           type="checkbox"
                           checked={(datasource?.home?.[0]?.identity?.popupBanner?.showTitle ?? datasource?.popupBanner?.showTitle) !== false}
                           onChange={(e) => updatePopupBannerField("showTitle", e.target.checked)}
-                          className="size-3.5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                          className="size-3.5 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
                         />
                         <span className="text-[10px] font-bold text-slate-700">Display Title Overlay</span>
                       </label>
@@ -1182,7 +1241,7 @@ export function HomeLayoutEditorModal({
                       placeholder="Leave blank to hide title, or type custom headline (e.g. Admissions Open 2026–27)"
                       value={datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title ?? ""}
                       onChange={(e) => updatePopupBannerField("title", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
                   </div>
 
@@ -1197,7 +1256,7 @@ export function HomeLayoutEditorModal({
                           : (datasource?.home?.[0]?.identity?.popupBanner?.subtitle ?? datasource?.popupBanner?.subtitle ?? "")
                       }
                       onChange={(e) => updatePopupBannerField("subtitle", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
                   </div>
 
@@ -1208,7 +1267,7 @@ export function HomeLayoutEditorModal({
                       placeholder="e.g. Enquiry Now"
                       value={datasource?.home?.[0]?.identity?.popupBanner?.enquiryButtonText ?? datasource?.popupBanner?.enquiryButtonText ?? "Enquiry Now"}
                       onChange={(e) => updatePopupBannerField("enquiryButtonText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
                   </div>
 
@@ -1219,7 +1278,7 @@ export function HomeLayoutEditorModal({
                       placeholder="e.g. Close"
                       value={datasource?.home?.[0]?.identity?.popupBanner?.closeButtonText ?? datasource?.popupBanner?.closeButtonText ?? "Close"}
                       onChange={(e) => updatePopupBannerField("closeButtonText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
                   </div>
                 </div>
@@ -1228,7 +1287,7 @@ export function HomeLayoutEditorModal({
                 <div className="space-y-3 pt-2 border-t border-slate-200">
                   <label className="text-xs font-bold text-[#102a4c] flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <ImageIcon size={15} className="text-amber-500" /> Image Source (Upload File, Select from Gallery, or Paste URL)
+                      <ImageIcon size={15} className="text-[#1a5d9c]" /> Image Source (Upload File, Select from Gallery, or Paste URL)
                     </span>
                   </label>
 
@@ -1238,7 +1297,7 @@ export function HomeLayoutEditorModal({
                       placeholder="https://res.cloudinary.com/... or /assets/..."
                       value={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl ?? datasource?.popupBanner?.imageUrl ?? ""}
                       onChange={(e) => updatePopupBannerField("imageUrl", e.target.value)}
-                      className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-amber-500"
+                      className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
 
                     <button
@@ -1250,7 +1309,7 @@ export function HomeLayoutEditorModal({
                       <span>Choose from Gallery</span>
                     </button>
 
-                    <label className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 transition cursor-pointer shrink-0 shadow-2xs">
+                    <label className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition cursor-pointer shrink-0 shadow-2xs">
                       <UploadCloud size={16} />
                       <span>{uploading ? "Uploading..." : "Upload File"}</span>
                       <input
@@ -1270,12 +1329,12 @@ export function HomeLayoutEditorModal({
                 </div>
 
                 {/* ADMIN INTERACTIVE IMAGE RESIZING & COVERAGE STUDIO CONTROLS */}
-                <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 space-y-4">
+                <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 space-y-4">
                   <h4 className="text-xs font-bold text-[#082A52] flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                      <i className="bi bi-aspect-ratio-fill text-amber-600" /> Admin Pop-Up Studio: Screen Area Coverage & Resizing
+                      <i className="bi bi-aspect-ratio-fill text-[#1a5d9c]" /> Admin Pop-Up Studio: Screen Area Coverage & Resizing
                     </span>
-                    <span className="text-[10px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                    <span className="text-[10px] font-semibold text-[#1a5d9c] bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200">
                       Area Coverage Manager
                     </span>
                   </h4>
@@ -1297,12 +1356,15 @@ export function HomeLayoutEditorModal({
                           onClick={() => {
                             updatePopupBannerField("modalWidth", item.preset);
                             updatePopupBannerField("imageWidth", item.width);
-                            updatePopupBannerField("imageMaxHeight", item.height);
+                            const currentRatio = datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10";
+                            const parts = currentRatio.split("/").map(Number);
+                            const calculatedHeight = (parts.length === 2 && parts[0] > 0) ? Math.round((item.width * parts[1]) / parts[0]) : item.height;
+                            updatePopupBannerField("imageMaxHeight", calculatedHeight);
                           }}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
                             (datasource?.home?.[0]?.identity?.popupBanner?.modalWidth ?? datasource?.popupBanner?.modalWidth ?? "lg") === item.preset
-                              ? "bg-amber-500 text-white border-amber-600 shadow-xs"
-                              : "bg-white text-slate-700 border-slate-200 hover:bg-amber-100/50"
+                              ? "bg-[#1a5d9c] text-white border-[#1a5d9c] shadow-xs"
+                              : "bg-white text-slate-700 border-slate-200 hover:bg-blue-50/70"
                           }`}
                         >
                           {item.label}
@@ -1311,14 +1373,14 @@ export function HomeLayoutEditorModal({
                     </div>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2 border-t border-amber-200/60">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2 border-t border-blue-200/60">
                     {/* Image Fit Mode */}
                     <div>
                       <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Fit Mode</label>
                       <select
                         value={datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "cover"}
                         onChange={(e) => updatePopupBannerField("imageFit", e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-amber-500"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                       >
                         <option value="cover">Cover (Full Bleed Poster)</option>
                         <option value="contain">Contain (Show Entire Image)</option>
@@ -1331,8 +1393,17 @@ export function HomeLayoutEditorModal({
                       <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Aspect Ratio</label>
                       <select
                         value={datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10"}
-                        onChange={(e) => updatePopupBannerField("aspectRatio", e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-amber-500"
+                        onChange={(e) => {
+                          const newRatio = e.target.value;
+                          const currentWidth = datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600;
+                          const parts = newRatio.split("/").map(Number);
+                          if (parts.length === 2 && parts[0] > 0) {
+                            const calculatedHeight = Math.round((currentWidth * parts[1]) / parts[0]);
+                            updatePopupBannerField("imageMaxHeight", calculatedHeight);
+                          }
+                          updatePopupBannerField("aspectRatio", newRatio);
+                        }}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                       >
                         <option value="16/10">16:10 Full Bleed Poster</option>
                         <option value="16/9">16:9 Landscape Banner</option>
@@ -1349,7 +1420,7 @@ export function HomeLayoutEditorModal({
                       <select
                         value={datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center"}
                         onChange={(e) => updatePopupBannerField("imagePosition", e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-amber-500"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                       >
                         <option value="center">Center</option>
                         <option value="top">Top Focus</option>
@@ -1364,7 +1435,7 @@ export function HomeLayoutEditorModal({
                           type="checkbox"
                           checked={(datasource?.home?.[0]?.identity?.popupBanner?.showImageZoomOnClick ?? datasource?.popupBanner?.showImageZoomOnClick) !== false}
                           onChange={(e) => updatePopupBannerField("showImageZoomOnClick", e.target.checked)}
-                          className="size-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                          className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
                         />
                         <span className="text-[11px] font-bold text-slate-700">Allow Image Lightbox Zoom</span>
                       </label>
@@ -1372,13 +1443,13 @@ export function HomeLayoutEditorModal({
                   </div>
 
                   {/* Sliders for Image Width (px) & Height (px) */}
-                  <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-amber-200/60">
+                  <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-blue-200/60">
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                          <i className="bi bi-arrows-expand-vertical text-amber-600 rotate-90" /> Container Width (px)
+                          <i className="bi bi-arrows-expand-vertical text-[#1a5d9c] rotate-90" /> Container Width (px)
                         </label>
-                        <span className="text-xs font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                        <span className="text-xs font-mono font-bold text-[#1a5d9c] bg-blue-100 px-2 py-0.5 rounded-md">
                           {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px
                         </span>
                       </div>
@@ -1389,19 +1460,26 @@ export function HomeLayoutEditorModal({
                         step={10}
                         value={datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}
                         onChange={(e) => {
-                          updatePopupBannerField("imageWidth", parseInt(e.target.value));
+                          const newWidth = parseInt(e.target.value);
+                          updatePopupBannerField("imageWidth", newWidth);
                           updatePopupBannerField("modalWidth", "custom");
+                          const currentRatio = datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10";
+                          const parts = currentRatio.split("/").map(Number);
+                          if (parts.length === 2 && parts[0] > 0) {
+                            const calculatedHeight = Math.round((newWidth * parts[1]) / parts[0]);
+                            updatePopupBannerField("imageMaxHeight", calculatedHeight);
+                          }
                         }}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ew-resize accent-amber-500"
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ew-resize accent-[#1a5d9c]"
                       />
                     </div>
 
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                          <i className="bi bi-arrows-expand-vertical text-amber-600" /> Container Height (px)
+                          <i className="bi bi-arrows-expand-vertical text-[#1a5d9c]" /> Container Height (px)
                         </label>
-                        <span className="text-xs font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                        <span className="text-xs font-mono font-bold text-[#1a5d9c] bg-blue-100 px-2 py-0.5 rounded-md">
                           {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px
                         </span>
                       </div>
@@ -1412,7 +1490,7 @@ export function HomeLayoutEditorModal({
                         step={10}
                         value={datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}
                         onChange={(e) => updatePopupBannerField("imageMaxHeight", parseInt(e.target.value))}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ns-resize accent-amber-500"
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ns-resize accent-[#1a5d9c]"
                       />
                     </div>
                   </div>
@@ -1422,7 +1500,7 @@ export function HomeLayoutEditorModal({
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
-                      <i className="bi bi-eye-fill text-[#0284c7] text-sm" /> Admin Live Canvas Studio (Drag Blue Corner Handle to Resize)
+                      <i className="bi bi-eye-fill text-[#1a5d9c] text-sm" /> Admin Live Canvas Studio (Drag Blue Corner Handle to Resize)
                     </label>
                     <span className="text-[11px] font-semibold text-slate-600 font-mono bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
                       Covering Area: {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px × {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px
@@ -1431,63 +1509,65 @@ export function HomeLayoutEditorModal({
 
                   <div className="relative rounded-3xl border border-slate-200 bg-slate-900/90 p-6 sm:p-8 flex flex-col items-center justify-center min-h-[380px]">
                     {/* Blue Dashed Selection Container Frame matching screenshot */}
-                    <div className="relative p-1.5 rounded-[28px] border-2 border-dashed border-[#0284c7] transition-all">
+                    <div className="relative p-1.5 rounded-[28px] border-2 border-dashed border-[#1a5d9c] transition-all">
                       {/* Floating Dark Control Toolbar above matching screenshot */}
                       <div className="absolute -top-4 left-4 z-40 flex items-center gap-2 rounded-xl bg-slate-950 px-3 py-1 text-[11px] font-bold text-white shadow-xl border border-slate-800">
                         <span className="font-mono text-slate-400">&lt;div&gt;</span>
                         <span className="bg-slate-800 px-2.5 py-0.5 rounded-lg text-slate-200 flex items-center gap-1">
                           <i className="bi bi-chevron-up text-[9px]" /> Outer Box (&lt;div&gt;)
                         </span>
-                        <span className="bg-[#0284c7] px-2 py-0.5 rounded-md text-white font-mono text-[10px]">
+                        <span className="bg-[#1a5d9c] px-2 py-0.5 rounded-md text-white font-mono text-[10px]">
                           {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600} × {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}
                         </span>
                       </div>
 
-                      {/* Mockup Full Bleed Poster Card Container */}
+                      {/* Mockup Poster Card Container - Matching PopupBannerModal 100% */}
                       <div
-                        className="relative w-full rounded-[24px] border border-amber-400/40 bg-slate-950 text-white shadow-2xl overflow-hidden flex flex-col justify-end group transition-all"
+                        className="relative w-full rounded-[24px] border border-blue-400/30 bg-slate-950 text-white shadow-2xl overflow-hidden flex flex-col justify-between group transition-all"
                         style={{
                           width: `${datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px`,
                           maxWidth: "100%",
+                          aspectRatio: (datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10").replace('/', ' / '),
                           height: `${datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px`,
                         }}
                       >
-                        {/* Background Image Poster */}
-                        <img
-                          src={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85"}
-                          alt="Admin Banner Preview"
-                          className="absolute inset-0 w-full h-full"
-                          style={{
-                            objectFit: (datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "cover") as any,
-                            objectPosition: datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center",
-                          }}
-                        />
+                        {/* Poster Graphic Image Container */}
+                        <div className="relative w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
+                          <img
+                            src={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85"}
+                            alt="Admin Banner Preview"
+                            className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02]"
+                            style={{
+                              objectFit: (datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "contain") as any,
+                              objectPosition: datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center",
+                            }}
+                          />
+                        </div>
 
-                        {/* Scrim Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent pointer-events-none" />
-
-                        {/* Bottom Content Preview */}
-                        <div className="relative z-10 p-4 flex items-end justify-between gap-3">
-                          <div className="space-y-0.5 max-w-[55%]">
+                        {/* Dedicated Bottom Footer Action Bar */}
+                        <div className="shrink-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800/80 px-4 py-3 flex items-center justify-between gap-3 relative z-20">
+                          {/* Title & Subtitle */}
+                          <div className="min-w-0 flex-1 space-y-0.5">
                             {(datasource?.home?.[0]?.identity?.popupBanner?.showTitle ?? datasource?.popupBanner?.showTitle) !== false && (datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title) && (
-                              <h4 className="text-sm sm:text-base font-extrabold text-white leading-tight drop-shadow-md">
+                              <h4 className="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-snug truncate">
                                 {datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title}
                               </h4>
                             )}
                             {datasource?.home?.[0]?.identity?.popupBanner?.subtitle && !(datasource?.home?.[0]?.identity?.popupBanner?.subtitle || "").toLowerCase().includes("enroll your child") && (
-                              <p className="text-[10px] font-bold text-[#F4C430] uppercase tracking-wider drop-shadow-xs">
+                              <p className="text-[10px] font-bold text-sky-300 uppercase tracking-wider truncate">
                                 {datasource?.home?.[0]?.identity?.popupBanner?.subtitle}
                               </p>
                             )}
                           </div>
 
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-extrabold text-[10px] px-3 py-1 rounded-full shadow-md flex items-center gap-1 border border-amber-400/30">
-                              <i className="bi bi-pencil-square text-[10px] text-[#F4C430]" />
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2 shrink-0 ml-auto">
+                            <span className="bg-gradient-to-r from-[#1a5d9c] via-blue-700 to-[#102a4c] text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-md border border-blue-400/30 flex items-center gap-1.5">
+                              <i className="bi bi-pencil-square text-xs text-sky-200" />
                               {datasource?.home?.[0]?.identity?.popupBanner?.enquiryButtonText ?? "Enquiry Now"}
                             </span>
 
-                            <span className="bg-gradient-to-r from-red-600 to-red-700 text-white font-extrabold text-[10px] px-3 py-1 rounded-full shadow-md flex items-center gap-1 border border-red-400/30">
+                            <span className="bg-slate-800 text-slate-200 font-extrabold text-xs px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-1.5">
                               <i className="bi bi-x-lg text-[9px]" />
                               {datasource?.home?.[0]?.identity?.popupBanner?.closeButtonText ?? "Close"}
                             </span>
@@ -1497,7 +1577,7 @@ export function HomeLayoutEditorModal({
 
                       {/* Solid Blue Square Drag Handle at Corner matching screenshot */}
                       <div
-                        className="absolute -bottom-3 -right-3 size-6 bg-[#0284c7] border-2 border-white rounded-md shadow-xl grid place-items-center cursor-nwse-resize z-50 hover:scale-125 transition-transform"
+                        className="absolute -bottom-3 -right-3 size-6 bg-[#1a5d9c] border-2 border-white rounded-md shadow-xl grid place-items-center cursor-nwse-resize z-50 hover:scale-125 transition-transform"
                         title="Drag corner handle to adjust width & height live"
                         onMouseDown={(e) => {
                           const startX = e.clientX;

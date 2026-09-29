@@ -97,72 +97,70 @@ export function PopupBannerModal() {
             className="fixed inset-0 bg-[#082A52]/80 backdrop-blur-md transition-opacity"
           />
 
-          {/* Dynamic Full-Bleed Poster Modal Card */}
+          {/* Dynamic Poster Modal Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className={`relative z-10 w-full ${getMaxWidthClass()} ${getAspectRatioClass()} overflow-hidden border border-amber-400/30 bg-slate-950 text-white shadow-2xl my-auto flex flex-col justify-end transition-all group`}
+            className={`relative z-10 w-full ${getMaxWidthClass()} ${getAspectRatioClass()} overflow-hidden border border-blue-400/30 bg-slate-950 text-white shadow-2xl my-auto flex flex-col justify-between transition-all group`}
             style={{
               maxWidth: (config.modalWidth === "custom" || config.imageWidth) ? `${config.imageWidth}px` : undefined,
-              height: config.imageMaxHeight ? `${config.imageMaxHeight}px` : undefined,
+              aspectRatio: (config.aspectRatio || "16/10").replace('/', ' / '),
+              height: config.imageMaxHeight ? `${config.imageMaxHeight}px` : "auto",
+              maxHeight: "88vh",
               borderRadius: `${config.imageBorderRadius || 24}px`,
             }}
           >
-            {/* Background Image Poster */}
-            <img
-              src={config.imageUrl}
-              alt={config.title || "Indian Public School Announcement"}
-              className={`absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105 ${
-                config.showImageZoomOnClick ? "cursor-zoom-in" : ""
-              }`}
-              style={{
-                objectFit: config.imageFit || "cover",
-                objectPosition: config.imagePosition || "center",
-              }}
-              onClick={() => config.showImageZoomOnClick && setIsLightboxOpen(true)}
-            />
+            {/* Poster Graphic Image Container (Full Poster Image Fully Visible) */}
+            <div className="relative w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
+              <img
+                src={config.imageUrl}
+                alt={config.title || "Indian Public School Announcement"}
+                className={`w-full h-full transition-transform duration-500 group-hover:scale-[1.02] ${config.showImageZoomOnClick ? "cursor-zoom-in" : ""
+                  }`}
+                style={{
+                  objectFit: config.imageFit || "contain",
+                  objectPosition: config.imagePosition || "center",
+                }}
+                onClick={() => config.showImageZoomOnClick && setIsLightboxOpen(true)}
+              />
+            </div>
 
-            {/* Dark Scrim Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-transparent pointer-events-none" />
-
-            {/* Bottom Overlay Content Area */}
-            <div className="relative z-10 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-              {/* Title & Subtitle */}
-              <div className="space-y-0.5 max-w-[62%] sm:max-w-[55%]">
+            {/* Dedicated Bottom Footer Action Bar (Positioned below image so poster text is unobscured) */}
+            <div className="shrink-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800/80 px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between gap-3 relative z-20">
+              {/* Optional Title & Subtitle */}
+              <div className="min-w-0 flex-1 space-y-0.5">
                 {config.title && (
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight leading-snug drop-shadow-md">
+                  <h2 className="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-snug truncate">
                     {config.title}
                   </h2>
                 )}
                 {config.subtitle && (
-                  <p className="text-[10px] sm:text-[11px] font-bold text-[#F4C430] uppercase tracking-wider drop-shadow-xs">
+                  <p className="text-[10px] sm:text-[11px] font-bold text-sky-300 uppercase tracking-wider truncate">
                     {config.subtitle}
                   </p>
                 )}
               </div>
 
-              {/* Action Buttons: Enquiry (Gold/Amber - Left) & Close (Red - Right) */}
-              <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                {/* Enquiry Button - Amber/Gold Pill */}
+              {/* Action Buttons: Enquiry Now & Close */}
+              <div className="flex items-center gap-2 shrink-0 ml-auto">
                 <button
                   type="button"
                   onClick={handleEnquiry}
-                  className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-extrabold text-[11px] sm:text-xs px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-md shadow-amber-500/20 border border-amber-400/40 cursor-pointer transform active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                  className="bg-gradient-to-r from-[#1a5d9c] via-blue-700 to-[#102a4c] hover:from-[#102a4c] hover:to-[#1a5d9c] text-white font-extrabold text-xs px-4 py-2 rounded-full shadow-md shadow-blue-900/30 border border-blue-400/30 cursor-pointer transform active:scale-95 transition-all flex items-center justify-center gap-1.5"
                 >
-                  <i className="bi bi-pencil-square text-xs text-[#F4C430]" />
-                  {config.enquiryButtonText || "Enquiry Now"}
+                  <i className="bi bi-pencil-square text-xs text-sky-200" />
+                  <span>{config.enquiryButtonText || "Enquiry Now"}</span>
                 </button>
 
-                {/* Close Button - Red Pill (Right Side) */}
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-extrabold text-[11px] sm:text-xs px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-md shadow-red-600/20 border border-red-400/40 cursor-pointer transform active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                  className="bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white font-extrabold text-xs px-3.5 py-2 rounded-full border border-slate-700 hover:border-red-500 cursor-pointer transform active:scale-95 transition-all flex items-center justify-center gap-1.5"
                 >
                   <i className="bi bi-x-lg text-[10px]" />
-                  {config.closeButtonText || "Close"}
+                  <span>{config.closeButtonText || "Close"}</span>
                 </button>
               </div>
             </div>
