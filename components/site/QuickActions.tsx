@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Bus, ClipboardCheck, Mail, Smartphone, Users } from "lucide-react";
+import { BriefcaseBusiness, Bus, ClipboardCheck, Smartphone, Users } from "lucide-react";
 import { EASE } from "@/lib/motion-presets";
 import { homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
@@ -15,7 +15,7 @@ const ACTIONS = [
   {
     icon: Smartphone,
     label: "School App",
-    note: "iOS & Android",
+    note: "Android",
     href: "#contact",
   },
   {
@@ -25,14 +25,24 @@ const ACTIONS = [
     href: "#contact",
   },
   { icon: Bus, label: "Bus Routes", note: "Transport info", href: "#contact" },
-  { icon: Mail, label: "Contact", note: "Talk to us", href: "#contact" },
+  { icon: BriefcaseBusiness, label: "Contact", note: "Talk to us", href: "#contact" },
 ];
 
 export function QuickActions() {
-  const cards = homeData(useSiteData()).menuCard;
-  const actions = Array.isArray(cards)
-    ? (cards as Record<string, unknown>[])
-    : [];
+  const rawCards = homeData(useSiteData()).menuCard;
+  const isCustomized = Array.isArray(rawCards);
+  const actions = isCustomized
+    ? (rawCards as Record<string, unknown>[])
+    : ACTIONS.map((action) => ({
+        heading: action.label,
+        subHeading: action.note,
+        redirectUrl: action.href,
+      }));
+
+  if (isCustomized && actions.length === 0) {
+    return null;
+  }
+
   return (
     <section className="relative z-20 -mt-10 lg:-mt-16">
       <div className="container-page">
@@ -43,14 +53,7 @@ export function QuickActions() {
           variants={{ show: { transition: { staggerChildren: 0.08 } } }}
           className="grid grid-cols-2 gap-3 rounded-3xl border border-border/70 bg-card/90 p-3 shadow-lift backdrop-blur-xl sm:grid-cols-3 sm:gap-4 sm:p-4 lg:grid-cols-5"
         >
-          {(actions.length
-            ? actions
-            : ACTIONS.map((action) => ({
-                heading: action.label,
-                subHeading: action.note,
-                redirectUrl: action.href,
-              }))
-          ).map((action, index) => {
+          {actions.map((action, index) => {
             const fallback = ACTIONS[index % ACTIONS.length]!;
             const Icon = fallback.icon;
             const label = text(action.heading, fallback.label);

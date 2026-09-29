@@ -322,11 +322,14 @@ export function getWhatsAppConfig(siteData?: SiteData | null): Required<WhatsApp
 export function getPopupBannerConfig(siteData?: SiteData | null): Required<PopupBannerSetting> {
   const home = siteData?.home?.[0] as SiteRecord | undefined;
   const identityObj = (home?.identity as SiteRecord | undefined) ?? {};
-  const pb = (identityObj?.popupBanner as PopupBannerSetting | undefined) ?? (siteData?.popupBanner as PopupBannerSetting | undefined) ?? {};
+  const pb = {
+    ...((siteData?.popupBanner as PopupBannerSetting | undefined) ?? {}),
+    ...((identityObj?.popupBanner as PopupBannerSetting | undefined) ?? {}),
+  };
 
   const enabled = pb.enabled !== false;
   const delaySeconds = typeof pb.delaySeconds === "number" ? pb.delaySeconds : (Number(pb.delaySeconds) || 3);
-  const imageUrl = text(pb.imageUrl) || "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
+  const imageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
   const showTitle = pb.showTitle !== false;
   const title = showTitle ? (pb.title !== undefined ? text(pb.title) : "Admissions Open 2026–27") : "";
   const rawSubtitle = text(pb.subtitle) || "";

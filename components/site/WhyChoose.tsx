@@ -93,7 +93,7 @@ export function WhyChoose() {
             const Icon = fallback.icon;
             const title = text(item.heading, fallback.title);
             const copy = text(item.description, fallback.text);
-            const redirectUrl = text(item.redirectUrl);
+            const redirectUrl = text(item.redirectUrl) || text(item.linkUrl) || text(item.targetUrl) || text(item.url);
             const span = fallback.span;
             const feature = index === 0;
             return (

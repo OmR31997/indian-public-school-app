@@ -169,7 +169,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-[#082A52]">
-                        Parent / Student Name
+                        Name
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -190,7 +190,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-[#082A52]">
-                        Phone / Contact Number
+                        Contact Number
                       </FormLabel>
                       <FormControl>
                         <Input

@@ -103,6 +103,41 @@ export function HomeLayoutEditorModal({
   const [datasource, setDatasource] = useState<any>(initialValue);
   const [jsonText, setJsonText] = useState<string>(JSON.stringify(initialValue, null, 2));
 
+  React.useEffect(() => {
+    setDatasource(initialValue);
+    setJsonText(JSON.stringify(initialValue, null, 2));
+
+    let isMounted = true;
+    const fetchLiveBackendDatasource = async () => {
+      if (record && record.value && typeof record.value === "object" && "home" in (record.value as any)) {
+        return;
+      }
+      try {
+        const res = await axios.get(`${API_URL}/regarding/datasource`);
+        const data = res.data?.data ?? res.data;
+        const cleanData = data?.value ?? data;
+        if (isMounted && cleanData && typeof cleanData === "object" && "home" in cleanData && Array.isArray(cleanData.home)) {
+          setDatasource(cleanData);
+          setJsonText(JSON.stringify(cleanData, null, 2));
+        }
+      } catch (err) {
+        console.warn("Unable to fetch live backend datasource in HomeLayoutEditorModal:", err);
+      }
+    };
+
+    fetchLiveBackendDatasource();
+    return () => {
+      isMounted = false;
+    };
+  }, [initialValue, record]);
+
+  const currentPopupBanner = useMemo(() => {
+    return {
+      ...(datasource?.popupBanner || {}),
+      ...(datasource?.home?.[0]?.identity?.popupBanner || {}),
+    };
+  }, [datasource]);
+
   const homeObj = useMemo(() => {
     return datasource?.home?.[0] || {};
   }, [datasource]);
@@ -162,7 +197,7 @@ export function HomeLayoutEditorModal({
     const headerObj = { ...(finalVal.header || currentIdentity.header || {}) };
     const footerObj = { ...(finalVal.footer || currentIdentity.footer || {}) };
     const waObj = { ...(finalVal.whatsapp || currentIdentity.whatsapp || {}) };
-    const popupObj = { ...(finalVal.popupBanner || currentIdentity.popupBanner || {}) };
+    const popupObj = { ...(currentIdentity.popupBanner || {}), ...(finalVal.popupBanner || {}) };
     const logoObj = { ...(finalVal.site_logo || currentIdentity.site_logo || {}) };
     const certObj = { ...(finalVal.certified_board || currentIdentity.certified_board || {}) };
     const trustObj = { ...(finalVal.trust_board || currentIdentity.trust_board || {}) };
@@ -324,7 +359,11 @@ export function HomeLayoutEditorModal({
       const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
       const firstHome = { ...(homeList[0] || {}) };
       const identityObj = { ...(firstHome.identity || {}) };
-      const pbObj = { ...(identityObj.popupBanner || prev?.popupBanner || {}), [field]: val };
+      const pbObj = {
+        ...(prev?.popupBanner || {}),
+        ...(identityObj.popupBanner || {}),
+        [field]: val,
+      };
 
       identityObj.popupBanner = pbObj;
       firstHome.identity = identityObj;
@@ -1135,7 +1174,7 @@ export function HomeLayoutEditorModal({
                   <label className="flex items-center gap-2 cursor-pointer bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
                     <input
                       type="checkbox"
-                      checked={(datasource?.home?.[0]?.identity?.popupBanner?.enabled ?? datasource?.popupBanner?.enabled) !== false}
+                      checked={currentPopupBanner.enabled !== false}
                       onChange={(e) => updatePopupBannerField("enabled", e.target.checked)}
                       className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
                     />
@@ -1154,7 +1193,7 @@ export function HomeLayoutEditorModal({
                         min={0}
                         max={60}
                         placeholder="e.g. 3"
-                        value={datasource?.home?.[0]?.identity?.popupBanner?.delaySeconds ?? datasource?.popupBanner?.delaySeconds ?? 3}
+                        value={currentPopupBanner.delaySeconds ?? 3}
                         onChange={(e) => updatePopupBannerField("delaySeconds", Math.max(0, parseInt(e.target.value) || 0))}
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                       />
@@ -1166,7 +1205,7 @@ export function HomeLayoutEditorModal({
                     <label className="flex items-center gap-2.5 cursor-pointer bg-white px-3 py-2 rounded-xl border border-slate-200 w-full shadow-2xs">
                       <input
                         type="checkbox"
-                        checked={(datasource?.home?.[0]?.identity?.popupBanner?.onlyOncePerSession ?? datasource?.popupBanner?.onlyOncePerSession) === true}
+                        checked={currentPopupBanner.onlyOncePerSession === true}
                         onChange={(e) => updatePopupBannerField("onlyOncePerSession", e.target.checked)}
                         className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
                       />
@@ -1183,7 +1222,7 @@ export function HomeLayoutEditorModal({
                       <label className="flex items-center gap-1.5 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={(datasource?.home?.[0]?.identity?.popupBanner?.showTitle ?? datasource?.popupBanner?.showTitle) !== false}
+                          checked={currentPopupBanner.showTitle !== false}
                           onChange={(e) => updatePopupBannerField("showTitle", e.target.checked)}
                           className="size-3.5 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
                         />
@@ -1193,7 +1232,7 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="Leave blank to hide title, or type custom headline (e.g. Admissions Open 2026–27)"
-                      value={datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title ?? ""}
+                      value={currentPopupBanner.title ?? ""}
                       onChange={(e) => updatePopupBannerField("title", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
@@ -1205,9 +1244,9 @@ export function HomeLayoutEditorModal({
                       type="text"
                       placeholder="e.g. Indian Public School"
                       value={
-                        (datasource?.home?.[0]?.identity?.popupBanner?.subtitle ?? datasource?.popupBanner?.subtitle ?? "").toLowerCase().includes("enroll your child")
+                        (currentPopupBanner.subtitle ?? "").toLowerCase().includes("enroll your child")
                           ? ""
-                          : (datasource?.home?.[0]?.identity?.popupBanner?.subtitle ?? datasource?.popupBanner?.subtitle ?? "")
+                          : (currentPopupBanner.subtitle ?? "")
                       }
                       onChange={(e) => updatePopupBannerField("subtitle", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
@@ -1219,7 +1258,7 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. Enquiry Now"
-                      value={datasource?.home?.[0]?.identity?.popupBanner?.enquiryButtonText ?? datasource?.popupBanner?.enquiryButtonText ?? "Enquiry Now"}
+                      value={currentPopupBanner.enquiryButtonText ?? "Enquiry Now"}
                       onChange={(e) => updatePopupBannerField("enquiryButtonText", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
@@ -1230,7 +1269,7 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. Close"
-                      value={datasource?.home?.[0]?.identity?.popupBanner?.closeButtonText ?? datasource?.popupBanner?.closeButtonText ?? "Close"}
+                      value={currentPopupBanner.closeButtonText ?? "Close"}
                       onChange={(e) => updatePopupBannerField("closeButtonText", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
@@ -1249,7 +1288,7 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="https://res.cloudinary.com/... or /assets/..."
-                      value={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl ?? datasource?.popupBanner?.imageUrl ?? ""}
+                      value={currentPopupBanner.imageUrl ?? ""}
                       onChange={(e) => updatePopupBannerField("imageUrl", e.target.value)}
                       className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
@@ -1911,30 +1950,54 @@ export function HomeLayoutEditorModal({
                           </button>
                         </div>
                       </div>
-                      <input
-                        type="text"
-                        value={card.heading || ""}
-                        onChange={(e) => {
-                          const sec3 = [...(homeObj["section-3"] || [{}])];
-                          const cards = [...(sec3[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], heading: e.target.value };
-                          sec3[0] = { ...sec3[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none"
-                      />
-                      <textarea
-                        rows={2}
-                        value={card.description || ""}
-                        onChange={(e) => {
-                          const sec3 = [...(homeObj["section-3"] || [{}])];
-                          const cards = [...(sec3[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], description: e.target.value };
-                          sec3[0] = { ...sec3[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none"
-                      />
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Heading / Feature Title</label>
+                        <input
+                          type="text"
+                          placeholder="Feature Title (e.g. CBSE Curriculum)"
+                          value={card.heading || ""}
+                          onChange={(e) => {
+                            const sec3 = [...(homeObj["section-3"] || [{}])];
+                            const cards = [...(sec3[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], heading: e.target.value };
+                            sec3[0] = { ...sec3[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Description</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Feature Description"
+                          value={card.description || ""}
+                          onChange={(e) => {
+                            const sec3 = [...(homeObj["section-3"] || [{}])];
+                            const cards = [...(sec3[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], description: e.target.value };
+                            sec3[0] = { ...sec3[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Redirect URL / Link Target (e.g. /academics, #admissions)</label>
+                        <input
+                          type="text"
+                          placeholder="Redirect URL (e.g. /about, /academics, #admissions)"
+                          value={card.redirectUrl || card.linkUrl || card.targetUrl || card.url || ""}
+                          onChange={(e) => {
+                            const sec3 = [...(homeObj["section-3"] || [{}])];
+                            const cards = [...(sec3[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], redirectUrl: e.target.value, linkUrl: e.target.value };
+                            sec3[0] = { ...sec3[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-mono outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -2950,6 +3013,16 @@ export function HomeLayoutEditorModal({
           </div>
         </div>
       </div>
+
+      <CloudinaryGalleryModal
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        onSelectImage={(url) => {
+          if (url) updatePopupBannerField("imageUrl", url);
+          setIsGalleryOpen(false);
+        }}
+        title="Select Pop-Up Banner Image from Gallery"
+      />
     </div>
   );
 }

@@ -288,30 +288,54 @@ export function HomeSectionsTab({
                           </button>
                         </div>
                       </div>
-                      <input
-                        type="text"
-                        value={card.heading || ""}
-                        onChange={(e) => {
-                          const sec3 = [...(homeObj["section-3"] || [{}])];
-                          const cards = [...(sec3[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], heading: e.target.value };
-                          sec3[0] = { ...sec3[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none"
-                      />
-                      <textarea
-                        rows={2}
-                        value={card.description || ""}
-                        onChange={(e) => {
-                          const sec3 = [...(homeObj["section-3"] || [{}])];
-                          const cards = [...(sec3[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], description: e.target.value };
-                          sec3[0] = { ...sec3[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none"
-                      />
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Heading / Feature Title</label>
+                        <input
+                          type="text"
+                          placeholder="Feature Title (e.g. CBSE Curriculum)"
+                          value={card.heading || ""}
+                          onChange={(e) => {
+                            const sec3 = [...(homeObj["section-3"] || [{}])];
+                            const cards = [...(sec3[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], heading: e.target.value };
+                            sec3[0] = { ...sec3[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Description</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Feature Description"
+                          value={card.description || ""}
+                          onChange={(e) => {
+                            const sec3 = [...(homeObj["section-3"] || [{}])];
+                            const cards = [...(sec3[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], description: e.target.value };
+                            sec3[0] = { ...sec3[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Redirect URL / Link Target (e.g. /academics, #admissions)</label>
+                        <input
+                          type="text"
+                          placeholder="Redirect URL (e.g. /about, /academics, #admissions)"
+                          value={card.redirectUrl || card.linkUrl || card.targetUrl || card.url || ""}
+                          onChange={(e) => {
+                            const sec3 = [...(homeObj["section-3"] || [{}])];
+                            const cards = [...(sec3[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], redirectUrl: e.target.value, linkUrl: e.target.value };
+                            sec3[0] = { ...sec3[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-mono outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>

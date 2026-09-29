@@ -82,20 +82,25 @@ export async function getOptionalApi<T>(
 }
 
 export function unwrapSetting<T extends ApiRecord>(
-  response: ApiEnvelope<T | { value?: T; _doc?: { value?: T } }>,
+  response: ApiEnvelope<T | { value?: T; _doc?: { value?: T } }> | T | null | undefined,
 ): T {
-  const setting = response.data as ApiRecord;
-  const directValue = setting.value;
-  if (directValue && typeof directValue === "object") return directValue as T;
+  if (!response) return {} as T;
+  const raw = typeof response === "object" && "data" in response && response.data ? (response.data as ApiRecord) : (response as ApiRecord);
+  if (!raw || typeof raw !== "object") return {} as T;
 
-  const document = setting._doc;
-  if (document && typeof document === "object") {
-    const documentValue = (document as ApiRecord).value;
-    if (documentValue && typeof documentValue === "object")
-      return documentValue as T;
+  if (raw.value && typeof raw.value === "object" && !Array.isArray(raw.value)) {
+    const val = raw.value as ApiRecord;
+    if (val._doc && typeof val._doc === "object") return val._doc as T;
+    return val as T;
   }
 
-  return setting as T;
+  if (raw._doc && typeof raw._doc === "object") {
+    const doc = raw._doc as ApiRecord;
+    if (doc.value && typeof doc.value === "object") return doc.value as T;
+    return doc as T;
+  }
+
+  return raw as T;
 }
 
 export function unwrapCollection<T>(

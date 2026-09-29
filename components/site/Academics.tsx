@@ -12,22 +12,22 @@ const STAGES = [
   },
   {
     stage: "Primary",
-    grades: "Grades I – V",
+    grades: "I – V",
     text: "Strong foundations in language, mathematics and enquiry, supported by activity-led classrooms and reading habits.",
   },
   {
     stage: "Middle School",
-    grades: "Grades VI – VIII",
+    grades: "VI – VIII",
     text: "Concept clarity across sciences, humanities and languages, with projects, labs and structured study skills.",
   },
   {
     stage: "Secondary",
-    grades: "Grades IX – X",
+    grades: "IX – X",
     text: "Focused CBSE board preparation, regular assessment cycles and mentoring for confident performance.",
   },
   {
     stage: "Senior Secondary",
-    grades: "Grades XI – XII",
+    grades: "XI – XII",
     text: "Science, Commerce and Humanities streams with career counselling and competitive exam guidance.",
   },
 ];
@@ -60,10 +60,10 @@ export function Academics() {
             {(stages.length
               ? stages
               : STAGES.map((s) => ({
-                  mainHeading: s.stage,
-                  heading: s.grades,
-                  description: s.text,
-                }))
+                mainHeading: s.stage,
+                heading: s.grades,
+                description: s.text,
+              }))
             ).map((s, i) => (
               <motion.li
                 key={`${text(s.mainHeading, "academic-stage")}-${i}`}
