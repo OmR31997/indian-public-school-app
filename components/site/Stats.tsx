@@ -55,10 +55,10 @@ export function Stats() {
           {(items.length
             ? items
             : STATS.map((s) => ({
-                count: `${s.value}${s.suffix}`,
-                heading: s.label,
-                "sub-heading": s.note,
-              }))
+              count: `${s.value}${s.suffix}`,
+              heading: s.label,
+              "sub-heading": s.note,
+            }))
           ).map((s, index) => {
             const raw = text(s.count, "0");
             const match = raw.match(/^(\d+)(.*)$/);
@@ -90,8 +90,7 @@ export function Stats() {
         </motion.ul>
         <p className="mt-10 text-center text-xs text-muted-foreground sm:text-left">
           {text(
-            homeData(useSiteData())["statsNote"],
-            "School figures and programmes are maintained by the school office.",
+            homeData(useSiteData())["statsNote"]
           )}
         </p>
       </div>

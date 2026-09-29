@@ -65,9 +65,9 @@ export function BeyondClassroom() {
   const classroomItems: Record<string, unknown>[] = items.length
     ? items
     : ITEMS.map((item) => ({
-        heading: item.title,
-        description: item.text,
-      }));
+      heading: item.title,
+      description: item.text,
+    }));
   return (
     <section id="campus-life" className="overflow-hidden py-20 lg:py-32">
       <div className="container-page">
@@ -117,9 +117,6 @@ export function BeyondClassroom() {
           );
         })}
       </motion.div>
-      <p className="container-page text-xs text-muted-foreground">
-        Scroll sideways to see more →
-      </p>
     </section>
   );
 }
