@@ -93,6 +93,7 @@ export const resources: Resource[] = [
         "/album/Activities",
         "/album/Hostel",
         "/album/AdmissionDocuments",
+        "indian-public-school/assets/Settings",
         "indian-public-school/assets/AdmissionDocuments",
         "indian-public-school/assets/Documents",
         "indian-public-school/assets/Header",
@@ -113,6 +114,7 @@ export const resources: Resource[] = [
       ],
       eventType: [
         "General",
+        "Settings",
         "AdmissionDocuments",
         "Documents",
         "News",

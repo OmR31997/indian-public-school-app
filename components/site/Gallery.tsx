@@ -11,9 +11,9 @@ import { homeData, imageUrls, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { getOptionalApi, unwrapCollection } from "@/lib/api-client";
 
-type Category = "Campus" | "Events" | "Sports" | "Activities" | "Hostel" | "Arts";
+type Category = "Campus" | "Events" | "Sports" | "Activities" | "Hostel" | "Arts" | "Settings";
 
-const CATEGORIES: ("All" | Category)[] = ["All", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts"];
+const CATEGORIES: ("All" | Category)[] = ["All", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Settings"];
 
 interface AlbumImage {
   src: string;
@@ -43,6 +43,12 @@ const FORBIDDEN_TERMS = [
   "news release",
   "media release",
   "press_doc",
+  "setting",
+  "settings",
+  "school-settings",
+  "school_settings",
+  "assets/settings",
+  "assets/Settings",
 ];
 
 function isStaffStudentOrPressItem(item: Record<string, unknown>): boolean {
@@ -65,7 +71,8 @@ function isStaffStudentOrPressItem(item: Record<string, unknown>): boolean {
     name.includes("staff profile") ||
     name.includes("student profile") ||
     name.includes("press release") ||
-    name.includes("press document")
+    name.includes("press document") ||
+    name.includes("setting")
   ) {
     return true;
   }
@@ -89,6 +96,10 @@ function isStaffStudentOrPressUrl(url: string): boolean {
     "/avatars/",
     "/press/",
     "/pressrelease/",
+    "/settings/",
+    "/Settings/",
+    "/assets/settings/",
+    "/assets/Settings/",
     "staff_photo",
     "student_photo",
     "staff-photo",
@@ -107,6 +118,22 @@ function isStaffStudentOrPressUrl(url: string): boolean {
   return forbiddenSubstrings.some((term) => lower.includes(term)) && !lower.includes("campus");
 }
 
+function formatEventTitle(rawName?: string, fallbackType?: string): string {
+  const str = String(rawName || "").trim();
+  if (
+    !str ||
+    /\.(jpg|jpeg|png|webp|gif|svg|avif|pdf|mp4)$/i.test(str) ||
+    /^upload-\d+$/i.test(str) ||
+    /^cdn-\d+$/i.test(str) ||
+    str.toLowerCase().startsWith("facility-") ||
+    str.toLowerCase().startsWith("banner_") ||
+    str.toLowerCase().startsWith("hero-")
+  ) {
+    return String(fallbackType || "School Album").trim();
+  }
+  return text(str, fallbackType || "School Album");
+}
+
 function mapEventTypeToCategory(rawType: unknown): Category {
   const t = text(rawType, "Campus").trim();
   if (t.startsWith("/album/")) {
@@ -114,7 +141,7 @@ function mapEventTypeToCategory(rawType: unknown): Category {
     const matched = CATEGORIES.find((c) => c.toLowerCase() === folder.toLowerCase());
     if (matched && matched !== "All") return matched as Category;
   }
-  if (["Campus", "Events", "Sports", "Activities", "Hostel", "Arts"].includes(t)) {
+  if (["Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Settings"].includes(t)) {
     return t as Category;
   }
   const lower = t.toLowerCase();
@@ -248,13 +275,13 @@ export function Gallery() {
           .filter((item) => !isStaffStudentOrPressItem(item))
           .flatMap((item: any) => {
             const cat = mapEventTypeToCategory(item.eventType || item.category || item.directory);
-            const albumName = text(item.eventName || item.title || item.album, "School Album");
+            const albumName = formatEventTitle(item.eventName || item.title || item.album, item.eventType || cat);
             const dir = String(item.directoryName || item.directory || "").trim() || `/album/${cat.toLowerCase()}`;
             const urls = Array.isArray(item.fileUrl)
               ? item.fileUrl
               : typeof item.fileUrl === "string" && item.fileUrl.trim()
-              ? [item.fileUrl]
-              : [];
+                ? [item.fileUrl]
+                : [];
             return urls
               .filter((u: string) => !isStaffStudentOrPressUrl(u))
               .map((u: string) => ({
@@ -274,7 +301,8 @@ export function Gallery() {
             const cat = mapEventTypeToCategory(item.folder || item.category);
             const folderStr = String(item.folder || item.category || "general").toLowerCase();
             const dir = folderStr.startsWith("/album/") ? folderStr : `/album/${folderStr}`;
-            const title = item.public_id ? item.public_id.split("/").pop() || "Cloudinary Image" : "Cloudinary Asset";
+            const rawTitle = item.public_id ? item.public_id.split("/").pop() || "" : "";
+            const title = formatEventTitle(rawTitle, item.folder || item.category || cat);
             return {
               src: url,
               alt: title,

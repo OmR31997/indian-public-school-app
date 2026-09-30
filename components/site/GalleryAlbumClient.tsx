@@ -45,7 +45,7 @@ const FORBIDDEN_TERMS = [
   "press_release",
   "news release",
   "media release",
-  "press_doc",
+  "press_doc"
 ];
 
 function isStaffStudentOrPressItem(item: Record<string, unknown>): boolean {
@@ -68,7 +68,8 @@ function isStaffStudentOrPressItem(item: Record<string, unknown>): boolean {
     name.includes("staff profile") ||
     name.includes("student profile") ||
     name.includes("press release") ||
-    name.includes("press document")
+    name.includes("press document") ||
+    name.includes("setting")
   ) {
     return true;
   }
@@ -110,6 +111,22 @@ function isStaffStudentOrPressUrl(url: string): boolean {
     return true;
   }
   return false;
+}
+
+function formatEventTitle(rawName?: string, fallbackType?: string): string {
+  const str = String(rawName || "").trim();
+  if (
+    !str ||
+    /\.(jpg|jpeg|png|webp|gif|svg|avif|pdf|mp4)$/i.test(str) ||
+    /^upload-\d+$/i.test(str) ||
+    /^cdn-\d+$/i.test(str) ||
+    str.toLowerCase().startsWith("facility-") ||
+    str.toLowerCase().startsWith("banner_") ||
+    str.toLowerCase().startsWith("hero-")
+  ) {
+    return String(fallbackType || "School Album").trim();
+  }
+  return text(str, fallbackType || "School Album");
 }
 
 function mapEventTypeToCategory(rawType: unknown): Category {
@@ -321,7 +338,7 @@ export function GalleryAlbumClient({
           .filter((item) => !isStaffStudentOrPressItem(item))
           .flatMap((item: any) => {
             const cat = mapEventTypeToCategory(item.eventType || item.category || item.directory);
-            const albumName = text(item.eventName || item.title || item.album, "School Album");
+            const albumName = formatEventTitle(item.eventName || item.title || item.album, item.eventType || cat);
             const dir = String(item.directoryName || item.directory || "").trim() || `/album/${cat.toLowerCase()}`;
             const urls = Array.isArray(item.fileUrl)
               ? item.fileUrl
@@ -348,7 +365,8 @@ export function GalleryAlbumClient({
             const cat = mapEventTypeToCategory(item.folder || item.category);
             const folderStr = String(item.folder || item.category || "general").toLowerCase();
             const dir = folderStr.startsWith("/album/") ? folderStr : `/album/${folderStr}`;
-            const title = item.public_id ? item.public_id.split("/").pop() || "Cloudinary Image" : "Cloudinary Asset";
+            const rawTitle = item.public_id ? item.public_id.split("/").pop() || "" : "";
+            const title = formatEventTitle(rawTitle, item.folder || item.category || cat);
             return {
               src: url,
               alt: title,
@@ -521,10 +539,6 @@ export function GalleryAlbumClient({
               )}
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 text-xs font-semibold text-gold">
-              <span>{isAlbumMode ? "Curated Photo Albums (/album/*)" : "Official Media & Photo Repository"}</span>
-            </div>
-
             <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
               {isAlbumMode ? (
                 <>Photo Albums <span className="text-gold">&</span> Media Collections</>
@@ -532,11 +546,11 @@ export function GalleryAlbumClient({
                 <>School Gallery <span className="text-gold">&</span> Photo Collections</>
               )}
             </h1>
-            <p className="mt-3 max-w-2xl text-sm text-navy-foreground/80 sm:text-base">
+            {/* <p className="mt-3 max-w-2xl text-sm text-navy-foreground/80 sm:text-base">
               {isAlbumMode
                 ? "Browse curated photo albums and media archives under /album/*. Select an album category or search by event name."
                 : "Browse through our comprehensive collection of campus architecture, sports meets, cultural events, student activities, and school celebrations."}
-            </p>
+            </p> */}
 
             {/* Quick Stats Pill */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-navy-foreground/90">

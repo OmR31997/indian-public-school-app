@@ -105,16 +105,21 @@ export function RecordDialog({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("album", resource.label);
+      if ((resource.key as string) === "school-settings" || (resource.key as string) === "settings") {
+        formData.append("album", "Settings");
+        formData.append("folder", "indian-public-school/assets/Settings");
+      } else {
+        formData.append("album", resource.label);
 
-      const targetFolder =
-        (typeof values.directory === "string" && values.directory.trim()) ||
-        (typeof values.folder === "string" && values.folder.trim()) ||
-        (typeof values.cloudinaryFolder === "string" && values.cloudinaryFolder.trim()) ||
-        "";
+        const targetFolder =
+          (typeof values.directory === "string" && values.directory.trim()) ||
+          (typeof values.folder === "string" && values.folder.trim()) ||
+          (typeof values.cloudinaryFolder === "string" && values.cloudinaryFolder.trim()) ||
+          "";
 
-      if (targetFolder) {
-        formData.append("folder", targetFolder);
+        if (targetFolder) {
+          formData.append("folder", targetFolder);
+        }
       }
 
       const res = await axios.post(`${API_URL}/uploads`, formData, {
@@ -620,6 +625,8 @@ export function RecordDialog({
                           setValue("directory", "indian-public-school/assets/News");
                         } else if (val === "Infrastructure") {
                           setValue("directory", "indian-public-school/assets/Infrastructure");
+                        } else if (val === "Settings") {
+                          setValue("directory", "indian-public-school/assets/Settings");
                         } else {
                           setValue("directory", `/album/${val}`);
                         }

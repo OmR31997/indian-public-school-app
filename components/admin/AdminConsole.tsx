@@ -252,7 +252,7 @@ export function AdminConsole() {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/v1/pages/published`)
+      .get(`${API_URL}/pages/published`)
       .then((res) => {
         const items = Array.isArray(res.data) ? res.data : Array.isArray(res.data?.items) ? res.data.items : [];
         if (items.length > 0) setPublishedPages(items);

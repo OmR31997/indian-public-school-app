@@ -234,12 +234,13 @@ export const RESOURCE_FILTERS: Record<string, { label: string; key: string; opti
     { label: "Status", key: "status", options: ["All", "New", "In Progress", "Contacted", "Resolved", "Closed"] },
   ],
   gallery: [
-    { label: "Event Type", key: "eventType", options: ["All", "General", "AdmissionDocuments", "Documents", "News", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Awareness", "Celebration", "Academic", "Infrastructure"] },
+    { label: "Event Type", key: "eventType", options: ["All", "General", "Settings", "AdmissionDocuments", "Documents", "News", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Awareness", "Celebration", "Academic", "Infrastructure"] },
     {
       label: "Directory",
       key: "directory",
       options: [
         "All",
+        "indian-public-school/assets/Settings",
         "indian-public-school/assets/AdmissionDocuments",
         "indian-public-school/assets/Documents",
         "indian-public-school/assets/News",

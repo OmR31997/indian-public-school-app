@@ -166,22 +166,31 @@ export function CloudinaryGalleryModal({
             const urls = Array.isArray(item.fileUrl)
               ? item.fileUrl
               : typeof item.fileUrl === "string" && item.fileUrl.trim()
-              ? [item.fileUrl]
-              : [];
+                ? [item.fileUrl]
+                : [];
             if (urls.length === 0) return [];
             return urls.map((url: string, uIdx: number) => {
+              const lowerUrl = url.toLowerCase();
+              const lowerDir = String(item.directory || item.folder || "").toLowerCase();
+              const isSettingsAsset = lowerUrl.includes("/settings/") || lowerDir.includes("settings") || item.eventType === "Settings";
+
               const dir =
                 item.directory ||
                 item.folder ||
                 (url.toLowerCase().includes("admissiondocuments")
                   ? "indian-public-school/assets/AdmissionDocuments"
+                  : isSettingsAsset
+                  ? "indian-public-school/assets/Settings"
                   : item.eventType || item.album || item.category || "General");
+
               return {
                 id: item._id || item.id ? `${item._id || item.id}-${uIdx}` : `media-${idx}-${uIdx}`,
                 url,
                 title: item.eventName || item.title || item.album || `Gallery Media #${idx + 1}${urls.length > 1 ? ` (${uIdx + 1})` : ""}`,
                 category: dir.toLowerCase().includes("admissiondocuments")
                   ? "AdmissionDocuments"
+                  : isSettingsAsset || dir.toLowerCase().includes("settings")
+                  ? "Settings"
                   : (item.eventType || item.category || dir || "General"),
                 directory: dir,
                 source: item.isCdnResource ? "cloudinary" : "database",
@@ -221,17 +230,25 @@ export function CloudinaryGalleryModal({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("album", activeCategory === "AdmissionDocuments" ? "AdmissionDocuments" : "Visual Editor Picked");
+      const isSettingsCategory = activeCategory && (activeCategory.toLowerCase().includes("setting") || activeCategory === "Settings");
+      formData.append("album", isSettingsCategory ? "Settings" : activeCategory === "AdmissionDocuments" ? "AdmissionDocuments" : "Visual Editor Picked");
       if (activeCategory && activeCategory !== "All") {
-        formData.append("folder", activeCategory === "AdmissionDocuments" ? "indian-public-school/assets/AdmissionDocuments" : activeCategory);
+        formData.append(
+          "folder",
+          isSettingsCategory
+            ? "indian-public-school/assets/Settings"
+            : activeCategory === "Settings"
+              ? "indian-public-school/assets/AdmissionDocuments"
+              : activeCategory
+        );
       }
 
       const token =
         typeof window !== "undefined"
           ? localStorage.getItem("ips_admin_token") ||
-            localStorage.getItem("admin_token") ||
-            localStorage.getItem("token") ||
-            ""
+          localStorage.getItem("admin_token") ||
+          localStorage.getItem("token") ||
+          ""
           : "";
 
       const headers: Record<string, string> = {
@@ -270,6 +287,7 @@ export function CloudinaryGalleryModal({
     const categoryMap = new Map<string, string>(); // lowerCaseKey -> cleanCategoryKey
 
     categoryMap.set("all", "All");
+    categoryMap.set("settings", "Settings");
     categoryMap.set("admissiondocuments", "AdmissionDocuments");
 
     mediaList.forEach((m) => {
@@ -398,11 +416,10 @@ export function CloudinaryGalleryModal({
                 key={cat}
                 type="button"
                 onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition whitespace-nowrap shrink-0 cursor-pointer ${
-                  isSelected
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition whitespace-nowrap shrink-0 cursor-pointer ${isSelected
                     ? "bg-[#1a5d9c] text-white shadow-xs"
                     : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
-                }`}
+                  }`}
               >
                 {displayLabel}
               </button>
@@ -445,11 +462,10 @@ export function CloudinaryGalleryModal({
                   <div
                     key={item.id}
                     onClick={() => setSelectedUrl(item.url)}
-                    className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 transition-all shadow-2xs ${
-                      isSelected
+                    className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 transition-all shadow-2xs ${isSelected
                         ? "border-[#1a5d9c] ring-4 ring-blue-100 bg-blue-50/20"
                         : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md"
-                    }`}
+                      }`}
                   >
                     <div className="aspect-video w-full overflow-hidden bg-slate-900 flex items-center justify-center relative">
                       {fileType === "video" ? (
