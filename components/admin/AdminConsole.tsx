@@ -64,6 +64,7 @@ import { getCloudinaryPdfThumbnailUrl, isPdfFile, getCloudinaryInlineViewerUrl }
 import { imageUrl } from "@/lib/site-data";
 import { useInquiryNotifications } from "@/lib/hooks/useInquiryNotifications";
 import { CareersAdmin } from "@/components/admin/careers/CareersAdmin";
+import { ThemeManagementTab } from "@/components/admin/tabs/ThemeManagementTab";
 import { useCareerNotifications } from "@/lib/hooks/useCareerNotifications";
 import {
   RecordItem,
@@ -655,7 +656,7 @@ export function AdminConsole() {
           )}
         </div>
       </header>
-      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }} onDelete={remove} canCreate={canUpdateResource(current.key)} canEdit={canUpdateResource(current.key)} canDelete={canDeleteResource(current.key)} token={token} />}</div>
+      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : active === "theme" ? <ThemeManagementTab token={token} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }} onDelete={remove} canCreate={canUpdateResource(current.key)} canEdit={canUpdateResource(current.key)} canDelete={canDeleteResource(current.key)} token={token} />}</div>
     </section>
     {formOpen && current && (
       <RecordDialog

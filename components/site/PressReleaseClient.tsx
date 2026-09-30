@@ -333,31 +333,38 @@ export function PressReleaseClient() {
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24 text-slate-900 flex flex-col font-sans">
       {/* Hero Header */}
-      <section className="relative overflow-hidden bg-navy-deep py-12 sm:py-16 text-navy-foreground border-b border-gold/30 shadow-2xl">
+      <section
+        className="relative overflow-hidden py-12 sm:py-16 text-navy-foreground border-b border-[var(--gold)]/30 shadow-2xl"
+        style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
+      >
         <div className="absolute inset-0 z-0 opacity-20 bg-[radial-gradient(#d4af37_1px,transparent_1px)] [background-size:24px_24px]" />
         <div className="container-page relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
           <nav
             aria-label="Breadcrumb"
-            className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white/90 backdrop-blur-md mb-6 shadow-md"
+            className="inline-flex items-center gap-2 border border-[var(--gold)]/40 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white/90 backdrop-blur-md mb-6 shadow-md"
+            style={{ borderRadius: "var(--badge-radius, 9999px)" }}
           >
-            <GraduationCap className="size-4 text-gold shrink-0 mr-1" />
-            <Link href="/" className="hover:text-gold transition-colors text-white/80">
+            <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-1" />
+            <Link href="/" className="hover:text-[var(--gold)] transition-colors text-white/80">
               Home
             </Link>
-            <span className="text-gold font-bold">*</span>
-            <span className="text-gold font-bold drop-shadow">Press Release</span>
+            <span className="text-[var(--gold)] font-bold">*</span>
+            <span className="text-[var(--gold)] font-bold drop-shadow">Press Release</span>
           </nav>
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-gold/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold border border-gold/40">
+              <span
+                className="inline-flex items-center gap-1.5 bg-[var(--gold)]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--gold)] border border-[var(--gold)]/40"
+                style={{ borderRadius: "var(--badge-radius, 9999px)" }}
+              >
                 <Newspaper className="size-3.5" /> Official Media Archives
               </span>
-              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md">
+              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md font-[var(--font-display)]">
                 Press Releases & Media Coverage
               </h1>
               <p className="text-slate-200 text-sm sm:text-base leading-relaxed">
-                Explore our official press clippings, newspaper publications, academic merit announcements, and media honors inside <code className="text-gold bg-black/30 px-1.5 py-0.5 rounded border border-gold/30">assets/PressRelease</code>.
+                Explore our official press clippings, newspaper publications, academic merit announcements, and media honors inside <code className="text-[var(--gold)] bg-black/30 px-1.5 py-0.5 rounded border border-[var(--gold)]/30">assets/PressRelease</code>.
               </p>
             </div>
 
@@ -369,7 +376,7 @@ export function PressReleaseClient() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search press releases..."
-                className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-300 shadow-inner outline-none transition-all focus:border-gold focus:ring-2 focus:ring-gold/30"
+                className="w-full pl-10 pr-4 py-2.5 bg-white/10 text-white placeholder:text-slate-300 text-xs border border-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/50 backdrop-blur-md transition-all"
               />
               {searchQuery && (
                 <button

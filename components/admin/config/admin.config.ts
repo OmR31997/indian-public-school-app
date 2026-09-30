@@ -9,6 +9,7 @@ import {
   Menu,
   ShieldCheck,
   Briefcase,
+  Palette,
 } from "lucide-react";
 import { Resource, ResourceKey, QueryParamsState } from "../types/admin.types";
 
@@ -27,6 +28,7 @@ export const resourcePath: Record<ResourceKey, string> = {
   pages: "pages",
   users: "auth/users",
   careers: "careers",
+  theme: "theme",
 };
 
 export const resources: Resource[] = [
@@ -187,6 +189,15 @@ export const resources: Resource[] = [
     fields: ["title", "qualification", "isActive", "createdAt"],
     inputs: { title: "text", qualification: "text", image: "file", description: "textarea", isActive: "boolean" },
   },
+  {
+    key: "theme",
+    label: "Theme & Appearance",
+    description: "Public web theme studio, color palettes, and visual customization",
+    icon: Palette,
+    protected: true,
+    fields: ["name", "slug", "isActive", "isPreset", "createdAt"],
+    inputs: { name: "text", description: "textarea", isActive: "boolean" },
+  },
 ];
 
 export const OPTIONAL_FIELDS = new Set([
@@ -223,6 +234,7 @@ export const resourceSections: Record<ResourceKey, (typeof sectionNames)[number]
   "school-settings": "System",
   users: "System",
   careers: "People",
+  theme: "System",
 };
 
 export const DEFAULT_QUERY: QueryParamsState = {

@@ -59,7 +59,7 @@ export function AdmissionApplicationModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-[#082A52]/70 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-[var(--navy-deep)]/75 backdrop-blur-sm transition-opacity"
         />
 
         {/* Modal Window */}
@@ -68,19 +68,26 @@ export function AdmissionApplicationModal() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.25, ease: EASE }}
-          className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-[#dce6f2] bg-white text-slate-900 shadow-2xl my-auto flex flex-col"
+          className="relative z-10 w-full max-w-lg overflow-hidden border border-border bg-white text-slate-900 shadow-2xl my-auto flex flex-col"
+          style={{ borderRadius: "var(--card-radius, 1.5rem)" }}
         >
-          {/* Header Banner - Standard School Blue & Gold Combination */}
-          <div className="p-5 sm:p-6 border-b border-[#dce6f2] bg-gradient-to-r from-[#082A52] via-[#123B70] to-[#1a5d9c] text-white shrink-0">
+          {/* Header Banner - Standard School Theme Navy & Gold Combination */}
+          <div
+            className="p-5 sm:p-6 border-b border-white/10 text-white shrink-0"
+            style={{ background: "var(--gradient-navy, linear-gradient(140deg, #082A52, #123B70, #1a5d9c))" }}
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <div className="inline-flex items-center rounded-full bg-[#F4C430]/20 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#F4C430] border border-[#F4C430]/30">
+                <div
+                  className="inline-flex items-center bg-[var(--gold)]/20 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[var(--gold)] border border-[var(--gold)]/30"
+                  style={{ borderRadius: "var(--badge-radius, 9999px)" }}
+                >
                   Academic Session 2026–27
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white font-[var(--font-display)]">
                   Quick Admission Enquiry
                 </h2>
-                <p className="text-xs text-[#dbeafe] max-w-sm font-medium">
+                <p className="text-xs text-blue-100 max-w-sm font-medium">
                   Provide the 4 quick details below and our admissions team will get back to you immediately.
                 </p>
               </div>
@@ -88,7 +95,8 @@ export function AdmissionApplicationModal() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="grid size-8 place-items-center rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition cursor-pointer shrink-0 border border-white/20 font-bold text-sm"
+                className="grid size-8 place-items-center bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition cursor-pointer shrink-0 border border-white/20 font-bold text-sm"
+                style={{ borderRadius: "var(--btn-radius, 9999px)" }}
                 title="Close Form"
               >
                 ✕

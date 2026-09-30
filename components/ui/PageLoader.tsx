@@ -17,10 +17,16 @@ export function PageLoader({
 }: PageLoaderProps) {
   if (variant === "inline") {
     return (
-      <div className={cn("flex items-center justify-center gap-3 py-8 text-[#102a4c]", className)}>
-        <div className="relative flex size-10 items-center justify-center rounded-full bg-[#102a4c] text-[#f4bd4f] shadow-md">
-          <div className="absolute inset-0 rounded-full border-2 border-gold/40 border-t-gold animate-spin" />
-          <GraduationCap className="size-5 text-[#f4bd4f]" />
+      <div className={cn("flex items-center justify-center gap-3 py-8 text-[var(--navy)]", className)}>
+        <div
+          className="relative flex size-10 items-center justify-center bg-[var(--navy)] text-[var(--gold)] shadow-md"
+          style={{ borderRadius: "var(--logo-radius, 50%)" }}
+        >
+          <div
+            className="absolute inset-0 border-2 border-[var(--gold)]/40 border-t-[var(--gold)] animate-spin"
+            style={{ borderRadius: "var(--logo-radius, 50%)" }}
+          />
+          <GraduationCap className="size-5 text-[var(--gold)]" />
         </div>
         <span className="text-xs font-semibold text-slate-700">{message}</span>
       </div>
@@ -37,26 +43,35 @@ export function PageLoader({
     >
       <div className="relative flex items-center justify-center mb-6">
         {/* Outer glowing pulsing aura */}
-        <div className="absolute size-24 rounded-full bg-amber-400/20 blur-xl animate-pulse" />
+        <div className="absolute size-24 rounded-full bg-[var(--gold)]/20 blur-xl animate-pulse" />
         
         {/* Rotating golden accent ring */}
-        <div className="absolute size-20 rounded-full border-2 border-transparent border-t-amber-400 border-r-amber-500 animate-spin" style={{ animationDuration: "1.2s" }} />
+        <div className="absolute size-20 rounded-full border-2 border-transparent border-t-[var(--gold)] border-r-[var(--gold)] animate-spin" style={{ animationDuration: "1.2s" }} />
         
         {/* Counter-rotating inner ring */}
-        <div className="absolute size-16 rounded-full border-2 border-transparent border-b-[#1a5d9c] border-l-[#102a4c] animate-spin" style={{ animationDuration: "1.8s", animationDirection: "reverse" }} />
+        <div className="absolute size-16 rounded-full border-2 border-transparent border-b-[var(--primary)] border-l-[var(--navy)] animate-spin" style={{ animationDuration: "1.8s", animationDirection: "reverse" }} />
 
         {/* Center School Badge Container */}
-        <div className="relative z-10 grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-[#102a4c] to-[#1a5d9c] text-white shadow-lg border border-amber-400/40">
-          <GraduationCap className="size-6 text-[#f4bd4f] animate-bounce" style={{ animationDuration: "2s" }} />
+        <div
+          className="relative z-10 grid size-12 place-items-center text-white shadow-lg border border-[var(--gold)]/40"
+          style={{
+            background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))",
+            borderRadius: "var(--logo-radius, 1rem)",
+          }}
+        >
+          <GraduationCap className="size-6 text-[var(--gold)] animate-bounce" style={{ animationDuration: "2s" }} />
         </div>
       </div>
 
       {/* School Name Tag */}
-      <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-50 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#102a4c] shadow-xs mb-2">
+      <div
+        className="inline-flex items-center gap-1.5 border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[var(--navy)] shadow-xs mb-2"
+        style={{ borderRadius: "var(--badge-radius, 9999px)" }}
+      >
         Indian Public School
       </div>
 
-      <h3 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">
+      <h3 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight font-[var(--font-display)]">
         {message}
       </h3>
       <p className="mt-1 text-xs text-slate-500 max-w-xs leading-relaxed">
@@ -65,9 +80,9 @@ export function PageLoader({
 
       {/* Progress Dots */}
       <div className="mt-4 flex items-center gap-1.5">
-        <span className="size-2 rounded-full bg-[#102a4c] animate-bounce" style={{ animationDelay: "0ms" }} />
-        <span className="size-2 rounded-full bg-[#1a5d9c] animate-bounce" style={{ animationDelay: "150ms" }} />
-        <span className="size-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+        <span className="size-2 rounded-full bg-[var(--navy)] animate-bounce" style={{ animationDelay: "0ms" }} />
+        <span className="size-2 rounded-full bg-[var(--primary)] animate-bounce" style={{ animationDelay: "150ms" }} />
+        <span className="size-2 rounded-full bg-[var(--gold)] animate-bounce" style={{ animationDelay: "300ms" }} />
       </div>
     </div>
   );

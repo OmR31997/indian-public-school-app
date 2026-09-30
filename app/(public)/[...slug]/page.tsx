@@ -413,39 +413,42 @@ export default async function ContentPage({
 
   return (
     <main className="flex-1">
-      <section className="relative overflow-hidden bg-[#091b36] py-12 sm:py-16 text-white shadow-xl border-b-2 border-gold/40">
+      <section
+        className="relative overflow-hidden py-14 sm:py-18 text-white shadow-xl border-b-2 border-[var(--gold)]/40"
+        style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
+      >
         <div className="absolute inset-0 z-0">
           <img
             src={bannerImg}
             alt={title}
-            className="h-full w-full object-cover object-center filter brightness-[0.45] contrast-[1.1] opacity-75 scale-105 transition-transform duration-700 hover:scale-100"
+            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] opacity-60 scale-105 transition-transform duration-700 hover:scale-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#07162c]/95 via-[#102a4c]/85 to-[#091c36]/95" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-transparent opacity-80 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-blue-600/30 via-transparent to-transparent opacity-70 pointer-events-none" />
-          <div className="absolute inset-0 bg-[#102a4c]/20 backdrop-blur-[1px]" />
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f4bd4f] to-transparent opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[var(--gold)]/20 via-transparent to-transparent opacity-80 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-90" />
         </div>
 
         <div className="container-page relative z-10 max-w-5xl flex flex-col items-start gap-4">
           <nav
             aria-label="Breadcrumb"
-            className="inline-flex flex-wrap items-center gap-2.5 rounded-full border border-gold/40 bg-[#07172e]/85 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
+            className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-950/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
+            style={{ borderRadius: "var(--badge-radius, 9999px)" }}
           >
-            <GraduationCap className="size-4 text-gold shrink-0 mr-0.5" />
+            <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-0.5" />
             {breadcrumbs.map((item, idx) => {
               const isLast = idx === breadcrumbs.length - 1;
               return (
                 <div key={idx} className="inline-flex items-center gap-2.5">
-                  {idx > 0 && <span className="text-gold font-extrabold text-xs sm:text-sm">*</span>}
+                  {idx > 0 && <span className="text-[var(--gold)] font-extrabold text-xs sm:text-sm">*</span>}
                   {isLast ? (
-                    <span className="font-bold text-gold drop-shadow-sm">
+                    <span className="font-bold text-[var(--gold)] drop-shadow-sm">
                       {item.label}
                     </span>
                   ) : (
                     <Link
                       href={item.href}
-                      className="transition-colors hover:text-gold hover:underline text-white/80"
+                      className="transition-colors hover:text-[var(--gold)] hover:underline text-white/80"
                     >
                       {item.label}
                     </Link>
@@ -456,11 +459,7 @@ export default async function ContentPage({
           </nav>
 
           <div className="mt-2 space-y-2.5">
-            {/* <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gold/25 via-amber-500/15 to-transparent px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#ffd983] border border-gold/50 shadow-sm backdrop-blur-xs">
-              <span className="h-2 w-2 rounded-full bg-[#f4bd4f] animate-pulse" />
-              Official School Document & Information
-            </span> */}
-            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight font-[var(--font-display)]">
               {title}
             </h1>
           </div>
@@ -509,7 +508,8 @@ export default async function ContentPage({
                     href={docUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-xs font-bold text-white shadow-soft transition hover:bg-[#102a4c]"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[var(--primary)] hover:bg-[var(--navy)] px-5 py-2.5 text-xs font-bold text-[var(--primary-foreground)] shadow-soft transition-all"
+                    style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                   >
                     <Download size={14} />
                     View / Download Document

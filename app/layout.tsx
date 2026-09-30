@@ -66,6 +66,7 @@ export const metadata: Metadata = {
 
 import { Suspense } from "react";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -81,10 +82,12 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <Suspense fallback={null}>
-          <NavigationProgress />
-        </Suspense>
-        {children}
+        <ThemeProvider>
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

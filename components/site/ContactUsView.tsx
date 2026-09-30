@@ -290,21 +290,25 @@ export function ContactUsView() {
         <div className="container-page relative z-10 max-w-6xl">
           <nav
             aria-label="Breadcrumb"
-            className="inline-flex flex-wrap items-center gap-2.5 rounded-full border border-gold/40 bg-slate-900/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-xl backdrop-blur-md sm:text-sm"
+            className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-900/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-xl backdrop-blur-md sm:text-sm"
+            style={{ borderRadius: "var(--badge-radius, 9999px)" }}
           >
-            <GraduationCap className="size-4 text-gold shrink-0 mr-0.5" />
-            <Link href="/" className="hover:text-gold transition-colors">
+            <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-0.5" />
+            <Link href="/" className="hover:text-[var(--gold)] transition-colors">
               Home
             </Link>
-            <span className="text-gold font-extrabold">*</span>
-            <span className="text-gold font-bold">Contact Us</span>
+            <span className="text-[var(--gold)] font-extrabold">*</span>
+            <span className="text-[var(--gold)] font-bold">Contact Us</span>
           </nav>
 
           <div className="mt-6 max-w-3xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1 text-xs font-semibold tracking-wide text-gold border border-gold/30 uppercase">
+            <span
+              className="inline-flex items-center gap-1.5 bg-[var(--gold)]/20 px-3 py-1 text-xs font-semibold tracking-wide text-[var(--gold)] border border-[var(--gold)]/30 uppercase"
+              style={{ borderRadius: "var(--badge-radius, 9999px)" }}
+            >
               Get In Touch
             </span>
-            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-5xl font-serif">
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-5xl font-[var(--font-display)]">
               We&apos;re Here to Assist You
             </h1>
             <p className="mt-3 text-base text-slate-300 sm:text-lg leading-relaxed">

@@ -439,7 +439,8 @@ export function Navbar() {
           <Link
             href="/#enquiry"
             onClick={(e) => handleNavClick("/#enquiry", e)}
-            className="hidden rounded-full sm:inline-flex items-center justify-center text-white cursor-pointer bg-[#1a5d9c] hover:bg-[#102a4c] px-4 py-2 text-xs font-semibold transition-all hover:scale-105"
+            className="hidden sm:inline-flex items-center justify-center text-[var(--primary-foreground)] cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] px-4 py-2 text-xs font-bold transition-all hover:scale-105 shadow-xs"
+            style={{ borderRadius: "var(--btn-radius, 9999px)" }}
           >
             Enquiry
           </Link>
@@ -657,7 +658,8 @@ export function Navbar() {
                 <Link
                   href="/#enquiry"
                   onClick={(e) => handleNavClick("/#enquiry", e)}
-                  className="flex w-full items-center justify-center rounded-full cursor-pointer bg-[#1a5d9c] hover:bg-[#102a4c] text-white font-bold py-2.5 text-sm"
+                  className="flex w-full items-center justify-center cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] text-[var(--primary-foreground)] font-bold py-2.5 text-sm transition-all"
+                  style={{ borderRadius: "var(--btn-radius, 9999px)" }}
                 >
                   Enquiry
                 </Link>

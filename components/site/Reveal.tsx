@@ -71,15 +71,15 @@ export function SectionHeading({
       <span
         className={cn(
           "eyebrow",
-          tone === "dark" && "text-gold",
+          tone === "dark" ? "text-[var(--gold)]" : "text-[var(--primary)]",
         )}
       >
-        <span className="h-px w-8 bg-gold" aria-hidden />
+        <span className="h-px w-8 bg-[var(--gold)]" aria-hidden />
         {eyebrow}
       </span>
       <h2
         className={cn(
-          "mt-4 text-3xl leading-[1.1] sm:text-4xl lg:text-5xl",
+          "mt-4 text-3xl leading-[1.1] sm:text-4xl lg:text-5xl font-[var(--font-display)]",
           tone === "dark" ? "text-navy-foreground" : "text-foreground",
         )}
       >

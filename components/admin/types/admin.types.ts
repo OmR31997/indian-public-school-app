@@ -12,7 +12,8 @@ export type ResourceKey =
   | "menu-items"
   | "pages"
   | "users"
-  | "careers";
+  | "careers"
+  | "theme";
 
 export type InputType =
   | "text"

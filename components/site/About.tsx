@@ -61,7 +61,8 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="group relative overflow-hidden rounded-[2.2rem] border border-slate-200/80 bg-slate-950 shadow-2xl shadow-slate-900/15 dark:border-slate-800"
+            className="group relative overflow-hidden bg-slate-950 shadow-2xl shadow-slate-900/15 dark:border-slate-800"
+            style={{ borderRadius: "var(--card-radius, 2rem)", border: "1px solid var(--border, rgba(226, 232, 240, 0.8))" }}
           >
             <UniversalMedia
               src={videoSource}
@@ -76,7 +77,7 @@ export function About() {
               aspectRatio="auto"
               objectFit="cover"
               className="w-full h-full object-cover min-h-[300px] sm:min-h-[400px] lg:min-h-[480px] xl:min-h-[520px]"
-              containerClassName="w-full rounded-[2.2rem] overflow-hidden min-h-[300px] sm:min-h-[400px] lg:min-h-[480px] xl:min-h-[520px]"
+              containerClassName="w-full overflow-hidden min-h-[300px] sm:min-h-[400px] lg:min-h-[480px] xl:min-h-[520px]"
             />
           </motion.div>
 
@@ -86,7 +87,8 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            className="flex items-center gap-4 bg-white dark:bg-slate-900 p-3.5 shadow-sm dark:border-slate-800"
+            style={{ borderRadius: "var(--card-radius, 1rem)", border: "1px solid var(--border, rgba(226, 232, 240, 0.7))" }}
           >
             <img
               src={briefImage}
@@ -94,10 +96,11 @@ export function About() {
               width={120}
               height={80}
               loading="lazy"
-              className="h-14 w-20 flex-shrink-0 rounded-xl object-cover"
+              className="h-14 w-20 flex-shrink-0 object-cover"
+              style={{ borderRadius: "calc(var(--card-radius, 1rem) * 0.7)" }}
             />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+              <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--gold, #d97706)" }}>
                 School Campus
               </p>
               <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -110,12 +113,23 @@ export function About() {
         {/* Right Column: About Content */}
         <div className="lg:col-span-6">
           <Reveal>
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-amber-200/80 bg-amber-50/80 px-3.5 py-1 text-xs font-bold tracking-wider uppercase text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            <div
+              className="inline-flex items-center gap-2.5 px-3.5 py-1 text-xs font-extrabold tracking-wider uppercase backdrop-blur-md shadow-sm border"
+              style={{
+                borderRadius: "var(--badge-radius, 9999px)",
+                background: "var(--gold-soft, rgba(244, 189, 79, 0.15))",
+                borderColor: "var(--gold, #f4bd4f)",
+                color: "var(--navy, #102a4c)",
+              }}
+            >
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--gold, #f4bd4f)" }} />
               {text(section.heading, "About Our School")}
             </div>
 
-            <h2 className="mt-4 text-3xl font-extrabold leading-[1.15] text-[#102a4c] dark:text-slate-100 sm:text-4xl lg:text-5xl">
+            <h2
+              className="mt-4 text-3xl font-extrabold leading-[1.15] dark:text-slate-100 sm:text-4xl lg:text-5xl font-[var(--font-display)]"
+              style={{ color: "var(--navy, #102a4c)" }}
+            >
               {text(section.subHeading)}
             </h2>
 
@@ -142,13 +156,30 @@ export function About() {
                 <Reveal key={`${title || "about-card"}-${i}`} delay={0.1 * i}>
                   <a
                     href={redirectUrl || undefined}
-                    className="group block h-full rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-400/60 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-amber-500/40"
+                    className="group block h-full p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800"
+                    style={{
+                      borderRadius: "var(--card-radius, 1rem)",
+                      background: "var(--card, #ffffff)",
+                      border: "1px solid var(--border, rgba(226, 232, 240, 0.8))",
+                    }}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="grid size-11 place-items-center rounded-xl bg-[#1a5d9c]/10 text-[#1a5d9c] transition-colors group-hover:bg-[#1a5d9c] group-hover:text-white dark:bg-slate-800 dark:text-amber-400">
+                      <span
+                        className="grid size-11 place-items-center transition-all group-hover:scale-105"
+                        style={{
+                          borderRadius: "calc(var(--card-radius, 1rem) * 0.75)",
+                          background: "var(--gold-soft, rgba(244, 189, 79, 0.15))",
+                          color: "var(--primary, #102a4c)",
+                        }}
+                      >
                         <Icon className="size-5" />
                       </span>
-                      <h3 className="text-lg font-bold text-[#102a4c] dark:text-slate-100">{title}</h3>
+                      <h3
+                        className="text-lg font-bold dark:text-slate-100 font-[var(--font-display)]"
+                        style={{ color: "var(--navy, #102a4c)" }}
+                      >
+                        {title}
+                      </h3>
                     </div>
                     <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                       {text(card.description)}
@@ -160,7 +191,15 @@ export function About() {
           </div>
 
           <Reveal delay={0.2}>
-            <Button asChild size="lg" className="group mt-8 rounded-full bg-[#102a4c] hover:bg-[#1a5d9c] text-white px-7 shadow-md">
+            <Button
+              asChild
+              size="lg"
+              className="group mt-8 text-white px-7 shadow-lg transition-all duration-300 hover:opacity-90 hover:scale-[1.02]"
+              style={{
+                borderRadius: "var(--btn-radius, 9999px)",
+                background: "var(--gradient-navy, var(--navy, #102a4c))",
+              }}
+            >
               <a href={text((section.btnLinkText as Record<string, unknown> | undefined)?.url, "#academics")}>
                 {text(
                   (section.btnLinkText as Record<string, unknown> | undefined)

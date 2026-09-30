@@ -522,44 +522,48 @@ export function GalleryAlbumClient({
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24 pt-8">
       {/* Page Header Banner */}
-      <section className="relative overflow-hidden bg-navy-deep py-16 text-navy-foreground lg:py-20">
+      <section
+        className="relative overflow-hidden py-16 text-navy-foreground lg:py-20"
+        style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
+      >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(217,119,6,0.15),transparent_50%)]" />
         <div className="container-page relative z-10">
           <div className="flex flex-col items-center text-center">
             {/* Breadcrumb */}
-            <div className="mb-4 flex items-center gap-2 text-xs font-medium text-navy-foreground/70">
-              <Link href="/" className="hover:text-gold transition-colors">Home</Link>
+            <div className="mb-4 flex items-center gap-2 text-xs font-medium text-white/80">
+              <Link href="/" className="hover:text-[var(--gold)] transition-colors">Home</Link>
               <span>/</span>
-              <Link href="/gallery" className="hover:text-gold transition-colors">Gallery</Link>
+              <Link href="/gallery" className="hover:text-[var(--gold)] transition-colors">Gallery</Link>
               {isAlbumMode && (
                 <>
                   <span>/</span>
-                  <span className="text-gold font-semibold">Album</span>
+                  <span className="text-[var(--gold)] font-semibold">Album</span>
                 </>
               )}
             </div>
 
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+            <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl font-[var(--font-display)] text-white">
               {isAlbumMode ? (
-                <>Photo Albums <span className="text-gold">&</span> Media Collections</>
+                <>Photo Albums <span className="text-[var(--gold)]">&</span> Media Collections</>
               ) : (
-                <>School Gallery <span className="text-gold">&</span> Photo Collections</>
+                <>School Gallery <span className="text-[var(--gold)]">&</span> Photo Collections</>
               )}
             </h1>
-            {/* <p className="mt-3 max-w-2xl text-sm text-navy-foreground/80 sm:text-base">
-              {isAlbumMode
-                ? "Browse curated photo albums and media archives under /album/*. Select an album category or search by event name."
-                : "Browse through our comprehensive collection of campus architecture, sports meets, cultural events, student activities, and school celebrations."}
-            </p> */}
 
             {/* Quick Stats Pill */}
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-navy-foreground/90">
-              <div className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 backdrop-blur-xs">
-                <ImageIcon className="size-4 text-gold" />
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-white/90">
+              <div
+                className="flex items-center gap-1.5 bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15"
+                style={{ borderRadius: "var(--badge-radius, 9999px)" }}
+              >
+                <ImageIcon className="size-4 text-[var(--gold)]" />
                 <span>{filteredImages.length} High-Res Photos</span>
               </div>
-              <div className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 backdrop-blur-xs">
-                <LayoutGrid className="size-4 text-gold" />
+              <div
+                className="flex items-center gap-1.5 bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15"
+                style={{ borderRadius: "var(--badge-radius, 9999px)" }}
+              >
+                <LayoutGrid className="size-4 text-[var(--gold)]" />
                 <span>{CATEGORIES.length - 1} Categories</span>
               </div>
             </div>

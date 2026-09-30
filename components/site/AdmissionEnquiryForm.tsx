@@ -117,7 +117,7 @@ export function AdmissionEnquiryForm({
           className="py-8 text-center space-y-4"
         >
           <div className="space-y-2">
-            <h3 className="text-2xl font-extrabold text-[#082A52]">
+            <h3 className="text-2xl font-extrabold text-[var(--navy)]">
               Enquiry Received Successfully
             </h3>
             <p className="mx-auto max-w-md text-sm font-medium leading-relaxed text-slate-600">
@@ -126,11 +126,14 @@ export function AdmissionEnquiryForm({
           </div>
 
           {inquiryId && (
-            <div className="mx-auto max-w-xs rounded-2xl border border-[#dce6f2] bg-[#f4f8fd] p-3 space-y-0.5">
-              <span className="block text-[11px] font-bold uppercase tracking-wider text-[#123B70]">
+            <div
+              className="mx-auto max-w-xs border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-3 space-y-0.5"
+              style={{ borderRadius: "var(--card-radius, 1rem)" }}
+            >
+              <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--primary)]">
                 Reference ID
               </span>
-              <span className="font-mono text-base font-bold text-[#082A52]">
+              <span className="font-mono text-base font-bold text-[var(--navy)]">
                 {inquiryId}
               </span>
             </div>
@@ -139,7 +142,8 @@ export function AdmissionEnquiryForm({
           <div className="pt-2 flex items-center justify-center gap-3">
             <Button
               variant="outline"
-              className="rounded-xl border-slate-300 font-bold text-[#123B70] hover:bg-[#f4f8fd]"
+              className="border-slate-300 font-bold text-[var(--primary)] hover:bg-[var(--primary)]/10"
+              style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
               onClick={() => {
                 form.reset();
                 setSubmitted(false);
@@ -150,7 +154,8 @@ export function AdmissionEnquiryForm({
             {onClose && (
               <Button
                 onClick={onClose}
-                className="rounded-xl bg-[#123B70] px-6 font-bold text-white hover:bg-[#082A52]"
+                className="bg-[var(--primary)] px-6 font-bold text-[var(--primary-foreground)] hover:bg-[var(--navy)]"
+                style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
               >
                 Done
               </Button>
@@ -168,13 +173,14 @@ export function AdmissionEnquiryForm({
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-bold text-[#082A52]">
+                      <FormLabel className="text-xs font-bold text-[var(--navy)]">
                         Name
                       </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g. Rahul Sharma"
-                          className="h-11 rounded-xl border-[#dce6f2] bg-[#f4f8fd]/60 text-sm font-medium text-slate-900 focus:bg-white focus:border-[#123B70]"
+                          className="h-11 border-border bg-slate-50/70 text-sm font-medium text-slate-900 focus:bg-white focus:border-[var(--primary)]"
+                          style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                           {...field}
                         />
                       </FormControl>
@@ -189,7 +195,7 @@ export function AdmissionEnquiryForm({
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-bold text-[#082A52]">
+                      <FormLabel className="text-xs font-bold text-[var(--navy)]">
                         Contact Number
                       </FormLabel>
                       <FormControl>
@@ -197,7 +203,8 @@ export function AdmissionEnquiryForm({
                           type="tel"
                           inputMode="tel"
                           placeholder="e.g. +91 9876543210"
-                          className="h-11 rounded-xl border-[#dce6f2] bg-[#f4f8fd]/60 text-sm font-medium text-slate-900 focus:bg-white focus:border-[#123B70]"
+                          className="h-11 border-border bg-slate-50/70 text-sm font-medium text-slate-900 focus:bg-white focus:border-[var(--primary)]"
+                          style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                           {...field}
                         />
                       </FormControl>
@@ -212,12 +219,15 @@ export function AdmissionEnquiryForm({
                   name="inquiryType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-bold text-[#082A52]">
+                      <FormLabel className="text-xs font-bold text-[var(--navy)]">
                         Enquiry Type
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-11 rounded-xl border-[#dce6f2] bg-[#f4f8fd]/60 text-sm font-medium text-slate-900 focus:bg-white focus:border-[#123B70]">
+                          <SelectTrigger
+                            className="h-11 border-border bg-slate-50/70 text-sm font-medium text-slate-900 focus:bg-white focus:border-[var(--primary)]"
+                            style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
+                          >
                             <SelectValue placeholder="Select enquiry type" />
                           </SelectTrigger>
                         </FormControl>
@@ -240,14 +250,15 @@ export function AdmissionEnquiryForm({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-bold text-[#082A52]">
+                      <FormLabel className="text-xs font-bold text-[var(--navy)]">
                         Email Address
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="you@example.com"
-                          className="h-11 rounded-xl border-[#dce6f2] bg-[#f4f8fd]/60 text-sm font-medium text-slate-900 focus:bg-white focus:border-[#123B70]"
+                          className="h-11 border-border bg-slate-50/70 text-sm font-medium text-slate-900 focus:bg-white focus:border-[var(--primary)]"
+                          style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                           {...field}
                         />
                       </FormControl>
@@ -260,7 +271,8 @@ export function AdmissionEnquiryForm({
               <Button
                 type="submit"
                 disabled={submitting}
-                className="mt-2 h-12 w-full cursor-pointer rounded-2xl bg-[#123B70] text-sm font-extrabold text-white shadow-md transition-all hover:bg-[#082A52]"
+                className="mt-2 h-12 w-full cursor-pointer bg-[var(--primary)] text-sm font-extrabold text-[var(--primary-foreground)] shadow-md transition-all hover:bg-[var(--navy)]"
+                style={{ borderRadius: "var(--btn-radius, 1rem)" }}
               >
                 {submitting ? "Submitting..." : "Submit Admission Enquiry"}
               </Button>
