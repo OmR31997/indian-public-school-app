@@ -30,7 +30,7 @@ export function HomeClient({ textContent }: { textContent?: string | null }) {
           <section className="bg-slate-50 py-8 border-y border-slate-100">
             <div className="container-page mx-auto max-w-6xl px-4 sm:px-6">
               <div
-                className="prose max-w-none space-y-6 text-slate-800 leading-relaxed font-sans"
+                className="prose max-w-none space-y-6 text-slate-800 leading-relaxed font-sans dynamic-page-content"
                 dangerouslySetInnerHTML={{ __html: textContent }}
               />
             </div>

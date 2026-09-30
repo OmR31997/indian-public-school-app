@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap");
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 @import "tailwindcss" source(none);
 @source "../app";
@@ -249,9 +250,68 @@
   }
 }
 
-/* Dynamic Page Content Layout & Color Cascade Fixes */
+/* Dynamic Page Content Layout, Color Cascade & Font Family Consistency */
 .dynamic-page-content {
   color: #1e293b;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Ensure all body elements, text, paragraphs, spans, lists, badges, and labels in DB dynamic pages inherit site sans font */
+.dynamic-page-content,
+.dynamic-page-content p,
+.dynamic-page-content li,
+.dynamic-page-content span,
+.dynamic-page-content div,
+.dynamic-page-content blockquote,
+.dynamic-page-content td,
+.dynamic-page-content th,
+.dynamic-page-content a,
+.dynamic-page-content label,
+.dynamic-page-content button,
+.dynamic-page-content [class*="badge"],
+.dynamic-page-content [class*="label"],
+.dynamic-page-content [class*="text"],
+.dynamic-page-content [class*="intro"],
+.dynamic-page-content [class*="stat-label"],
+.dynamic-page-content [class*="description"] {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* High-priority font consistency rules for DB dynamic pages & custom HTML structures (e.g. School Establishment, Mission & Vision, Director Desk) */
+.dynamic-page-content h1,
+.dynamic-page-content h2,
+.dynamic-page-content h3,
+.dynamic-page-content h4,
+.dynamic-page-content h5,
+.dynamic-page-content h6,
+.dynamic-page-content .font-display,
+.dynamic-page-content [class*="header"] h1,
+.dynamic-page-content [class*="header"] h2,
+.dynamic-page-content [class*="heading"] h1,
+.dynamic-page-content [class*="heading"] h2,
+.dynamic-page-content [class*="heading"] h3,
+.dynamic-page-content [class*="title"],
+.dynamic-page-content [class*="ips-"] h1,
+.dynamic-page-content [class*="ips-"] h2,
+.dynamic-page-content [class*="ips-"] h3,
+.dynamic-page-content [class*="ips-"] h4,
+.dynamic-page-content [class*="ips-"] [class*="title"],
+.dynamic-page-content [class*="ips-"] [class*="heading"] {
+  font-family: var(--font-display), ui-serif, Georgia, serif !important;
+}
+
+/* Normalize any legacy inline style font-family overrides in pasted dynamic HTML */
+.dynamic-page-content [style*="font-family" i] {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.dynamic-page-content h1[style*="font-family" i],
+.dynamic-page-content h2[style*="font-family" i],
+.dynamic-page-content h3[style*="font-family" i],
+.dynamic-page-content h4[style*="font-family" i],
+.dynamic-page-content h5[style*="font-family" i],
+.dynamic-page-content h6[style*="font-family" i] {
+  font-family: var(--font-display), ui-serif, Georgia, serif !important;
 }
 
 /* Ensure inline border, background, margin, padding & box-shadow styles take precedence over prose resets */

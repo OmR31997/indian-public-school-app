@@ -886,24 +886,6 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                   </div>
                 </div>
               </div>
-
-              {/* CUSTOM CSS OVERRIDE */}
-              <div className="space-y-2 pt-2">
-                <label className="block text-xs font-extrabold text-[#102a4c] dark:text-[#f4bd4f] uppercase tracking-wider flex items-center gap-1.5">
-                  <i className="bi bi-code-slash"></i> Custom CSS Overrides
-                </label>
-                <textarea
-                  rows={4}
-                  value={editingTheme.customCss || ""}
-                  onChange={(e) => {
-                    const updated = { ...editingTheme, customCss: e.target.value };
-                    setEditingTheme(updated);
-                    setPreviewTheme(updated);
-                  }}
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-950 text-emerald-400 text-xs font-mono focus:ring-2 focus:ring-[#102a4c] outline-none"
-                  placeholder="/* CSS rule overrides e.g. .hero-title { text-transform: uppercase; } */"
-                />
-              </div>
             </div>
           </div>
 
