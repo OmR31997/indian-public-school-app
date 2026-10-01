@@ -279,7 +279,10 @@ export function Footer() {
                   className="h-11 max-w-[150px] object-contain"
                 />
               ) : (
-                <span className="grid size-11 place-items-center rounded-xl bg-gold text-gold-foreground">
+                <span
+                  className="grid size-11 place-items-center bg-gold text-gold-foreground"
+                  style={{ borderRadius: "var(--logo-radius, 50%)" }}
+                >
                   <GraduationCap className="size-5" />
                 </span>
               )}

@@ -46,18 +46,18 @@ export function Stats() {
   const displayItems = items.length
     ? items
     : STATS.map((s) => ({
-        count: `${s.value}${s.suffix}`,
-        heading: s.label,
-        "sub-heading": s.note,
-      }));
+      count: `${s.value}${s.suffix}`,
+      heading: s.label,
+      "sub-heading": s.note,
+    }));
 
   const count = displayItems.length;
   const gridClass =
     count === 4
       ? "grid-cols-2 sm:grid-cols-4 lg:grid-cols-4"
       : count === 3
-      ? "grid-cols-1 sm:grid-cols-3 lg:grid-cols-3"
-      : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5";
+        ? "grid-cols-1 sm:grid-cols-3 lg:grid-cols-3"
+        : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5";
 
   return (
     <section className="border-y border-border bg-secondary/50 py-14 lg:py-20">
@@ -88,7 +88,7 @@ export function Stats() {
                 }}
                 className="flex flex-col items-center justify-center text-center"
               >
-                <p className="font-display text-3xl leading-none font-semibold text-primary sm:text-4xl lg:text-5xl">
+                <p className="font-display text-3xl leading-none font-semibold text-primary sm:text-4xl lg:text-1xl">
                   <Counter to={value} suffix={suffix} />
                 </p>
                 <p className="mt-3 text-sm font-semibold text-center">{text(s.heading)}</p>

@@ -131,25 +131,9 @@ const ThemeContext = createContext<ThemeContextType>({
 
 const API_BASE = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
-export function applyCssVars(theme: ThemeConfig) {
+export function applyCssVars(theme: ThemeConfig, persist: boolean = true) {
   if (typeof document === "undefined") return;
 
-  const isAdminPage = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
-  const targetPortal = theme.portal || "web";
-
-  // Check portal target scoping:
-  // If on Admin page and theme is for "web" only -> skip
-  // If on Public page and theme is for "admin" only -> skip
-  if (isAdminPage && targetPortal === "web") {
-    let styleTag = document.getElementById("theme-custom-css") as HTMLStyleElement | null;
-    if (styleTag) styleTag.textContent = "";
-    return;
-  }
-  if (!isAdminPage && targetPortal === "admin") {
-    let styleTag = document.getElementById("theme-custom-css") as HTMLStyleElement | null;
-    if (styleTag) styleTag.textContent = "";
-    return;
-  }
   const root = document.documentElement;
   const colors = theme.colors || DEFAULT_THEME.colors;
   const layout = theme.layout || DEFAULT_THEME.layout;
@@ -196,16 +180,39 @@ export function applyCssVars(theme: ThemeConfig) {
     document.head.appendChild(styleTag);
   }
   styleTag.textContent = theme.customCss || "";
+
+  if (persist && typeof window !== "undefined") {
+    try {
+      const isAdminPage = window.location.pathname.startsWith("/admin");
+      const key = isAdminPage ? "ips_active_theme_admin" : "ips_active_theme_web";
+      localStorage.setItem(key, JSON.stringify(theme));
+    } catch {}
+  }
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [activeTheme, setActiveTheme] = useState<ThemeConfig>(DEFAULT_THEME);
+  const [activeTheme, setActiveTheme] = useState<ThemeConfig>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const isAdminPage = window.location.pathname.startsWith("/admin");
+        const key = isAdminPage ? "ips_active_theme_admin" : "ips_active_theme_web";
+        const cached = localStorage.getItem(key);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.colors) return parsed;
+        }
+      } catch {}
+    }
+    return DEFAULT_THEME;
+  });
   const [previewTheme, setPreviewThemeState] = useState<ThemeConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchActiveTheme = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_BASE}/theme/active`, { timeout: 4000 });
+      const isAdminPage = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+      const portalParam = isAdminPage ? "admin" : "web";
+      const res = await axios.get(`${API_BASE}/theme/active?portal=${portalParam}`, { timeout: 4000 });
       if (res.data) {
         const themeData = res.data.data || res.data;
         if (themeData && themeData.colors) {
@@ -218,7 +225,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Keep default theme on network issue
       if (!previewTheme) {
-        applyCssVars(DEFAULT_THEME);
+        applyCssVars(DEFAULT_THEME, false);
       }
     } finally {
       setIsLoading(false);

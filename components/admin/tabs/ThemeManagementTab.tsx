@@ -22,6 +22,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
   // Customizer state
   const [editingTheme, setEditingTheme] = useState<ThemeConfig>(DEFAULT_THEME);
+  const [originalTheme, setOriginalTheme] = useState<ThemeConfig | null>(null);
   const [customizerMode, setCustomizerMode] = useState<"edit" | "create">("create");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
 
@@ -53,9 +54,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
     setError(null);
     try {
       const selectedPortal = targetPortal || theme.portal || "web";
-      if (selectedPortal !== theme.portal) {
-        await axios.patch(`${API_URL}/theme/${theme._id}`, { portal: selectedPortal }, authHeader());
-      }
+      await axios.patch(`${API_URL}/theme/${theme._id}`, { portal: selectedPortal }, authHeader());
       await axios.post(`${API_URL}/theme/${theme._id}/activate`, {}, authHeader());
       setSuccessMessage(`Activated theme "${theme.name}" for portal: ${selectedPortal.toUpperCase()}`);
       await refreshTheme();
@@ -71,10 +70,13 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
   const handleStartCustomizing = (themeToEdit?: ThemeConfig) => {
     if (themeToEdit) {
+      setOriginalTheme(JSON.parse(JSON.stringify(themeToEdit)));
       if (themeToEdit.isPreset) {
         const copy: ThemeConfig = JSON.parse(JSON.stringify(themeToEdit));
         delete (copy as any)._id;
-        copy.name = `${themeToEdit.name} (Customized)`;
+        if (!copy.name.includes("(Customized)")) {
+          copy.name = `${themeToEdit.name} (Customized)`;
+        }
         copy.slug = `${themeToEdit.slug}-custom-${Date.now().toString().slice(-4)}`;
         copy.isPreset = false;
         copy.isActive = false;
@@ -87,8 +89,9 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
         setPreviewTheme(themeToEdit);
       }
     } else {
+      setOriginalTheme(null);
       const newCustom: ThemeConfig = {
-        name: `Custom Theme ${themes.length + 1}`,
+        name: `Custom Theme ${themes.length + 1} (Customized)`,
         slug: `custom-theme-${Date.now()}`,
         description: "Custom site theme configuration",
         portal: "web",
@@ -142,7 +145,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
     setPreviewTheme(updated);
   };
 
-  const handleSaveTheme = async (andActivate: boolean = false) => {
+  const handleSaveTheme = async (andActivate: boolean = true) => {
     if (!editingTheme.name) {
       setError("Theme name is required");
       return;
@@ -151,7 +154,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
     setError(null);
     try {
       let savedTheme: ThemeConfig;
-      if (customizerMode === "edit" && editingTheme._id) {
+      if (editingTheme._id) {
         const res = await axios.patch(
           `${API_URL}/theme/${editingTheme._id}`,
           { ...editingTheme, isActive: andActivate ? true : editingTheme.isActive },
@@ -171,11 +174,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
         await axios.post(`${API_URL}/theme/${savedTheme._id}/activate`, {}, authHeader());
       }
 
-      setSuccessMessage(
-        andActivate
-          ? `Saved & Activated "${savedTheme.name}"!`
-          : `Saved theme "${savedTheme.name}" successfully!`
-      );
+      setSuccessMessage(`Saved theme "${savedTheme.name}" successfully!`);
       await refreshTheme();
       await fetchThemes();
       setPreviewTheme(null);
@@ -345,7 +344,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {themes.map((theme) => {
-                const isActive = theme.isActive || activeTheme.slug === theme.slug;
+                const isActive = Boolean(theme.isActive);
                 const isCurrentPreview = previewTheme?.slug === theme.slug;
 
                 return (
@@ -448,9 +447,16 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                           <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 shrink-0">Portal:</span>
                           <select
                             value={theme.portal || "web"}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const newPortal = e.target.value;
                               setThemes(prev => prev.map(t => t._id === theme._id || t.slug === theme.slug ? { ...t, portal: newPortal } : t));
+                              if (theme._id) {
+                                try {
+                                  await axios.patch(`${API_URL}/theme/${theme._id}`, { portal: newPortal }, authHeader());
+                                } catch (err) {
+                                  console.error("Failed to update portal", err);
+                                }
+                              }
                             }}
                             className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:ring-2 focus:ring-[#102a4c] shrink-0"
                             title="Choose Target Portal before applying"
@@ -540,21 +546,21 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
                 <div className="flex items-center gap-2.5 shrink-0 self-stretch sm:self-auto justify-end">
                   <button
-                    onClick={() => handleSaveTheme(false)}
+                    onClick={() => handleStartCustomizing()}
                     disabled={saving}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-900 transition-all shadow-sm whitespace-nowrap shrink-0"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shadow-sm whitespace-nowrap shrink-0 border border-slate-200 dark:border-slate-700"
                   >
-                    <i className="bi bi-floppy-fill"></i>
-                    <span>Save Modification</span>
+                    <i className="bi bi-plus-circle-fill text-[#102a4c] dark:text-amber-400"></i>
+                    <span>New Theme</span>
                   </button>
 
                   <button
                     onClick={() => handleSaveTheme(true)}
                     disabled={saving}
-                    className="inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold bg-[#f4bd4f] text-[#102a4c] hover:bg-[#e2a838] transition-all shadow-md whitespace-nowrap shrink-0"
+                    className="inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold bg-[#102a4c] hover:bg-[#1a3d6a] text-white transition-all shadow-md whitespace-nowrap shrink-0"
                   >
-                    <i className="bi bi-check-circle-fill"></i>
-                    <span>Apply & Save Live</span>
+                    <i className="bi bi-floppy-fill text-[#f4bd4f]"></i>
+                    <span>Save Modification</span>
                   </button>
                 </div>
               </div>

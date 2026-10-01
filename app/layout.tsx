@@ -74,8 +74,56 @@ export default function RootLayout({
   const jsonLd = getSchoolJsonLd();
 
   return (
-    <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth">
+    <html lang="en" suppressHydrationWarning className="h-full antialiased" data-scroll-behavior="smooth">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var isAdmin = window.location.pathname.indexOf('/admin') === 0;
+                var cached = localStorage.getItem(isAdmin ? 'ips_active_theme_admin' : 'ips_active_theme_web');
+                if (cached) {
+                  var theme = JSON.parse(cached);
+                  var root = document.documentElement;
+                  if (theme.colors) {
+                    if (theme.colors.primary) root.style.setProperty('--primary', theme.colors.primary);
+                    if (theme.colors.primaryForeground) root.style.setProperty('--primary-foreground', theme.colors.primaryForeground);
+                    if (theme.colors.secondary) root.style.setProperty('--secondary', theme.colors.secondary);
+                    if (theme.colors.secondaryForeground) root.style.setProperty('--secondary-foreground', theme.colors.secondaryForeground);
+                    if (theme.colors.accent) root.style.setProperty('--accent', theme.colors.accent);
+                    if (theme.colors.accentForeground) root.style.setProperty('--accent-foreground', theme.colors.accentForeground);
+                    if (theme.colors.gold) root.style.setProperty('--gold', theme.colors.gold);
+                    if (theme.colors.goldSoft) root.style.setProperty('--gold-soft', theme.colors.goldSoft);
+                    if (theme.colors.navy) root.style.setProperty('--navy', theme.colors.navy);
+                    if (theme.colors.navyDeep) root.style.setProperty('--navy-deep', theme.colors.navyDeep);
+                    if (theme.colors.background) root.style.setProperty('--background', theme.colors.background);
+                    if (theme.colors.foreground) root.style.setProperty('--foreground', theme.colors.foreground);
+                    if (theme.colors.card) root.style.setProperty('--card', theme.colors.card);
+                    if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
+                    if (theme.colors.input) root.style.setProperty('--input', theme.colors.input);
+                    if (theme.colors.ring) root.style.setProperty('--ring', theme.colors.ring);
+                    if (theme.colors.gradientNavy) root.style.setProperty('--gradient-navy', theme.colors.gradientNavy);
+                  }
+                  if (theme.layout) {
+                    if (theme.layout.radius) root.style.setProperty('--radius', theme.layout.radius);
+                    var btnRad = theme.layout.btnRadius || (theme.layout.btnShape === 'pill' ? '9999px' : theme.layout.btnShape === 'rounded' ? '0.75rem' : theme.layout.btnShape === 'soft' ? '0.375rem' : theme.layout.btnShape === 'sharp' ? '0px' : '9999px');
+                    var cardRad = theme.layout.cardRadius || (theme.layout.cardShape === 'extra-rounded' ? '1.5rem' : theme.layout.cardShape === 'rounded' ? '1rem' : theme.layout.cardShape === 'soft' ? '0.5rem' : theme.layout.cardShape === 'sharp' ? '0px' : '1rem');
+                    var logoRad = theme.layout.logoRadius || (theme.layout.logoShape === 'circle' ? '50%' : theme.layout.logoShape === 'rounded' ? '0.75rem' : theme.layout.logoShape === 'square' ? '0px' : theme.layout.logoShape === 'leaf' ? '9999px 0px 9999px 0px' : '50%');
+                    var badgeRad = theme.layout.badgeRadius || (theme.layout.badgeShape === 'pill' ? '9999px' : theme.layout.badgeShape === 'soft' ? '0.375rem' : theme.layout.badgeShape === 'sharp' ? '0px' : '9999px');
+                    root.style.setProperty('--btn-radius', btnRad);
+                    root.style.setProperty('--card-radius', cardRad);
+                    root.style.setProperty('--logo-radius', logoRad);
+                    root.style.setProperty('--badge-radius', badgeRad);
+                  }
+                  if (theme.typography) {
+                    if (theme.typography.fontDisplay) root.style.setProperty('--font-display', theme.typography.fontDisplay);
+                    if (theme.typography.fontSans) root.style.setProperty('--font-sans', theme.typography.fontSans);
+                  }
+                }
+              } catch(e){}
+            `,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

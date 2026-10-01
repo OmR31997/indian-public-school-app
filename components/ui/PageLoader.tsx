@@ -46,20 +46,26 @@ export function PageLoader({
         <div className="absolute size-24 rounded-full bg-[var(--gold)]/20 blur-xl animate-pulse" />
         
         {/* Rotating golden accent ring */}
-        <div className="absolute size-20 rounded-full border-2 border-transparent border-t-[var(--gold)] border-r-[var(--gold)] animate-spin" style={{ animationDuration: "1.2s" }} />
+        <div
+          className="absolute size-20 rounded-full border-2 border-transparent border-t-[var(--gold)] border-r-[var(--gold)] animate-spin"
+          style={{ animationDuration: "1.2s" }}
+        />
         
         {/* Counter-rotating inner ring */}
-        <div className="absolute size-16 rounded-full border-2 border-transparent border-b-[var(--primary)] border-l-[var(--navy)] animate-spin" style={{ animationDuration: "1.8s", animationDirection: "reverse" }} />
+        <div
+          className="absolute size-16 rounded-full border-2 border-transparent border-b-[var(--primary)] border-l-[var(--navy)] animate-spin"
+          style={{ animationDuration: "1.8s", animationDirection: "reverse" }}
+        />
 
         {/* Center School Badge Container */}
         <div
-          className="relative z-10 grid size-12 place-items-center text-white shadow-lg border border-[var(--gold)]/40"
+          className="relative z-10 grid size-9.5 place-items-center text-white shadow-md border border-[var(--gold)]/50 transition-all duration-300"
           style={{
             background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))",
-            borderRadius: "var(--logo-radius, 1rem)",
+            borderRadius: "var(--logo-radius, 50%)",
           }}
         >
-          <GraduationCap className="size-6 text-[var(--gold)] animate-bounce" style={{ animationDuration: "2s" }} />
+          <GraduationCap className="size-5 text-[var(--gold)] animate-bounce" style={{ animationDuration: "2s" }} />
         </div>
       </div>
 

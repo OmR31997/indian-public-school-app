@@ -317,7 +317,10 @@ export function Navbar() {
               className="h-10 max-w-[140px] sm:h-12 sm:max-w-[180px] object-contain transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft transition-transform duration-300 group-hover:scale-105">
+            <span
+              className="grid size-10 place-items-center bg-primary text-primary-foreground shadow-soft transition-transform duration-300 group-hover:scale-105"
+              style={{ borderRadius: "var(--logo-radius, 50%)" }}
+            >
               <GraduationCap className="size-5" />
             </span>
           )}
