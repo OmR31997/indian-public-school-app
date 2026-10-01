@@ -116,8 +116,13 @@ export default function RootLayout({
                     root.style.setProperty('--badge-radius', badgeRad);
                   }
                   if (theme.typography) {
-                    if (theme.typography.fontDisplay) root.style.setProperty('--font-display', theme.typography.fontDisplay);
-                    if (theme.typography.fontSans) root.style.setProperty('--font-sans', theme.typography.fontSans);
+                    var dFont = theme.typography.fontDisplay || '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+                    if (dFont.indexOf('Fraunces') !== -1 || dFont.indexOf('Georgia') !== -1 || dFont.indexOf('ui-serif') !== -1) {
+                      dFont = '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+                    }
+                    var sFont = theme.typography.fontSans || '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+                    root.style.setProperty('--font-display', dFont);
+                    root.style.setProperty('--font-sans', sFont);
                   }
                 }
               } catch(e){}

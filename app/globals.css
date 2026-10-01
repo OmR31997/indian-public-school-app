@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@300..800&family=Outfit:wght@300..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:wght@300..800&family=Roboto:wght@300..700&display=swap");
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 @import "tailwindcss" source(none);
 @source "../app";
@@ -23,7 +23,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -297,7 +297,16 @@
 .dynamic-page-content [class*="ips-"] h4,
 .dynamic-page-content [class*="ips-"] [class*="title"],
 .dynamic-page-content [class*="ips-"] [class*="heading"] {
-  font-family: var(--font-display), ui-serif, Georgia, serif !important;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.dynamic-page-content h1 *,
+.dynamic-page-content h2 *,
+.dynamic-page-content h3 *,
+.dynamic-page-content h4 *,
+.dynamic-page-content h5 *,
+.dynamic-page-content h6 * {
+  font-family: inherit !important;
 }
 
 /* Normalize any legacy inline style font-family overrides in pasted dynamic HTML */
@@ -311,7 +320,7 @@
 .dynamic-page-content h4[style*="font-family" i],
 .dynamic-page-content h5[style*="font-family" i],
 .dynamic-page-content h6[style*="font-family" i] {
-  font-family: var(--font-display), ui-serif, Georgia, serif !important;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif !important;
 }
 
 /* Ensure inline border, background, margin, padding & box-shadow styles take precedence over prose resets */

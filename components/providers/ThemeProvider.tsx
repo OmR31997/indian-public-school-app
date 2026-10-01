@@ -90,7 +90,7 @@ export const DEFAULT_THEME: ThemeConfig = {
     gradientNavy: "linear-gradient(140deg, oklch(0.22 0.06 266), oklch(0.45 0.12 247.7))",
   },
   typography: {
-    fontDisplay: '"Fraunces", ui-serif, Georgia, serif',
+    fontDisplay: '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif',
     fontSans: '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif',
     baseFontSize: "16px",
   },
@@ -159,8 +159,16 @@ export function applyCssVars(theme: ThemeConfig, persist: boolean = true) {
   if (colors.gradientNavy) root.style.setProperty("--gradient-navy", colors.gradientNavy);
 
   if (layout.radius) root.style.setProperty("--radius", layout.radius);
-  if (typo.fontDisplay) root.style.setProperty("--font-display", typo.fontDisplay);
-  if (typo.fontSans) root.style.setProperty("--font-sans", typo.fontSans);
+  let displayFont = typo.fontDisplay;
+  if (!displayFont || displayFont.includes("Fraunces") || displayFont.includes("Georgia") || displayFont.includes("ui-serif")) {
+    displayFont = '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+  }
+  let sansFont = typo.fontSans;
+  if (!sansFont) {
+    sansFont = '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+  }
+  root.style.setProperty("--font-display", displayFont);
+  root.style.setProperty("--font-sans", sansFont);
 
   // Shape Variables
   const btnRad = layout.btnRadius || (layout.btnShape === "pill" ? "9999px" : layout.btnShape === "rounded" ? "0.75rem" : layout.btnShape === "soft" ? "0.375rem" : layout.btnShape === "sharp" ? "0px" : "9999px");

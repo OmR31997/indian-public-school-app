@@ -35,7 +35,15 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
     setError(null);
     try {
       const res = await axios.get(`${API_URL}/theme`);
-      const list = res.data.data || res.data || [];
+      const rawList: ThemeConfig[] = res.data.data || res.data || [];
+      const seenPresetSlugs = new Set<string>();
+      const list = rawList.filter((theme) => {
+        if (theme.isPreset && theme.slug) {
+          if (seenPresetSlugs.has(theme.slug)) return false;
+          seenPresetSlugs.add(theme.slug);
+        }
+        return true;
+      });
       setThemes(list);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to load themes from server");
@@ -154,17 +162,22 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
     setError(null);
     try {
       let savedTheme: ThemeConfig;
-      if (editingTheme._id) {
-        const res = await axios.patch(
-          `${API_URL}/theme/${editingTheme._id}`,
-          { ...editingTheme, isActive: andActivate ? true : editingTheme.isActive },
+      const isCreateMode = customizerMode === "create" || !editingTheme._id;
+
+      if (isCreateMode) {
+        // CREATE CASE: Always POST to create a brand new theme entry in DB
+        const { _id, ...payload } = editingTheme as any;
+        const res = await axios.post(
+          `${API_URL}/theme`,
+          { ...payload, isPreset: false, isActive: andActivate },
           authHeader()
         );
         savedTheme = res.data.data || res.data;
       } else {
-        const res = await axios.post(
-          `${API_URL}/theme`,
-          { ...editingTheme, isActive: andActivate },
+        // MODIFY CASE: Always PATCH to update the existing custom theme entry in DB
+        const res = await axios.patch(
+          `${API_URL}/theme/${editingTheme._id}`,
+          { ...editingTheme, isActive: andActivate ? true : editingTheme.isActive },
           authHeader()
         );
         savedTheme = res.data.data || res.data;
@@ -174,7 +187,11 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
         await axios.post(`${API_URL}/theme/${savedTheme._id}/activate`, {}, authHeader());
       }
 
-      setSuccessMessage(`Saved theme "${savedTheme.name}" successfully!`);
+      setSuccessMessage(
+        isCreateMode
+          ? `Created new theme "${savedTheme.name}" successfully!`
+          : `Updated theme "${savedTheme.name}" successfully!`
+      );
       await refreshTheme();
       await fetchThemes();
       setPreviewTheme(null);
@@ -560,7 +577,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                     className="inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold bg-[#102a4c] hover:bg-[#1a3d6a] text-white transition-all shadow-md whitespace-nowrap shrink-0"
                   >
                     <i className="bi bi-floppy-fill text-[#f4bd4f]"></i>
-                    <span>Save Modification</span>
+                    <span>{customizerMode === "create" ? "Create & Save Theme" : "Update Theme"}</span>
                   </button>
                 </div>
               </div>
@@ -867,12 +884,12 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       onChange={(e) => handleTypographyChange("fontDisplay", e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
                     >
-                      <option value='"Fraunces", ui-serif, Georgia, serif'>Fraunces Serif (Classic Academic)</option>
+                      <option value='"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif'>Plus Jakarta Sans (Clean & Pretty - Recommended)</option>
                       <option value='"Outfit", sans-serif'>Outfit Sans (Modern Bold)</option>
-                      <option value='"Playfair Display", serif'>Playfair Display (Luxury Serif)</option>
-                      <option value='"Plus Jakarta Sans", sans-serif'>Plus Jakarta Sans (Clean)</option>
                       <option value='"Inter", sans-serif'>Inter (Minimalist Standard)</option>
                       <option value='"Poppins", sans-serif'>Poppins (Friendly Rounded)</option>
+                      <option value='"Fraunces", ui-serif, Georgia, serif'>Fraunces Serif (Classic Academic)</option>
+                      <option value='"Playfair Display", serif'>Playfair Display (Luxury Serif)</option>
                     </select>
                   </div>
 
@@ -884,10 +901,12 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       onChange={(e) => handleTypographyChange("fontSans", e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
                     >
-                      <option value='"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif'>Plus Jakarta Sans (Recommended)</option>
-                      <option value='"Inter", sans-serif'>Inter (Clean Corporate)</option>
-                      <option value='"Roboto", sans-serif'>Roboto (Standard)</option>
-                      <option value='"Outfit", sans-serif'>Outfit (Modern)</option>
+                      <option value='"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif'>Plus Jakarta Sans (Clean & Pretty - Recommended)</option>
+                      <option value='"Inter", sans-serif'>Inter (Minimalist Standard)</option>
+                      <option value='"Outfit", sans-serif'>Outfit Sans (Modern UI)</option>
+                      <option value='"Poppins", sans-serif'>Poppins (Friendly Rounded)</option>
+                      <option value='"Roboto", sans-serif'>Roboto (Standard Clean)</option>
+                      <option value='"Fraunces", ui-serif, Georgia, serif'>Fraunces Serif (Classic Academic)</option>
                     </select>
                   </div>
                 </div>
