@@ -91,13 +91,14 @@ export function AdmissionsCTA() {
             }}
             className="w-full sm:w-auto"
           >
-            <Link
-              href="/#enquiry"
-              className="inline-flex items-center justify-center h-11 px-8 rounded-full sm:w-auto cursor-pointer font-bold bg-gold text-gold-foreground hover:bg-gold/90 transition-transform hover:scale-105"
+            <button
+              type="button"
+              onClick={() => openAdmissionModal()}
+              className="inline-flex items-center justify-center h-11 px-8 rounded-full w-full sm:w-auto cursor-pointer font-bold bg-gold text-gold-foreground hover:bg-gold/90 transition-transform hover:scale-105"
             >
               <PenLine className="mr-1 size-4" />
               Enquiry
-            </Link>
+            </button>
           </motion.div>
 
           <motion.div

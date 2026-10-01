@@ -61,8 +61,10 @@ export function QuickActions() {
             const href = text(action.redirectUrl, fallback.href);
             const isAdmissionAction =
               label.toLowerCase().includes("admission") ||
+              label.toLowerCase().includes("enquiry") ||
               href.includes("admissions") ||
-              href.includes("admission");
+              href.includes("admission") ||
+              href.includes("enquiry");
 
             return (
               <motion.li

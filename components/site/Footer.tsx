@@ -8,6 +8,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { buildMenuHierarchy, homeData, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
+import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 
 interface ApiMenuItem {
   _id?: string;
@@ -329,6 +330,12 @@ export function Footer() {
                     <li key={`${linkItem.title}-${idx}`}>
                       <Link
                         href={linkItem.href}
+                        onClick={(e) => {
+                          if (linkItem.href?.toLowerCase().includes("enquiry") || linkItem.title?.toLowerCase().includes("enquiry")) {
+                            e.preventDefault();
+                            openAdmissionModal();
+                          }
+                        }}
                         className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground"
                       >
                         {linkItem.title}

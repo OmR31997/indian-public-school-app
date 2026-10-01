@@ -255,6 +255,12 @@ export function Navbar() {
     setOpen(false);
     document.body.style.overflow = "";
 
+    if (href.toLowerCase().includes("enquiry")) {
+      if (e) e.preventDefault();
+      openAdmissionModal();
+      return;
+    }
+
     if (href.includes("#")) {
       const hashIndex = href.indexOf("#");
       const hash = href.slice(hashIndex + 1);
@@ -439,14 +445,14 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/#enquiry"
-            onClick={(e) => handleNavClick("/#enquiry", e)}
+          <button
+            type="button"
+            onClick={() => openAdmissionModal()}
             className="hidden sm:inline-flex items-center justify-center text-[var(--primary-foreground)] cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] px-4 py-2 text-xs font-bold transition-all hover:scale-105 shadow-xs"
             style={{ borderRadius: "var(--btn-radius, 9999px)" }}
           >
             Enquiry
-          </Link>
+          </button>
           <Link
             href="/contact-us"
             onClick={(e) => handleNavClick("/contact-us", e)}
@@ -658,14 +664,18 @@ export function Navbar() {
                 }}
                 className="pt-2"
               >
-                <Link
-                  href="/#enquiry"
-                  onClick={(e) => handleNavClick("/#enquiry", e)}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    document.body.style.overflow = "";
+                    openAdmissionModal();
+                  }}
                   className="flex w-full items-center justify-center cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] text-[var(--primary-foreground)] font-bold py-2.5 text-sm transition-all"
                   style={{ borderRadius: "var(--btn-radius, 9999px)" }}
                 >
                   Enquiry
-                </Link>
+                </button>
               </motion.li>
             </motion.ul>
           </motion.div>
