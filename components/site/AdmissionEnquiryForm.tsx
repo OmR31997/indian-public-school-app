@@ -222,18 +222,18 @@ export function AdmissionEnquiryForm({
                       <FormLabel className="text-xs font-bold text-[var(--navy)]">
                         Enquiry Type
                       </FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || "Admission"}>
                         <FormControl>
                           <SelectTrigger
-                            className="h-11 border-border bg-slate-50/70 text-sm font-medium text-slate-900 focus:bg-white focus:border-[var(--primary)]"
+                            className="h-11 border-border bg-slate-50/70 text-sm font-medium text-slate-900 focus:bg-white focus:border-[var(--primary)] cursor-pointer"
                             style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                           >
                             <SelectValue placeholder="Select enquiry type" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="z-[10001] bg-white text-slate-900 border border-slate-200 shadow-2xl">
                           {ENQUIRY_TYPES.map((type) => (
-                            <SelectItem key={type} value={type}>
+                            <SelectItem key={type} value={type} className="cursor-pointer font-medium py-2.5 hover:bg-slate-100">
                               {type}
                             </SelectItem>
                           ))}
