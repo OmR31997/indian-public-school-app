@@ -63,7 +63,7 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
 
   if (slides.length === 0) {
     slides.push({
-      bannerUrl: heroObj.bannerUrl || "https://res.cloudinary.com/niefrrkx/image/upload/v1790328995/indian-public-school/assets/Home/file_ljuhl7.png",
+      bannerUrl: heroObj.bannerUrl || "/indian-public-school/assets/Home/file_ljuhl7.png",
       title: content.title || "",
       h1: content.h1 || "",
       h2: content.h2 || "",

@@ -739,7 +739,7 @@ export function ResourceView({
       raw = String(val || "");
     }
     if (!raw) {
-      return "https://res.cloudinary.com/niefrrkx/image/upload/v1789163175/indian-public-school/assets/Home/hero-campus.jpg";
+      return "/indian-public-school/assets/Home/hero-campus.jpg";
     }
     return imageUrl(raw);
   };

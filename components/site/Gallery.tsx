@@ -164,7 +164,7 @@ function mapEventTypeToCategory(rawType: unknown): Category {
 
 const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
   {
-    src: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163175/indian-public-school/assets/Home/hero-campus.jpg",
+    src: "/indian-public-school/assets/Home/hero-campus.jpg",
     alt: "Campus Aerial Main View",
     category: "Campus",
     album: "Main Campus Aerial Banners",
@@ -204,7 +204,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     directoryName: "/album/campus",
   },
   {
-    src: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163160/indian-public-school/assets/Home/Banner_2.jpg",
+    src: "/indian-public-school/assets/Home/Banner_2.jpg",
     alt: "Annual Athletic Sports Field",
     category: "Sports",
     album: "Sports Ground",
@@ -212,7 +212,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     directoryName: "/album/sports",
   },
   {
-    src: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163161/indian-public-school/assets/Home/Banner_3.jpg",
+    src: "/indian-public-school/assets/Home/Banner_3.jpg",
     alt: "Cultural Festival & Auditorium Stage",
     category: "Events",
     album: "Auditorium & Events",
@@ -220,7 +220,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     directoryName: "/album/events",
   },
   {
-    src: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163162/indian-public-school/assets/Home/Banner_4.jpg",
+    src: "/indian-public-school/assets/Home/Banner_4.jpg",
     alt: "Student Activity Center",
     category: "Activities",
     album: "Co-Curricular Activities",
@@ -228,7 +228,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     directoryName: "/album/activities",
   },
   {
-    src: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163164/indian-public-school/assets/Home/Banner_6.jpg",
+    src: "/indian-public-school/assets/Home/Banner_6.jpg",
     alt: "Art Studio & Creative Corner",
     category: "Arts",
     album: "Art & Craft Studio",
@@ -236,7 +236,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     directoryName: "/album/arts",
   },
   {
-    src: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163165/indian-public-school/assets/Home/Banner_7.jpg",
+    src: "/indian-public-school/assets/Home/Banner_7.jpg",
     alt: "Hostel & Living Facility",
     category: "Hostel",
     album: "Hostel Premises",
@@ -244,7 +244,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     directoryName: "/album/hostel",
   },
   {
-    src: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg",
+    src: "/indian-public-school/assets/Home/Banner_8.jpg",
     alt: "Open Green Playgrounds",
     category: "Sports",
     album: "Playgrounds",

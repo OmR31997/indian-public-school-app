@@ -58,7 +58,7 @@ export function getFileType(url: string): "image" | "video" | "audio" | "documen
 const DEFAULT_CLOUDINARY_MEDIA: MediaItem[] = [
   {
     id: "default-[#1-video]",
-    url: "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4",
+    url: "/IPSIntroVideo.mp4",
     title: "IPS Campus Intro Video Showcase (Cloudinary)",
     category: "Videos",
     source: "cloudinary",
@@ -72,7 +72,7 @@ const DEFAULT_CLOUDINARY_MEDIA: MediaItem[] = [
   },
   {
     id: "default-hero-campus",
-    url: "https://res.cloudinary.com/niefrrkx/image/upload/v1789163175/indian-public-school/assets/Home/hero-campus.jpg",
+    url: "/indian-public-school/assets/Home/hero-campus.jpg",
     title: "Campus Aerial Main Hero Banner",
     category: "Banners",
     source: "cloudinary",

@@ -24,7 +24,7 @@ export function About() {
   const secVid = firstSection(siteHome, "section-video");
   const sec8 = firstSection(siteHome, "section-8");
 
-  const CLOUDINARY_VIDEO = "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4";
+  const CLOUDINARY_VIDEO = "/IPSIntroVideo.mp4";
   const configuredUrl = text(secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl);
   const videoSource = (configuredUrl && configuredUrl.trim().length > 0 && configuredUrl !== "/IPSIntroVideo.mp4" && !configuredUrl.includes("v1789299171"))
     ? configuredUrl
@@ -37,7 +37,7 @@ export function About() {
   const brief = Array.isArray(section.briefCard)
     ? (section.briefCard[0] as Record<string, unknown>)
     : {};
-  const briefImage = imageUrl(brief.fileUrl) || "https://res.cloudinary.com/niefrrkx/image/upload/v1789163167/indian-public-school/assets/Home/campus-aerial.jpg";
+  const briefImage = imageUrl(brief.fileUrl) || "/indian-public-school/assets/Home/campus-aerial.jpg";
   const briefHeading = text(brief.heading, "A green, purpose-built campus for modern learning");
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();

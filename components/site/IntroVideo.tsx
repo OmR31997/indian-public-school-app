@@ -9,7 +9,7 @@ export function IntroVideo() {
   const sec8 = firstSection(siteHome, "section-8");
 
   const FALLBACK_SEED_VIDEO = "https://www.indianpublicschool.in/assets/img/IPS.mp4";
-  const CLOUDINARY_VIDEO = "https://res.cloudinary.com/niefrrkx/video/upload/v1789615686/IPSIntroVideo.mp4";
+  const CLOUDINARY_VIDEO = "/IPSIntroVideo.mp4";
   let explicitUrl = text(secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl);
   if (!explicitUrl || explicitUrl === "/IPSIntroVideo.mp4" || explicitUrl.includes("v1789299171")) {
     explicitUrl = CLOUDINARY_VIDEO;

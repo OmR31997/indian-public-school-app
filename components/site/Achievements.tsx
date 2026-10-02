@@ -14,10 +14,10 @@ import {
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
 const FALLBACK_IMAGES = [
-  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163180/indian-public-school/assets/Home/PrePrimary.jpg",
-  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163181/indian-public-school/assets/Home/PrimaryLevel.jpg",
-  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163184/indian-public-school/assets/Home/SecondaryLevel.jpg",
-  "https://res.cloudinary.com/niefrrkx/image/upload/v1789163185/indian-public-school/assets/Home/SeniorSecondLevel.jpg",
+  "/indian-public-school/assets/Home/PrePrimary.jpg",
+  "/indian-public-school/assets/Home/PrimaryLevel.jpg",
+  "/indian-public-school/assets/Home/SecondaryLevel.jpg",
+  "/indian-public-school/assets/Home/SeniorSecondLevel.jpg",
 ];
 
 const CARDS = [

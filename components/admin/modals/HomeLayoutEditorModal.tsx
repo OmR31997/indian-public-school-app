@@ -1527,7 +1527,7 @@ export function HomeLayoutEditorModal({
                         {/* Poster Graphic Image Container */}
                         <div className="relative w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
                           <img
-                            src={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "https://res.cloudinary.com/niefrrkx/image/upload/v1789163166/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85"}
+                            src={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85"}
                             alt="Admin Banner Preview"
                             className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02]"
                             style={{
