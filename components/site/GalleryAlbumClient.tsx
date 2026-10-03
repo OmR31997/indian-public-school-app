@@ -45,7 +45,16 @@ const FORBIDDEN_TERMS = [
   "press_release",
   "news release",
   "media release",
-  "press_doc"
+  "press_doc",
+  "setting",
+  "settings",
+  "school-settings",
+  "school_settings",
+  "assets/settings",
+  "assets/Settings",
+  "review",
+  "reviews",
+  "album/reviews",
 ];
 
 function isStaffStudentOrPressItem(item: Record<string, unknown>): boolean {
@@ -69,7 +78,8 @@ function isStaffStudentOrPressItem(item: Record<string, unknown>): boolean {
     name.includes("student profile") ||
     name.includes("press release") ||
     name.includes("press document") ||
-    name.includes("setting")
+    name.includes("setting") ||
+    name.includes("review")
   ) {
     return true;
   }
@@ -94,6 +104,14 @@ function isStaffStudentOrPressUrl(url: string): boolean {
     "/avatars/",
     "/press/",
     "/pressrelease/",
+    "/settings/",
+    "/Settings/",
+    "/assets/settings/",
+    "/assets/Settings/",
+    "/review/",
+    "/reviews/",
+    "/assets/review/",
+    "/assets/Review/",
     "staff_photo",
     "student_photo",
     "staff-photo",
@@ -104,6 +122,13 @@ function isStaffStudentOrPressUrl(url: string): boolean {
     "press-release",
     "pressrelease",
     "press_doc",
+    "press-doc",
+    "review",
+    "review_1",
+    "review_2",
+    "review_3",
+    "logo",
+    "favicon",
   ];
 
   const containsForbidden = forbiddenSubstrings.some((sub) => lower.includes(sub));
@@ -160,7 +185,7 @@ function mapEventTypeToCategory(rawType: unknown): Category {
 
 const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
   {
-    src: "/indian-public-school/assets/Home/hero-campus.jpg",
+    src: imageUrl("/assets/Settings/Home/hero-campus.png"),
     alt: "Campus Aerial Main View",
     category: "Campus",
     album: "Main Campus Aerial Banners",
@@ -169,7 +194,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     source: "cloudinary",
   },
   {
-    src: "https://images.unsplash.com/photo-1562774053-701939374585?w=1200&auto=format&fit=crop&q=80",
+    src: imageUrl("/assets/Album/CampusAerial.png"),
     alt: "School Academic Building Front View",
     category: "Campus",
     album: "School Infrastructure",
@@ -178,7 +203,16 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     source: "cloudinary",
   },
   {
-    src: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&auto=format&fit=crop&q=80",
+    src: imageUrl("/assets/Album/ClassRoom.webp"),
+    alt: "Smart Digital Interactive Classroom",
+    category: "Campus",
+    album: "Classrooms & Labs",
+    directory: "/album/campus",
+    directoryName: "/album/campus",
+    source: "cloudinary",
+  },
+  {
+    src: imageUrl("/assets/Album/ScienceLab.webp"),
     alt: "Smart Science & Innovation Lab",
     category: "Activities",
     album: "Science & Innovation",
@@ -187,16 +221,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     source: "cloudinary",
   },
   {
-    src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1200&auto=format&fit=crop&q=80",
-    alt: "Digital Smart Interactive Classroom",
-    category: "Campus",
-    album: "Classrooms & Labs",
-    directory: "/album/campus",
-    directoryName: "/album/campus",
-    source: "cloudinary",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&auto=format&fit=crop&q=80",
+    src: imageUrl("/assets/Album/Library.webp"),
     alt: "Central Library & Knowledge Hub",
     category: "Campus",
     album: "Library",
@@ -205,16 +230,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     source: "cloudinary",
   },
   {
-    src: "/indian-public-school/assets/Home/Banner_1.jpg",
-    alt: "School Entrance & Reception",
-    category: "Banners",
-    album: "School Banners",
-    directory: "/album/banners",
-    directoryName: "/album/banners",
-    source: "cloudinary",
-  },
-  {
-    src: "/indian-public-school/assets/Home/Banner_2.jpg",
+    src: imageUrl("/assets/Album/Sports.png"),
     alt: "Annual Athletic Sports Field",
     category: "Sports",
     album: "Sports Ground",
@@ -223,34 +239,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     source: "cloudinary",
   },
   {
-    src: "/indian-public-school/assets/Home/Banner_3.jpg",
-    alt: "Cultural Festival & Auditorium Stage",
-    category: "Events",
-    album: "Auditorium & Events",
-    directory: "/album/events",
-    directoryName: "/album/events",
-    source: "cloudinary",
-  },
-  {
-    src: "/indian-public-school/assets/Home/Banner_4.jpg",
-    alt: "Student Activity Center",
-    category: "Activities",
-    album: "Co-Curricular Activities",
-    directory: "/album/activities",
-    directoryName: "/album/activities",
-    source: "cloudinary",
-  },
-  {
-    src: "/indian-public-school/assets/Home/Banner_5.jpg",
-    alt: "Computer Science Center",
-    category: "Campus",
-    album: "Tech Infrastructure",
-    directory: "/album/campus",
-    directoryName: "/album/campus",
-    source: "cloudinary",
-  },
-  {
-    src: "/indian-public-school/assets/Home/Banner_6.jpg",
+    src: imageUrl("/assets/Album/LifeArts.png"),
     alt: "Art Studio & Creative Corner",
     category: "Arts",
     album: "Art & Craft Studio",
@@ -259,7 +248,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     source: "cloudinary",
   },
   {
-    src: "/indian-public-school/assets/Home/Banner_7.jpg",
+    src: imageUrl("/assets/Album/LifeInHostel_1.jpg"),
     alt: "Hostel & Living Facility",
     category: "Hostel",
     album: "Hostel Premises",
@@ -268,7 +257,7 @@ const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
     source: "cloudinary",
   },
   {
-    src: "/indian-public-school/assets/Home/Banner_8.jpg",
+    src: imageUrl("/assets/Settings/Home/Banner_1.jpg"),
     alt: "Open Green Playgrounds",
     category: "Sports",
     album: "Playgrounds",

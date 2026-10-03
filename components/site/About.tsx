@@ -15,6 +15,7 @@ import {
   imageUrl,
   text,
   textList,
+  DEFAULT_INTRO_VIDEO,
 } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
@@ -24,11 +25,11 @@ export function About() {
   const secVid = firstSection(siteHome, "section-video");
   const sec8 = firstSection(siteHome, "section-8");
 
-  const CLOUDINARY_VIDEO = "/IPSIntroVideo.mp4";
   const configuredUrl = text(secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl);
-  const videoSource = (configuredUrl && configuredUrl.trim().length > 0 && configuredUrl !== "/IPSIntroVideo.mp4" && !configuredUrl.includes("v1789299171"))
+  const videoRaw = (configuredUrl && configuredUrl.trim().length > 0 && configuredUrl !== "/IPSIntroVideo.mp4" && !configuredUrl.includes("v1789299171"))
     ? configuredUrl
-    : CLOUDINARY_VIDEO;
+    : DEFAULT_INTRO_VIDEO;
+  const videoSource = imageUrl(videoRaw);
 
   const descriptions = textList(section.description);
   const cards = Array.isArray(section.cardItem)

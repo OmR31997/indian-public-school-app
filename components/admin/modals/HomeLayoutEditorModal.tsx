@@ -201,6 +201,7 @@ export function HomeLayoutEditorModal({
     const logoObj = { ...(finalVal.site_logo || currentIdentity.site_logo || {}) };
     const certObj = { ...(finalVal.certified_board || currentIdentity.certified_board || {}) };
     const trustObj = { ...(finalVal.trust_board || currentIdentity.trust_board || {}) };
+    const partnerObj = { ...(finalVal.academic_partner || currentIdentity.academic_partner || {}) };
 
     firstHome.identity = {
       ...currentIdentity,
@@ -211,6 +212,7 @@ export function HomeLayoutEditorModal({
       site_logo: logoObj,
       certified_board: certObj,
       trust_board: trustObj,
+      academic_partner: partnerObj,
     };
     homeList[0] = firstHome;
 
@@ -223,6 +225,7 @@ export function HomeLayoutEditorModal({
       site_logo: logoObj,
       certified_board: certObj,
       trust_board: trustObj,
+      academic_partner: partnerObj,
       home: homeList,
     };
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { DEFAULT_HERO_IMAGE } from "@/lib/site-data";
 
 export interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
@@ -14,7 +15,7 @@ export function SmartImage({
   alt = "",
   className,
   containerClassName,
-  fallbackSrc = "/assets/hero-campus.jpg",
+  fallbackSrc = DEFAULT_HERO_IMAGE,
   skeletonClassName,
   showSkeleton = true,
   onLoad,

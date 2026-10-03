@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { buildMenuHierarchy, getWhatsAppConfig, homeData, text } from "@/lib/site-data";
+import { buildMenuHierarchy, DEFAULT_LOGO, getWhatsAppConfig, homeData, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 import {
@@ -300,8 +300,8 @@ export function Navbar() {
   const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
   const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
   const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
-  const rawLogoUrl = headerConfig.logoUrl?.trim() || siteLogo.logoUrl?.trim() || "/assets/Logos/IPSLOGO.png";
-  const customLogoUrl = rawLogoUrl === "/assets/IPSLOGO.png" ? "/assets/Logos/IPSLOGO.png" : rawLogoUrl;
+  const rawLogoUrl = headerConfig.logoUrl?.trim() || siteLogo.logoUrl?.trim() || DEFAULT_LOGO;
+  const customLogoUrl = imageUrl(rawLogoUrl);
   const logoTitle = headerConfig.logoText?.trim() || siteLogo.logoText?.trim() || "Indian Public School";
   const logoSubtitle = headerConfig.logoSubText?.trim() || siteLogo.logoSubText?.trim() || "Learn · Lead · Inspire";
 

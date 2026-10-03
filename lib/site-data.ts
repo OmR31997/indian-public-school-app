@@ -1,5 +1,11 @@
 import { getOptionalApi, unwrapCollection, unwrapSetting, type ApiRecord, type PaginatedData } from "@/lib/api-client";
+import { getAssetUrl, getCloudinaryRootFolder } from "@/lib/utils";
 import fallbackSiteData from "@/public/cloud-datasource.json";
+
+export const CLOUDINARY_ROOT_FOLDER = getCloudinaryRootFolder();
+export const DEFAULT_HERO_IMAGE = "/assets/Settings/Home/hero-campus.jpg";
+export const DEFAULT_LOGO = "/assets/Settings/Logos/IPSStandardLogo.png";
+export const DEFAULT_INTRO_VIDEO = "/assets/Videos/IPSIntroVideo.mp4";
 
 export type SiteRecord = ApiRecord;
 
@@ -21,6 +27,15 @@ export interface CertifiedBoardSetting {
 export interface TrustBoardSetting {
   trustName?: string;
   regNo?: string;
+  logoUrl?: string;
+  description?: string;
+  linkUrl?: string;
+  enabled?: boolean;
+}
+
+export interface AcademicPartnerSetting {
+  title?: string;
+  subtitle?: string;
   logoUrl?: string;
   description?: string;
   linkUrl?: string;
@@ -162,6 +177,7 @@ export interface SiteData {
   site_logo?: SiteLogoSetting;
   certified_board?: CertifiedBoardSetting;
   trust_board?: TrustBoardSetting;
+  academic_partner?: AcademicPartnerSetting;
   whatsapp?: WhatsAppSetting;
   popupBanner?: PopupBannerSetting;
   [key: string]: unknown;
@@ -237,12 +253,12 @@ export function textList(value: unknown): string[] {
 
 export function imageUrl(value: unknown): string {
   if (typeof value === "string") {
-    const url = value.trim();
+    let url = value.trim();
     if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:") || url.startsWith("/")) {
-      return url;
+    if (url === "/assets/Logos/IPSLOGO.png" || url === "/assets/IPSLOGO.png" || url === "assets/Logos/IPSLOGO.png") {
+      url = DEFAULT_LOGO;
     }
-    return `/${url}`;
+    return getAssetUrl(url);
   }
   if (Array.isArray(value)) {
     const found = value.find((item): item is string => typeof item === "string" && item.trim().length > 0);
@@ -329,7 +345,7 @@ export function getPopupBannerConfig(siteData?: SiteData | null): Required<Popup
 
   const enabled = pb.enabled !== false;
   const delaySeconds = typeof pb.delaySeconds === "number" ? pb.delaySeconds : (Number(pb.delaySeconds) || 3);
-  const imageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "/indian-public-school/assets/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
+  const imageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "/ips-education/assets/Settings/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
   const showTitle = pb.showTitle !== false;
   const title = showTitle ? (pb.title !== undefined ? text(pb.title) : "Admissions Open 2026–27") : "";
   const rawSubtitle = text(pb.subtitle) || "";

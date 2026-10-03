@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Youtube } from "lucide-react";
+import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Sparkles, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
-import { buildMenuHierarchy, homeData, imageUrl, text } from "@/lib/site-data";
+import { buildMenuHierarchy, DEFAULT_LOGO, homeData, imageUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
@@ -168,8 +168,8 @@ export function Footer() {
 
   const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
   const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
-  const rawLogoUrl = text(footerConfig.logoUrl) || siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim() || "/assets/Logos/IPSLOGO.png";
-  const customLogoUrl = rawLogoUrl === "/assets/IPSLOGO.png" ? "/assets/Logos/IPSLOGO.png" : rawLogoUrl;
+  const rawLogoUrl = text(footerConfig.logoUrl) || siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim() || DEFAULT_LOGO;
+  const customLogoUrl = imageUrl(rawLogoUrl);
   const displayBrandTitle = text(footerConfig.logoText) || siteLogo.logoText?.trim() || headerConfig.logoText?.trim() || brandTitle;
   const displayBrandSubTitle = text(footerConfig.logoSubText) || siteLogo.logoSubText?.trim() || headerConfig.logoSubText?.trim() || brandSubTitle;
 
@@ -179,17 +179,20 @@ export function Footer() {
   const trustBoard = (homeIdentity.trust_board as Record<string, unknown>) || (siteData?.trust_board as Record<string, unknown>) || (footerConfig.trust_board as Record<string, unknown>) || {};
   const trustEnabled = trustBoard.enabled !== false && Boolean(trustBoard.trustName || trustBoard.logoUrl || trustBoard.regNo);
 
+  const academicPartner = (homeIdentity.academic_partner as Record<string, unknown>) || (siteData?.academic_partner as Record<string, unknown>) || (footerConfig.academic_partner as Record<string, unknown>) || {};
+  const partnerEnabled = academicPartner.enabled !== false && Boolean(academicPartner.title || academicPartner.logoUrl);
+
   return (
     <footer className="surface-navy pt-16 pb-8">
       <div className="container-page">
-        {(certifiedEnabled || trustEnabled) && (
-          <div className="mb-12 grid gap-6 border-b border-navy-foreground/15 pb-10 sm:grid-cols-2">
+        {(certifiedEnabled || trustEnabled || partnerEnabled) && (
+          <div className="mb-12 grid gap-6 border-b border-navy-foreground/15 pb-10 sm:grid-cols-2 lg:grid-cols-3">
             {certifiedEnabled && (
               <Reveal>
-                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30">
+                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
                   {certifiedBoard.badgeUrl ? (
                     <img
-                      src={imageUrl(certifiedBoard.badgeUrl)}
+                      src={imageUrl(String(certifiedBoard.badgeUrl))}
                       alt={String(certifiedBoard.title || "Certified Board")}
                       className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
                     />
@@ -228,10 +231,10 @@ export function Footer() {
 
             {trustEnabled && (
               <Reveal delay={0.1}>
-                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30">
+                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
                   {trustBoard.logoUrl ? (
                     <img
-                      src={imageUrl(trustBoard.logoUrl)}
+                      src={imageUrl(String(trustBoard.logoUrl))}
                       alt={String(trustBoard.trustName || "Trust Board")}
                       className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
                     />
@@ -261,6 +264,45 @@ export function Footer() {
                     {Boolean(trustBoard.linkUrl) && (
                       <Link href={String(trustBoard.linkUrl)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
                         Learn About Trust &rarr;
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </Reveal>
+            )}
+
+            {partnerEnabled && (
+              <Reveal delay={0.2}>
+                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
+                  {academicPartner.logoUrl ? (
+                    <img
+                      src={imageUrl(String(academicPartner.logoUrl))}
+                      alt={String(academicPartner.title || "Academic Partner")}
+                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                    />
+                  ) : (
+                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                      <GraduationCap className="size-6" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold tracking-wider text-gold uppercase">
+                        {String(academicPartner.subtitle || "Our Academic Partner")}
+                      </span>
+                      <i className="bi bi-briefcase text-gold text-[14px]"></i>
+                    </div>
+                    <h4 className="mt-1 text-sm font-semibold text-navy-foreground">
+                      {String(academicPartner.title || "Aakash Institute Partner")}
+                    </h4>
+                    {Boolean(academicPartner.description) && (
+                      <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
+                        {String(academicPartner.description)}
+                      </p>
+                    )}
+                    {Boolean(academicPartner.linkUrl) && (
+                      <Link href={String(academicPartner.linkUrl)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                        Explore Courses &rarr;
                       </Link>
                     )}
                   </div>

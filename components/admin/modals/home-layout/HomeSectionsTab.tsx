@@ -797,12 +797,12 @@ export function HomeSectionsTab({
                   const eyebrowVal = secVid.eyebrow || sec8.videoEyebrow || "Discover IPS";
                   const titleVal = secVid.title || secVid.heading || sec8.videoTitle || "Experience life at Indian Public School";
                   const descVal = secVid.description || sec8.videoDescription || "Take a look at the campus, learning spaces and student life.";
-                  const FALLBACK_SEED_VIDEO = "https://www.indianpublicschool.in/assets/img/IPS.mp4";
+                  const DEFAULT_VIDEO = "/assets/Videos/IPSIntroVideo.mp4";
                   let videoUrlVal = secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl;
                   if (!videoUrlVal || videoUrlVal === "/IPSIntroVideo.mp4") {
-                    videoUrlVal = FALLBACK_SEED_VIDEO;
+                    videoUrlVal = DEFAULT_VIDEO;
                   }
-                  const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "indian-public-school/assets/Videos";
+                  const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "assets/Videos";
 
                   const updateVideoData = (updates: Record<string, any>) => {
                     updateHome((prev) => {

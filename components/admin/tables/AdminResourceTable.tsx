@@ -25,10 +25,11 @@ import {
   Save,
   Crown,
   ShieldCheck,
+  Sparkles,
   ExternalLink,
 } from "lucide-react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
-import { imageUrl } from "@/lib/site-data";
+import { DEFAULT_LOGO, imageUrl } from "@/lib/site-data";
 import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
 import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
@@ -240,25 +241,24 @@ export const RESOURCE_FILTERS: Record<string, { label: string; key: string; opti
       key: "directory",
       options: [
         "All",
-        "indian-public-school/assets/Settings",
-        "indian-public-school/assets/AdmissionDocuments",
-        "indian-public-school/assets/Documents",
-        "indian-public-school/assets/News",
-        "indian-public-school/assets/Home",
-        "indian-public-school/assets/Header",
-        "indian-public-school/assets/Infrastructure",
-        "indian-public-school/assets/LIFE@IPS",
-        "indian-public-school/assets/Logos",
-        "indian-public-school/assets/MandatoryDisclosure",
-        "indian-public-school/assets/PressRelease",
-        "indian-public-school/assets/Review",
-        "indian-public-school/assets/Staff",
-        "indian-public-school/assets/Videos",
-        "/album/General",
-        "/album/Campus",
-        "/album/Events",
-        "/album/Sports",
-        "/album/AdmissionDocuments",
+        "Album",
+        "Album/Events",
+        "Album/Hostel",
+        "Album/Infrastructure",
+        "Album/Empowerment",
+        "Album/Competitions",
+        "Album/Partners",
+        "Album/Achievements",
+        "Album/Reviews",
+        "Album/Awareness",
+        "PressRelease",
+        "Settings/Logos",
+        "Settings/Home",
+        "Documents/General",
+        "Documents/Admission",
+        "Student",
+        "Staff",
+        "Videos",
       ],
     },
   ],
@@ -281,8 +281,8 @@ export function HeaderFooterSettingsCard({
   items: RecordItem[];
   onSaveComplete: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<"logo" | "certified" | "trust">("logo");
-  const [galleryPickerField, setGalleryPickerField] = useState<"logoUrl" | "badgeUrl" | "trustLogoUrl" | null>(null);
+  const [activeTab, setActiveTab] = useState<"logo" | "certified" | "trust" | "partner">("logo");
+  const [galleryPickerField, setGalleryPickerField] = useState<"logoUrl" | "badgeUrl" | "trustLogoUrl" | "partnerLogoUrl" | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -291,6 +291,7 @@ export function HeaderFooterSettingsCard({
   const logoItem = useMemo(() => items.find((i) => i.key === "site_logo"), [items]);
   const certItem = useMemo(() => items.find((i) => i.key === "certified_board"), [items]);
   const trustItem = useMemo(() => items.find((i) => i.key === "trust_board"), [items]);
+  const partnerItem = useMemo(() => items.find((i) => i.key === "academic_partner"), [items]);
 
   const [siteLogo, setSiteLogo] = useState({
     logoUrl: "",
@@ -316,6 +317,15 @@ export function HeaderFooterSettingsCard({
     enabled: true,
   });
 
+  const [academicPartner, setAcademicPartner] = useState({
+    title: "Aakash Institute Partner",
+    subtitle: "Our Academic Partner",
+    logoUrl: "/assets/Settings/Logos/AakashFoundationLogo.png",
+    description: "Integrated coaching and foundation programs for NEET, IIT-JEE and competitive examinations.",
+    linkUrl: "/academics/courses-offered",
+    enabled: true,
+  });
+
   useEffect(() => {
     const dsVal = (siteDsItem?.value as Record<string, any>) || {};
     const homeIdentity = (Array.isArray(dsVal.home) ? dsVal.home[0]?.identity : dsVal.identity) || {};
@@ -337,7 +347,13 @@ export function HeaderFooterSettingsCard({
     } else if (trustItem?.value && typeof trustItem.value === "object") {
       setTrustBoard((prev) => ({ ...prev, ...(trustItem.value as object) }));
     }
-  }, [siteDsItem, logoItem, certItem, trustItem]);
+
+    if (homeIdentity.academic_partner && typeof homeIdentity.academic_partner === "object") {
+      setAcademicPartner((prev) => ({ ...prev, ...(homeIdentity.academic_partner as object) }));
+    } else if (partnerItem?.value && typeof partnerItem.value === "object") {
+      setAcademicPartner((prev) => ({ ...prev, ...(partnerItem.value as object) }));
+    }
+  }, [siteDsItem, logoItem, certItem, trustItem, partnerItem]);
 
   const saveSettings = async () => {
     if (!token) {
@@ -358,6 +374,7 @@ export function HeaderFooterSettingsCard({
         site_logo: siteLogo,
         certified_board: certifiedBoard,
         trust_board: trustBoard,
+        academic_partner: academicPartner,
       };
       firstHome.identity = identityObj;
       homeList[0] = firstHome;
@@ -367,6 +384,7 @@ export function HeaderFooterSettingsCard({
         site_logo: siteLogo,
         certified_board: certifiedBoard,
         trust_board: trustBoard,
+        academic_partner: academicPartner,
         home: homeList,
       };
 
@@ -441,29 +459,34 @@ export function HeaderFooterSettingsCard({
         <button
           type="button"
           onClick={() => setActiveTab("logo")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
-            activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
         >
           <UploadCloud size={15} /> School Logo & Text
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("certified")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
-            activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
         >
           <Crown size={15} /> Certified Company Board
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("trust")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
-            activeTab === "trust" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "trust" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
         >
           <ShieldCheck size={15} /> Trust Board
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("partner")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "partner" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+        >
+          <i className="bi bi-briefcase text-[14px]"></i> Academic Partner
         </button>
       </div>
 
@@ -521,7 +544,7 @@ export function HeaderFooterSettingsCard({
                   <img src={imageUrl(siteLogo.logoUrl)} alt="Logo" className="h-full w-full object-contain" />
                 ) : (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src="/assets/Logos/IPSLOGO.png" alt="IPS Logo" className="h-full w-full object-contain" />
+                  <img src={imageUrl(DEFAULT_LOGO)} alt="IPS Logo" className="h-full w-full object-contain" />
                 )}
               </div>
               <div className="text-left">
@@ -652,6 +675,68 @@ export function HeaderFooterSettingsCard({
         </div>
       )}
 
+      {/* Tab 4: Academic Partner */}
+      {activeTab === "partner" && (
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Partner Title</label>
+              <input
+                type="text"
+                value={academicPartner.title}
+                onChange={(e) => setAcademicPartner((p) => ({ ...p, title: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Subtitle / Tagline</label>
+              <input
+                type="text"
+                value={academicPartner.subtitle}
+                onChange={(e) => setAcademicPartner((p) => ({ ...p, subtitle: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Partner Logo Image</label>
+              <div className="mt-1 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={academicPartner.logoUrl}
+                  onChange={(e) => setAcademicPartner((p) => ({ ...p, logoUrl: e.target.value }))}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setGalleryPickerField("partnerLogoUrl")}
+                  className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
+                >
+                  <UploadCloud size={14} /> Gallery
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Footer Academic Partner Badge Preview</span>
+            <div className="rounded-xl border border-sky-200 bg-white p-4 shadow-2xs flex items-center gap-3">
+              {academicPartner.logoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={imageUrl(academicPartner.logoUrl)} alt="" className="h-10 w-10 object-contain" />
+              ) : (
+                <div className="grid h-10 w-10 place-items-center rounded-lg bg-sky-100 text-[#1a5d9c] font-bold text-xs">
+                  PARTNER
+                </div>
+              )}
+              <div>
+                <p className="font-bold text-xs text-[#102a4c]">{academicPartner.title}</p>
+                <p className="text-[11px] text-slate-500">{academicPartner.subtitle}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {galleryPickerField && (
         <CloudinaryGalleryModal
           isOpen={Boolean(galleryPickerField)}
@@ -660,6 +745,7 @@ export function HeaderFooterSettingsCard({
             if (galleryPickerField === "logoUrl") setSiteLogo((p) => ({ ...p, logoUrl: url }));
             if (galleryPickerField === "badgeUrl") setCertifiedBoard((p) => ({ ...p, badgeUrl: url }));
             if (galleryPickerField === "trustLogoUrl") setTrustBoard((p) => ({ ...p, logoUrl: url }));
+            if (galleryPickerField === "partnerLogoUrl") setAcademicPartner((p) => ({ ...p, logoUrl: url }));
             setGalleryPickerField(null);
           }}
         />
@@ -847,17 +933,15 @@ export function ResourceView({
               <div className="inline-flex items-center rounded-xl border border-blue-200 bg-blue-50/90 p-1 shrink-0">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                    viewMode === "grid" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
-                  }`}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${viewMode === "grid" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
+                    }`}
                 >
                   <Grid size={14} /> Grid
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                    viewMode === "list" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
-                  }`}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition ${viewMode === "list" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-500 hover:text-slate-700"
+                    }`}
                 >
                   <List size={14} /> Table
                 </button>
@@ -868,17 +952,15 @@ export function ResourceView({
               <div className="inline-flex items-center rounded-xl border border-blue-200 bg-blue-50/90 p-1 shrink-0">
                 <button
                   onClick={() => setMenuViewMode("table")}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${
-                    menuViewMode === "table" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${menuViewMode === "table" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   <List size={14} /> Table View
                 </button>
                 <button
                   onClick={() => setMenuViewMode("flow")}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${
-                    menuViewMode === "flow" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${menuViewMode === "flow" ? "bg-white text-[#1a5d9c] shadow-2xs border border-blue-200" : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   <Workflow size={14} /> Hierarchy Wire Flow
                 </button>
@@ -941,7 +1023,7 @@ export function ResourceView({
 
                       <div className="p-3">
                         <p className="truncate text-xs font-bold text-[#102a4c]">
-                          {String(item.title || item.name || item.originalname || "Untitled Asset")}
+                          {String(item.eventName || item.title || item.name || item.originalname || "Untitled Asset")}
                         </p>
                         <p className="mt-0.5 truncate text-[11px] text-slate-400">
                           {String(item.eventType || item.category || "General")}
@@ -1002,16 +1084,14 @@ export function ResourceView({
                               <span
                                 className={
                                   field === "isRead"
-                                    ? `rounded-full px-2.5 py-1 text-xs font-bold ${
-                                        item[field]
-                                          ? "bg-slate-100 text-slate-600"
-                                          : "bg-red-100 text-red-700 border border-red-200 animate-pulse"
-                                      }`
+                                    ? `rounded-full px-2.5 py-1 text-xs font-bold ${item[field]
+                                      ? "bg-slate-100 text-slate-600"
+                                      : "bg-red-100 text-red-700 border border-red-200 animate-pulse"
+                                    }`
                                     : typeof item[field] === "boolean"
-                                    ? `rounded-full px-2.5 py-1 text-xs font-bold ${
-                                        item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                                      ? `rounded-full px-2.5 py-1 text-xs font-bold ${item[field] ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
                                       }`
-                                    : ""
+                                      : ""
                                 }
                               >
                                 {formatted}

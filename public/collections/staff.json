@@ -1,7 +1,7 @@
 [
   {
     "_id": "6aab628f57ac46acecbf8386",
-    "avatar": "/indian-public-school/assets/Staff/Amit.webp",
+    "avatar": "/assets/Staff/Amit.webp",
     "department": "Hindi Teacher",
     "designation": "Senior Teacher",
     "email": "amit@gmail.com",
@@ -16,7 +16,7 @@
   },
   {
     "_id": "6aab628f57ac46acecbf8387",
-    "avatar": "/indian-public-school/assets/Staff/Sonam.jpg",
+    "avatar": "/assets/Staff/Sonam.jpg",
     "department": "CS Teacher",
     "designation": "Senior Teacher",
     "email": "sonam@gmail.com",

@@ -2,7 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Award, BookOpen, ChevronRight, Download, ExternalLink, FileText, GraduationCap, Lock } from "lucide-react";
 import datasource from "@/public/cloud-datasource.json";
-import fallbackHeroImage from "@/assets/campus-aerial.jpg";
+import { DEFAULT_HERO_IMAGE } from "@/lib/site-data";
+import { getAssetUrl } from "@/lib/utils";
+
+function processHtmlAssetUrls(html: string): string {
+  if (!html) return "";
+  return html.replace(/(src|href)=["'](\/assets\/[^"']+|assets\/[^"']+|\/indian-public-school\/assets\/[^"']+)["']/g, (_match, attr, path) => {
+    const fullUrl = getAssetUrl(path);
+    return `${attr}="${fullUrl}"`;
+  });
+}
 
 type Content = Record<string, unknown>;
 
@@ -399,7 +408,8 @@ export default async function ContentPage({
 
   const cards = childCards(activePage);
   const bulletItems = stringList(activePage.list);
-  const htmlContent = typeof activePage.textContent === "string" ? activePage.textContent : "";
+  const rawHtmlContent = typeof activePage.textContent === "string" ? activePage.textContent : "";
+  const htmlContent = processHtmlAssetUrls(rawHtmlContent);
   const breadcrumbs = buildBreadcrumbs(slug, title);
 
   const bannerImg =
@@ -409,7 +419,7 @@ export default async function ContentPage({
         ? (activePage.bannerImage as string)
         : typeof activePage?.image === "string" && activePage.image
           ? (activePage.image as string)
-          : fallbackHeroImage.src;
+          : DEFAULT_HERO_IMAGE;
 
   return (
     <main className="flex-1">

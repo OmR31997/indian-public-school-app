@@ -72,7 +72,7 @@ const DEFAULT_CLOUDINARY_MEDIA: MediaItem[] = [
   },
   {
     id: "default-hero-campus",
-    url: "/indian-public-school/assets/Home/hero-campus.jpg",
+    url: "/ips-education/assets/Settings/Home/hero-campus.jpg",
     title: "Campus Aerial Main Hero Banner",
     category: "Banners",
     source: "cloudinary",
@@ -117,9 +117,14 @@ const DEFAULT_CLOUDINARY_MEDIA: MediaItem[] = [
 export function normalizeCategoryKey(raw?: string): string {
   if (!raw || typeof raw !== "string") return "";
   let s = raw.trim();
+  const rootFolder = process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || "ips-education";
   if (s.startsWith("/album/")) s = s.replace(/^\/album\//, "");
-  if (s.startsWith("indian-public-school/assets/")) s = s.replace(/^indian-public-school\/assets\//, "");
-  if (s.startsWith("indian-public-school/")) s = s.replace(/^indian-public-school\//, "");
+  if (s.startsWith(`${rootFolder}/assets/`)) s = s.replace(new RegExp(`^${rootFolder}/assets/`, "i"), "");
+  if (s.startsWith(`${rootFolder}/`)) s = s.replace(new RegExp(`^${rootFolder}/`, "i"), "");
+  if (s.startsWith("ips-education/assets/")) s = s.replace(/^ips-education\/assets\//i, "");
+  if (s.startsWith("ips-education/")) s = s.replace(/^ips-education\//i, "");
+  if (s.startsWith("indian-public-school/assets/")) s = s.replace(/^indian-public-school\/assets\//i, "");
+  if (s.startsWith("indian-public-school/")) s = s.replace(/^indian-public-school\//i, "");
   if (s.includes("/")) s = s.split("/").pop() || s;
   return s.trim();
 }
@@ -169,6 +174,8 @@ export function CloudinaryGalleryModal({
                 ? [item.fileUrl]
                 : [];
             if (urls.length === 0) return [];
+            const rootFolder = process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || "ips-education";
+            const assetsPrefix = `${rootFolder}/assets`;
             return urls.map((url: string, uIdx: number) => {
               const lowerUrl = url.toLowerCase();
               const lowerDir = String(item.directory || item.folder || "").toLowerCase();
@@ -177,17 +184,17 @@ export function CloudinaryGalleryModal({
               const dir =
                 item.directory ||
                 item.folder ||
-                (url.toLowerCase().includes("admissiondocuments")
-                  ? "indian-public-school/assets/AdmissionDocuments"
+                (url.toLowerCase().includes("admissiondocuments") || url.toLowerCase().includes("admission")
+                  ? `${assetsPrefix}/Documents/Admission`
                   : isSettingsAsset
-                  ? "indian-public-school/assets/Settings"
+                  ? `${assetsPrefix}/Settings/Home`
                   : item.eventType || item.album || item.category || "General");
 
               return {
                 id: item._id || item.id ? `${item._id || item.id}-${uIdx}` : `media-${idx}-${uIdx}`,
                 url,
                 title: item.eventName || item.title || item.album || `Gallery Media #${idx + 1}${urls.length > 1 ? ` (${uIdx + 1})` : ""}`,
-                category: dir.toLowerCase().includes("admissiondocuments")
+                category: dir.toLowerCase().includes("admissiondocuments") || dir.toLowerCase().includes("admission")
                   ? "AdmissionDocuments"
                   : isSettingsAsset || dir.toLowerCase().includes("settings")
                   ? "Settings"
@@ -228,18 +235,20 @@ export function CloudinaryGalleryModal({
     setUploadError("");
 
     try {
+      const rootFolder = process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || "ips-education";
+      const assetsPrefix = `${rootFolder}/assets`;
       const formData = new FormData();
       formData.append("file", file);
       const isSettingsCategory = activeCategory && (activeCategory.toLowerCase().includes("setting") || activeCategory === "Settings");
-      formData.append("album", isSettingsCategory ? "Settings" : activeCategory === "AdmissionDocuments" ? "AdmissionDocuments" : "Visual Editor Picked");
+      formData.append("album", isSettingsCategory ? "Settings" : activeCategory === "AdmissionDocuments" ? "Admission" : "Visual Editor Picked");
       if (activeCategory && activeCategory !== "All") {
         formData.append(
           "folder",
           isSettingsCategory
-            ? "indian-public-school/assets/Settings"
-            : activeCategory === "Settings"
-              ? "indian-public-school/assets/AdmissionDocuments"
-              : activeCategory
+            ? `${assetsPrefix}/Settings/Home`
+            : activeCategory === "AdmissionDocuments"
+              ? `${assetsPrefix}/Documents/Admission`
+              : `${assetsPrefix}/${activeCategory}`
         );
       }
 
@@ -269,7 +278,7 @@ export function CloudinaryGalleryModal({
         url,
         title: file.name.replace(/\.[^/.]+$/, ""),
         category: activeCategory !== "All" ? activeCategory : "New Uploads",
-        directory: activeCategory === "AdmissionDocuments" ? "indian-public-school/assets/AdmissionDocuments" : activeCategory,
+        directory: activeCategory === "AdmissionDocuments" ? `${assetsPrefix}/Documents/Admission` : `${assetsPrefix}/${activeCategory}`,
         source: "database",
       };
 
