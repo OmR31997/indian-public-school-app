@@ -321,6 +321,11 @@ export function Navbar() {
               src={customLogoUrl}
               alt={logoTitle}
               className="h-10 max-w-[140px] sm:h-12 sm:max-w-[180px] object-contain transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => {
+                if (e.currentTarget.src !== "/assets/Settings/Logos/IPSStandardLogo.png") {
+                  e.currentTarget.src = "/assets/Settings/Logos/IPSStandardLogo.png";
+                }
+              }}
             />
           ) : (
             <span
