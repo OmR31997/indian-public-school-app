@@ -3,9 +3,9 @@ import { getAssetUrl, getCloudinaryRootFolder } from "@/lib/utils";
 import fallbackSiteData from "@/public/cloud-datasource.json";
 
 export const CLOUDINARY_ROOT_FOLDER = getCloudinaryRootFolder();
-export const DEFAULT_HERO_IMAGE = "/assets/Settings/Home/hero-campus.jpg";
-export const DEFAULT_LOGO = "/assets/Settings/Logos/IPSStandardLogo.png";
-export const DEFAULT_INTRO_VIDEO = "/assets/Videos/IPSIntroVideo.mp4";
+export const DEFAULT_HERO_IMAGE = "/Settings/Home/hero-campus.jpg";
+export const DEFAULT_LOGO = "/Settings/Logos/IPSStandardLogo.png";
+export const DEFAULT_INTRO_VIDEO = "/Videos/IPSIntroVideo.mp4";
 
 export type SiteRecord = ApiRecord;
 

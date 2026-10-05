@@ -68,11 +68,11 @@ export function HomeLayoutEditorModal({
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => { });
       setIsFullscreen(true);
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
       }
       setIsFullscreen(false);
     }
@@ -80,7 +80,7 @@ export function HomeLayoutEditorModal({
 
   const handleCloseModal = () => {
     if (document.fullscreenElement && document.exitFullscreen) {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
     onClose();
   };
@@ -290,34 +290,34 @@ export function HomeLayoutEditorModal({
       const currentCols = Array.isArray(currentFooter.columns) && currentFooter.columns.length > 0
         ? currentFooter.columns
         : [
-            {
-              title: "Quick Links",
-              links: [
-                { title: "Home", href: "/" },
-                { title: "About Us", href: "/#about" },
-                { title: "Academics", href: "/#academics" },
-                { title: "Admissions", href: "/admission" },
-                { title: "Contact Us", href: "/#contact" },
-              ],
-            },
-            {
-              title: "Key Pages",
-              links: [
-                { title: "Chairman's Message", href: "/about/chairman-message" },
-                { title: "Principal's Desk", href: "/about/principal-message" },
-                { title: "Campus Life", href: "/#campus-life" },
-                { title: "Gallery", href: "/#gallery" },
-              ],
-            },
-            {
-              title: "Important Links",
-              links: [
-                { title: "Enquiry", href: "/#enquiry" },
-                { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
-                { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
-              ],
-            },
-          ];
+          {
+            title: "Quick Links",
+            links: [
+              { title: "Home", href: "/" },
+              { title: "About Us", href: "/#about" },
+              { title: "Academics", href: "/#academics" },
+              { title: "Admissions", href: "/admission" },
+              { title: "Contact Us", href: "/#contact" },
+            ],
+          },
+          {
+            title: "Key Pages",
+            links: [
+              { title: "Chairman's Message", href: "/about/chairman-message" },
+              { title: "Principal's Desk", href: "/about/principal-message" },
+              { title: "Campus Life", href: "/#campus-life" },
+              { title: "Gallery", href: "/#gallery" },
+            ],
+          },
+          {
+            title: "Important Links",
+            links: [
+              { title: "Enquiry", href: "/#enquiry" },
+              { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
+              { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
+            ],
+          },
+        ];
 
       const newCols = updater(JSON.parse(JSON.stringify(currentCols)));
       const footerObj = { ...currentFooter, columns: newCols };
@@ -447,11 +447,10 @@ export function HomeLayoutEditorModal({
 
   return (
     <div className={`fixed inset-0 z-50 grid place-items-center bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200 ${isFullscreen ? "p-0" : "p-4"}`}>
-      <div className={`w-full overflow-hidden bg-white flex flex-col transition-all duration-300 ${
-        isFullscreen
-          ? "h-screen w-screen max-w-none max-h-none rounded-none shadow-none border-0"
-          : "max-h-[92vh] max-w-5xl rounded-3xl shadow-2xl border border-slate-100"
-      }`}>
+      <div className={`w-full overflow-hidden bg-white flex flex-col transition-all duration-300 ${isFullscreen
+        ? "h-screen w-screen max-w-none max-h-none rounded-none shadow-none border-0"
+        : "max-h-[92vh] max-w-5xl rounded-3xl shadow-2xl border border-slate-100"
+        }`}>
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4 shrink-0 rounded-t-3xl">
           <div>
@@ -519,11 +518,10 @@ export function HomeLayoutEditorModal({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition border whitespace-nowrap cursor-pointer ${
-                activeTab === tab.id
-                  ? "border-[#1a5d9c] bg-[#1a5d9c] text-white shadow-xs"
-                  : "border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 hover:border-slate-300"
-              }`}
+              className={`flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition border whitespace-nowrap cursor-pointer ${activeTab === tab.id
+                ? "border-[#1a5d9c] bg-[#1a5d9c] text-white shadow-xs"
+                : "border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 hover:border-slate-300"
+                }`}
             >
               <i className={`bi ${tab.icon}`} />
               <span>{tab.label}</span>
@@ -868,34 +866,34 @@ export function HomeLayoutEditorModal({
                 const currentCols = Array.isArray(footerObj.columns) && footerObj.columns.length > 0
                   ? footerObj.columns
                   : [
-                      {
-                        title: "Quick Links",
-                        links: [
-                          { title: "Home", href: "/" },
-                          { title: "About Us", href: "/#about" },
-                          { title: "Academics", href: "/#academics" },
-                          { title: "Admissions", href: "/admission" },
-                          { title: "Contact Us", href: "/#contact" },
-                        ],
-                      },
-                      {
-                        title: "Key Pages",
-                        links: [
-                          { title: "Chairman's Message", href: "/about/chairman-message" },
-                          { title: "Principal's Desk", href: "/about/principal-message" },
-                          { title: "Campus Life", href: "/#campus-life" },
-                          { title: "Gallery", href: "/#gallery" },
-                        ],
-                      },
-                      {
-                        title: "Important Links",
-                        links: [
-                          { title: "Enquiry", href: "/#enquiry" },
-                          { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
-                          { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
-                        ],
-                      },
-                    ];
+                    {
+                      title: "Quick Links",
+                      links: [
+                        { title: "Home", href: "/" },
+                        { title: "About Us", href: "/#about" },
+                        { title: "Academics", href: "/#academics" },
+                        { title: "Admissions", href: "/admission" },
+                        { title: "Contact Us", href: "/#contact" },
+                      ],
+                    },
+                    {
+                      title: "Key Pages",
+                      links: [
+                        { title: "Chairman's Message", href: "/about/chairman-message" },
+                        { title: "Principal's Desk", href: "/about/principal-message" },
+                        { title: "Campus Life", href: "/#campus-life" },
+                        { title: "Gallery", href: "/#gallery" },
+                      ],
+                    },
+                    {
+                      title: "Important Links",
+                      links: [
+                        { title: "Enquiry", href: "/#enquiry" },
+                        { title: "Mandatory Disclosure", href: "/mandatory-disclosure" },
+                        { title: "Parent Portal", href: "/connectivity/parent-teacher-meeting" },
+                      ],
+                    },
+                  ];
 
                 return (
                   <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
@@ -1357,11 +1355,10 @@ export function HomeLayoutEditorModal({
                             const calculatedHeight = (parts.length === 2 && parts[0] > 0) ? Math.round((item.width * parts[1]) / parts[0]) : item.height;
                             updatePopupBannerField("imageMaxHeight", calculatedHeight);
                           }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
-                            (datasource?.home?.[0]?.identity?.popupBanner?.modalWidth ?? datasource?.popupBanner?.modalWidth ?? "lg") === item.preset
-                              ? "bg-[#1a5d9c] text-white border-[#1a5d9c] shadow-xs"
-                              : "bg-white text-slate-700 border-slate-200 hover:bg-blue-50/70"
-                          }`}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${(datasource?.home?.[0]?.identity?.popupBanner?.modalWidth ?? datasource?.popupBanner?.modalWidth ?? "lg") === item.preset
+                            ? "bg-[#1a5d9c] text-white border-[#1a5d9c] shadow-xs"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-blue-50/70"
+                            }`}
                         >
                           {item.label}
                         </button>
@@ -2462,12 +2459,8 @@ export function HomeLayoutEditorModal({
                   const eyebrowVal = secVid.eyebrow || sec8.videoEyebrow || "Discover IPS";
                   const titleVal = secVid.title || secVid.heading || sec8.videoTitle || "Experience life at Indian Public School";
                   const descVal = secVid.description || sec8.videoDescription || "Take a look at the campus, learning spaces and student life.";
-                  const FALLBACK_SEED_VIDEO = "https://www.indianpublicschool.in/assets/img/IPS.mp4";
-                  let videoUrlVal = secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl;
-                  if (!videoUrlVal || videoUrlVal === "/IPSIntroVideo.mp4") {
-                    videoUrlVal = FALLBACK_SEED_VIDEO;
-                  }
-                  const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "indian-public-school/assets/Videos";
+                  const videoUrlVal = secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl;
+                  const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "indian-public-school";
 
                   const updateVideoData = (updates: Record<string, any>) => {
                     updateHome((prev) => {

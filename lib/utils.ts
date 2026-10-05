@@ -16,19 +16,21 @@ export function getCloudinaryRootFolder(): string {
  */
 export function getAssetUrl(url?: string | null): string {
   if (!url) return '';
-  let trimmed = url.trim();
+  let trimmed = url.trim()
+    .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/')
+    .replace(/(?:Videos\/)+Videos\//gi, 'Videos/');
   if (!trimmed) return '';
 
   if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
     return trimmed;
   }
 
-  if (trimmed === '/assets/Logos/IPSLOGO.png' || trimmed === '/assets/IPSLOGO.png' || trimmed === 'assets/Logos/IPSLOGO.png') {
-    trimmed = 'assets/Settings/Logos/IPSStandardLogo.png';
+  if (trimmed === '/assets/Logos/IPSLOGO.png') {
+    trimmed = '/Settings/Logos/IPSStandardLogo.png';
   }
 
-  if (trimmed === '/IPSIntroVideo.mp4' || trimmed === 'IPSIntroVideo.mp4' || trimmed === '/assets/IPSIntroVideo.mp4' || trimmed === 'assets/IPSIntroVideo.mp4') {
-    trimmed = 'assets/Videos/IPSIntroVideo.mp4';
+  if (trimmed === '/IPSIntroVideo.mp4') {
+    trimmed = '/IPSIntroVideo.mp4';
   }
 
   // Handle absolute Cloudinary URLs missing resource_type (video/upload, image/upload) or containing malformed prefixes
@@ -37,7 +39,8 @@ export function getAssetUrl(url?: string | null): string {
       // Fix malformed URLs where /ips-education/assets/upload/ or /assets/upload/ was prepended
       trimmed = trimmed
         .replace(/\/(?:ips-education|indian-public-school)\/assets\/upload\//gi, '/image/upload/')
-        .replace(/\/assets\/upload\//gi, '/image/upload/');
+        .replace(/\/assets\/upload\//gi, '/image/upload/')
+        .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/');
 
       if (!trimmed.includes('/upload/')) {
         const isVideo = trimmed.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(trimmed);
@@ -56,7 +59,9 @@ export function getAssetUrl(url?: string | null): string {
   // Strip hardcoded root folders (ips-education or indian-public-school) so environment variable controls the root folder
   cleanPath = cleanPath
     .replace(/^ips-education\//, '')
-    .replace(/^indian-public-school\//, '');
+    .replace(/^indian-public-school\//, '')
+    .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/')
+    .replace(/(?:Videos\/)+Videos\//gi, 'Videos/');
 
   const lowerPath = cleanPath.toLowerCase();
 

@@ -320,11 +320,6 @@ export function Footer() {
                   src={customLogoUrl}
                   alt={displayBrandTitle}
                   className="h-11 max-w-[150px] object-contain"
-                  onError={(e) => {
-                    if (e.currentTarget.src !== "/assets/Settings/Logos/IPSStandardLogo.png") {
-                      e.currentTarget.src = "/assets/Settings/Logos/IPSStandardLogo.png";
-                    }
-                  }}
                 />
               ) : (
                 <span
