@@ -6,13 +6,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getCloudinaryRootFolder(): string {
-  return (process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || 'ips-education').replace(/^\/+|\/+$/g, '');
+  return (process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || '').replace(/^\/+|\/+$/g, '');
 }
 
 /**
- * Resolves absolute or relative media/file paths to full URLs.
- * - Absolute URLs (http://, https://, data:, blob:) are returned as-is, with Cloudinary resource_type fixes applied if missing.
- * - Relative paths automatically incorporate NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER and appropriate Cloudinary resource_type prefix (video/upload, image/upload, raw/upload).
+ * Resolves absolute or relative media/file paths to full URLs dynamically.
  */
 export function getAssetUrl(url?: string | null): string {
   if (!url) return '';
@@ -25,29 +23,21 @@ export function getAssetUrl(url?: string | null): string {
     return trimmed;
   }
 
-  if (trimmed === '/assets/Logos/IPSLOGO.png') {
-    trimmed = '/Settings/Logos/IPSStandardLogo.png';
-  }
-
-  if (trimmed === '/IPSIntroVideo.mp4') {
-    trimmed = '/IPSIntroVideo.mp4';
-  }
-
-  // Handle absolute Cloudinary URLs missing resource_type (video/upload, image/upload) or containing malformed prefixes
+  // Handle absolute Cloudinary URLs missing resource_type
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     if (trimmed.includes('cloudinary.com')) {
-      // Fix malformed URLs where /ips-education/assets/upload/ or /assets/upload/ was prepended
-      trimmed = trimmed
-        .replace(/\/(?:ips-education|indian-public-school)\/assets\/upload\//gi, '/image/upload/')
-        .replace(/\/assets\/upload\//gi, '/image/upload/')
-        .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/');
+      const rootFolder = getCloudinaryRootFolder();
+      if (rootFolder) {
+        const escapedRoot = rootFolder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        trimmed = trimmed.replace(new RegExp(`\\/${escapedRoot}\\/upload\\/`, 'gi'), '/image/upload/');
+      }
 
       if (!trimmed.includes('/upload/')) {
         const isVideo = trimmed.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(trimmed);
-        const isRaw = trimmed.includes('/Documents/') || /\.(pdf|doc|docx|xls|xlsx|zip|txt)$/i.test(trimmed);
+        const isRaw = /\.(doc|docx|xls|xlsx|zip|txt)$/i.test(trimmed);
         const typePrefix = isVideo ? 'video/upload' : isRaw ? 'raw/upload' : 'image/upload';
         const rootFolder = getCloudinaryRootFolder();
-        return trimmed.replace(new RegExp(`/${rootFolder}/`), `/${typePrefix}/${rootFolder}/`);
+        return rootFolder ? trimmed.replace(new RegExp(`/${rootFolder}/`), `/${typePrefix}/${rootFolder}/`) : trimmed;
       }
     }
     return trimmed;
@@ -56,24 +46,25 @@ export function getAssetUrl(url?: string | null): string {
   const rootFolder = getCloudinaryRootFolder();
   let cleanPath = trimmed.replace(/^\/+/, '');
 
-  // Strip hardcoded root folders (ips-education or indian-public-school) so environment variable controls the root folder
+  if (rootFolder && cleanPath.toLowerCase().startsWith(`${rootFolder.toLowerCase()}/`)) {
+    cleanPath = cleanPath.slice(rootFolder.length).replace(/^\/+/, '');
+  }
+
   cleanPath = cleanPath
-    .replace(/^ips-education\//, '')
-    .replace(/^indian-public-school\//, '')
     .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/')
     .replace(/(?:Videos\/)+Videos\//gi, 'Videos/');
 
   const lowerPath = cleanPath.toLowerCase();
 
   let resourcePrefix = 'image/upload';
+  const cloudinaryBase = (process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL || '').replace(/\/+$/, '');
+
   if (
     lowerPath.startsWith('video/upload/') ||
     lowerPath.startsWith('image/upload/') ||
     lowerPath.startsWith('raw/upload/')
   ) {
-    const cloudinaryBase = process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL || 'https://res.cloudinary.com/niefrrkx';
-    const cleanBase = cloudinaryBase.replace(/\/+$/, '');
-    return `${cleanBase}/${cleanPath}`;
+    return cloudinaryBase ? `${cloudinaryBase}/${cleanPath}` : `/${cleanPath}`;
   }
 
   if (
@@ -82,8 +73,7 @@ export function getAssetUrl(url?: string | null): string {
   ) {
     resourcePrefix = 'video/upload';
   } else if (
-    lowerPath.includes('documents/') ||
-    /\.(pdf|doc|docx|xls|xlsx|zip|txt)$/i.test(lowerPath)
+    /\.(doc|docx|xls|xlsx|zip|txt)$/i.test(lowerPath)
   ) {
     resourcePrefix = 'raw/upload';
   }
@@ -92,7 +82,5 @@ export function getAssetUrl(url?: string | null): string {
     cleanPath = `${rootFolder}/${cleanPath}`;
   }
 
-  const cloudinaryBase = process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL || 'https://res.cloudinary.com/niefrrkx';
-  const cleanBase = cloudinaryBase.replace(/\/+$/, '');
-  return `${cleanBase}/${resourcePrefix}/${cleanPath}`;
+  return cloudinaryBase ? `${cloudinaryBase}/${resourcePrefix}/${cleanPath}` : `/${resourcePrefix}/${cleanPath}`;
 }

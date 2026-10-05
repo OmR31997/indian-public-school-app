@@ -802,7 +802,7 @@ export function HomeSectionsTab({
               if (!videoUrlVal || videoUrlVal === "/IPSIntroVideo.mp4") {
                 videoUrlVal = DEFAULT_VIDEO;
               }
-              const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "ips-education/assets/Videos";
+              const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "Videos";
 
               const updateVideoData = (updates: Record<string, any>) => {
                 updateHome((prev) => {

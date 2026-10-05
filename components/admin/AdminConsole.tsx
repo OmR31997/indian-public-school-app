@@ -392,7 +392,7 @@ export function AdminConsole() {
 
   return <main className="min-h-screen bg-[#f4f7fb] text-slate-800">
     <aside className={`fixed inset-y-0 left-0 z-30 flex w-[272px] flex-col bg-[#102a4c] px-4 py-5 text-slate-200 shadow-2xl transition-transform lg:translate-x-0 ${mobileMenu ? "translate-x-0" : "-translate-x-full"}`}>
-      <div className="mb-9 flex items-center gap-3 px-2"><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f4bd4f] text-[#102a4c] overflow-hidden p-1"><img src={imageUrl(DEFAULT_LOGO)} alt="IPS Logo" className="h-full w-full object-contain" onError={(e) => { if (e.currentTarget.src !== DEFAULT_LOGO) { e.currentTarget.src = DEFAULT_LOGO; } }} /></div><div><p className="font-display text-lg font-bold text-white">IPS Admin</p><p className="text-xs text-blue-200">Indian Public School</p></div></div>
+      <div className="mb-9 flex items-center gap-3 px-2"><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f4bd4f] text-[#102a4c] overflow-hidden p-1"><img src={imageUrl(DEFAULT_LOGO)} alt="IPS Logo" className="h-full w-full object-contain" onError={(e) => { e.currentTarget.onerror = null; }} /></div><div><p className="font-display text-lg font-bold text-white">IPS Admin</p><p className="text-xs text-blue-200">Indian Public School</p></div></div>
       <nav className="flex-1 space-y-5 overflow-y-auto">
         <button onClick={() => { setActive("overview"); setMobileMenu(false); }} className={`sidebar-link ${active === "overview" ? "sidebar-link-active" : ""}`}><LayoutDashboard size={18} /> Overview</button>
         {sectionNames.slice(1).map((section) => {

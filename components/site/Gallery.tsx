@@ -176,80 +176,7 @@ function mapEventTypeToCategory(rawType: unknown): Category {
   return "Events";
 }
 
-const DEFAULT_CLOUDINARY_MEDIA: AlbumImage[] = [
-  {
-    src: imageUrl("/assets/Settings/Home/hero-campus.png"),
-    alt: "Campus Aerial Main View",
-    category: "Campus",
-    album: "Main Campus Aerial Banners",
-    directory: "/album/campus",
-    directoryName: "/album/campus",
-  },
-  {
-    src: imageUrl("/assets/Album/CampusAerial.png"),
-    alt: "School Academic Building Front View",
-    category: "Campus",
-    album: "School Infrastructure",
-    directory: "/album/campus",
-    directoryName: "/album/campus",
-  },
-  {
-    src: imageUrl("/assets/Album/ClassRoom.webp"),
-    alt: "Smart Digital Interactive Classroom",
-    category: "Campus",
-    album: "Classrooms & Labs",
-    directory: "/album/campus",
-    directoryName: "/album/campus",
-  },
-  {
-    src: imageUrl("/assets/Album/ScienceLab.webp"),
-    alt: "Smart Science & Innovation Lab",
-    category: "Activities",
-    album: "Science & Innovation",
-    directory: "/album/activities",
-    directoryName: "/album/activities",
-  },
-  {
-    src: imageUrl("/assets/Album/Library.webp"),
-    alt: "Central Library & Knowledge Hub",
-    category: "Campus",
-    album: "Library",
-    directory: "/album/campus",
-    directoryName: "/album/campus",
-  },
-  {
-    src: imageUrl("/assets/Album/Sports.png"),
-    alt: "Annual Athletic Sports Field",
-    category: "Sports",
-    album: "Sports Ground",
-    directory: "/album/sports",
-    directoryName: "/album/sports",
-  },
-  {
-    src: imageUrl("/assets/Album/LifeArts.png"),
-    alt: "Art Studio & Creative Corner",
-    category: "Arts",
-    album: "Art & Craft Studio",
-    directory: "/album/arts",
-    directoryName: "/album/arts",
-  },
-  {
-    src: imageUrl("/assets/Album/LifeInHostel_1.jpg"),
-    alt: "Hostel & Living Facility",
-    category: "Hostel",
-    album: "Hostel Premises",
-    directory: "/album/hostel",
-    directoryName: "/album/hostel",
-  },
-  {
-    src: imageUrl("/assets/Settings/Home/Banner_1.jpg"),
-    alt: "Open Green Playgrounds",
-    category: "Sports",
-    album: "Playgrounds",
-    directory: "/album/sports",
-    directoryName: "/album/sports",
-  },
-];
+
 
 export function Gallery() {
   const siteData = useSiteData();
@@ -366,7 +293,7 @@ export function Gallery() {
 
   // Combined & deduplicated album images
   const allAlbumImages = useMemo(() => {
-    const combined = [...extraApiImages, ...datasourceImages, ...DEFAULT_CLOUDINARY_MEDIA];
+    const combined = [...extraApiImages, ...datasourceImages];
     const seen = new Set<string>();
     const uniqueList: AlbumImage[] = [];
 

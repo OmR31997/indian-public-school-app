@@ -13,12 +13,7 @@ import {
 } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
-const FALLBACK_IMAGES = [
-  "/indian-public-school/assets/Home/PrePrimary.jpg",
-  "/indian-public-school/assets/Home/PrimaryLevel.jpg",
-  "/indian-public-school/assets/Home/SecondaryLevel.jpg",
-  "/indian-public-school/assets/Home/SeniorSecondLevel.jpg",
-];
+
 
 const CARDS = [
   {
@@ -64,8 +59,7 @@ export function Achievements() {
   const currentImage =
     activeCardImg ||
     sectionImg ||
-    FALLBACK_IMAGES[activeIndex % FALLBACK_IMAGES.length] ||
-    FALLBACK_IMAGES[0];
+    "";
 
   const currentTitle = text(activeCard?.heading || section.heading, "Our Courses");
 

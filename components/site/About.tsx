@@ -38,7 +38,7 @@ export function About() {
   const brief = Array.isArray(section.briefCard)
     ? (section.briefCard[0] as Record<string, unknown>)
     : {};
-  const briefImage = imageUrl(brief.fileUrl) || "/indian-public-school/assets/Home/campus-aerial.jpg";
+  const briefImage = imageUrl(brief.fileUrl) || "";
   const briefHeading = text(brief.heading, "A green, purpose-built campus for modern learning");
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();

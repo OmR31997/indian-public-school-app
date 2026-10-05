@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Filter, Scissors, Video, Music, FileText, File, Eye, FileSpreadsheet } from "lucide-react";
 import axios from "axios";
 import { getOptionalApi, unwrapCollection, API_URL } from "@/lib/api-client";
+import { getAssetUrl } from "@/lib/utils";
 import { ImageStudioModal } from "./ImageStudioModal";
 import { FileViewerModal } from "@/components/ui/FileViewerModal";
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
@@ -55,76 +56,10 @@ export function getFileType(url: string): "image" | "video" | "audio" | "documen
   return "image";
 }
 
-const DEFAULT_CLOUDINARY_MEDIA: MediaItem[] = [
-  {
-    id: "default-[#1-video]",
-    url: "/IPSIntroVideo.mp4",
-    title: "IPS Campus Intro Video Showcase (Cloudinary)",
-    category: "Videos",
-    source: "cloudinary",
-  },
-  {
-    id: "default-fallback-video",
-    url: "https://www.indianpublicschool.in/assets/img/IPS.mp4",
-    title: "IPS Official Fallback Video",
-    category: "Videos",
-    source: "cloudinary",
-  },
-  {
-    id: "default-hero-campus",
-    url: "/ips-education/assets/Settings/Home/hero-campus.jpg",
-    title: "Campus Aerial Main Hero Banner",
-    category: "Banners",
-    source: "cloudinary",
-  },
-  {
-    id: "default-infra-1",
-    url: "https://images.unsplash.com/photo-1562774053-701939374585?w=1000&auto=format&fit=crop&q=80",
-    title: "School Academic Building",
-    category: "Campus",
-    source: "cloudinary",
-  },
-  {
-    id: "default-infra-2",
-    url: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1000&auto=format&fit=crop&q=80",
-    title: "Smart Science & Innovation Lab",
-    category: "Campus",
-    source: "cloudinary",
-  },
-  {
-    id: "default-infra-3",
-    url: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1000&auto=format&fit=crop&q=80",
-    title: "Digital Smart Classroom",
-    category: "Campus",
-    source: "cloudinary",
-  },
-  {
-    id: "default-infra-4",
-    url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1000&auto=format&fit=crop&q=80",
-    title: "Central Library & Knowledge Hub",
-    category: "Campus",
-    source: "cloudinary",
-  },
-  {
-    id: "default-director",
-    url: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&auto=format&fit=crop&q=80",
-    title: "Director Photograph Profile",
-    category: "Staff",
-    source: "cloudinary",
-  },
-];
-
 export function normalizeCategoryKey(raw?: string): string {
   if (!raw || typeof raw !== "string") return "";
   let s = raw.trim();
-  const rootFolder = process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || "ips-education";
   if (s.startsWith("/album/")) s = s.replace(/^\/album\//, "");
-  if (s.startsWith(`${rootFolder}/assets/`)) s = s.replace(new RegExp(`^${rootFolder}/assets/`, "i"), "");
-  if (s.startsWith(`${rootFolder}/`)) s = s.replace(new RegExp(`^${rootFolder}/`, "i"), "");
-  if (s.startsWith("ips-education/assets/")) s = s.replace(/^ips-education\/assets\//i, "");
-  if (s.startsWith("ips-education/")) s = s.replace(/^ips-education\//i, "");
-  if (s.startsWith("indian-public-school/assets/")) s = s.replace(/^indian-public-school\/assets\//i, "");
-  if (s.startsWith("indian-public-school/")) s = s.replace(/^indian-public-school\//i, "");
   if (s.includes("/")) s = s.split("/").pop() || s;
   return s.trim();
 }
@@ -146,7 +81,7 @@ export function CloudinaryGalleryModal({
   onSelectImage,
   title = "Cloudinary Media Gallery",
 }: CloudinaryGalleryModalProps) {
-  const [mediaList, setMediaList] = useState<MediaItem[]>(DEFAULT_CLOUDINARY_MEDIA);
+  const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -174,29 +109,19 @@ export function CloudinaryGalleryModal({
                 ? [item.fileUrl]
                 : [];
             if (urls.length === 0) return [];
-            const rootFolder = process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || "ips-education";
-            const assetsPrefix = `${rootFolder}/assets`;
-            return urls.map((url: string, uIdx: number) => {
-              const lowerUrl = url.toLowerCase();
-              const lowerDir = String(item.directory || item.folder || "").toLowerCase();
-              const isSettingsAsset = lowerUrl.includes("/settings/") || lowerDir.includes("settings") || item.eventType === "Settings";
-
-              const dir =
-                item.directory ||
-                item.folder ||
-                (url.toLowerCase().includes("admissiondocuments") || url.toLowerCase().includes("admission")
-                  ? `${assetsPrefix}/Documents/Admission`
-                  : isSettingsAsset
-                  ? `${assetsPrefix}/Settings/Home`
-                  : item.eventType || item.album || item.category || "General");
+            return urls.map((rawUrl: string, uIdx: number) => {
+              const url = getAssetUrl(rawUrl);
+              const dir = item.directory || item.folder || item.eventType || item.album || item.category || "General";
+              const lowerDir = String(dir).toLowerCase();
+              const isSettingsAsset = url.toLowerCase().includes("/settings/") || lowerDir.includes("settings") || item.eventType === "Settings";
 
               return {
                 id: item._id || item.id ? `${item._id || item.id}-${uIdx}` : `media-${idx}-${uIdx}`,
                 url,
                 title: item.eventName || item.title || item.album || `Gallery Media #${idx + 1}${urls.length > 1 ? ` (${uIdx + 1})` : ""}`,
-                category: dir.toLowerCase().includes("admissiondocuments") || dir.toLowerCase().includes("admission")
+                category: lowerDir.includes("admission")
                   ? "AdmissionDocuments"
-                  : isSettingsAsset || dir.toLowerCase().includes("settings")
+                  : isSettingsAsset || lowerDir.includes("settings")
                   ? "Settings"
                   : (item.eventType || item.category || dir || "General"),
                 directory: dir,
@@ -207,10 +132,9 @@ export function CloudinaryGalleryModal({
         );
 
         // Deduplicate by URL
-        const combined = [...fetchedMedia, ...DEFAULT_CLOUDINARY_MEDIA];
         const uniqueMap = new Map<string, MediaItem>();
-        combined.forEach((item) => {
-          if (!uniqueMap.has(item.url)) {
+        fetchedMedia.forEach((item) => {
+          if (item.url && !uniqueMap.has(item.url)) {
             uniqueMap.set(item.url, item);
           }
         });
@@ -235,8 +159,6 @@ export function CloudinaryGalleryModal({
     setUploadError("");
 
     try {
-      const rootFolder = process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || "ips-education";
-      const assetsPrefix = `${rootFolder}/assets`;
       const formData = new FormData();
       formData.append("file", file);
       const isSettingsCategory = activeCategory && (activeCategory.toLowerCase().includes("setting") || activeCategory === "Settings");
@@ -245,10 +167,10 @@ export function CloudinaryGalleryModal({
         formData.append(
           "folder",
           isSettingsCategory
-            ? `${assetsPrefix}/Settings/Home`
+            ? "Settings/Home"
             : activeCategory === "AdmissionDocuments"
-              ? `${assetsPrefix}/Documents/Admission`
-              : `${assetsPrefix}/${activeCategory}`
+              ? "Documents/Admission"
+              : activeCategory
         );
       }
 
@@ -278,7 +200,7 @@ export function CloudinaryGalleryModal({
         url,
         title: file.name.replace(/\.[^/.]+$/, ""),
         category: activeCategory !== "All" ? activeCategory : "New Uploads",
-        directory: activeCategory === "AdmissionDocuments" ? `${assetsPrefix}/Documents/Admission` : `${assetsPrefix}/${activeCategory}`,
+        directory: activeCategory === "AdmissionDocuments" ? "Documents/Admission" : activeCategory,
         source: "database",
       };
 

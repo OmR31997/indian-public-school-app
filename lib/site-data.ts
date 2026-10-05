@@ -255,7 +255,7 @@ export function imageUrl(value: unknown): string {
   if (typeof value === "string") {
     let url = value.trim();
     if (!url) return "";
-    if (url === "/assets/Logos/IPSLOGO.png" || url === "/assets/IPSLOGO.png" || url === "assets/Logos/IPSLOGO.png") {
+    if (url === "/assets/Logos/IPSLOGO.png" || url === "/assets/IPSLOGO.png" || url === "assets/Logos/IPSLOGO.png" || url === "/Settings/Logos/IPSStandardLogo.png") {
       url = DEFAULT_LOGO;
     }
     return getAssetUrl(url);
@@ -345,7 +345,7 @@ export function getPopupBannerConfig(siteData?: SiteData | null): Required<Popup
 
   const enabled = pb.enabled !== false;
   const delaySeconds = typeof pb.delaySeconds === "number" ? pb.delaySeconds : (Number(pb.delaySeconds) || 3);
-  const imageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "/ips-education/assets/Settings/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
+  const imageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "/Settings/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
   const showTitle = pb.showTitle !== false;
   const title = showTitle ? (pb.title !== undefined ? text(pb.title) : "Admissions Open 2026–27") : "";
   const rawSubtitle = text(pb.subtitle) || "";

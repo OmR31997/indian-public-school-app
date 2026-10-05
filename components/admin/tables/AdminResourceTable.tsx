@@ -541,10 +541,10 @@ export function HeaderFooterSettingsCard({
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f4bd4f] text-[#102a4c] overflow-hidden p-1">
                 {siteLogo.logoUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={imageUrl(siteLogo.logoUrl)} alt="Logo" className="h-full w-full object-contain" onError={(e) => { if (e.currentTarget.src !== DEFAULT_LOGO) { e.currentTarget.src = DEFAULT_LOGO; } }} />
+                  <img src={imageUrl(siteLogo.logoUrl)} alt="Logo" className="h-full w-full object-contain" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imageUrl(DEFAULT_LOGO); }} />
                 ) : (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={imageUrl(DEFAULT_LOGO)} alt="IPS Logo" className="h-full w-full object-contain" onError={(e) => { if (e.currentTarget.src !== DEFAULT_LOGO) { e.currentTarget.src = DEFAULT_LOGO; } }} />
+                  <img src={imageUrl(DEFAULT_LOGO)} alt="IPS Logo" className="h-full w-full object-contain" onError={(e) => { e.currentTarget.onerror = null; }} />
                 )}
               </div>
               <div className="text-left">
@@ -825,7 +825,7 @@ export function ResourceView({
       raw = String(val || "");
     }
     if (!raw) {
-      return "/indian-public-school/assets/Home/hero-campus.jpg";
+      return "";
     }
     return imageUrl(raw);
   };
