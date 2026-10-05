@@ -44,14 +44,14 @@
     "contact": "+91 9876543237",
     "createdAt": "2026-09-18T20:39:33.013Z",
     "documents": [
-      "/assets/AdmissionDocuments/file_pbpiwm.webp"
+      "/AdmissionDocuments/file_pbpiwm.webp"
     ],
     "email": "om@gmail.com",
     "inquiryType": "Admission",
     "isRead": true,
     "message": "APPLICATION REF ID: IPS-APP-2026-8147\n----------------------------------------\nSTUDENT DETAILS:\nName: Ankit\nDOB: 2026-09-14\nGender: Male\nClass Applying For: Grade 1\nAcademic Session: 2026–27\nPrevious School: RM\n\nPARENT / GUARDIAN DETAILS:\nParent Name: Amar (Father)\nPhone: +91 9876543237\nEmail: om@gmail.com\nAddress: kmnjhbgvf\n\nATTACHED DOCUMENTS (AdmissionDocuments Folder):\n• Student Profile Image: women-empowerment-livelihood.webp (47.4 KB) -> /assets/AdmissionDocuments/file_pbpiwm.webp\n• Previous Year Marksheet: admission_form.pdf (0 Bytes) -> admission_form.pdf (0 Bytes) [Attached locally]\n\nREMARKS / NOTES:\nNone provided",
     "name": "Ankit",
-    "profileImageUrl": "/assets/AdmissionDocuments/file_pbpiwm.webp",
+    "profileImageUrl": "/AdmissionDocuments/file_pbpiwm.webp",
     "publicId": "INQ-MU7F9BWZ-JP88R",
     "status": "Pending",
     "updatedAt": "2026-09-19T05:49:07.795Z"
@@ -62,8 +62,8 @@
     "contact": "+91 9876543237",
     "createdAt": "2026-09-18T20:54:45.925Z",
     "documents": [
-      "/assets/AdmissionDocuments/file_rpxr6i.jpg",
-      "/assets/AdmissionDocuments/1789764883143_CRR1974.pdf"
+      "/AdmissionDocuments/file_rpxr6i.jpg",
+      "/AdmissionDocuments/1789764883143_CRR1974.pdf"
     ],
     "email": "om@gmail.com",
     "inquiryType": "Admission",
@@ -80,7 +80,7 @@
     "contact": "+91 9876543237",
     "createdAt": "2026-09-19T05:42:56.220Z",
     "documents": [
-      "/assets/AdmissionDocuments/file_nqks6v.jpg"
+      "/AdmissionDocuments/file_nqks6v.jpg"
     ],
     "email": "omr@gmail.com",
     "inquiryType": "Admission",
@@ -97,8 +97,8 @@
     "contact": "+91 9876543237",
     "createdAt": "2026-09-19T05:50:19.022Z",
     "documents": [
-      "/assets/AdmissionDocuments/file_zdxhre.jpg",
-      "/assets/AdmissionDocuments/1789797017406_Om_BackEnd_Resume__1_.pdf"
+      "/AdmissionDocuments/file_zdxhre.jpg",
+      "/AdmissionDocuments/1789797017406_Om_BackEnd_Resume__1_.pdf"
     ],
     "email": "omr@gmail.com",
     "inquiryType": "Admission",
@@ -115,7 +115,7 @@
     "contact": "+91 9876543237",
     "createdAt": "2026-09-19T06:17:14.416Z",
     "documents": [
-      "/assets/AdmissionDocuments/file_rrg08i.jpg"
+      "/AdmissionDocuments/file_rrg08i.jpg"
     ],
     "email": "om@gmail.com",
     "inquiryType": "Admission",
@@ -269,30 +269,30 @@
   },
   {
     "_id": "6aba54750cfb296d2f802176",
-    "name": "Ravi",
+    "__v": 0,
     "contact": "+91 8883855410",
+    "createdAt": "2026-09-28T11:50:13.441Z",
+    "documents": [],
     "email": "ravi@gmail.com",
     "inquiryType": "Admission",
     "message": "Student: Evan\nClass: Grade 7\nSession: 2026–27",
-    "status": "Pending",
-    "documents": [],
+    "name": "Ravi",
     "publicId": "INQ-MUL6R4QG-A19KL",
-    "createdAt": "2026-09-28T11:50:13.441Z",
-    "updatedAt": "2026-09-28T11:50:13.441Z",
-    "__v": 0
+    "status": "Pending",
+    "updatedAt": "2026-09-28T11:50:13.441Z"
   },
   {
     "_id": "6abb5d11069c4e2fc9cb5cf0",
-    "name": "Arjun",
+    "__v": 0,
     "contact": "9826465718",
+    "createdAt": "2026-09-29T06:39:13.446Z",
+    "documents": [],
     "email": "arjun@gmail.com",
     "inquiryType": "Admission",
     "message": "Admission inquiry from website form (Ref: IPS-ENQ-2026-6755)",
-    "status": "Pending",
-    "documents": [],
+    "name": "Arjun",
     "publicId": "INQ-MUMB319C-GKF74",
-    "createdAt": "2026-09-29T06:39:13.446Z",
-    "updatedAt": "2026-09-29T06:39:13.446Z",
-    "__v": 0
+    "status": "Pending",
+    "updatedAt": "2026-09-29T06:39:13.446Z"
   }
 ]

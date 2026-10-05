@@ -582,8 +582,8 @@
           "eyebrow": "Discover IPS",
           "title": "Experience life at Indian Public School",
           "description": "Take a look at the campus, learning spaces and student life.",
-          "introFileUrl": "/Videos/IPSIntroVideo.mp4",
-          "videoUrl": "/Videos/IPSIntroVideo.mp4",
+          "introFileUrl": "/Videos/assets/Videos/IPSIntroVideo.mp4",
+          "videoUrl": "/Videos/assets/Videos/IPSIntroVideo.mp4",
           "cloudinaryFolder": "Videos"
         }
       ]
@@ -592,501 +592,501 @@
   "gallery": [
     {
       "_id": "6aab59652c4c3ab7c6169ff7",
-      "publicId": "GAL-MU4Y89IV-GJSJI",
-      "eventName": "IPS Introduction",
-      "directory": "Videos",
-      "eventType": "Videos",
       "category": "Videos",
+      "createdAt": "2026-09-17T03:07:17.442Z",
+      "directory": "Videos",
+      "eventName": "IPS Introduction",
+      "eventType": "Videos",
       "fileUrl": [
         "/Videos/IPSIntroVideo.mp4"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T03:07:17.442Z",
+      "publicId": "GAL-MU4Y89IV-GJSJI",
       "updatedAt": "2026-10-02T20:21:35.766Z"
     },
     {
       "_id": "6aab628c57ac46acecbf8365",
-      "publicId": "GAL-MU4ZMIGO-CPLN0",
-      "eventName": "Youth Awareness",
-      "directory": "/Album/General",
-      "eventType": "General",
       "category": "General",
+      "createdAt": "2022-01-01T01:43:51.398Z",
+      "directory": "/Album/General",
+      "eventName": "Youth Awareness",
+      "eventType": "General",
       "fileUrl": [
         "/Album/Awareness.png"
       ],
       "isPublished": true,
-      "createdAt": "2022-01-01T01:43:51.398Z",
+      "publicId": "GAL-MU4ZMIGO-CPLN0",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabbe57e07d684cba87f012",
-      "publicId": "GAL-MU5DM5EP-A1PAZ",
-      "eventName": "Self Certification",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T10:17:59.522Z",
+      "directory": "/Documents/General",
+      "eventName": "Self Certification",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/SEL_CERTIFICATION.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T10:17:59.522Z",
+      "publicId": "GAL-MU5DM5EP-A1PAZ",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabc2ca3b6e83bee4ade7bb",
-      "publicId": "GAL-MU5EAK4I-U0MA3",
-      "eventName": "Water Testing",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T10:36:58.341Z",
+      "directory": "/Documents/General",
+      "eventName": "Water Testing",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/WATER_TESTING.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T10:36:58.341Z",
+      "publicId": "GAL-MU5EAK4I-U0MA3",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabc4b17e211514ae9dfd91",
-      "publicId": "GAL-MU5EKZUZ-K09DR",
-      "eventName": "CBSE Affiliation",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T10:45:05.295Z",
+      "directory": "/Documents/General",
+      "eventName": "CBSE Affiliation",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/CBSE_AFFILIATION.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T10:45:05.295Z",
+      "publicId": "GAL-MU5EKZUZ-K09DR",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabc7047e211514ae9dfd93",
-      "publicId": "GAL-MU5EXQRZ-AVVW2",
-      "eventName": "Transfer Certificate",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T10:55:00.048Z",
+      "directory": "/Documents/General",
+      "eventName": "Transfer Certificate",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/TRANSFER_CERTIFICATE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T10:55:00.048Z",
+      "publicId": "GAL-MU5EXQRZ-AVVW2",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabc94d7e211514ae9dfd94",
-      "publicId": "GAL-MU5FAAEF-VEAXA",
-      "eventName": "Emergency Contacts",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T11:04:45.352Z",
+      "directory": "/Documents/General",
+      "eventName": "Emergency Contacts",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/EMERGENCY_CONTACT_DETAILS.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T11:04:45.352Z",
+      "publicId": "GAL-MU5FAAEF-VEAXA",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabc97b7e211514ae9dfd95",
-      "publicId": "GAL-MU5FBA51-3L09O",
-      "eventName": "General Information",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T11:05:31.669Z",
+      "directory": "/Documents/General",
+      "eventName": "General Information",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/GENERAL_INFORMATION.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T11:05:31.669Z",
+      "publicId": "GAL-MU5FBA51-3L09O",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabe63bd3c16d5c8221ebb3",
-      "publicId": "GAL-MU5JP1CS-O50ZD",
-      "eventName": "Trustee",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T13:08:11.933Z",
+      "directory": "/Documents/General",
+      "eventName": "Trustee",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/TRUSTEE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T13:08:11.933Z",
+      "publicId": "GAL-MU5JP1CS-O50ZD",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabea77d3c16d5c8221ebb4",
-      "publicId": "GAL-MU5KC92K-QF3L9",
-      "eventName": "Fire Safety",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T13:26:15.024Z",
+      "directory": "/Documents/General",
+      "eventName": "Fire Safety",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/FIRE_SAFETY_CERTIFICATE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T13:26:15.024Z",
+      "publicId": "GAL-MU5KC92K-QF3L9",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aabeefbd3c16d5c8221ebb5",
-      "publicId": "GAL-MU5L11HZ-GZJDL",
-      "eventName": "Staff Directory",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-17T13:45:31.607Z",
+      "directory": "/Documents/General",
+      "eventName": "Staff Directory",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/STAFF_DIRECTORY.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-17T13:45:31.607Z",
+      "publicId": "GAL-MU5L11HZ-GZJDL",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aacae55d3c16d5c8221ebb6",
-      "publicId": "GAL-MU6E6YYO-7C357",
-      "eventName": "Population Certificate",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-18T03:21:57.123Z",
+      "directory": "/Documents/General",
+      "eventName": "Population Certificate",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/POPULATION_CERTIFICATE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-18T03:21:57.123Z",
+      "publicId": "GAL-MU6E6YYO-7C357",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aacb30bd3c16d5c8221ebb7",
-      "publicId": "GAL-MU6EWU50-092RX",
-      "eventName": "Safe Drinking",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-18T03:42:03.926Z",
+      "directory": "/Documents/General",
+      "eventName": "Safe Drinking",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/SAFE_DRINKING_AND_SANITATION_CERTIFICATE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-18T03:42:03.926Z",
+      "publicId": "GAL-MU6EWU50-092RX",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aacb61bd3c16d5c8221ebb8",
-      "publicId": "GAL-MU6FDMNA-VWBB3",
-      "eventName": "Certificate Of Recognition",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-18T03:55:07.367Z",
+      "directory": "/Documents/General",
+      "eventName": "Certificate Of Recognition",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/CERTIFICATE_OF_RECOGNITION.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-18T03:55:07.367Z",
+      "publicId": "GAL-MU6FDMNA-VWBB3",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aacb8bcd3c16d5c8221ebb9",
-      "publicId": "GAL-MU6FS2CV-3PMBI",
-      "eventName": "NOC",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-18T04:06:20.911Z",
+      "directory": "/Documents/General",
+      "eventName": "NOC",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/NO_OBJECTION_CERTIFICATE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-18T04:06:20.911Z",
+      "publicId": "GAL-MU6FS2CV-3PMBI",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6aacd56d3f29e00020aec9e7",
-      "publicId": "GAL-MU6K5HDS-YOJOU",
-      "eventName": "Building Certificate",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-18T06:08:45.379Z",
+      "directory": "/Documents/General",
+      "eventName": "Building Certificate",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/BUILDING_SAFETY_CERTIFICATE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-18T06:08:45.379Z",
+      "publicId": "GAL-MU6K5HDS-YOJOU",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6ab0d094872e2434c5f77060",
-      "publicId": "GAL-MUAVHJGJ-XI86N",
-      "eventName": "Land Certificate",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-21T06:37:08.419Z",
+      "directory": "/Documents/General",
+      "eventName": "Land Certificate",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/CERTIFICATE_OF_LAND.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-21T06:37:08.419Z",
+      "publicId": "GAL-MUAVHJGJ-XI86N",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6ab0d0d6872e2434c5f77061",
-      "publicId": "GAL-MUAVIYGS-76S6S",
-      "eventName": "Parent Teacher Association",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-21T06:38:14.524Z",
+      "directory": "/Documents/General",
+      "eventName": "Parent Teacher Association",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/PARENT_TEACHERS_ASSOCIATION.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-21T06:38:14.524Z",
+      "publicId": "GAL-MUAVIYGS-76S6S",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6ab0d15b872e2434c5f77062",
-      "publicId": "GAL-MUAVLSVO-9CCGY",
-      "eventName": "Mandatory Public Disclosure",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-21T06:40:27.252Z",
+      "directory": "/Documents/General",
+      "eventName": "Mandatory Public Disclosure",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/MANDATORY_PUBLIC_DISCLOSURE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-21T06:40:27.252Z",
+      "publicId": "GAL-MUAVLSVO-9CCGY",
       "updatedAt": "2026-10-02T20:21:35.767Z"
     },
     {
       "_id": "6ab3412021b7929b7d0bc2a2",
-      "publicId": "GAL-MUDIOERO-8BEAN",
-      "eventName": "Career Counselling Guide Book",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-23T03:01:52.458Z",
+      "directory": "/Documents/General",
+      "eventName": "Career Counselling Guide Book",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/CAREERE_GUID.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-23T03:01:52.458Z",
+      "publicId": "GAL-MUDIOERO-8BEAN",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6ab34a188753a95225bcffd8",
-      "publicId": "GAL-MUDK1MAZ-I55E9",
-      "eventName": "Brochures",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-23T03:40:08.363Z",
+      "directory": "/Documents/General",
+      "eventName": "Brochures",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/BROCHURE.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-23T03:40:08.363Z",
+      "publicId": "GAL-MUDK1MAZ-I55E9",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6ab3503a8753a95225bcffda",
-      "publicId": "GAL-MUDKZ9N2-61MAG",
-      "eventName": "Food Menu",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-23T04:06:18.256Z",
+      "directory": "/Documents/General",
+      "eventName": "Food Menu",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/FOOD_MENU.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-23T04:06:18.256Z",
+      "publicId": "GAL-MUDKZ9N2-61MAG",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6ab379e2058d1ea354ede5b5",
-      "publicId": "GAL-MUDRBU5H-K1G1N",
-      "eventName": "Registration Form",
-      "directory": "/Documents/General",
-      "eventType": "Documents",
       "category": "Documents",
+      "createdAt": "2026-09-23T07:04:02.406Z",
+      "directory": "/Documents/General",
+      "eventName": "Registration Form",
+      "eventType": "Documents",
       "fileUrl": [
         "/Documents/ADMISSION_FORM.pdf"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-23T07:04:02.406Z",
+      "publicId": "GAL-MUDRBU5H-K1G1N",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6aba0db70112573f9a2af276",
-      "publicId": "GAL-MUKVYYQ7-QGTZS",
-      "eventName": "Logo",
-      "directory": "/Settings/Logos",
-      "eventType": "Logos",
       "category": "Logos",
+      "createdAt": "2026-09-28T06:48:23.119Z",
+      "directory": "/Settings/Logos",
+      "eventName": "Logo",
+      "eventType": "Logos",
       "fileUrl": [
         "/Settings/Logos/IPSStandardLogo.png"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-28T06:48:23.119Z",
+      "publicId": "GAL-MUKVYYQ7-QGTZS",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abac6b75ed4b24bf5141cb0",
-      "publicId": "GAL-MULO621C-MEJIH",
-      "eventName": "IPS Academic & Sports Achievements",
-      "directory": "/Album/General",
-      "eventType": "General",
       "category": "General",
+      "createdAt": "2026-09-28T19:57:43.257Z",
+      "directory": "/Album/General",
+      "eventName": "IPS Academic & Sports Achievements",
+      "eventType": "General",
       "fileUrl": [
         "/Album/Achievements.png"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-28T19:57:43.257Z",
+      "publicId": "GAL-MULO621C-MEJIH",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb573b069c4e2fc9cb5cef",
-      "publicId": "GAL-MUMA70MH-37N0K",
-      "eventName": "School Admission Announcement Banner",
-      "directory": "/Settings/Home",
-      "eventType": "Home",
       "category": "Home",
+      "createdAt": "2026-09-29T06:14:19.637Z",
+      "directory": "/Settings/Home",
+      "eventName": "School Admission Announcement Banner",
+      "eventType": "Home",
       "fileUrl": [
         "/Settings/Home/POP_UP_IMAGE.jpeg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T06:14:19.637Z",
+      "publicId": "GAL-MUMA70MH-37N0K",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb7a84c7fa511c1a50d4e4",
-      "publicId": "GAL-MUMFKM2X-GV4X0",
-      "eventName": "Smay Patla Singh",
-      "directory": "/Album/Reviews",
-      "eventType": "Reviews",
       "category": "Reviews",
+      "createdAt": "2026-09-29T08:44:52.044Z",
+      "directory": "/Album/Reviews",
+      "eventName": "Smay Patla Singh",
+      "eventType": "Reviews",
       "fileUrl": [
         "/Review/SmayPatlaSingh.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T08:44:52.044Z",
+      "publicId": "GAL-MUMFKM2X-GV4X0",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb7a91c7fa511c1a50d4e5",
-      "publicId": "GAL-MUMFKWLG-B9XH1",
-      "eventName": "Shreyansh Sekhar Jha",
-      "directory": "/Album/Reviews",
-      "eventType": "Reviews",
       "category": "Reviews",
+      "createdAt": "2026-09-29T08:45:05.668Z",
+      "directory": "/Album/Reviews",
+      "eventName": "Shreyansh Sekhar Jha",
+      "eventType": "Reviews",
       "fileUrl": [
         "/Review/ShreyanshSekharJha.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T08:45:05.668Z",
+      "publicId": "GAL-MUMFKWLG-B9XH1",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb7aa2c7fa511c1a50d4e6",
-      "publicId": "GAL-MUMFL9YP-8NLRI",
-      "eventName": "Ansh Singh",
-      "directory": "/Album/Reviews",
-      "eventType": "Reviews",
       "category": "Reviews",
+      "createdAt": "2026-09-29T08:45:22.993Z",
+      "directory": "/Album/Reviews",
+      "eventName": "Ansh Singh",
+      "eventType": "Reviews",
       "fileUrl": [
         "/Review/AnshSingh.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T08:45:22.993Z",
+      "publicId": "GAL-MUMFL9YP-8NLRI",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb7ab1c7fa511c1a50d4e7",
-      "publicId": "GAL-MUMFLKSX-56QXM",
-      "eventName": "Abhishek Prakash Jha",
-      "directory": "/Album/Reviews",
-      "eventType": "Reviews",
       "category": "Reviews",
+      "createdAt": "2026-09-29T08:45:37.041Z",
+      "directory": "/Album/Reviews",
+      "eventName": "Abhishek Prakash Jha",
+      "eventType": "Reviews",
       "fileUrl": [
         "/Review/AbhishekPrakashJha.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T08:45:37.041Z",
+      "publicId": "GAL-MUMFLKSX-56QXM",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9b28c3a20d57b82a348c",
-      "publicId": "GAL-MUMKJPSP-9NJCU",
-      "eventName": "Annual Academic Merit Announcement",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:04:08.293Z",
+      "directory": "PressRelease",
+      "eventName": "Annual Academic Merit Announcement",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_1.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:04:08.293Z",
+      "publicId": "GAL-MUMKJPSP-9NJCU",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9b35c3a20d57b82a348d",
-      "publicId": "GAL-MUMKK00B-NCVM3",
-      "eventName": "CBSE Board Results Merit Feature",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:04:21.516Z",
+      "directory": "PressRelease",
+      "eventName": "CBSE Board Results Merit Feature",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_2.png"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:04:21.516Z",
+      "publicId": "GAL-MUMKK00B-NCVM3",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9b52c3a20d57b82a348e",
-      "publicId": "GAL-MUMKKMIY-N3AT6",
-      "eventName": "Student Leadership & Empowerment",
-      "directory": "/Album/Empowerment",
-      "eventType": "Empowerment",
       "category": "Empowerment",
+      "createdAt": "2026-09-29T11:04:50.699Z",
+      "directory": "/Album/Empowerment",
+      "eventName": "Student Leadership & Empowerment",
+      "eventType": "Empowerment",
       "fileUrl": [
         "/Album/Empowerment_5.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:04:50.699Z",
+      "publicId": "GAL-MUMKKMIY-N3AT6",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9b5dc3a20d57b82a348f",
-      "publicId": "GAL-MUMKKV6S-D66VE",
-      "eventName": "Annual Inter School Competition",
-      "directory": "/Album/Competitions",
-      "eventType": "Competitions",
       "category": "Competitions",
+      "createdAt": "2026-09-29T11:05:01.925Z",
+      "directory": "/Album/Competitions",
+      "eventName": "Annual Inter School Competition",
+      "eventType": "Competitions",
       "fileUrl": [
         "/Album/Competition_2.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:05:01.925Z",
+      "publicId": "GAL-MUMKKV6S-D66VE",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9b69c3a20d57b82a3490",
-      "publicId": "GAL-MUMKL46P-K8VBW",
-      "eventName": "Our Educational Learning Partners",
-      "directory": "/Settings/Partners",
-      "eventType": "Partners",
       "category": "Partners",
+      "createdAt": "2026-09-29T11:05:13.586Z",
+      "directory": "/Settings/Partners",
+      "eventName": "Our Educational Learning Partners",
+      "eventType": "Partners",
       "fileUrl": [
         "/Settings/Logos/LearningPartner_2.png"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:05:13.586Z",
+      "publicId": "GAL-MUMKL46P-K8VBW",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9bb0c3a20d57b82a3491",
-      "publicId": "GAL-MUMKMN1E-0WSQP",
-      "eventName": "Student Dining Hall & Mess",
-      "directory": "/Album/Campus",
-      "eventType": "Campus",
       "category": "Campus",
+      "createdAt": "2026-09-29T11:06:24.674Z",
+      "directory": "/Album/Campus",
+      "eventName": "Student Dining Hall & Mess",
+      "eventType": "Campus",
       "fileUrl": [
         "/Album/Mess_1.jpg",
         "/Album/Mess_2.jpg",
@@ -1094,344 +1094,358 @@
         "/Album/Mess_4.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:06:24.674Z",
+      "publicId": "GAL-MUMKMN1E-0WSQP",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9c2ac3a20d57b82a3492",
-      "publicId": "GAL-MUMKP905-2FONW",
-      "eventName": "Aakash Health Foundation",
-      "directory": "/Settings/Logos",
-      "eventType": "Logos",
       "category": "Logos",
+      "createdAt": "2026-09-29T11:08:26.454Z",
+      "directory": "/Settings/Logos",
+      "eventName": "Aakash Health Foundation",
+      "eventType": "Logos",
       "fileUrl": [
         "/Logos/AakashHealthFoundation.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:08:26.454Z",
+      "publicId": "GAL-MUMKP905-2FONW",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9dc9c3a20d57b82a3493",
-      "publicId": "GAL-MUMKY5CW-DBS2Y",
-      "eventName": "Annual Inter School Competition",
-      "directory": "/Album/Competitions",
-      "eventType": "Competitions",
       "category": "Competitions",
+      "createdAt": "2026-09-29T11:15:21.633Z",
+      "directory": "/Album/Competitions",
+      "eventName": "Annual Inter School Competition",
+      "eventType": "Competitions",
       "fileUrl": [
         "/Album/Competition_1.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:15:21.633Z",
-      "updatedAt": "2026-10-02T20:21:35.768Z"
-    },
-    {
-      "_id": "6abb9dc9c3a20d57b82a3493",
       "publicId": "GAL-MUMKY5CW-DBS2Y",
-      "eventName": "Annual Inter School Competition",
-      "directory": "/Album/Competitions",
-      "eventType": "Competitions",
-      "category": "Competitions",
-      "fileUrl": [
-        "/Album/Competition_1.jpg"
-      ],
-      "isPublished": true,
-      "createdAt": "2026-09-29T11:15:21.633Z",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9ddbc3a20d57b82a3494",
-      "publicId": "GAL-MUMKYJBV-MSVHA",
-      "eventName": "Nav Bharat Press Coverage",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:15:39.739Z",
+      "directory": "PressRelease",
+      "eventName": "Nav Bharat Press Coverage",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_3.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:15:39.739Z",
+      "publicId": "GAL-MUMKYJBV-MSVHA",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9decc3a20d57b82a3495",
-      "publicId": "GAL-MUMKYWAP-8QMG1",
-      "eventName": "State Level Excellence Merit Feature",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:15:56.546Z",
+      "directory": "PressRelease",
+      "eventName": "State Level Excellence Merit Feature",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_4.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:15:56.546Z",
+      "publicId": "GAL-MUMKYWAP-8QMG1",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9df5c3a20d57b82a3496",
-      "publicId": "GAL-MUMKZ35D-MFDCY",
-      "eventName": "IPS Student Achievements In Media",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:16:05.425Z",
+      "directory": "PressRelease",
+      "eventName": "IPS Student Achievements In Media",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_5.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:16:05.425Z",
+      "publicId": "GAL-MUMKZ35D-MFDCY",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9dffc3a20d57b82a3497",
-      "publicId": "GAL-MUMKZB47-7WC65",
-      "eventName": "Daily Newspaper Media Release",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:16:15.752Z",
+      "directory": "PressRelease",
+      "eventName": "Daily Newspaper Media Release",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_6.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:16:15.752Z",
+      "publicId": "GAL-MUMKZB47-7WC65",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9e07c3a20d57b82a3498",
-      "publicId": "GAL-MUMKZH7I-LSHOC",
-      "eventName": "IPS Academic Recognition Release",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:16:23.646Z",
+      "directory": "PressRelease",
+      "eventName": "IPS Academic Recognition Release",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_7.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:16:23.646Z",
+      "publicId": "GAL-MUMKZH7I-LSHOC",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9e10c3a20d57b82a3499",
-      "publicId": "GAL-MUMKZNQ3-XAQ7H",
-      "eventName": "State Education Merit Release",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:16:32.091Z",
+      "directory": "PressRelease",
+      "eventName": "State Education Merit Release",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_8.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:16:32.091Z",
+      "publicId": "GAL-MUMKZNQ3-XAQ7H",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9e19c3a20d57b82a349a",
-      "publicId": "GAL-MUMKZV06-DAWD9",
-      "eventName": "District Level Merit Feature",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:16:41.527Z",
+      "directory": "PressRelease",
+      "eventName": "District Level Merit Feature",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_9.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:16:41.527Z",
+      "publicId": "GAL-MUMKZV06-DAWD9",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9e22c3a20d57b82a349b",
-      "publicId": "GAL-MUML01S8-A5QE7",
-      "eventName": "CBSE Merit Recognition Announcement",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:16:50.313Z",
+      "directory": "PressRelease",
+      "eventName": "CBSE Merit Recognition Announcement",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_10.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:16:50.313Z",
+      "publicId": "GAL-MUML01S8-A5QE7",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9e2ac3a20d57b82a349c",
-      "publicId": "GAL-MUML085T-JCKKI",
-      "eventName": "Academic Year Top Performers",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:16:58.577Z",
+      "directory": "PressRelease",
+      "eventName": "Academic Year Top Performers",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_11.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:16:58.577Z",
+      "publicId": "GAL-MUML085T-JCKKI",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9e35c3a20d57b82a349d",
-      "publicId": "GAL-MUML0GWE-7ZF64",
-      "eventName": "IPS Merit Board Announcement",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:17:09.902Z",
+      "directory": "PressRelease",
+      "eventName": "IPS Merit Board Announcement",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_12.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:17:09.902Z",
+      "publicId": "GAL-MUML0GWE-7ZF64",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9fe2c3a20d57b82a349e",
-      "publicId": "GAL-MUML9NNS-IIGV8",
-      "eventName": "Sambalpur School Merit Feature",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:24:18.569Z",
+      "directory": "PressRelease",
+      "eventName": "Sambalpur School Merit Feature",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_13.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:24:18.569Z",
+      "publicId": "GAL-MUML9NNS-IIGV8",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abb9fedc3a20d57b82a349f",
-      "publicId": "GAL-MUML9W20-88JVZ",
-      "eventName": "Nav Bharat Board Examination Feature",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:24:29.449Z",
+      "directory": "PressRelease",
+      "eventName": "Nav Bharat Board Examination Feature",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_14.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:24:29.449Z",
+      "publicId": "GAL-MUML9W20-88JVZ",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abba01dc3a20d57b82a34a0",
-      "publicId": "GAL-MUMLAWRE-CWF28",
-      "eventName": "Best School Result Of Sambalpur",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:25:17.018Z",
+      "directory": "PressRelease",
+      "eventName": "Best School Result Of Sambalpur",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_15.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:25:17.018Z",
+      "publicId": "GAL-MUMLAWRE-CWF28",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abba027c3a20d57b82a34a1",
-      "publicId": "GAL-MUMLB4RD-SVFS4",
-      "eventName": "Nav Bharat Board Examination Feature",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:25:27.385Z",
+      "directory": "PressRelease",
+      "eventName": "Nav Bharat Board Examination Feature",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_16.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:25:27.385Z",
+      "publicId": "GAL-MUMLB4RD-SVFS4",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abba037c3a20d57b82a34a2",
-      "publicId": "GAL-MUMLBGZI-MOGOA",
-      "eventName": "Hostel Facilities & Student Life",
-      "directory": "/Album/Hostel",
-      "eventType": "Hostel",
       "category": "Hostel",
+      "createdAt": "2026-09-29T11:25:43.231Z",
+      "directory": "/Album/Hostel",
+      "eventName": "Hostel Facilities & Student Life",
+      "eventType": "Hostel",
       "fileUrl": [
         "/Album/LifeInHostel_2.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:25:43.231Z",
+      "publicId": "GAL-MUMLBGZI-MOGOA",
       "updatedAt": "2026-10-02T20:21:35.768Z"
     },
     {
       "_id": "6abba03dc3a20d57b82a34a3",
-      "publicId": "GAL-MUMLBLPN-9Z75H",
-      "eventName": "Student Leadership & Empowerment",
-      "directory": "/Album/Empowerment",
-      "eventType": "Empowerment",
       "category": "Empowerment",
+      "createdAt": "2026-09-29T11:25:49.355Z",
+      "directory": "/Album/Empowerment",
+      "eventName": "Student Leadership & Empowerment",
+      "eventType": "Empowerment",
       "fileUrl": [
         "/Album/Empowerment_1.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:25:49.355Z",
+      "publicId": "GAL-MUMLBLPN-9Z75H",
       "updatedAt": "2026-10-02T20:21:35.769Z"
     },
     {
       "_id": "6abba052c3a20d57b82a34a4",
-      "publicId": "GAL-MUMLC22V-KHHDH",
-      "eventName": "CBSE Board Merit Rank Holders",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:26:10.567Z",
+      "directory": "PressRelease",
+      "eventName": "CBSE Board Merit Rank Holders",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_17.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:26:10.567Z",
+      "publicId": "GAL-MUMLC22V-KHHDH",
       "updatedAt": "2026-10-02T20:21:35.769Z"
     },
     {
       "_id": "6abba05ec3a20d57b82a34a5",
-      "publicId": "GAL-MUMLCBEC-1OD87",
-      "eventName": "Class 12th Board Results Press Release",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:26:22.644Z",
+      "directory": "PressRelease",
+      "eventName": "Class 12th Board Results Press Release",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_18.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:26:22.644Z",
+      "publicId": "GAL-MUMLCBEC-1OD87",
       "updatedAt": "2026-10-02T20:21:35.769Z"
     },
     {
       "_id": "6abba083c3a20d57b82a34a6",
-      "publicId": "GAL-MUMLD45T-W7BRP",
-      "eventName": "Music Dance Room",
-      "directory": "/Album/Infrastructure",
-      "eventType": "Infrastructure",
       "category": "Infrastructure",
+      "createdAt": "2026-09-29T11:26:59.921Z",
+      "directory": "/Album/Infrastructure",
+      "eventName": "Music Dance Room",
+      "eventType": "Infrastructure",
       "fileUrl": [
         "/Music_Dance_Room_4.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:26:59.921Z",
+      "publicId": "GAL-MUMLD45T-W7BRP",
       "updatedAt": "2026-10-02T20:21:35.769Z"
     },
     {
       "_id": "6abba090c3a20d57b82a34a7",
-      "publicId": "GAL-MUMLDDO5-C3DJJ",
-      "eventName": "Official School Press Release",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:27:12.245Z",
+      "directory": "PressRelease",
+      "eventName": "Official School Press Release",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_19.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:27:12.245Z",
+      "publicId": "GAL-MUMLDDO5-C3DJJ",
       "updatedAt": "2026-10-02T20:21:35.769Z"
     },
     {
       "_id": "6abba0a5c3a20d57b82a34a8",
-      "publicId": "GAL-MUMLDTX4-W52E6",
-      "eventName": "Official School Press Release",
-      "directory": "PressRelease",
-      "eventType": "PressRelease",
       "category": "PressRelease",
+      "createdAt": "2026-09-29T11:27:33.305Z",
+      "directory": "PressRelease",
+      "eventName": "Official School Press Release",
+      "eventType": "PressRelease",
       "fileUrl": [
         "/PressRelease/PRESS_20.jpg"
       ],
       "isPublished": true,
-      "createdAt": "2026-09-29T11:27:33.305Z",
+      "publicId": "GAL-MUMLDTX4-W52E6",
       "updatedAt": "2026-10-02T20:21:35.769Z"
+    },
+    {
+      "_id": "6ac35a3692898d35d6610627",
+      "eventName": "Students",
+      "eventType": "Students",
+      "directory": "ips-education/assets/Student",
+      "fileUrl": [
+        "/image/upload/v1791187519/ips-education/assets/Student/file_nkfsck.png"
+      ],
+      "deletedAt": null,
+      "publicId": "GAL-MUUYSOFB-XHFDL",
+      "createdAt": "2026-10-05T08:05:10.440Z",
+      "updatedAt": "2026-10-05T08:05:10.440Z",
+      "__v": 0
+    },
+    {
+      "_id": "6ac360f692898d35d6610628",
+      "eventName": "Staff",
+      "eventType": "Staff",
+      "directory": "ips-education/assets/Staff",
+      "fileUrl": [
+        "/image/upload/v1791189247/ips-education/assets/Staff/file_b2klsn.png"
+      ],
+      "deletedAt": null,
+      "publicId": "GAL-MUUZTPWG-TI9CV",
+      "createdAt": "2026-10-05T08:33:58.626Z",
+      "updatedAt": "2026-10-05T08:33:58.626Z",
+      "__v": 0
     }
   ],
   "reviews": [
@@ -1522,17 +1536,17 @@
   "users": [
     {
       "_id": "6aa8aac2d8e8f8ffe666eded",
+      "email": "admin.ips@gmail.com",
       "allowedModules": [
         "*"
       ],
       "createdAt": "2026-09-15T02:17:38.268Z",
-      "email": "admin.ips@gmail.com",
       "lastLoginAt": "2026-09-26T13:55:43.474Z",
       "name": "Super Admin",
       "publicId": "USR-MU21KPGC-73J3N",
       "role": "Super Admin",
       "status": "ACTIVE",
-      "updatedAt": "2026-09-29T13:03:55.831Z"
+      "updatedAt": "2026-10-05T13:19:44.572Z"
     }
   ],
   "staff": [
@@ -1740,6 +1754,26 @@
       "status": "Active",
       "studentId": "STU-MU9E3K2Y-1OYEB",
       "updatedAt": "2026-09-20T05:42:36.396Z"
+    },
+    {
+      "_id": "6ac359f892898d35d6610626",
+      "name": "Ashwin",
+      "grade": "12",
+      "section": "A",
+      "dob": "2026-10-08T00:00:00.000Z",
+      "gender": "Male",
+      "parentName": "Amar",
+      "parentPhone": "9329827778",
+      "parentEmail": "amar@gmail.com",
+      "address": "CG",
+      "status": "Active",
+      "avatar": "/image/upload/v1791187519/ips-education/assets/Student/file_nkfsck.png",
+      "enrolledAt": "2026-10-05T08:04:08.244Z",
+      "publicId": "STU-MUUYRCFO-KXCWN",
+      "studentId": "STU-MUUYRCFO-MA4DK",
+      "createdAt": "2026-10-05T08:04:08.251Z",
+      "updatedAt": "2026-10-05T08:05:11.875Z",
+      "__v": 0
     }
   ],
   "news": [
@@ -2032,31 +2066,31 @@
     },
     {
       "_id": "6aba54750cfb296d2f802176",
-      "name": "Ravi",
+      "__v": 0,
       "contact": "+91 8883855410",
+      "createdAt": "2026-09-28T11:50:13.441Z",
+      "documents": [],
       "email": "ravi@gmail.com",
       "inquiryType": "Admission",
       "message": "Student: Evan\nClass: Grade 7\nSession: 2026–27",
-      "status": "Pending",
-      "documents": [],
+      "name": "Ravi",
       "publicId": "INQ-MUL6R4QG-A19KL",
-      "createdAt": "2026-09-28T11:50:13.441Z",
-      "updatedAt": "2026-09-28T11:50:13.441Z",
-      "__v": 0
+      "status": "Pending",
+      "updatedAt": "2026-09-28T11:50:13.441Z"
     },
     {
       "_id": "6abb5d11069c4e2fc9cb5cf0",
-      "name": "Arjun",
+      "__v": 0,
       "contact": "9826465718",
+      "createdAt": "2026-09-29T06:39:13.446Z",
+      "documents": [],
       "email": "arjun@gmail.com",
       "inquiryType": "Admission",
       "message": "Admission inquiry from website form (Ref: IPS-ENQ-2026-6755)",
-      "status": "Pending",
-      "documents": [],
+      "name": "Arjun",
       "publicId": "INQ-MUMB319C-GKF74",
-      "createdAt": "2026-09-29T06:39:13.446Z",
-      "updatedAt": "2026-09-29T06:39:13.446Z",
-      "__v": 0
+      "status": "Pending",
+      "updatedAt": "2026-09-29T06:39:13.446Z"
     }
   ],
   "menuitems": [
@@ -3303,19 +3337,20 @@
     },
     {
       "_id": "6ab9fd6a2704543305a8706d",
-      "menuId": "home",
-      "title": "Home",
-      "slug": "home",
-      "parentId": null,
-      "level": 1,
-      "targetUrl": "/",
+      "__v": 0,
       "category": "Header",
-      "order": 0,
-      "isPublished": true,
-      "icon": "",
       "createdAt": "2026-09-28T05:38:50.837Z",
-      "updatedAt": "2026-09-28T05:38:50.837Z",
-      "__v": 0
+      "icon": "",
+      "isPublished": true,
+      "level": 1,
+      "menuId": "home",
+      "order": 0,
+      "parentId": null,
+      "publicId": "MENU-MUV8KRVU-VNNRO",
+      "slug": "home",
+      "targetUrl": "/",
+      "title": "Home",
+      "updatedAt": "2026-09-28T05:38:50.837Z"
     }
   ],
   "pages": [
@@ -3408,7 +3443,7 @@
       "targetUrl": "/",
       "textContent": "<section style=\"margin-bottom: 2.5rem;\">\n  <h2 style=\"font-size: 1.875rem; font-weight: 700; color: #102a4c; margin-bottom: 0.5rem;\">About Our School</h2>\n  <p style=\"font-size: 1.125rem; font-weight: 600; color: #1a5d9c; margin-bottom: 1rem;\">Building Confident Learners for a Changing World</p>\n  <p style=\"font-size: 1rem; color: #475569; line-height: 1.7; margin-bottom: 1rem;\">\n    Indian Public School is a co-educational CBSE school where academic rigour meets genuine care. Our classrooms are designed for enquiry rather than repetition, and our teachers know every child by name, strength and ambition.\n  </p>\n  <p style=\"font-size: 1rem; color: #475569; line-height: 1.7; margin-bottom: 1.5rem;\">\n    From the earliest years to senior secondary, students are guided to think clearly, speak confidently, collaborate generously and act with integrity.\n  </p>\n  \n  <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;\">\n    <div style=\"border: 1px solid #e2e8f0; background-color: #f8fafc; padding: 1.25rem; border-radius: 1rem;\">\n      <h3 style=\"font-size: 1.25rem; font-weight: 700; color: #102a4c; margin-bottom: 0.5rem;\">Our Mission</h3>\n      <p style=\"font-size: 0.95rem; color: #64748b; line-height: 1.6;\">To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child.</p>\n    </div>\n    <div style=\"border: 1px solid #e2e8f0; background-color: #f8fafc; padding: 1.25rem; border-radius: 1rem;\">\n      <h3 style=\"font-size: 1.25rem; font-weight: 700; color: #102a4c; margin-bottom: 0.5rem;\">Our Vision</h3>\n      <p style=\"font-size: 0.95rem; color: #64748b; line-height: 1.6;\">To be a benchmark school recognised for academic depth, character development, innovation and inclusive community spirit.</p>\n    </div>\n  </div>\n</section>",
       "title": "Home",
-      "updatedAt": "2026-09-29T13:03:55.931Z"
+      "updatedAt": "2026-10-05T13:19:44.658Z"
     },
     {
       "_id": "6aa8e242b32a032cc4b2e057",
