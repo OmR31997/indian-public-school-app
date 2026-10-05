@@ -31,14 +31,21 @@ export function getAssetUrl(url?: string | null): string {
     trimmed = 'assets/Videos/IPSIntroVideo.mp4';
   }
 
-  // Handle absolute Cloudinary URLs missing resource_type (video/upload, image/upload)
+  // Handle absolute Cloudinary URLs missing resource_type (video/upload, image/upload) or containing malformed prefixes
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-    if (trimmed.includes('cloudinary.com') && !trimmed.includes('/upload/')) {
-      const isVideo = trimmed.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(trimmed);
-      const isRaw = trimmed.includes('/Documents/') || /\.(pdf|doc|docx|xls|xlsx|zip|txt)$/i.test(trimmed);
-      const typePrefix = isVideo ? 'video/upload' : isRaw ? 'raw/upload' : 'image/upload';
-      const rootFolder = getCloudinaryRootFolder();
-      return trimmed.replace(new RegExp(`/${rootFolder}/`), `/${typePrefix}/${rootFolder}/`);
+    if (trimmed.includes('cloudinary.com')) {
+      // Fix malformed URLs where /ips-education/assets/upload/ or /assets/upload/ was prepended
+      trimmed = trimmed
+        .replace(/\/(?:ips-education|indian-public-school)\/assets\/upload\//gi, '/image/upload/')
+        .replace(/\/assets\/upload\//gi, '/image/upload/');
+
+      if (!trimmed.includes('/upload/')) {
+        const isVideo = trimmed.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(trimmed);
+        const isRaw = trimmed.includes('/Documents/') || /\.(pdf|doc|docx|xls|xlsx|zip|txt)$/i.test(trimmed);
+        const typePrefix = isVideo ? 'video/upload' : isRaw ? 'raw/upload' : 'image/upload';
+        const rootFolder = getCloudinaryRootFolder();
+        return trimmed.replace(new RegExp(`/${rootFolder}/`), `/${typePrefix}/${rootFolder}/`);
+      }
     }
     return trimmed;
   }
