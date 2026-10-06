@@ -6,8 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getCloudinaryRootFolder(): string {
-  return (process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || '').replace(/^\/+|\/+$/g, '');
+  return (process.env.NEXT_PUBLIC_CLOUDINARY_ROOT_FOLDER || 'ips-education/assets').replace(/^\/+|\/+$/g, '');
 }
+
 
 /**
  * Resolves absolute or relative media/file paths to full URLs dynamically.
@@ -57,7 +58,7 @@ export function getAssetUrl(url?: string | null): string {
   const lowerPath = cleanPath.toLowerCase();
 
   let resourcePrefix = 'image/upload';
-  const cloudinaryBase = (process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL || '').replace(/\/+$/, '');
+  const cloudinaryBase = (process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL || 'https://res.cloudinary.com/niefrrkx').replace(/\/+$/, '');
 
   if (
     lowerPath.startsWith('video/upload/') ||
