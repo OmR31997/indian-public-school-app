@@ -75,10 +75,10 @@ export function About() {
               muted={typeof secVid.muted === "boolean" ? secVid.muted : true}
               loop={typeof secVid.loop === "boolean" ? secVid.loop : true}
               controls={typeof secVid.controls === "boolean" ? secVid.controls : true}
-              aspectRatio="auto"
+              aspectRatio="video"
               objectFit="cover"
-              className="w-full h-full object-cover min-h-[300px] sm:min-h-[400px] lg:min-h-[480px] xl:min-h-[520px]"
-              containerClassName="w-full overflow-hidden min-h-[300px] sm:min-h-[400px] lg:min-h-[480px] xl:min-h-[520px]"
+              className="w-full h-full object-cover rounded-[inherit]"
+              containerClassName="w-full aspect-video overflow-hidden rounded-[inherit] border-0 shadow-none bg-black"
             />
           </motion.div>
 
