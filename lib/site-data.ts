@@ -345,7 +345,8 @@ export function getPopupBannerConfig(siteData?: SiteData | null): Required<Popup
 
   const enabled = pb.enabled !== false;
   const delaySeconds = typeof pb.delaySeconds === "number" ? pb.delaySeconds : (Number(pb.delaySeconds) || 3);
-  const imageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "/Settings/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
+  const rawImageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "/Settings/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
+  const resolvedImageUrl = imageUrl(rawImageUrl) || getAssetUrl(rawImageUrl);
   const showTitle = pb.showTitle !== false;
   const title = showTitle ? (pb.title !== undefined ? text(pb.title) : "Admissions Open 2026–27") : "";
   const rawSubtitle = text(pb.subtitle) || "";
@@ -366,7 +367,7 @@ export function getPopupBannerConfig(siteData?: SiteData | null): Required<Popup
   return {
     enabled,
     delaySeconds,
-    imageUrl,
+    imageUrl: resolvedImageUrl,
     showTitle,
     title,
     subtitle,

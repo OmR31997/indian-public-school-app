@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { getPopupBannerConfig } from "@/lib/site-data";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
+import { getAssetUrl } from "@/lib/utils";
 
 export function PopupBannerModal() {
   const siteData = useSiteData();
@@ -115,7 +116,7 @@ export function PopupBannerModal() {
             {/* Poster Graphic Image Container (Full Poster Image Fully Visible) */}
             <div className="relative w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
               <img
-                src={config.imageUrl}
+                src={getAssetUrl(config.imageUrl)}
                 alt={config.title || "Indian Public School Announcement"}
                 className={`w-full h-full transition-transform duration-500 group-hover:scale-[1.02] ${config.showImageZoomOnClick ? "cursor-zoom-in" : ""
                   }`}
@@ -186,7 +187,7 @@ export function PopupBannerModal() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              src={config.imageUrl}
+              src={getAssetUrl(config.imageUrl)}
               alt="Full Announcement Poster"
               className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
             />

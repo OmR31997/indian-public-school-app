@@ -17,6 +17,7 @@ import { RecordItem } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
 import { HomeHeroTab } from "./home-layout/HomeHeroTab";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
+import { getAssetUrl } from "@/lib/utils";
 
 export function HomeLayoutEditorModal({
   token,
@@ -1527,7 +1528,7 @@ export function HomeLayoutEditorModal({
                         {/* Poster Graphic Image Container */}
                         <div className="relative w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
                           <img
-                            src={datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || ""}
+                            src={getAssetUrl(datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "")}
                             alt="Admin Banner Preview"
                             className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02]"
                             style={{
