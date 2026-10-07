@@ -16,7 +16,9 @@ import fallbackSiteData from "@/public/cloud-datasource.json";
 import { RecordItem } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
 import { HomeHeroTab } from "./home-layout/HomeHeroTab";
+import { AnimatePresence } from "motion/react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
+import { AdmissionEnquiryForm } from "@/components/site/AdmissionEnquiryForm";
 import { getAssetUrl } from "@/lib/utils";
 
 export function HomeLayoutEditorModal({
@@ -56,6 +58,7 @@ export function HomeLayoutEditorModal({
   const [uploadError, setUploadError] = useState<string>("");
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [showLivePopUpPreview, setShowLivePopUpPreview] = useState<boolean>(false);
 
   React.useEffect(() => {
     const handleFullscreenChange = () => {
@@ -1185,15 +1188,27 @@ export function HomeLayoutEditorModal({
                     </p>
                   </div>
 
-                  <label className="flex items-center gap-2 cursor-pointer bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
-                    <input
-                      type="checkbox"
-                      checked={currentPopupBanner.enabled !== false}
-                      onChange={(e) => updatePopupBannerField("enabled", e.target.checked)}
-                      className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
-                    />
-                    <span className="text-xs font-bold text-slate-800">Enable Pop-Up Banner (ON/OFF)</span>
-                  </label>
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowLivePopUpPreview(true)}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-[#1a5d9c] hover:brightness-110 text-white font-black text-xs px-4 py-2 shadow-md border border-blue-400/40 cursor-pointer active:scale-95 transition-all"
+                      title="See exactly how the popup will appear to website visitors before applying changes"
+                    >
+                      <i className="bi bi-eye-fill text-amber-300 text-sm" />
+                      <span>Live Site Popup Preview</span>
+                    </button>
+
+                    <label className="flex items-center gap-2 cursor-pointer bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
+                      <input
+                        type="checkbox"
+                        checked={currentPopupBanner.enabled !== false}
+                        onChange={(e) => updatePopupBannerField("enabled", e.target.checked)}
+                        className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
+                      />
+                      <span className="text-xs font-bold text-slate-800">Enable Pop-Up Banner (ON/OFF)</span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -1336,6 +1351,97 @@ export function HomeLayoutEditorModal({
                         }}
                       />
                     </label>
+                  </div>
+                </div>
+
+                {/* POP-UP BANNER STYLE CONCEPT SELECTOR */}
+                <div className="rounded-2xl border border-blue-200/90 bg-blue-50/60 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-[#102a4c] flex items-center gap-2">
+                      <i className="bi bi-palette-fill text-[#1a5d9c] text-sm" /> Choose Pop-Up Design Style Concept
+                    </label>
+                    <span className="text-[10px] font-bold text-[#1a5d9c] bg-blue-100 px-2.5 py-0.5 rounded-full border border-blue-200">
+                      5 Design Styles Available (Default + 4 Concepts)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    {[
+                      {
+                        id: "card",
+                        title: "Default Classic",
+                        subtitle: "Standard Poster Card (80% Cover)",
+                        desc: "Classic dark poster card with bottom action bar & enquiry button.",
+                        badgeBg: "bg-slate-200 text-slate-800 border-slate-300 font-bold",
+                        icon: "bi-card-image"
+                      },
+                      {
+                        id: "concept1",
+                        title: "Concept 1",
+                        subtitle: "Neon Glassmorphic (80% Cover)",
+                        desc: "Luminous blue neon border, dark navy backdrop, 100% full poster visible.",
+                        badgeBg: "bg-blue-900 text-blue-200 border-blue-500/50",
+                        icon: "bi-bounding-box-circles"
+                      },
+                      {
+                        id: "concept2",
+                        title: "Concept 2",
+                        subtitle: "Dark Navy Side-by-Side (Picture Layout)",
+                        desc: "Dark navy card, full poster on left, centered fields & blue/red action buttons.",
+                        badgeBg: "bg-blue-900 text-blue-200 border-blue-500/50",
+                        icon: "bi-layout-split"
+                      },
+                      {
+                        id: "concept3",
+                        title: "Concept 3",
+                        subtitle: "Split Poster + Form (80% Cover)",
+                        desc: "Poster on left, embedded quick enquiry form on right, 100% full poster visible.",
+                        badgeBg: "bg-emerald-900 text-emerald-200 border-emerald-500/50",
+                        icon: "bi-card-heading"
+                      },
+                      {
+                        id: "concept4",
+                        title: "Concept 4",
+                        subtitle: "Golden Luxury Glass Showcase",
+                        desc: "Ultra-pretty luxury dark glass card, glowing golden trophy badge & gold frame.",
+                        badgeBg: "bg-amber-500/20 text-amber-800 border-amber-400 font-black",
+                        icon: "bi-trophy-fill"
+                      },
+                    ].map((styleOption) => {
+                      const currentStyle = datasource?.home?.[0]?.identity?.popupBanner?.bannerStyle ?? datasource?.popupBanner?.bannerStyle ?? "concept1";
+                      const isSelected = currentStyle === styleOption.id;
+                      return (
+                        <button
+                          key={styleOption.id}
+                          type="button"
+                          onClick={() => updatePopupBannerField("bannerStyle", styleOption.id)}
+                          className={`relative p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2.5 group ${
+                            isSelected
+                              ? "bg-white border-[#1a5d9c] ring-2 ring-[#1a5d9c]/30 shadow-md scale-[1.01]"
+                              : "bg-white/80 border-slate-200 hover:border-blue-300 hover:bg-white shadow-2xs"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-xs font-black text-[#102a4c] flex items-center gap-1.5">
+                              <i className={`bi ${styleOption.icon} text-[#1a5d9c]`} />
+                              {styleOption.title}
+                            </span>
+                            {isSelected && (
+                              <span className="size-5 rounded-full bg-[#1a5d9c] text-white flex items-center justify-center text-[10px] shrink-0 font-bold">
+                                ✓
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-[11px] font-bold text-slate-800 block">{styleOption.subtitle}</span>
+                            <span className="text-[10px] text-slate-500 leading-snug block mt-0.5">{styleOption.desc}</span>
+                          </div>
+                          <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md border w-fit ${styleOption.badgeBg}`}>
+                            {styleOption.id.toUpperCase()}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -3037,6 +3143,144 @@ export function HomeLayoutEditorModal({
           </div>
         </div>
       </div>
+
+      {/* LIVE POPUP PREVIEW OVERLAY (shows exactly how it will appear on the live site after applying) */}
+      <AnimatePresence>
+        {showLivePopUpPreview && (
+          <div className="fixed inset-0 z-[1000] flex flex-col items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+            {/* Top Toolbar notification */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1010] bg-slate-900 border border-blue-400/40 text-white px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-3">
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-xs font-extrabold text-blue-100">
+                LIVE SITE PREVIEW MODE (How popup appears after apply)
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowLivePopUpPreview(false)}
+                className="bg-red-600 hover:bg-red-500 text-white font-black text-xs px-3 py-1 rounded-full border border-red-400/40 cursor-pointer shadow-md"
+              >
+                Close Preview
+              </button>
+            </div>
+
+            {/* Backdrop mock web content */}
+            <div
+              className="fixed inset-0 pointer-events-none opacity-30 bg-cover bg-center filter blur-xs"
+              style={{ backgroundImage: `url(${getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")})` }}
+            />
+
+            {/* Live Popup Banner Preview Component using exact popup code */}
+            <div className="relative z-[1005] w-full max-w-5xl flex items-center justify-center my-auto">
+              {/* Concept 1 */}
+              {(currentPopupBanner.bannerStyle === "concept1" || !currentPopupBanner.bannerStyle) && (
+                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#070e24]/95 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border-2 border-blue-400/80 shadow-[0_0_45px_rgba(59,130,246,0.5),inset_0_0_20px_rgba(59,130,246,0.25)] backdrop-blur-xl flex flex-col md:flex-row items-stretch gap-4 sm:gap-6 overflow-y-auto md:overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowLivePopUpPreview(false)}
+                    className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 size-8 sm:size-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition border border-white/20"
+                  >
+                    <i className="bi bi-x-lg text-xs" />
+                  </button>
+                  <div className="w-full md:w-1/2 h-[42vh] sm:h-[48vh] md:h-full shrink-0 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950/80 border border-blue-400/30 flex items-center justify-center p-2">
+                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain drop-shadow-xl" />
+                  </div>
+                  <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
+                    <span className="text-[10px] sm:text-xs font-black tracking-[0.25em] text-blue-400">ADMISSIONS OPEN</span>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">{currentPopupBanner.title || "Enquiry & Admission 2026–27"}</h2>
+                    <div className="w-12 sm:w-14 h-1.5 bg-amber-400 rounded-full" />
+                    <p className="text-xs sm:text-sm text-blue-200/90 font-medium">{currentPopupBanner.subtitle || "Indian Public School, Sambalpur"}</p>
+                    <button className="bg-amber-400 text-slate-950 font-black text-xs sm:text-sm px-6 py-3 rounded-full shadow-lg">{currentPopupBanner.enquiryButtonText || "Enquire Now"}</button>
+                  </div>
+                </div>
+              )}
+
+              {/* Concept 2 */}
+              {currentPopupBanner.bannerStyle === "concept2" && (
+                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#051326] text-white rounded-2xl sm:rounded-3xl border border-blue-400/30 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
+                  <div className="w-full md:w-1/2 h-[42vh] sm:h-[48vh] md:h-full bg-slate-950 flex items-center justify-center p-3 shrink-0 border-b md:border-b-0 md:border-r border-blue-900/50">
+                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="w-full md:w-1/2 p-5 sm:p-8 bg-[#07162c] flex flex-col justify-center items-center text-center space-y-4 overflow-y-auto flex-1">
+                    <div className="space-y-1 max-w-sm sm:max-w-md mx-auto">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">{currentPopupBanner.title || "Enquiry"}</h2>
+                      <div className="w-12 h-1 bg-blue-500/80 rounded-full mx-auto my-1" />
+                      {currentPopupBanner.subtitle && <p className="text-xs sm:text-sm text-blue-200/90 font-medium">{currentPopupBanner.subtitle}</p>}
+                    </div>
+                    <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2 [&_.grid]:grid-cols-1 [&_.grid]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg [&_button[type=submit]]:hidden">
+                      <AdmissionEnquiryForm onSuccess={() => setShowLivePopUpPreview(false)} onClose={() => setShowLivePopUpPreview(false)} />
+                      <p className="text-[11px] text-blue-200/70 text-center pt-1 font-medium">* Privacy: We respect your details & data privacy.</p>
+                    </div>
+                    <div className="w-full max-w-sm sm:max-w-md mx-auto grid grid-cols-2 gap-3 pt-1">
+                      <button className="bg-[#1a5d9c] text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-lg border border-blue-400/30 flex items-center justify-center gap-1.5"><i className="bi bi-pencil-square text-xs" /><span>ENQUIRE NOW</span></button>
+                      <button onClick={() => setShowLivePopUpPreview(false)} className="bg-[#942b3b] text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-lg border border-rose-500/30 flex items-center justify-center gap-1.5"><i className="bi bi-x-circle text-xs" /><span>CANCEL</span></button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Concept 3 */}
+              {currentPopupBanner.bannerStyle === "concept3" && (
+                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[90vh] md:h-[80vh] max-h-[92vh] bg-[#06142a] text-white rounded-2xl sm:rounded-3xl border border-blue-400/40 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
+                  <button onClick={() => setShowLivePopUpPreview(false)} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 size-8 sm:size-9 rounded-full bg-slate-900 text-white flex items-center justify-center border border-white/20"><i className="bi bi-x-lg text-xs" /></button>
+                  <div className="w-full md:w-1/2 h-[32vh] sm:h-[40vh] md:h-full bg-slate-950 flex items-center justify-center p-2 overflow-hidden border-b md:border-b-0 md:border-r border-blue-900/50 shrink-0">
+                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="w-full md:w-1/2 p-4 sm:p-6 md:p-8 bg-[#091b38] flex flex-col justify-start md:justify-center overflow-y-auto flex-1 h-auto md:h-full pb-6">
+                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-amber-400">ENQUIRY FORM</span>
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight">{currentPopupBanner.title || "Quick Enquiry Now"}</h2>
+                    <p className="text-[11px] sm:text-xs text-blue-200/90 pb-3">{currentPopupBanner.subtitle || "Indian Public School, Sambalpur"}</p>
+                    <div className="bg-[#0b1b36] p-4 sm:p-5 rounded-2xl border border-blue-400/30 shadow-2xl text-white space-y-2.5 sm:space-y-3 [&_label]:text-amber-300 [&_label]:font-extrabold [&_label]:text-xs [&_label]:tracking-wide [&_input]:bg-[#040b1a] [&_input]:border-blue-400/40 [&_input]:text-white [&_input]:placeholder:text-blue-300/40 [&_input]:rounded-xl [&_input]:focus:border-amber-400 [&_input]:focus:ring-2 [&_input]:focus:ring-amber-400/20 [&_textarea]:bg-[#040b1a] [&_textarea]:border-blue-400/40 [&_textarea]:text-white [&_textarea]:placeholder:text-blue-300/40 [&_textarea]:rounded-xl [&_button[role=combobox]]:bg-[#040b1a] [&_button[role=combobox]]:border-blue-400/40 [&_button[role=combobox]]:text-white [&_button[type=submit]]:bg-gradient-to-r [&_button[type=submit]]:from-amber-400 [&_button[type=submit]]:via-yellow-400 [&_button[type=submit]]:to-amber-500 [&_button[type=submit]]:text-slate-950 [&_button[type=submit]]:font-black [&_button[type=submit]]:shadow-lg [&_button[type=submit]]:shadow-amber-500/25 [&_button[type=submit]]:border-0 [&_button[type=submit]]:rounded-xl">
+                      <AdmissionEnquiryForm onSuccess={() => setShowLivePopUpPreview(false)} onClose={() => setShowLivePopUpPreview(false)} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Concept 4 */}
+              {currentPopupBanner.bannerStyle === "concept4" && (
+                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-gradient-to-br from-[#060c22] via-[#091536] to-[#040817] text-white rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-9 border-2 border-amber-400/80 shadow-[0_0_55px_rgba(251,191,36,0.4)] backdrop-blur-2xl flex flex-col md:flex-row items-stretch gap-4 sm:gap-8 overflow-y-auto md:overflow-hidden">
+                  <button onClick={() => setShowLivePopUpPreview(false)} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 size-9 sm:size-10 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400 flex items-center justify-center"><i className="bi bi-x-lg text-xs sm:text-sm" /></button>
+                  <div className="w-full md:w-1/2 h-[42vh] sm:h-[48vh] md:h-full rounded-xl sm:rounded-2xl border-2 border-amber-400/40 bg-slate-950 overflow-hidden flex items-center justify-center p-2 shadow-2xl shrink-0">
+                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <i className="bi bi-trophy-fill text-amber-400 text-2xl sm:text-3xl drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-amber-300">GOLDEN EXCELLENCE</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">{currentPopupBanner.title || "ADMISSIONS OPEN 2026–27"}</h2>
+                    <div className="w-14 sm:w-16 h-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full" />
+                    <p className="text-xs sm:text-sm font-semibold text-amber-100/80">{currentPopupBanner.subtitle || "Build Your Child's Brighter Future"}</p>
+                    <button className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm px-6 py-3 rounded-full shadow-lg shadow-amber-500/30">{currentPopupBanner.enquiryButtonText || "Enquire Now"}</button>
+                  </div>
+                </div>
+              )}
+
+              {/* Default Classic Poster Card (card, full-bleed, side-by-side) */}
+              {(currentPopupBanner.bannerStyle === "card" || currentPopupBanner.bannerStyle === "full-bleed" || currentPopupBanner.bannerStyle === "side-by-side") && (
+                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[90vh] bg-slate-950 text-white rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl flex flex-col justify-between overflow-hidden">
+                  <div className="w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center p-2 sm:p-3 overflow-hidden">
+                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="shrink-0 bg-slate-900/95 border-t border-slate-800 px-3.5 py-2.5 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
+                    <div>
+                      <h2 className="text-xs sm:text-sm font-extrabold text-white">{currentPopupBanner.title || "Admissions Open 2026–27"}</h2>
+                      <p className="text-[10px] sm:text-[11px] font-bold text-amber-400">{currentPopupBanner.subtitle || "Indian Public School, Sambalpur"}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button className="bg-blue-600 text-white font-extrabold text-xs px-4 py-2 rounded-full">{currentPopupBanner.enquiryButtonText || "Enquire Now"}</button>
+                      <button onClick={() => setShowLivePopUpPreview(false)} className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-xs px-3.5 py-2 rounded-full border border-slate-700">{currentPopupBanner.closeButtonText || "Close"}</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <CloudinaryGalleryModal
         isOpen={isGalleryOpen}
