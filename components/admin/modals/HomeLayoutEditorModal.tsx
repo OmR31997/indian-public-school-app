@@ -195,11 +195,23 @@ export function HomeLayoutEditorModal({
     const firstHome = { ...(homeList[0] || {}) };
     const currentIdentity = { ...(firstHome.identity || {}) };
 
+    const logoObj = { ...(finalVal.site_logo || currentIdentity.site_logo || {}) };
     const headerObj = { ...(finalVal.header || currentIdentity.header || {}) };
     const footerObj = { ...(finalVal.footer || currentIdentity.footer || {}) };
+    if (logoObj.logoUrl) {
+      headerObj.logoUrl = logoObj.logoUrl;
+      footerObj.logoUrl = logoObj.logoUrl;
+    }
+    if (logoObj.logoText) {
+      headerObj.logoText = logoObj.logoText;
+      footerObj.logoText = logoObj.logoText;
+    }
+    if (logoObj.logoSubText) {
+      headerObj.logoSubText = logoObj.logoSubText;
+      footerObj.logoSubText = logoObj.logoSubText;
+    }
     const waObj = { ...(finalVal.whatsapp || currentIdentity.whatsapp || {}) };
     const popupObj = { ...(currentIdentity.popupBanner || {}), ...(finalVal.popupBanner || {}) };
-    const logoObj = { ...(finalVal.site_logo || currentIdentity.site_logo || {}) };
     const certObj = { ...(finalVal.certified_board || currentIdentity.certified_board || {}) };
     const trustObj = { ...(finalVal.trust_board || currentIdentity.trust_board || {}) };
     const partnerObj = { ...(finalVal.academic_partner || currentIdentity.academic_partner || {}) };

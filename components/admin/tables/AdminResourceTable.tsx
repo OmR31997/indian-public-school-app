@@ -330,26 +330,30 @@ export function HeaderFooterSettingsCard({
     const dsVal = (siteDsItem?.value as Record<string, any>) || {};
     const homeIdentity = (Array.isArray(dsVal.home) ? dsVal.home[0]?.identity : dsVal.identity) || {};
 
-    if (homeIdentity.site_logo && typeof homeIdentity.site_logo === "object") {
-      setSiteLogo((prev) => ({ ...prev, ...(homeIdentity.site_logo as object) }));
+    const logoVal = homeIdentity.site_logo || dsVal.site_logo;
+    if (logoVal && typeof logoVal === "object") {
+      setSiteLogo((prev) => ({ ...prev, ...(logoVal as object) }));
     } else if (logoItem?.value && typeof logoItem.value === "object") {
       setSiteLogo((prev) => ({ ...prev, ...(logoItem.value as object) }));
     }
 
-    if (homeIdentity.certified_board && typeof homeIdentity.certified_board === "object") {
-      setCertifiedBoard((prev) => ({ ...prev, ...(homeIdentity.certified_board as object) }));
+    const certVal = homeIdentity.certified_board || dsVal.certified_board;
+    if (certVal && typeof certVal === "object") {
+      setCertifiedBoard((prev) => ({ ...prev, ...(certVal as object) }));
     } else if (certItem?.value && typeof certItem.value === "object") {
       setCertifiedBoard((prev) => ({ ...prev, ...(certItem.value as object) }));
     }
 
-    if (homeIdentity.trust_board && typeof homeIdentity.trust_board === "object") {
-      setTrustBoard((prev) => ({ ...prev, ...(homeIdentity.trust_board as object) }));
+    const trustVal = homeIdentity.trust_board || dsVal.trust_board;
+    if (trustVal && typeof trustVal === "object") {
+      setTrustBoard((prev) => ({ ...prev, ...(trustVal as object) }));
     } else if (trustItem?.value && typeof trustItem.value === "object") {
       setTrustBoard((prev) => ({ ...prev, ...(trustItem.value as object) }));
     }
 
-    if (homeIdentity.academic_partner && typeof homeIdentity.academic_partner === "object") {
-      setAcademicPartner((prev) => ({ ...prev, ...(homeIdentity.academic_partner as object) }));
+    const partnerVal = homeIdentity.academic_partner || dsVal.academic_partner;
+    if (partnerVal && typeof partnerVal === "object") {
+      setAcademicPartner((prev) => ({ ...prev, ...(partnerVal as object) }));
     } else if (partnerItem?.value && typeof partnerItem.value === "object") {
       setAcademicPartner((prev) => ({ ...prev, ...(partnerItem.value as object) }));
     }
@@ -369,8 +373,27 @@ export function HeaderFooterSettingsCard({
       const currentDsVal = (siteDsItem?.value as Record<string, any>) || {};
       const homeList = Array.isArray(currentDsVal.home) ? [...currentDsVal.home] : [{}];
       const firstHome = { ...(homeList[0] || {}) };
+
+      const currentHeader = { ...(firstHome.identity?.header || currentDsVal.header || {}) };
+      const currentFooter = { ...(firstHome.identity?.footer || currentDsVal.footer || {}) };
+
+      if (siteLogo.logoUrl) {
+        currentHeader.logoUrl = siteLogo.logoUrl;
+        currentFooter.logoUrl = siteLogo.logoUrl;
+      }
+      if (siteLogo.logoText) {
+        currentHeader.logoText = siteLogo.logoText;
+        currentFooter.logoText = siteLogo.logoText;
+      }
+      if (siteLogo.logoSubText) {
+        currentHeader.logoSubText = siteLogo.logoSubText;
+        currentFooter.logoSubText = siteLogo.logoSubText;
+      }
+
       const identityObj = {
         ...(firstHome.identity || {}),
+        header: currentHeader,
+        footer: currentFooter,
         site_logo: siteLogo,
         certified_board: certifiedBoard,
         trust_board: trustBoard,
@@ -381,6 +404,8 @@ export function HeaderFooterSettingsCard({
 
       const finalVal = {
         ...currentDsVal,
+        header: currentHeader,
+        footer: currentFooter,
         site_logo: siteLogo,
         certified_board: certifiedBoard,
         trust_board: trustBoard,
@@ -400,6 +425,23 @@ export function HeaderFooterSettingsCard({
         },
         { headers }
       );
+
+      try {
+        await axios.post(
+          `${API_URL}/school-settings`,
+          {
+            key: "site_logo",
+            category: "Branding",
+            description: "School logo and header branding titles",
+            value: siteLogo,
+            isPublic: true,
+            status: "Active",
+          },
+          { headers }
+        );
+      } catch (e) {
+        console.warn("Syncing standalone site_logo skipped or failed:", e);
+      }
 
       setMessage("Header & Footer identity settings saved successfully inside site_datasource!");
       onSaveComplete();

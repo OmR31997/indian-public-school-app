@@ -167,11 +167,11 @@ export function Footer() {
   ];
 
   const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
-  const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
-  const rawLogoUrl = text(footerConfig.logoUrl) || siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim() || DEFAULT_LOGO;
+  const siteLogo = (siteData?.site_logo as Record<string, string>) || (homeIdentity.site_logo as Record<string, string>) || {};
+  const rawLogoUrl = siteLogo.logoUrl?.trim() || text(footerConfig.logoUrl) || headerConfig.logoUrl?.trim() || DEFAULT_LOGO;
   const customLogoUrl = imageUrl(rawLogoUrl);
-  const displayBrandTitle = text(footerConfig.logoText) || siteLogo.logoText?.trim() || headerConfig.logoText?.trim() || brandTitle;
-  const displayBrandSubTitle = text(footerConfig.logoSubText) || siteLogo.logoSubText?.trim() || headerConfig.logoSubText?.trim() || brandSubTitle;
+  const displayBrandTitle = siteLogo.logoText?.trim() || text(footerConfig.logoText) || headerConfig.logoText?.trim() || brandTitle;
+  const displayBrandSubTitle = siteLogo.logoSubText?.trim() || text(footerConfig.logoSubText) || headerConfig.logoSubText?.trim() || brandSubTitle;
 
   const certifiedBoard = (homeIdentity.certified_board as Record<string, unknown>) || (siteData?.certified_board as Record<string, unknown>) || (footerConfig.certified_board as Record<string, unknown>) || {};
   const certifiedEnabled = certifiedBoard.enabled !== false && Boolean(certifiedBoard.title || certifiedBoard.badgeUrl || certifiedBoard.code);

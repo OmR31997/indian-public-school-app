@@ -13,6 +13,7 @@ export interface SiteLogoSetting {
   logoUrl?: string;
   logoText?: string;
   logoSubText?: string;
+  [key: string]: unknown;
 }
 
 export interface CertifiedBoardSetting {
@@ -192,14 +193,16 @@ export async function getSiteData(): Promise<SiteData> {
       : [];
   const fallbackMenuitemsTree = buildMenuHierarchy(rawFallbackMenuitems as SiteRecord[]);
 
-  const [siteResponse, newsResponse, galleryResponse, reviewsResponse, menuItemsResponse] = await Promise.all([
+  const [siteResponse, logoSettingResponse, newsResponse, galleryResponse, reviewsResponse, menuItemsResponse] = await Promise.all([
     getOptionalApi<SiteData | { value?: SiteData; _doc?: { value?: SiteData } }>("/regarding/datasource"),
+    getOptionalApi<SiteLogoSetting | { value?: SiteLogoSetting }>("/school-settings/key/site_logo"),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/news", { limit: 10, page: 1, sortOrder: "desc" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/gallery", { limit: 50, page: 1, sortOrder: "desc" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/reviews", { limit: 12, page: 1, sortOrder: "desc" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/menu-items", { publishedOnly: "true" }),
   ]);
   const siteData = siteResponse ? unwrapSetting<SiteData>(siteResponse) : fallback;
+  const dbLogoSetting = logoSettingResponse ? unwrapSetting<SiteLogoSetting>(logoSettingResponse) : null;
   const apiNews = unwrapCollection(newsResponse);
   const apiGallery = unwrapCollection(galleryResponse);
   const apiReviews = unwrapCollection(reviewsResponse);
@@ -215,12 +218,44 @@ export async function getSiteData(): Promise<SiteData> {
     ? buildMenuHierarchy(apiMenuItems)
     : fallbackMenuitemsTree;
 
+  const siteLogoFromDb = (dbLogoSetting && typeof dbLogoSetting === "object" && dbLogoSetting.logoUrl)
+    ? dbLogoSetting
+    : (siteData.site_logo || (siteData.home?.[0]?.identity as any)?.site_logo);
+
+  const homeList = Array.isArray(siteData.home) && siteData.home.length > 0 ? siteData.home : fallback.home;
+  const updatedHome = homeList.map((item, idx) => {
+    if (idx === 0 && siteLogoFromDb) {
+      const currentIdentity = (item.identity as Record<string, unknown>) || {};
+      const currentHeader = (currentIdentity.header as Record<string, unknown>) || {};
+      const currentFooter = (currentIdentity.footer as Record<string, unknown>) || {};
+      return {
+        ...item,
+        identity: {
+          ...currentIdentity,
+          header: {
+            ...currentHeader,
+            ...(siteLogoFromDb.logoUrl ? { logoUrl: siteLogoFromDb.logoUrl } : {}),
+            ...(siteLogoFromDb.logoText ? { logoText: siteLogoFromDb.logoText } : {}),
+            ...(siteLogoFromDb.logoSubText ? { logoSubText: siteLogoFromDb.logoSubText } : {}),
+          },
+          footer: {
+            ...currentFooter,
+            ...(siteLogoFromDb.logoUrl ? { logoUrl: siteLogoFromDb.logoUrl } : {}),
+            ...(siteLogoFromDb.logoText ? { logoText: siteLogoFromDb.logoText } : {}),
+            ...(siteLogoFromDb.logoSubText ? { logoSubText: siteLogoFromDb.logoSubText } : {}),
+          },
+          site_logo: siteLogoFromDb,
+        },
+      };
+    }
+    return item;
+  });
+
   return {
     ...fallback,
     ...siteData,
-    // Each public endpoint is independent. A missing content setting must not
-    // prevent live reviews, news, gallery, or menu records from being displayed.
-    home: siteData.home?.length ? siteData.home : fallback.home,
+    site_logo: siteLogoFromDb || fallback.site_logo,
+    home: updatedHome,
     news: apiNews.length ? apiNews : fallback.news,
     galleryItems: apiGallery.length ? apiGallery : fallbackGallery,
     reviewsItems: apiReviews.length ? apiReviews : fallbackReviews,

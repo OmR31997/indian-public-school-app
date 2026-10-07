@@ -298,12 +298,12 @@ export function Navbar() {
   }, [open]);
 
   const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
+  const siteLogo = (siteData?.site_logo as Record<string, string>) || (homeIdentity.site_logo as Record<string, string>) || {};
   const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
-  const siteLogo = (homeIdentity.site_logo as Record<string, string>) || (siteData?.site_logo as Record<string, string>) || {};
-  const rawLogoUrl = headerConfig.logoUrl?.trim() || siteLogo.logoUrl?.trim() || DEFAULT_LOGO;
+  const rawLogoUrl = siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim() || DEFAULT_LOGO;
   const customLogoUrl = imageUrl(rawLogoUrl);
-  const logoTitle = headerConfig.logoText?.trim() || siteLogo.logoText?.trim() || "Indian Public School";
-  const logoSubtitle = headerConfig.logoSubText?.trim() || siteLogo.logoSubText?.trim() || "Learn · Lead · Inspire";
+  const logoTitle = siteLogo.logoText?.trim() || headerConfig.logoText?.trim() || "Indian Public School";
+  const logoSubtitle = siteLogo.logoSubText?.trim() || headerConfig.logoSubText?.trim() || "Learn · Lead · Inspire";
 
   return (
     <header
