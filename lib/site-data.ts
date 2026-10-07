@@ -5,6 +5,7 @@ import fallbackSiteData from "@/public/cloud-datasource.json";
 export const CLOUDINARY_ROOT_FOLDER = getCloudinaryRootFolder();
 export const DEFAULT_HERO_IMAGE = "/assets/Settings/Home/Banner_1.jpg";
 export const DEFAULT_LOGO = "/Settings/Logos/IPSLogo.png";
+export const DEFAULT_CREST_LOGO = "/Settings/Logos/IPSStandardLogo.png";
 export const DEFAULT_INTRO_VIDEO = "/Videos/IPSIntroVideo.mp4";
 
 export type SiteRecord = ApiRecord;
@@ -300,10 +301,8 @@ export function imageUrl(value: unknown): string {
       url === "/assets/Logos/IPSLOGO.png" ||
       url === "/assets/IPSLOGO.png" ||
       url === "assets/Logos/IPSLOGO.png" ||
-      url.includes("IPSStandardLogo.png") ||
       url.includes("file_dzw3mb.png") ||
-      url.includes("BannerLogo.png") ||
-      url.includes("IPSLogo.png")
+      url.includes("BannerLogo.png")
     ) {
       url = DEFAULT_LOGO;
     }

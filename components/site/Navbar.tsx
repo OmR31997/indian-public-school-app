@@ -294,7 +294,15 @@ export function Navbar() {
             <img
               src={customLogoUrl}
               alt={logoTitle || "Indian Public School"}
-              onError={() => setLogoError(true)}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.triedLocal) {
+                  target.dataset.triedLocal = "true";
+                  target.src = "/assets/Settings/Logos/IPSLogo.png";
+                } else {
+                  setLogoError(true);
+                }
+              }}
               className={cn(
                 "w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.015]",
                 isBanner

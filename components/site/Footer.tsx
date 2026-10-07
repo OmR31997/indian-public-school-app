@@ -316,18 +316,17 @@ export function Footer() {
           <Reveal>
             <div className="flex items-center gap-3">
               <div className="inline-flex items-center rounded-xl bg-white/95 p-2 shadow-xs border border-white/15 backdrop-blur-xs transition-transform duration-300 hover:scale-[1.015]">
-                <SmartFileThumbnail
-                  url={customLogoUrl}
+                <img
+                  src={customLogoUrl || "/assets/Settings/Logos/IPSLogo.png"}
                   alt={displayBrandTitle || "Indian Public School"}
                   className="h-8 sm:h-9 md:h-10 w-auto max-w-[180px] sm:max-w-[210px] object-contain shrink-0"
-                  fallbackIcon={
-                    <span
-                      className="grid size-11 place-items-center bg-gold text-gold-foreground shrink-0"
-                      style={{ borderRadius: "var(--logo-radius, 50%)" }}
-                    >
-                      <GraduationCap className="size-5" />
-                    </span>
-                  }
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.triedLocal) {
+                      target.dataset.triedLocal = "true";
+                      target.src = "/assets/Settings/Logos/IPSLogo.png";
+                    }
+                  }}
                 />
               </div>
             </div>

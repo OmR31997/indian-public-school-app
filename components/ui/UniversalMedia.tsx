@@ -16,7 +16,7 @@ import {
   LoaderCircle,
   Eye,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getAssetUrl } from "@/lib/utils";
 import { isPdfFile, isDocumentFile, getPdfProxyUrl, getGoogleDocsViewerUrl } from "@/lib/file-preview";
 
 export type MediaType = "image" | "video" | "audio" | "document" | "unknown";
@@ -466,7 +466,8 @@ export function UniversalMedia({
     );
   }
 
-  const currentSrc = imageError ? fallbackSrc : src;
+  const resolvedSrc = getAssetUrl(src) || src;
+  const currentSrc = imageError ? (getAssetUrl(fallbackSrc) || fallbackSrc) : resolvedSrc;
 
   return (
     <div

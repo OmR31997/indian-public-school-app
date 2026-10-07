@@ -8,7 +8,7 @@ import {
   File,
   Building2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getAssetUrl } from "@/lib/utils";
 import {
   isPdfFile,
   isWordFile,
@@ -31,7 +31,7 @@ export interface SmartFileThumbnailProps {
  * - Sheet/Excel icon badge for Spreadsheets/CSV
  * - Generic File icon badge for other documents
  * - Loaded image for valid image URLs
- * - Icon placeholder (Bootstrap/Lucide styled) if URL is missing or image load fails (preventing browser broken img icon)
+ * - Icon placeholder (Bootstrap/Lucide styled) if URL is missing or image load fails
  */
 export function SmartFileThumbnail({
   url,
@@ -40,13 +40,19 @@ export function SmartFileThumbnail({
   style,
   fallbackIcon,
 }: SmartFileThumbnailProps) {
+  const cleanUrl = typeof url === "string" ? url.trim() : "";
+  const initialSrc = cleanUrl ? (getAssetUrl(cleanUrl) || cleanUrl) : "";
+
   const [hasError, setHasError] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(initialSrc);
 
   useEffect(() => {
     setHasError(false);
-  }, [url]);
+    const resolved = cleanUrl ? (getAssetUrl(cleanUrl) || cleanUrl) : "";
+    setCurrentSrc(resolved);
+  }, [cleanUrl]);
 
-  if (!url || typeof url !== "string" || url.trim() === "") {
+  if (!cleanUrl) {
     return (
       <div
         className={cn(
@@ -59,8 +65,6 @@ export function SmartFileThumbnail({
       </div>
     );
   }
-
-  const cleanUrl = url.trim();
 
   // PDF Document
   if (isPdfFile(cleanUrl)) {
@@ -155,10 +159,23 @@ export function SmartFileThumbnail({
 
   return (
     <img
-      src={cleanUrl}
+      src={currentSrc}
       alt={alt}
       loading="lazy"
-      onError={() => setHasError(true)}
+      onError={() => {
+        if (currentSrc !== cleanUrl && cleanUrl) {
+          setCurrentSrc(cleanUrl);
+        } else if (
+          cleanUrl &&
+          !cleanUrl.startsWith("http") &&
+          !cleanUrl.startsWith("/") &&
+          !currentSrc.includes("indianpublicschool.in")
+        ) {
+          setCurrentSrc(`https://indianpublicschool.in/admin/uploads/images/${cleanUrl}`);
+        } else {
+          setHasError(true);
+        }
+      }}
       className={cn("object-cover shrink-0", className)}
       style={style}
     />

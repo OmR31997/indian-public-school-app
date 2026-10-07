@@ -327,37 +327,81 @@ export function HeaderFooterSettingsCard({
     enabled: true,
   });
 
+  const [fetchedDsValue, setFetchedDsValue] = useState<Record<string, any> | null>(null);
+
   useEffect(() => {
-    const dsVal = (siteDsItem?.value as Record<string, any>) || {};
-    const homeIdentity = (Array.isArray(dsVal.home) ? dsVal.home[0]?.identity : dsVal.identity) || {};
+    let isMounted = true;
+    const loadFullSettings = async () => {
+      let rawDsVal: any = siteDsItem?.value;
+      if (!rawDsVal) {
+        try {
+          const res = await axios.get(`${API_URL}/school-settings/key/site_datasource`);
+          const itemData = res.data?.data ?? res.data;
+          if (itemData?.value) {
+            rawDsVal = itemData.value;
+          }
+        } catch {
+          try {
+            const res2 = await axios.get(`${API_URL}/regarding/datasource`);
+            rawDsVal = res2.data?.data ?? res2.data;
+          } catch {
+            // Keep default fallback
+          }
+        }
+      }
 
-    const logoVal = homeIdentity.site_logo || dsVal.site_logo;
-    if (logoVal && typeof logoVal === "object") {
-      setSiteLogo((prev) => ({ ...prev, ...(logoVal as object) }));
-    } else if (logoItem?.value && typeof logoItem.value === "object") {
-      setSiteLogo((prev) => ({ ...prev, ...(logoItem.value as object) }));
-    }
+      if (typeof rawDsVal === "string") {
+        try {
+          rawDsVal = JSON.parse(rawDsVal);
+        } catch {
+          rawDsVal = {};
+        }
+      }
 
-    const certVal = homeIdentity.certified_board || dsVal.certified_board;
-    if (certVal && typeof certVal === "object") {
-      setCertifiedBoard((prev) => ({ ...prev, ...(certVal as object) }));
-    } else if (certItem?.value && typeof certItem.value === "object") {
-      setCertifiedBoard((prev) => ({ ...prev, ...(certItem.value as object) }));
-    }
+      const dsVal = (rawDsVal && typeof rawDsVal === "object") ? rawDsVal : {};
+      if (isMounted) setFetchedDsValue(dsVal);
 
-    const trustVal = homeIdentity.trust_board || dsVal.trust_board;
-    if (trustVal && typeof trustVal === "object") {
-      setTrustBoard((prev) => ({ ...prev, ...(trustVal as object) }));
-    } else if (trustItem?.value && typeof trustItem.value === "object") {
-      setTrustBoard((prev) => ({ ...prev, ...(trustItem.value as object) }));
-    }
+      const homeIdentity = (Array.isArray(dsVal.home) ? dsVal.home[0]?.identity : dsVal.identity) || {};
 
-    const partnerVal = homeIdentity.academic_partner || dsVal.academic_partner;
-    if (partnerVal && typeof partnerVal === "object") {
-      setAcademicPartner((prev) => ({ ...prev, ...(partnerVal as object) }));
-    } else if (partnerItem?.value && typeof partnerItem.value === "object") {
-      setAcademicPartner((prev) => ({ ...prev, ...(partnerItem.value as object) }));
-    }
+      const logoVal = homeIdentity.site_logo || dsVal.site_logo;
+      if (logoVal && typeof logoVal === "object") {
+        setSiteLogo((prev) => ({ ...prev, ...(logoVal as object) }));
+      } else if (logoItem?.value) {
+        let lVal = logoItem.value;
+        if (typeof lVal === "string") { try { lVal = JSON.parse(lVal); } catch { } }
+        if (lVal && typeof lVal === "object") setSiteLogo((prev) => ({ ...prev, ...(lVal as object) }));
+      }
+
+      const certVal = homeIdentity.certified_board || dsVal.certified_board;
+      if (certVal && typeof certVal === "object") {
+        setCertifiedBoard((prev) => ({ ...prev, ...(certVal as object) }));
+      } else if (certItem?.value) {
+        let cVal = certItem.value;
+        if (typeof cVal === "string") { try { cVal = JSON.parse(cVal); } catch { } }
+        if (cVal && typeof cVal === "object") setCertifiedBoard((prev) => ({ ...prev, ...(cVal as object) }));
+      }
+
+      const trustVal = homeIdentity.trust_board || dsVal.trust_board;
+      if (trustVal && typeof trustVal === "object") {
+        setTrustBoard((prev) => ({ ...prev, ...(trustVal as object) }));
+      } else if (trustItem?.value) {
+        let tVal = trustItem.value;
+        if (typeof tVal === "string") { try { tVal = JSON.parse(tVal); } catch { } }
+        if (tVal && typeof tVal === "object") setTrustBoard((prev) => ({ ...prev, ...(tVal as object) }));
+      }
+
+      const partnerVal = homeIdentity.academic_partner || dsVal.academic_partner;
+      if (partnerVal && typeof partnerVal === "object") {
+        setAcademicPartner((prev) => ({ ...prev, ...(partnerVal as object) }));
+      } else if (partnerItem?.value) {
+        let pVal = partnerItem.value;
+        if (typeof pVal === "string") { try { pVal = JSON.parse(pVal); } catch { } }
+        if (pVal && typeof pVal === "object") setAcademicPartner((prev) => ({ ...prev, ...(pVal as object) }));
+      }
+    };
+
+    loadFullSettings();
+    return () => { isMounted = false; };
   }, [siteDsItem, logoItem, certItem, trustItem, partnerItem]);
 
   const saveSettings = async () => {
@@ -371,7 +415,7 @@ export function HeaderFooterSettingsCard({
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const currentDsVal = (siteDsItem?.value as Record<string, any>) || {};
+      const currentDsVal = fetchedDsValue || (typeof siteDsItem?.value === "string" ? JSON.parse(siteDsItem.value) : siteDsItem?.value) || {};
       const homeList = Array.isArray(currentDsVal.home) ? [...currentDsVal.home] : [{}];
       const firstHome = { ...(homeList[0] || {}) };
 
@@ -676,9 +720,25 @@ export function HeaderFooterSettingsCard({
           <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Footer Trust Badge Preview</span>
             <div className="rounded-xl border border-blue-200 bg-white p-4 shadow-2xs flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-blue-100 text-[#1a5d9c] font-bold text-xs">
-                TRUST
-              </div>
+              {trustBoard.logoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={imageUrl(trustBoard.logoUrl)}
+                  alt=""
+                  className="h-10 w-10 object-contain"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.triedLocal && trustBoard.logoUrl) {
+                      target.dataset.triedLocal = "true";
+                      target.src = trustBoard.logoUrl;
+                    }
+                  }}
+                />
+              ) : (
+                <div className="grid h-10 w-10 place-items-center rounded-lg bg-blue-100 text-[#1a5d9c] font-bold text-xs">
+                  TRUST
+                </div>
+              )}
               <div>
                 <p className="font-bold text-xs text-[#102a4c]">{trustBoard.trustName}</p>
                 <p className="text-[11px] text-slate-500">{trustBoard.regNo}</p>

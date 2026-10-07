@@ -52,56 +52,51 @@ export function getAssetUrl(url?: string | null): string {
     return trimmed;
   }
 
-  // Extract subpath from Cloudinary full URLs if available
-  let cleanPath = trimmed;
-  if (trimmed.includes('cloudinary.com')) {
-    const match = trimmed.match(/\/(?:ips-education\/assets|assets)\/(.+)$/i);
-    if (match && match[1]) {
-      cleanPath = match[1].replace(/^\/+/, '');
-    } else {
-      const rootFolder = getCloudinaryRootFolder();
-      if (rootFolder) {
-        const escapedRoot = rootFolder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        trimmed = trimmed.replace(new RegExp(`\\/${escapedRoot}\\/upload\\/`, 'gi'), '/image/upload/');
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    if (trimmed.includes('cloudinary.com')) {
+      let fixedUrl = trimmed
+        .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/')
+        .replace(/(?:Videos\/)+Videos\//gi, 'Videos/');
+
+      if (fixedUrl.toLowerCase().includes('aakashhealthfoundation')) {
+        fixedUrl = fixedUrl.replace(/Logos\/AakashHealthFoundation\.(jpg|png|jpeg)/i, 'Settings/Logos/AakashFoundationLogo.png');
       }
 
-      if (!trimmed.includes('/upload/')) {
-        const isVideo = trimmed.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(trimmed);
-        const isRaw = /\.(doc|docx|xls|xlsx|zip|txt|pdf)$/i.test(trimmed);
+      if (!fixedUrl.includes('/upload/')) {
+        const isVideo = fixedUrl.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(fixedUrl);
+        const isRaw = /\.(doc|docx|xls|xlsx|zip|txt|pdf)$/i.test(fixedUrl);
         const typePrefix = isVideo ? 'video/upload' : isRaw ? 'raw/upload' : 'image/upload';
         const rootFolder = getCloudinaryRootFolder();
-        return rootFolder ? trimmed.replace(new RegExp(`/${rootFolder}/`), `/${typePrefix}/${rootFolder}/`) : trimmed;
+        if (rootFolder && fixedUrl.includes(`/${rootFolder}/`)) {
+          fixedUrl = fixedUrl.replace(`/${rootFolder}/`, `/${typePrefix}/${rootFolder}/`);
+        }
       }
+      return fixedUrl;
     }
+    return trimmed;
   }
 
-  // Return standard absolute HTTP URLs if not matched to internal assets
-  if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
-    return cleanPath;
+  let cleanPath = trimmed.replace(/\\/g, '/').replace(/^\/+/, '');
+  if (cleanPath.toLowerCase().startsWith('public/')) {
+    cleanPath = cleanPath.slice('public/'.length).replace(/^\/+/, '');
   }
-
-  cleanPath = cleanPath.replace(/^\/+/, '');
   if (cleanPath.toLowerCase().startsWith('assets/')) {
-    cleanPath = cleanPath.slice('assets/'.length);
+    cleanPath = cleanPath.slice('assets/'.length).replace(/^\/+/, '');
   }
 
   cleanPath = cleanPath
     .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/')
     .replace(/(?:Videos\/)+Videos\//gi, 'Videos/');
 
-  // Return local asset path for relative asset paths (/Videos/..., /Album/..., /Settings/..., /Documents/..., /PressRelease/..., /Review/...)
-  if (
-    trimmed.startsWith('/assets/') ||
-    cleanPath.startsWith('Videos/') ||
-    cleanPath.startsWith('Album/') ||
-    cleanPath.startsWith('Documents/') ||
-    cleanPath.startsWith('Settings/') ||
-    cleanPath.startsWith('PressRelease/') ||
-    cleanPath.startsWith('Review/') ||
-    cleanPath.toLowerCase().includes('bannerlogo') ||
-    cleanPath.toLowerCase().includes('ipslogo') ||
-    process.env.NEXT_PUBLIC_SERVE_LOCAL_ASSETS === 'true'
-  ) {
+  if (cleanPath.startsWith('Logos/')) {
+    cleanPath = `Settings/${cleanPath}`;
+  }
+
+  if (cleanPath.toLowerCase().includes('aakashhealthfoundation')) {
+    cleanPath = 'Settings/Logos/AakashFoundationLogo.png';
+  }
+
+  if (process.env.NEXT_PUBLIC_SERVE_LOCAL_ASSETS === 'true') {
     return `/assets/${cleanPath}`;
   }
 
@@ -130,7 +125,7 @@ export function getAssetUrl(url?: string | null): string {
   }
 
   let finalCloudPath = cleanPath;
-  if (rootFolder) {
+  if (rootFolder && !cleanPath.startsWith(`${rootFolder}/`)) {
     finalCloudPath = `${rootFolder}/${cleanPath}`;
   }
 
