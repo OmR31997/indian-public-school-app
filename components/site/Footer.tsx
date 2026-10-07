@@ -5,10 +5,12 @@ import axios from "axios";
 import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Sparkles, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
-import { buildMenuHierarchy, DEFAULT_LOGO, homeData, imageUrl, text } from "@/lib/site-data";
+import { cn } from "@/lib/utils";
+import { buildMenuHierarchy, DEFAULT_LOGO, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
+import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 
 interface ApiMenuItem {
   _id?: string;
@@ -170,6 +172,7 @@ export function Footer() {
   const siteLogo = (siteData?.site_logo as Record<string, string>) || (homeIdentity.site_logo as Record<string, string>) || {};
   const rawLogoUrl = siteLogo.logoUrl?.trim() || text(footerConfig.logoUrl) || headerConfig.logoUrl?.trim() || DEFAULT_LOGO;
   const customLogoUrl = imageUrl(rawLogoUrl);
+  const isBanner = isBannerLogoUrl(rawLogoUrl);
   const displayBrandTitle = siteLogo.logoText?.trim() || text(footerConfig.logoText) || headerConfig.logoText?.trim() || brandTitle;
   const displayBrandSubTitle = siteLogo.logoSubText?.trim() || text(footerConfig.logoSubText) || headerConfig.logoSubText?.trim() || brandSubTitle;
 
@@ -190,17 +193,16 @@ export function Footer() {
             {certifiedEnabled && (
               <Reveal>
                 <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
-                  {certifiedBoard.badgeUrl ? (
-                    <img
-                      src={imageUrl(String(certifiedBoard.badgeUrl))}
-                      alt={String(certifiedBoard.title || "Certified Board")}
-                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
-                    />
-                  ) : (
-                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
-                      <Award className="size-6" />
-                    </div>
-                  )}
+                  <SmartFileThumbnail
+                    url={certifiedBoard.badgeUrl ? imageUrl(String(certifiedBoard.badgeUrl)) : null}
+                    alt={String(certifiedBoard.title || "Certified Board")}
+                    className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                    fallbackIcon={
+                      <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                        <Award className="size-6" />
+                      </div>
+                    }
+                  />
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Certified Company Board</span>
@@ -232,17 +234,16 @@ export function Footer() {
             {trustEnabled && (
               <Reveal delay={0.1}>
                 <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
-                  {trustBoard.logoUrl ? (
-                    <img
-                      src={imageUrl(String(trustBoard.logoUrl))}
-                      alt={String(trustBoard.trustName || "Trust Board")}
-                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
-                    />
-                  ) : (
-                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
-                      <Building2 className="size-6" />
-                    </div>
-                  )}
+                  <SmartFileThumbnail
+                    url={trustBoard.logoUrl ? imageUrl(String(trustBoard.logoUrl)) : null}
+                    alt={String(trustBoard.trustName || "Trust Board")}
+                    className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                    fallbackIcon={
+                      <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                        <Building2 className="size-6" />
+                      </div>
+                    }
+                  />
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Trust Board</span>
@@ -274,17 +275,16 @@ export function Footer() {
             {partnerEnabled && (
               <Reveal delay={0.2}>
                 <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
-                  {academicPartner.logoUrl ? (
-                    <img
-                      src={imageUrl(String(academicPartner.logoUrl))}
-                      alt={String(academicPartner.title || "Academic Partner")}
-                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
-                    />
-                  ) : (
-                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
-                      <GraduationCap className="size-6" />
-                    </div>
-                  )}
+                  <SmartFileThumbnail
+                    url={academicPartner.logoUrl ? imageUrl(String(academicPartner.logoUrl)) : null}
+                    alt={String(academicPartner.title || "Academic Partner")}
+                    className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                    fallbackIcon={
+                      <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                        <GraduationCap className="size-6" />
+                      </div>
+                    }
+                  />
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-bold tracking-wider text-gold uppercase">
@@ -315,28 +315,21 @@ export function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr] items-start">
           <Reveal>
             <div className="flex items-center gap-3">
-              {customLogoUrl ? (
-                <img
-                  src={customLogoUrl}
-                  alt={displayBrandTitle}
-                  className="h-11 max-w-[150px] object-contain"
+              <div className="inline-flex items-center rounded-xl bg-white/95 p-2 shadow-xs border border-white/15 backdrop-blur-xs transition-transform duration-300 hover:scale-[1.015]">
+                <SmartFileThumbnail
+                  url={customLogoUrl}
+                  alt={displayBrandTitle || "Indian Public School"}
+                  className="h-8 sm:h-9 md:h-10 w-auto max-w-[180px] sm:max-w-[210px] object-contain shrink-0"
+                  fallbackIcon={
+                    <span
+                      className="grid size-11 place-items-center bg-gold text-gold-foreground shrink-0"
+                      style={{ borderRadius: "var(--logo-radius, 50%)" }}
+                    >
+                      <GraduationCap className="size-5" />
+                    </span>
+                  }
                 />
-              ) : (
-                <span
-                  className="grid size-11 place-items-center bg-gold text-gold-foreground"
-                  style={{ borderRadius: "var(--logo-radius, 50%)" }}
-                >
-                  <GraduationCap className="size-5" />
-                </span>
-              )}
-              <span>
-                <span className="block font-display text-lg font-semibold text-navy-foreground">
-                  {displayBrandTitle}
-                </span>
-                <span className="block text-[10px] font-semibold tracking-[0.2em] text-gold uppercase">
-                  {displayBrandSubTitle}
-                </span>
-              </span>
+              </div>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-navy-foreground/70">
               {aboutText}

@@ -271,6 +271,8 @@ export function UniversalMedia({
 
   // Render HTML5 / Direct Video File
   if (mediaType === "video") {
+    const validPoster = (poster && typeof poster === "string" && poster.trim().length > 0 && !isDocumentFile(poster)) ? poster.trim() : undefined;
+
     return (
       <div
         className={cn(
@@ -284,7 +286,7 @@ export function UniversalMedia({
         <video
           ref={videoRef}
           src={src}
-          poster={poster}
+          poster={validPoster}
           autoPlay={autoPlay}
           loop={loop}
           muted={muted}
@@ -450,6 +452,20 @@ export function UniversalMedia({
   }
 
   // Render Responsive Image (Default fallback)
+  if (imageError && !fallbackSrc) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 p-4",
+          aspectClass,
+          containerClassName
+        )}
+      >
+        <ImageIcon className="h-8 w-8 text-slate-400 shrink-0" />
+      </div>
+    );
+  }
+
   const currentSrc = imageError ? fallbackSrc : src;
 
   return (

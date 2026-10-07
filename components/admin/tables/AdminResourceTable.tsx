@@ -29,11 +29,12 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
-import { DEFAULT_LOGO, imageUrl } from "@/lib/site-data";
+import { DEFAULT_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
 import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
 import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
 import { MediaDetailDialog } from "../modals/MediaDetailDialog";
+import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 
 function Empty({ text }: { text: string }) {
   return <div className="px-5 py-12 text-center text-sm text-slate-400">{text}</div>;
@@ -294,9 +295,9 @@ export function HeaderFooterSettingsCard({
   const partnerItem = useMemo(() => items.find((i) => i.key === "academic_partner"), [items]);
 
   const [siteLogo, setSiteLogo] = useState({
-    logoUrl: "",
-    logoText: "Indian Public School",
-    logoSubText: "Learn · Lead · Inspire",
+    logoUrl: "/Settings/Logos/IPSLogo.png",
+    logoText: "",
+    logoSubText: "",
   });
 
   const [certifiedBoard, setCertifiedBoard] = useState({
@@ -377,18 +378,14 @@ export function HeaderFooterSettingsCard({
       const currentHeader = { ...(firstHome.identity?.header || currentDsVal.header || {}) };
       const currentFooter = { ...(firstHome.identity?.footer || currentDsVal.footer || {}) };
 
-      if (siteLogo.logoUrl) {
+      if (siteLogo.logoUrl !== undefined) {
         currentHeader.logoUrl = siteLogo.logoUrl;
         currentFooter.logoUrl = siteLogo.logoUrl;
       }
-      if (siteLogo.logoText) {
-        currentHeader.logoText = siteLogo.logoText;
-        currentFooter.logoText = siteLogo.logoText;
-      }
-      if (siteLogo.logoSubText) {
-        currentHeader.logoSubText = siteLogo.logoSubText;
-        currentFooter.logoSubText = siteLogo.logoSubText;
-      }
+      currentHeader.logoText = siteLogo.logoText || "";
+      currentFooter.logoText = siteLogo.logoText || "";
+      currentHeader.logoSubText = siteLogo.logoSubText || "";
+      currentFooter.logoSubText = siteLogo.logoSubText || "";
 
       const identityObj = {
         ...(firstHome.identity || {}),
@@ -504,7 +501,7 @@ export function HeaderFooterSettingsCard({
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
         >
-          <UploadCloud size={15} /> School Logo & Text
+          <UploadCloud size={15} /> School Logo
         </button>
         <button
           type="button"
@@ -555,44 +552,18 @@ export function HeaderFooterSettingsCard({
                 </button>
               </div>
             </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700">School Name</label>
-              <input
-                type="text"
-                value={siteLogo.logoText}
-                onChange={(e) => setSiteLogo((p) => ({ ...p, logoText: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Tagline / Subtext</label>
-              <input
-                type="text"
-                value={siteLogo.logoSubText}
-                onChange={(e) => setSiteLogo((p) => ({ ...p, logoSubText: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
           </div>
 
           <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Live Header Preview</span>
-            <div className="flex items-center gap-3 rounded-2xl bg-[#102a4c] p-4 text-white shadow-md">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f4bd4f] text-[#102a4c] overflow-hidden p-1">
-                {siteLogo.logoUrl ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={imageUrl(siteLogo.logoUrl)} alt="Logo" className="h-full w-full object-contain" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imageUrl(DEFAULT_LOGO); }} />
-                ) : (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={imageUrl(DEFAULT_LOGO)} alt="IPS Logo" className="h-full w-full object-contain" onError={(e) => { e.currentTarget.onerror = null; }} />
-                )}
-              </div>
-              <div className="text-left">
-                <p className="font-display text-base font-bold text-white">{siteLogo.logoText || "Indian Public School"}</p>
-                <p className="text-[11px] text-blue-200">{siteLogo.logoSubText || "Learn · Lead · Inspire"}</p>
-              </div>
+            <div className="flex items-center justify-center rounded-2xl bg-white p-4 text-slate-900 shadow-sm border border-slate-200 min-w-[280px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl(siteLogo.logoUrl || DEFAULT_LOGO)}
+                alt="Logo"
+                className="h-8 md:h-10 w-auto object-contain"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imageUrl(DEFAULT_LOGO); }}
+              />
             </div>
           </div>
         </div>
@@ -1027,11 +998,10 @@ export function ResourceView({
                       key={itemId(item)}
                       className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition hover:border-slate-300 hover:shadow-md"
                     >
-                      <div className="relative aspect-video w-full overflow-hidden bg-slate-100">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={mediaUrl}
-                          alt=""
+                      <div className="relative aspect-video w-full overflow-hidden bg-slate-100 flex items-center justify-center">
+                        <SmartFileThumbnail
+                          url={mediaUrl}
+                          alt={String(item.eventName || item.title || item.name || "Asset")}
                           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-slate-950/40 opacity-0 transition group-hover:opacity-100 flex items-center justify-center gap-2">

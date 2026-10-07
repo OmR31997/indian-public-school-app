@@ -1302,7 +1302,11 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="https://res.cloudinary.com/... or /assets/..."
-                      value={currentPopupBanner.imageUrl ?? ""}
+                      value={
+                        (currentPopupBanner.imageUrl && !currentPopupBanner.imageUrl.includes("Banner_8") && !currentPopupBanner.imageUrl.includes("file_"))
+                          ? currentPopupBanner.imageUrl
+                          : "/Settings/Home/POP_UP_IMAGE.jpeg"
+                      }
                       onChange={(e) => updatePopupBannerField("imageUrl", e.target.value)}
                       className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
@@ -1539,15 +1543,26 @@ export function HomeLayoutEditorModal({
                       >
                         {/* Poster Graphic Image Container */}
                         <div className="relative w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
-                          <img
-                            src={getAssetUrl(datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "")}
-                            alt="Admin Banner Preview"
-                            className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02]"
-                            style={{
-                              objectFit: (datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "contain") as any,
-                              objectPosition: datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center",
-                            }}
-                          />
+                          {(() => {
+                            const rawUrl = (datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "").trim();
+                            const validUrl = (rawUrl && !rawUrl.includes("Banner_8") && !rawUrl.includes("file_")) ? rawUrl : "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                            const resolvedUrl = getAssetUrl(validUrl) || "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                            return (
+                              <img
+                                src={resolvedUrl}
+                                alt="Admin Banner Preview"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                                }}
+                                className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02]"
+                                style={{
+                                  objectFit: (datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "contain") as any,
+                                  objectPosition: datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center",
+                                }}
+                              />
+                            );
+                          })()}
                         </div>
 
                         {/* Dedicated Bottom Footer Action Bar */}

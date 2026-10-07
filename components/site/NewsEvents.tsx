@@ -204,7 +204,7 @@ export function NewsEvents() {
         <div className="mt-10 mx-auto max-w-4xl rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
           {/* Header Row */}
           <div className="flex flex-row items-center justify-between border-b border-border pb-4">
-            <h3 className="text-base font-bold text-foreground">IPS Notice Board</h3>
+            <h3 className="text-base font-bold text-foreground">IPS News &amp; Announcements</h3>
 
             {/* Manual Up / Down Controls */}
             <div className="flex items-center rounded-lg border border-border bg-secondary/50 px-1 py-0.5 text-xs text-muted-foreground">
@@ -235,7 +235,7 @@ export function NewsEvents() {
           >
             {filteredNotices.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-center p-8">
-                <p className="text-sm font-semibold text-foreground">No notices available</p>
+                <p className="text-sm font-semibold text-foreground">No news updates available</p>
               </div>
             ) : (
               <div className={`space-y-3.5 ${isPaused ? "" : "slow-notice-flow"}`}>
@@ -348,7 +348,7 @@ export function NewsEvents() {
 
           {/* Footer Ribbon */}
           <div className="mt-3 border-t border-border pt-2.5 text-center text-xs text-muted-foreground flex items-center justify-between">
-            <span>Showing all {filteredNotices.length} active notices</span>
+            <span>Showing all {filteredNotices.length} news updates</span>
           </div>
         </div>
       </div>

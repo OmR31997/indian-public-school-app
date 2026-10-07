@@ -3,8 +3,8 @@ import { getAssetUrl, getCloudinaryRootFolder } from "@/lib/utils";
 import fallbackSiteData from "@/public/cloud-datasource.json";
 
 export const CLOUDINARY_ROOT_FOLDER = getCloudinaryRootFolder();
-export const DEFAULT_HERO_IMAGE = "/Settings/Home/hero-campus.jpg";
-export const DEFAULT_LOGO = "/Settings/Logos/IPSStandardLogo.png";
+export const DEFAULT_HERO_IMAGE = "/assets/Settings/Home/Banner_1.jpg";
+export const DEFAULT_LOGO = "/Settings/Logos/IPSLogo.png";
 export const DEFAULT_INTRO_VIDEO = "/Videos/IPSIntroVideo.mp4";
 
 export type SiteRecord = ApiRecord;
@@ -286,11 +286,25 @@ export function textList(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
+export function isBannerLogoUrl(url?: string | null): boolean {
+  if (!url) return true;
+  const lower = url.toLowerCase().trim();
+  return lower.includes("ipslogo") || lower.includes("bannerlogo") || lower.includes("banner_logo") || lower.includes("banner");
+}
+
 export function imageUrl(value: unknown): string {
   if (typeof value === "string") {
     let url = value.trim();
     if (!url) return "";
-    if (url === "/assets/Logos/IPSLOGO.png" || url === "/assets/IPSLOGO.png" || url === "assets/Logos/IPSLOGO.png" || url === "/Settings/Logos/IPSStandardLogo.png") {
+    if (
+      url === "/assets/Logos/IPSLOGO.png" ||
+      url === "/assets/IPSLOGO.png" ||
+      url === "assets/Logos/IPSLOGO.png" ||
+      url.includes("IPSStandardLogo.png") ||
+      url.includes("file_dzw3mb.png") ||
+      url.includes("BannerLogo.png") ||
+      url.includes("IPSLogo.png")
+    ) {
       url = DEFAULT_LOGO;
     }
     return getAssetUrl(url);
@@ -300,6 +314,72 @@ export function imageUrl(value: unknown): string {
     return found ? imageUrl(found) : "";
   }
   return "";
+}
+
+export function processHtmlAssetUrls(html?: string | null): string {
+  if (!html || typeof html !== "string") return "";
+
+  let processed = html.replace(
+    /\bsrc=["']([^"']+)["']/gi,
+    (match, path) => {
+      const cleanPath = (path || "").trim();
+      if (!cleanPath) return match;
+      if (cleanPath.includes("cloudinary.com")) {
+        const fullUrl = imageUrl(cleanPath);
+        return `src="${fullUrl}"`;
+      }
+      if (
+        cleanPath.startsWith("http://") ||
+        cleanPath.startsWith("https://") ||
+        cleanPath.startsWith("data:") ||
+        cleanPath.startsWith("blob:") ||
+        cleanPath.startsWith("javascript:")
+      ) {
+        return match;
+      }
+      const fullUrl = imageUrl(cleanPath);
+      return `src="${fullUrl}"`;
+    }
+  );
+
+  processed = processed.replace(
+    /\bhref=["']([^"']+)["']/gi,
+    (match, path) => {
+      const cleanPath = (path || "").trim();
+      if (!cleanPath) return match;
+      if (cleanPath.includes("cloudinary.com")) {
+        const fullUrl = imageUrl(cleanPath);
+        return `href="${fullUrl}"`;
+      }
+      if (
+        cleanPath.startsWith("http://") ||
+        cleanPath.startsWith("https://") ||
+        cleanPath.startsWith("data:") ||
+        cleanPath.startsWith("blob:") ||
+        cleanPath.startsWith("#") ||
+        cleanPath.startsWith("mailto:") ||
+        cleanPath.startsWith("tel:") ||
+        cleanPath.startsWith("javascript:")
+      ) {
+        return match;
+      }
+      const lower = cleanPath.toLowerCase();
+      const isMediaLink =
+        /\.(jpg|jpeg|png|webp|svg|gif|avif|mp4|webm|pdf|doc|docx|xls|xlsx|zip)($|\?|#)/i.test(lower) ||
+        lower.includes("/assets/") ||
+        lower.includes("/uploads/") ||
+        lower.includes("/album/") ||
+        lower.includes("/documents/");
+
+      if (isMediaLink) {
+        const fullUrl = imageUrl(cleanPath);
+        return `href="${fullUrl}"`;
+      }
+      return match;
+    }
+  );
+
+  return processed;
 }
 
 export function imageUrls(record: SiteRecord): string[] {
@@ -379,9 +459,12 @@ export function getPopupBannerConfig(siteData?: SiteData | null): Required<Popup
   };
 
   const enabled = pb.enabled !== false;
-  const delaySeconds = typeof pb.delaySeconds === "number" ? pb.delaySeconds : (Number(pb.delaySeconds) || 3);
-  const rawImageUrl = pb.imageUrl !== undefined ? text(pb.imageUrl) : "/Settings/Home/Banner_8.jpg?auto=format&fit=crop&w=1400&q=85";
-  const resolvedImageUrl = imageUrl(rawImageUrl) || getAssetUrl(rawImageUrl);
+  const delaySeconds = typeof pb.delaySeconds === "number" ? pb.delaySeconds : (Number(pb.delaySeconds) || 1);
+  let rawImageUrl = pb.imageUrl !== undefined && text(pb.imageUrl).trim() !== "" ? text(pb.imageUrl) : "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+  if (rawImageUrl.includes("Banner_8") || rawImageUrl.includes("file_") || !rawImageUrl.trim()) {
+    rawImageUrl = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+  }
+  const resolvedImageUrl = imageUrl(rawImageUrl) || getAssetUrl(rawImageUrl) || "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
   const showTitle = pb.showTitle !== false;
   const title = showTitle ? (pb.title !== undefined ? text(pb.title) : "Admissions Open 2026–27") : "";
   const rawSubtitle = text(pb.subtitle) || "";
