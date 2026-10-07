@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { buildMenuHierarchy, DEFAULT_LOGO, getWhatsAppConfig, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
+import { buildMenuHierarchy, DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, getWhatsAppConfig, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 import {
@@ -111,6 +111,7 @@ export function Navbar() {
 
   const [dbMenuItems, setDbMenuItems] = useState<ApiMenuItem[]>(initialMenuItems);
   const [logoError, setLogoError] = useState(false);
+  const [secondaryLogoError, setSecondaryLogoError] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<Record<string, boolean>>({});
@@ -271,13 +272,17 @@ export function Navbar() {
   }, [open]);
 
   const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
-  const siteLogo = (siteData?.site_logo as Record<string, string>) || (homeIdentity.site_logo as Record<string, string>) || {};
-  const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
-  const rawLogoUrl = siteLogo.logoUrl?.trim() || headerConfig.logoUrl?.trim() || DEFAULT_LOGO;
+  const siteLogo = (siteData?.site_logo as Record<string, any>) || (homeIdentity.site_logo as Record<string, any>) || {};
+  const headerConfig = (homeIdentity.header as Record<string, any>) || (siteData?.header as Record<string, any>) || {};
+  const rawLogoUrl = (siteLogo.logoUrl ? String(siteLogo.logoUrl).trim() : "") || (headerConfig.logoUrl ? String(headerConfig.logoUrl).trim() : "") || DEFAULT_LOGO;
   const customLogoUrl = imageUrl(rawLogoUrl);
   const isBanner = isBannerLogoUrl(rawLogoUrl);
-  const logoTitle = siteLogo.logoText?.trim() || headerConfig.logoText?.trim() || "Indian Public School";
-  const logoSubtitle = siteLogo.logoSubText?.trim() || headerConfig.logoSubText?.trim() || "Learn · Lead · Inspire";
+  const logoTitle = (siteLogo.logoText ? String(siteLogo.logoText).trim() : "") || (headerConfig.logoText ? String(headerConfig.logoText).trim() : "") || "Indian Public School";
+  const logoSubtitle = (siteLogo.logoSubText ? String(siteLogo.logoSubText).trim() : "") || (headerConfig.logoSubText ? String(headerConfig.logoSubText).trim() : "") || "Learn · Lead · Inspire";
+
+  const rawSecondaryLogoUrl = (siteLogo.secondaryLogoUrl ? String(siteLogo.secondaryLogoUrl).trim() : "") || (headerConfig.secondaryLogoUrl ? String(headerConfig.secondaryLogoUrl).trim() : "") || DEFAULT_SECONDARY_LOGO;
+  const secondaryLogoUrl = imageUrl(rawSecondaryLogoUrl);
+  const showSecondaryLogo = siteLogo.showSecondaryLogo !== false && headerConfig.showSecondaryLogo !== false;
 
   return (
     <header
@@ -289,36 +294,60 @@ export function Navbar() {
       )}
     >
       <nav className="container-page flex h-16 sm:h-20 items-center justify-between gap-4 py-2">
-        <Link href="/" onClick={(e) => handleNavClick("/", e)} className="group flex items-center gap-3 shrink-0">
-          {customLogoUrl && !logoError ? (
-            <img
-              src={customLogoUrl}
-              alt={logoTitle || "Indian Public School"}
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (!target.dataset.triedLocal) {
-                  target.dataset.triedLocal = "true";
-                  target.src = "/assets/Settings/Logos/IPSLogo.png";
-                } else {
-                  setLogoError(true);
-                }
-              }}
-              className={cn(
-                "w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.015]",
-                isBanner
-                  ? "h-8 sm:h-9 lg:h-10 max-w-[170px] sm:max-w-[210px] lg:max-w-[240px]"
-                  : "h-8 sm:h-9 lg:h-10 max-w-[130px] sm:max-w-[160px] lg:max-w-[190px]"
-              )}
-            />
-          ) : (
-            <span
-              className="grid size-10 place-items-center bg-primary text-primary-foreground shadow-soft transition-transform duration-300 group-hover:scale-105"
-              style={{ borderRadius: "var(--logo-radius, 50%)" }}
-            >
-              <GraduationCap className="size-5" />
-            </span>
+        <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
+          <Link href="/" onClick={(e) => handleNavClick("/", e)} className="group flex items-center gap-3 shrink-0">
+            {customLogoUrl && !logoError ? (
+              <img
+                src={customLogoUrl}
+                alt={logoTitle || "Indian Public School"}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.dataset.triedLocal) {
+                    target.dataset.triedLocal = "true";
+                    target.src = "/assets/Settings/Logos/IPSLogo.png";
+                  } else {
+                    setLogoError(true);
+                  }
+                }}
+                className={cn(
+                  "w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.015]",
+                  isBanner
+                    ? "h-8 sm:h-9 lg:h-10 max-w-[150px] sm:max-w-[190px] lg:max-w-[220px]"
+                    : "h-8 sm:h-9 lg:h-10 max-w-[120px] sm:max-w-[150px] lg:max-w-[180px]"
+                )}
+              />
+            ) : (
+              <span
+                className="grid size-10 place-items-center bg-primary text-primary-foreground shadow-soft transition-transform duration-300 group-hover:scale-105"
+                style={{ borderRadius: "var(--logo-radius, 50%)" }}
+              >
+                <GraduationCap className="size-5" />
+              </span>
+            )}
+          </Link>
+
+          {showSecondaryLogo && secondaryLogoUrl && !secondaryLogoError && (
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+              <div className="h-6 sm:h-7 w-[1.5px] bg-slate-300/80 rounded-full shrink-0" aria-hidden="true" />
+              <Link href="/#about" onClick={(e) => handleNavClick("/#about", e)} className="group flex items-center transition-all hover:opacity-95 shrink-0" title="Aakash Educational Partner / Foundation">
+                <img
+                  src={secondaryLogoUrl}
+                  alt="Aakash Foundation"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.triedLocal) {
+                      target.dataset.triedLocal = "true";
+                      target.src = "/assets/Settings/Logos/AakashFoundationLogo.png";
+                    } else {
+                      setSecondaryLogoError(true);
+                    }
+                  }}
+                  className="h-7 sm:h-8 lg:h-9 w-auto max-w-[100px] sm:max-w-[125px] lg:max-w-[145px] object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.02] drop-shadow-xs"
+                />
+              </Link>
+            </div>
           )}
-        </Link>
+        </div>
 
         <ul className="hidden items-center gap-1 xl:flex">
           {visibleNavigation.map((item, index) => {

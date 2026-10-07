@@ -6,7 +6,7 @@ import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldC
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
-import { buildMenuHierarchy, DEFAULT_LOGO, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
+import { buildMenuHierarchy, DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
@@ -168,13 +168,17 @@ export function Footer() {
     { icon: Linkedin, label: "LinkedIn", href: text(footerConfig.linkedin) || text(socialsObj.linkedin, "https://linkedin.com") },
   ];
 
-  const headerConfig = (homeIdentity.header as Record<string, string>) || (siteData?.header as Record<string, string>) || {};
-  const siteLogo = (siteData?.site_logo as Record<string, string>) || (homeIdentity.site_logo as Record<string, string>) || {};
-  const rawLogoUrl = siteLogo.logoUrl?.trim() || text(footerConfig.logoUrl) || headerConfig.logoUrl?.trim() || DEFAULT_LOGO;
+  const headerConfig = (homeIdentity.header as Record<string, any>) || (siteData?.header as Record<string, any>) || {};
+  const siteLogo = (siteData?.site_logo as Record<string, any>) || (homeIdentity.site_logo as Record<string, any>) || {};
+  const rawLogoUrl = (siteLogo.logoUrl ? String(siteLogo.logoUrl).trim() : "") || text(footerConfig.logoUrl) || (headerConfig.logoUrl ? String(headerConfig.logoUrl).trim() : "") || DEFAULT_LOGO;
   const customLogoUrl = imageUrl(rawLogoUrl);
   const isBanner = isBannerLogoUrl(rawLogoUrl);
-  const displayBrandTitle = siteLogo.logoText?.trim() || text(footerConfig.logoText) || headerConfig.logoText?.trim() || brandTitle;
-  const displayBrandSubTitle = siteLogo.logoSubText?.trim() || text(footerConfig.logoSubText) || headerConfig.logoSubText?.trim() || brandSubTitle;
+  const displayBrandTitle = (siteLogo.logoText ? String(siteLogo.logoText).trim() : "") || text(footerConfig.logoText) || (headerConfig.logoText ? String(headerConfig.logoText).trim() : "") || brandTitle;
+  const displayBrandSubTitle = (siteLogo.logoSubText ? String(siteLogo.logoSubText).trim() : "") || text(footerConfig.logoSubText) || (headerConfig.logoSubText ? String(headerConfig.logoSubText).trim() : "") || brandSubTitle;
+
+  const rawSecondaryLogoUrl = (siteLogo.secondaryLogoUrl ? String(siteLogo.secondaryLogoUrl).trim() : "") || text(footerConfig.secondaryLogoUrl) || (headerConfig.secondaryLogoUrl ? String(headerConfig.secondaryLogoUrl).trim() : "") || DEFAULT_SECONDARY_LOGO;
+  const secondaryLogoUrl = imageUrl(rawSecondaryLogoUrl);
+  const showSecondaryLogo = siteLogo.showSecondaryLogo !== false && (footerConfig as any).showSecondaryLogo !== false;
 
   const certifiedBoard = (homeIdentity.certified_board as Record<string, unknown>) || (siteData?.certified_board as Record<string, unknown>) || (footerConfig.certified_board as Record<string, unknown>) || {};
   const certifiedEnabled = certifiedBoard.enabled !== false && Boolean(certifiedBoard.title || certifiedBoard.badgeUrl || certifiedBoard.code);
@@ -263,7 +267,7 @@ export function Footer() {
                       </p>
                     )}
                     {Boolean(trustBoard.linkUrl) && (
-                      <Link href={String(trustBoard.linkUrl)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                      <Link href={String(trustBoard.linkUrl) || "https://www.cbse.gov.in"} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
                         Learn About Trust &rarr;
                       </Link>
                     )}
@@ -315,11 +319,11 @@ export function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr] items-start">
           <Reveal>
             <div className="flex items-center gap-3">
-              <div className="inline-flex items-center rounded-xl bg-white/95 p-2 shadow-xs border border-white/15 backdrop-blur-xs transition-transform duration-300 hover:scale-[1.015]">
+              <div className="inline-flex items-center gap-2.5 rounded-xl bg-white/95 p-2 sm:p-2.5 shadow-xs border border-white/15 backdrop-blur-xs transition-transform duration-300 hover:scale-[1.015]">
                 <img
                   src={customLogoUrl || "/assets/Settings/Logos/IPSLogo.png"}
                   alt={displayBrandTitle || "Indian Public School"}
-                  className="h-8 sm:h-9 md:h-10 w-auto max-w-[180px] sm:max-w-[210px] object-contain shrink-0"
+                  className="h-8 sm:h-9 md:h-10 w-auto max-w-[150px] sm:max-w-[180px] object-contain shrink-0"
                   onError={(e) => {
                     const target = e.currentTarget;
                     if (!target.dataset.triedLocal) {
@@ -328,6 +332,23 @@ export function Footer() {
                     }
                   }}
                 />
+                {showSecondaryLogo && secondaryLogoUrl && (
+                  <>
+                    <div className="h-6 sm:h-7 w-[1.5px] bg-slate-300/80 rounded-full shrink-0" aria-hidden="true" />
+                    <img
+                      src={secondaryLogoUrl}
+                      alt="Aakash Foundation"
+                      className="h-7 sm:h-8 md:h-9 w-auto max-w-[100px] sm:max-w-[125px] object-contain shrink-0"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.dataset.triedLocal) {
+                          target.dataset.triedLocal = "true";
+                          target.src = "/assets/Settings/Logos/AakashFoundationLogo.png";
+                        }
+                      }}
+                    />
+                  </>
+                )}
               </div>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-navy-foreground/70">

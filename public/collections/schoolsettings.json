@@ -50,7 +50,7 @@
               "code": "Affiliation No. 1530211 | School Code: 53123",
               "badgeUrl": "/assets/Settings/Logos/AAKASH_FOUNDATION_LOGO.jpg",
               "description": "Affiliated to Central Board of Secondary Education, New Delhi",
-              "linkUrl": "/mandatory-disclosure",
+              "linkUrl": "https://www.cbse.gov.in",
               "enabled": true
             },
             "trust_board": {

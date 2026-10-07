@@ -58,8 +58,13 @@ export function getAssetUrl(url?: string | null): string {
         .replace(/(?:assets\/Videos\/)+assets\/Videos\//gi, 'assets/Videos/')
         .replace(/(?:Videos\/)+Videos\//gi, 'Videos/');
 
-      if (fixedUrl.toLowerCase().includes('aakashhealthfoundation')) {
-        fixedUrl = fixedUrl.replace(/Logos\/AakashHealthFoundation\.(jpg|png|jpeg)/i, 'Settings/Logos/AakashFoundationLogo.png');
+      if (
+        fixedUrl.toLowerCase().includes('aakashhealthfoundation') ||
+        fixedUrl.toLowerCase().includes('aakash_foundation_logo') ||
+        fixedUrl.toLowerCase().includes('aakashfoundationlogo') ||
+        fixedUrl.toLowerCase().includes('file_xpnvia')
+      ) {
+        fixedUrl = 'https://res.cloudinary.com/dnw7mgysa/image/upload/ips-education/assets/Settings/Logos/file_xpnvia.png';
       }
 
       if (!fixedUrl.includes('/upload/')) {
@@ -92,7 +97,12 @@ export function getAssetUrl(url?: string | null): string {
     cleanPath = `Settings/${cleanPath}`;
   }
 
-  if (cleanPath.toLowerCase().includes('aakashhealthfoundation')) {
+  if (
+    cleanPath.toLowerCase().includes('aakashhealthfoundation') ||
+    cleanPath.toLowerCase().includes('aakash_foundation_logo') ||
+    cleanPath.toLowerCase().includes('aakashfoundationlogo') ||
+    cleanPath.toLowerCase().includes('file_xpnvia')
+  ) {
     cleanPath = 'Settings/Logos/AakashFoundationLogo.png';
   }
 

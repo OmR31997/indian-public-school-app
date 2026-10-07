@@ -403,6 +403,9 @@ export function AdminConsole() {
               if (!target.dataset.triedLocal) {
                 target.dataset.triedLocal = "true";
                 target.src = "/assets/Settings/Logos/IPSStandardLogo.png";
+              } else if (!target.dataset.triedFallback) {
+                target.dataset.triedFallback = "true";
+                target.src = "/assets/Settings/Logos/IPSLogo.png";
               }
             }}
           />

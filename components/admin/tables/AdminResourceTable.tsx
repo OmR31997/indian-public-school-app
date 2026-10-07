@@ -29,7 +29,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
-import { DEFAULT_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
+import { DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
 import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
 import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
@@ -296,6 +296,8 @@ export function HeaderFooterSettingsCard({
 
   const [siteLogo, setSiteLogo] = useState({
     logoUrl: "/Settings/Logos/IPSLogo.png",
+    secondaryLogoUrl: "/Settings/Logos/AakashFoundationLogo.png",
+    showSecondaryLogo: true,
     logoText: "",
     logoSubText: "",
   });
@@ -600,13 +602,21 @@ export function HeaderFooterSettingsCard({
 
           <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Live Header Preview</span>
-            <div className="flex items-center justify-center rounded-2xl bg-white p-4 text-slate-900 shadow-sm border border-slate-200 min-w-[280px]">
+            <div className="flex items-center justify-center gap-3 rounded-2xl bg-white p-4 text-slate-900 shadow-sm border border-slate-200 min-w-[280px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl(siteLogo.logoUrl || DEFAULT_LOGO)}
-                alt="Logo"
+                alt="Main Logo"
                 className="h-8 md:h-10 w-auto object-contain"
                 onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imageUrl(DEFAULT_LOGO); }}
+              />
+              <div className="h-6 w-[1.5px] bg-slate-300 rounded-full" aria-hidden="true" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl(siteLogo.secondaryLogoUrl || DEFAULT_SECONDARY_LOGO)}
+                alt="Aakash Foundation Logo"
+                className="h-7 md:h-8 w-auto object-contain"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imageUrl(DEFAULT_SECONDARY_LOGO); }}
               />
             </div>
           </div>
