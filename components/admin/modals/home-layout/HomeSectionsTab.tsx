@@ -14,6 +14,7 @@ interface HomeSectionsTabProps {
   deleteTopArrayItem: (key: string, index: number) => void;
   moveTopArrayItem: (key: string, index: number, dir: "up" | "down") => void;
   uploadImage: (file: File) => Promise<string>;
+  onOpenGallery?: () => void;
 }
 
 export function HomeSectionsTab({
@@ -27,6 +28,7 @@ export function HomeSectionsTab({
   deleteTopArrayItem,
   moveTopArrayItem,
   uploadImage,
+  onOpenGallery,
 }: HomeSectionsTabProps) {
   return (
     <>
@@ -781,28 +783,29 @@ export function HomeSectionsTab({
       {/* TAB: Video Setup */}
       {activeTab === "video" && (
         <div className="space-y-5">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                <i className="bi bi-camera-video-fill text-[#1a5d9c]" /> Campus Introduction Video Setup
-              </h3>
-              <span className="text-[11px] font-semibold text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
-                Controls IntroVideo section &amp; site_datasource media
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-5 shadow-xs">
+            <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
+                  <i className="bi bi-camera-video-fill text-[#1a5d9c]" /> Campus Introduction Video
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Automated video setup for home section. Select or upload your intro video.
+                </p>
+              </div>
+              <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                Automated Video Mode
               </span>
             </div>
 
             {(() => {
               const secVid = homeObj["section-video"]?.[0] || {};
               const sec8 = homeObj["section-8"]?.[0] || {};
-              const eyebrowVal = secVid.eyebrow || sec8.videoEyebrow || "Discover IPS";
-              const titleVal = secVid.title || secVid.heading || sec8.videoTitle || "Experience life at Indian Public School";
-              const descVal = secVid.description || sec8.videoDescription || "Take a look at the campus, learning spaces and student life.";
               const DEFAULT_VIDEO = "/Videos/IPSIntroVideo.mp4";
               let videoUrlVal = secVid.introFileUrl || secVid.videoUrl || sec8.introFileUrl || sec8.videoUrl;
               if (!videoUrlVal || videoUrlVal === "/IPSIntroVideo.mp4") {
                 videoUrlVal = DEFAULT_VIDEO;
               }
-              const folderVal = secVid.cloudinaryFolder || sec8.cloudinaryFolder || "Videos";
 
               const updateVideoData = (updates: Record<string, any>) => {
                 updateHome((prev) => {
@@ -818,200 +821,98 @@ export function HomeSectionsTab({
                 });
               };
 
+              const eyebrowVal = secVid.eyebrow || sec8.videoEyebrow || "Discover IPS";
+              const titleVal = secVid.title || secVid.heading || sec8.videoTitle || "Experience life at Indian Public School";
+              const descVal = secVid.description || sec8.videoDescription || "Take a look at the campus, learning spaces and student life.";
               const autoPlayVal = secVid.autoPlay ?? sec8.autoPlay ?? true;
               const loopVal = secVid.loop ?? sec8.loop ?? true;
               const mutedVal = secVid.muted ?? sec8.muted ?? true;
               const controlsVal = secVid.controls ?? sec8.controls ?? true;
-              const posterVal = secVid.poster || sec8.poster || secVid.posterUrl || sec8.posterUrl || "";
 
               return (
-                <div className="space-y-4">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-600">Eyebrow Tagline</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Discover IPS"
-                        value={eyebrowVal}
-                        onChange={(e) => updateVideoData({ eyebrow: e.target.value, videoEyebrow: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-600">Main Title</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Experience life at Indian Public School"
-                        value={titleVal}
-                        onChange={(e) => updateVideoData({ title: e.target.value, heading: e.target.value, videoTitle: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600">Description</label>
-                    <textarea
-                      rows={2}
-                      placeholder="e.g. Take a look at the campus, learning spaces and student life."
-                      value={descVal}
-                      onChange={(e) => updateVideoData({ description: e.target.value, videoDescription: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-2xs">
-                    <label className="text-[11px] font-bold text-[#102a4c] flex items-center gap-1.5">
-                      Video Playback Controls &amp; Player Settings
+                <div className="space-y-5">
+                  {/* Video File Selection Box */}
+                  <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      Active Intro Video File URL
                     </label>
-                    <div className="grid gap-2.5 sm:grid-cols-2">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 hover:bg-slate-100 transition">
-                        <input
-                          type="checkbox"
-                          checked={autoPlayVal}
-                          onChange={(e) => updateVideoData({ autoPlay: e.target.checked })}
-                          className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                        />
-                        <span>AutoPlay Video on Load</span>
-                      </label>
 
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 hover:bg-slate-100 transition">
-                        <input
-                          type="checkbox"
-                          checked={loopVal}
-                          onChange={(e) => updateVideoData({ loop: e.target.checked })}
-                          className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                        />
-                        <span>Loop Video Continuously</span>
-                      </label>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                      <input
+                        type="text"
+                        placeholder="e.g. https://res.cloudinary.com/.../IPSIntroVideo.mp4"
+                        value={videoUrlVal}
+                        onChange={(e) => updateVideoData({ introFileUrl: e.target.value, videoUrl: e.target.value })}
+                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono text-slate-800 outline-none focus:border-[#1a5d9c] shadow-2xs"
+                      />
 
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 hover:bg-slate-100 transition">
-                        <input
-                          type="checkbox"
-                          checked={mutedVal}
-                          onChange={(e) => updateVideoData({ muted: e.target.checked })}
-                          className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                        />
-                        <span>Mute Audio by Default</span>
-                      </label>
+                      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                        {/* Option 1: Choose from Gallery */}
+                        {onOpenGallery && (
+                          <button
+                            type="button"
+                            onClick={onOpenGallery}
+                            className="flex items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-xs font-bold transition shadow-xs cursor-pointer"
+                          >
+                            <ImageIcon size={16} /> Choose from Gallery
+                          </button>
+                        )}
 
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 hover:bg-slate-100 transition">
-                        <input
-                          type="checkbox"
-                          checked={controlsVal}
-                          onChange={(e) => updateVideoData({ controls: e.target.checked })}
-                          className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                        />
-                        <span>Show Player Controls (Play/Pause, Sound)</span>
-                      </label>
-                    </div>
-
-                    <div className="space-y-1 pt-1">
-                      <label className="text-[11px] font-bold text-slate-600">Video Poster / Thumbnail Frame URL (Optional)</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          placeholder="e.g. https://res.cloudinary.com/.../poster.jpg"
-                          value={posterVal}
-                          onChange={(e) => updateVideoData({ poster: e.target.value, posterUrl: e.target.value })}
-                          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-mono outline-none focus:border-[#1a5d9c]"
-                        />
-                        <label className="flex cursor-pointer items-center justify-center gap-1 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50 shrink-0">
-                          <UploadCloud size={14} /> Upload Thumbnail
+                        {/* Option 2: Upload from Local Device */}
+                        <label className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1a5d9c] hover:bg-[#102a4c] text-white px-4 py-2.5 text-xs font-bold transition shadow-xs cursor-pointer">
+                          <UploadCloud size={16} />
+                          <span>Upload from Local</span>
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="video/mp4,video/webm,video/*"
                             onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const url = await uploadImage(file);
-                                if (url) {
-                                  updateVideoData({ poster: url, posterUrl: url });
+                                try {
+                                  const url = await uploadImage(file);
+                                  if (url) {
+                                    updateVideoData({ introFileUrl: url, videoUrl: url });
+                                  }
+                                } catch (err) {
+                                  console.error("Video upload failed:", err);
                                 }
                               }
                             }}
                             className="hidden"
                           />
                         </label>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3.5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-bold text-[#102a4c] flex items-center gap-1.5">
-                        Cloudinary Target Storage Location / Folder
-                      </label>
-                      <span className="text-[10px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">
-                        Direct Cloudinary Upload
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="e.g. indian-public-school/assets/Videos"
-                      value={folderVal}
-                      onChange={(e) => updateVideoData({ cloudinaryFolder: e.target.value })}
-                      className="w-full rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-[#1a5d9c]"
-                    />
-                    <p className="text-[11px] text-slate-500">
-                      Videos uploaded here will be stored in your Cloudinary account at path: <code className="bg-slate-100 px-1 py-0.5 rounded text-blue-600 font-mono">{folderVal}</code>
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-600">Video File URL (Cloudinary Link or MP4 Path)</label>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="e.g. https://res.cloudinary.com/.../IPSIntroVideo.mp4"
-                        value={videoUrlVal}
-                        onChange={(e) => updateVideoData({ introFileUrl: e.target.value, videoUrl: e.target.value })}
-                        className="flex-1 min-w-[240px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-mono outline-none focus:border-[#1a5d9c]"
-                      />
-                      <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-blue-500 bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shrink-0 shadow-xs">
-                        <UploadCloud size={16} /> Upload Video to Cloudinary
-                        <input
-                          type="file"
-                          accept="video/mp4,video/webm,video/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const url = await uploadImage(file);
-                              if (url) {
-                                updateVideoData({ introFileUrl: url, videoUrl: url });
+                        {/* Delete Button */}
+                        {videoUrlVal && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm("Are you sure you want to remove the intro video?")) {
+                                updateVideoData({ introFileUrl: "", videoUrl: "" });
                               }
-                            }
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-                      {videoUrlVal && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm("Are you sure you want to remove the video from your layout?")) {
-                              updateVideoData({ introFileUrl: "", videoUrl: "" });
-                            }
-                          }}
-                          className="flex items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-bold text-red-600 hover:bg-red-100 hover:text-red-700 transition shrink-0"
-                        >
-                          <Trash2 size={14} /> Delete Video
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {videoUrlVal && (
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[11px] font-bold text-slate-600">Live Video Preview</label>
-                        {videoUrlVal.includes("cloudinary.com") && (
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                            Hosted on Cloudinary
-                          </span>
+                            }}
+                            className="flex items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
+                            title="Remove Video"
+                          >
+                            <Trash2 size={15} />
+                          </button>
                         )}
                       </div>
-                      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 aspect-video max-h-64 flex items-center justify-center">
+                    </div>
+                  </div>
+
+                  {/* Live Video Preview */}
+                  {videoUrlVal && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                          Live Automated Video Preview
+                        </label>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                          {videoUrlVal.includes("cloudinary.com") ? "Hosted on Cloudinary" : "Active Video Asset"}
+                        </span>
+                      </div>
+                      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 aspect-video max-h-72 flex items-center justify-center shadow-md">
                         <video
                           key={videoUrlVal}
                           controls
@@ -1027,6 +928,88 @@ export function HomeSectionsTab({
                       </div>
                     </div>
                   )}
+
+                  {/* Collapsible Advanced Customizations */}
+                  <details className="group rounded-2xl border border-slate-200 bg-slate-50/50 transition">
+                    <summary className="flex items-center justify-between px-4 py-3 text-xs font-bold text-slate-600 cursor-pointer select-none">
+                      <span>Advanced Customizations (Titles, Eyebrow &amp; Player Controls)</span>
+                      <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <div className="px-4 pb-4 pt-1 space-y-4 border-t border-slate-200/60">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-600">Eyebrow Tagline</label>
+                          <input
+                            type="text"
+                            value={eyebrowVal}
+                            onChange={(e) => updateVideoData({ eyebrow: e.target.value, videoEyebrow: e.target.value })}
+                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-600">Main Title</label>
+                          <input
+                            type="text"
+                            value={titleVal}
+                            onChange={(e) => updateVideoData({ title: e.target.value, heading: e.target.value, videoTitle: e.target.value })}
+                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600">Description</label>
+                        <textarea
+                          rows={2}
+                          value={descVal}
+                          onChange={(e) => updateVideoData({ description: e.target.value, videoDescription: e.target.value })}
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
+
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={autoPlayVal}
+                            onChange={(e) => updateVideoData({ autoPlay: e.target.checked })}
+                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
+                          />
+                          <span>AutoPlay Video on Load</span>
+                        </label>
+
+                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={loopVal}
+                            onChange={(e) => updateVideoData({ loop: e.target.checked })}
+                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
+                          />
+                          <span>Loop Video Continuously</span>
+                        </label>
+
+                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={mutedVal}
+                            onChange={(e) => updateVideoData({ muted: e.target.checked })}
+                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
+                          />
+                          <span>Mute Audio by Default</span>
+                        </label>
+
+                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={controlsVal}
+                            onChange={(e) => updateVideoData({ controls: e.target.checked })}
+                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
+                          />
+                          <span>Show Player Controls</span>
+                        </label>
+                      </div>
+                    </div>
+                  </details>
                 </div>
               );
             })()}
