@@ -120,10 +120,7 @@ function renderCardIcon(icoVal: string | undefined, FallbackIcon: React.ElementT
       <img
         src={src}
         alt="icon"
-        className={cn(
-          "size-6 object-contain transition-all",
-          isFeature ? "brightness-0 invert" : "dark:brightness-0 dark:invert"
-        )}
+        className="size-6 object-contain brightness-0 opacity-90 transition-all"
         onError={(e) => {
           (e.target as HTMLElement).style.display = "none";
         }}
