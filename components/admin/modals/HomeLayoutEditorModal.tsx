@@ -1794,7 +1794,7 @@ export function HomeLayoutEditorModal({
                   </h3>
                   <button
                     type="button"
-                    onClick={() => addItemToSection("section-3", { heading: "New Commitment", description: "Commitment details", icoUrl: "", redirectUrl: "/about" })}
+                    onClick={() => addItemToSection("section-3", { heading: "New Commitment", description: "Commitment details", icoUrl: "BookOpenCheck" })}
                     className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
                   >
                     <Plus size={14} /> Add Commitment Card
@@ -1833,8 +1833,7 @@ export function HomeLayoutEditorModal({
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   {(Array.isArray(homeObj["section-3"]?.[0]?.cardItem) ? homeObj["section-3"][0].cardItem : []).map((card: any, idx: number) => {
-                    const cardImgUrl = card.icoUrl || card.fileUrl || card.imageUrl || "";
-                    const isCardUploading = uploadingCard === `sec3-${idx}`;
+                    const currentIcon = card.icoUrl || card.icon || card.iconName || "";
 
                     return (
                       <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
@@ -1902,60 +1901,58 @@ export function HomeLayoutEditorModal({
                           />
                         </div>
 
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Redirect URL / Link Target</label>
-                          <input
-                            type="text"
-                            placeholder="Redirect URL (e.g. /about, /academics)"
-                            value={card.redirectUrl || card.linkUrl || card.targetUrl || card.url || ""}
-                            onChange={(e) => {
-                              const sec3 = [...(homeObj["section-3"] || [{}])];
-                              const cards = [...(sec3[0].cardItem || [])];
-                              cards[idx] = { ...cards[idx], redirectUrl: e.target.value, linkUrl: e.target.value };
-                              sec3[0] = { ...sec3[0], cardItem: cards };
-                              updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                            }}
-                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-mono outline-none focus:border-[#1a5d9c]"
-                          />
-                        </div>
+                        {/* Card Icon Upload */}
+                        <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2.5">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+                              <ImageIcon size={12} className="text-[#1a5d9c]" /> Card Icon
+                            </label>
+                            {currentIcon ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const sec3 = [...(homeObj["section-3"] || [{}])];
+                                  const cards = [...(sec3[0].cardItem || [])];
+                                  cards[idx] = { ...cards[idx], icoUrl: "", icon: "", imageUrl: "", fileUrl: "" };
+                                  sec3[0] = { ...sec3[0], cardItem: cards };
+                                  updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                                }}
+                                className="text-[10px] font-bold text-red-500 hover:text-red-700 flex items-center gap-0.5"
+                              >
+                                <X size={10} /> Clear Icon
+                              </button>
+                            ) : null}
+                          </div>
 
-                        {/* Image / Icon Preview & Upload */}
-                        <div className="space-y-1.5 pt-1">
-                          {cardImgUrl ? (
-                            <div className="relative h-20 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
-                              <img src={cardImgUrl} alt={card.heading || "Icon"} className="h-full w-full object-contain p-2" />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const sec3 = [...(homeObj["section-3"] || [{}])];
-                                    const cards = [...(sec3[0].cardItem || [])];
-                                    cards[idx] = { ...cards[idx], icoUrl: "", fileUrl: "", imageUrl: "" };
-                                    sec3[0] = { ...sec3[0], cardItem: cards };
-                                    updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                                  }}
-                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
-                                >
-                                  <Trash2 size={11} /> Remove Icon
-                                </button>
-                              </div>
+                          {/* Thumbnail Preview if icon uploaded */}
+                          {currentIcon ? (
+                            <div className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 bg-slate-900">
+                              {currentIcon.startsWith("http") || currentIcon.startsWith("/") || currentIcon.startsWith("data:") || currentIcon.includes(".") ? (
+                                <img src={getAssetUrl(currentIcon)} alt="Icon Preview" className="size-8 object-contain brightness-0 invert" />
+                              ) : (
+                                <span className="size-8 grid place-items-center rounded bg-slate-800 text-gold font-bold text-xs">{currentIcon.slice(0, 2)}</span>
+                              )}
+                              <span className="text-[10px] font-mono text-slate-300 truncate flex-1">{currentIcon}</span>
                             </div>
                           ) : null}
 
-                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
-                            {isCardUploading ? (
+                          {/* Upload Icon File Button */}
+                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#1a5d9c]/40 bg-white px-3 py-2 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50/50 transition-colors shadow-2xs w-full">
+                            {uploadingCard === `sec3-${idx}` ? (
                               <>
-                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                                <Loader2 size={14} className="animate-spin text-[#1a5d9c]" />
+                                <span>Uploading Icon...</span>
                               </>
                             ) : (
                               <>
-                                <UploadCloud size={13} /> {cardImgUrl ? "Change Icon / Image" : "Upload Icon / Image"}
+                                <UploadCloud size={14} />
+                                <span>{currentIcon ? "Change Icon File" : "Upload Icon File"}</span>
                               </>
                             )}
                             <input
                               type="file"
                               accept="image/*"
-                              disabled={isCardUploading}
+                              disabled={uploadingCard === `sec3-${idx}`}
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
@@ -1965,10 +1962,12 @@ export function HomeLayoutEditorModal({
                                     if (url) {
                                       const sec3 = [...(homeObj["section-3"] || [{}])];
                                       const cards = [...(sec3[0].cardItem || [])];
-                                      cards[idx] = { ...cards[idx], icoUrl: url, fileUrl: url, imageUrl: url };
+                                      cards[idx] = { ...cards[idx], icoUrl: url, icon: url, imageUrl: url, fileUrl: url };
                                       sec3[0] = { ...sec3[0], cardItem: cards };
                                       updateHome((prev) => ({ ...prev, "section-3": sec3 }));
                                     }
+                                  } catch (err) {
+                                    console.error("Failed to upload icon:", err);
                                   } finally {
                                     setUploadingCard(null);
                                     e.target.value = "";
