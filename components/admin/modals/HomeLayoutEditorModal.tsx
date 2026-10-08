@@ -1717,37 +1717,6 @@ export function HomeLayoutEditorModal({
                     ))}
                   </div>
                 </div>
-
-                {/* Campus Photo */}
-                <div className="flex items-center gap-4 pt-2">
-                  {homeObj["section-1"]?.[0]?.briefCard?.[0]?.fileUrl && (
-                    <div className="relative h-20 w-32 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={homeObj["section-1"][0].briefCard[0].fileUrl} alt="Campus Aerial" className="h-full w-full object-cover" />
-                    </div>
-                  )}
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
-                    <UploadCloud size={16} /> Upload Campus Cover Photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await uploadImage(file);
-                          if (url) {
-                            const sec = [...(homeObj["section-1"] || [{}])];
-                            const briefCard = [...(sec[0].briefCard || [{}])];
-                            briefCard[0] = { ...briefCard[0], fileUrl: url };
-                            sec[0] = { ...sec[0], briefCard };
-                            updateHome((prev) => ({ ...prev, "section-1": sec }));
-                          }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
               </div>
             </div>
           )}
