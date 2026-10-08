@@ -34,6 +34,7 @@ import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types
 import { API_URL } from "../config/admin.config";
 import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
 import { MediaDetailDialog } from "../modals/MediaDetailDialog";
+import { HomePreviewModal } from "../modals/HomePreviewModal";
 import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 
 function Empty({ text }: { text: string }) {
@@ -1198,11 +1199,11 @@ export function ResourceView({
                               <button
                                 onClick={() => setDetailItem(item)}
                                 className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
-                                title="View details"
+                                title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
                               >
                                 <Eye size={16} />
                               </button>
-                              {canEdit && (
+                              {canEdit && item.key !== "site_logo" && item.key !== "site_datasource" && (
                                 <button
                                   onClick={() => onEdit(item)}
                                   className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
@@ -1297,13 +1298,17 @@ export function ResourceView({
       </div>
 
       {detailItem && (
-        <MediaDetailDialog
-          item={detailItem}
-          resource={resource}
-          onClose={() => setDetailItem(null)}
-          onEdit={canEdit ? () => onEdit(detailItem) : undefined}
-          onDelete={canDelete && !(resource.key === "users" && isSuperAdminRole(detailItem.role)) ? () => onDelete(detailItem) : undefined}
-        />
+        detailItem.key === "site_datasource" ? (
+          <HomePreviewModal onClose={() => setDetailItem(null)} />
+        ) : (
+          <MediaDetailDialog
+            item={detailItem}
+            resource={resource}
+            onClose={() => setDetailItem(null)}
+            onEdit={canEdit && detailItem.key !== "site_logo" && detailItem.key !== "site_datasource" ? () => onEdit(detailItem) : undefined}
+            onDelete={canDelete && !(resource.key === "users" && isSuperAdminRole(detailItem.role)) ? () => onDelete(detailItem) : undefined}
+          />
+        )
       )}
     </div>
   );
