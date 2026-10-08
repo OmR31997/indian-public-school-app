@@ -61,6 +61,8 @@ export function RecordDialog({
         token={token}
         record={record}
         saving={saving}
+        allMenuItems={allMenuItems}
+        allSectionPages={allSectionPages}
         onClose={onClose}
         onSave={onSave}
       />
@@ -463,11 +465,12 @@ export function RecordDialog({
 
                         <input
                           type="text"
-                          required={required}
+                          required={required && !isKnownPage}
+                          disabled={isKnownPage}
                           placeholder="e.g. /pages/about-us or https://external-link.com"
                           value={String(values[field] ?? "")}
                           onChange={(event) => setValue(field, event.target.value)}
-                          className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs"
+                          className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                         />
                         <p className="text-[11px] text-slate-400">
                           Pick a page from the dropdown list, or type a custom internal/external URL above.

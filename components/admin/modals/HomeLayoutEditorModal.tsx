@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import fallbackSiteData from "@/public/cloud-datasource.json";
+import fallbackMenuItemsList from "@/public/collections/menuitems.json";
 import { RecordItem } from "../types/admin.types";
 import { API_URL } from "../config/admin.config";
 import { HomeHeroTab } from "./home-layout/HomeHeroTab";
@@ -26,12 +27,16 @@ export function HomeLayoutEditorModal({
   token,
   record,
   saving,
+  allMenuItems = [],
+  allSectionPages = [],
   onClose,
   onSave,
 }: {
   token: string;
   record: RecordItem | null;
   saving: boolean;
+  allMenuItems?: RecordItem[];
+  allSectionPages?: RecordItem[];
   onClose: () => void;
   onSave: (value: Record<string, unknown>) => void;
 }) {
@@ -136,6 +141,100 @@ export function HomeLayoutEditorModal({
       isMounted = false;
     };
   }, [initialValue, record]);
+
+  const [dbMenuItems, setDbMenuItems] = useState<RecordItem[]>(allMenuItems);
+  const [dbSectionPages, setDbSectionPages] = useState<RecordItem[]>(allSectionPages);
+
+  React.useEffect(() => {
+    if (allMenuItems && allMenuItems.length > 0) {
+      setDbMenuItems(allMenuItems);
+    }
+    if (allSectionPages && allSectionPages.length > 0) {
+      setDbSectionPages(allSectionPages);
+    }
+  }, [allMenuItems, allSectionPages]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchExtraData = async () => {
+      try {
+        if (dbMenuItems.length === 0) {
+          const res = await axios.get(`${API_URL}/menu-items?publishedOnly=true`);
+          const items = res.data?.data ?? res.data ?? [];
+          if (isMounted && Array.isArray(items) && items.length > 0) {
+            setDbMenuItems(items);
+          }
+        }
+        if (dbSectionPages.length === 0) {
+          const res = await axios.get(`${API_URL}/section-pages`);
+          const pages = res.data?.data ?? res.data ?? [];
+          if (isMounted && Array.isArray(pages) && pages.length > 0) {
+            setDbSectionPages(pages);
+          }
+        }
+      } catch (err) {
+        // quiet catch
+      }
+    };
+    fetchExtraData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const { defaultSitePages, menuOptions } = useMemo(() => {
+    const defaults = [
+      { title: "Home", url: "/" },
+      { title: "About Us (Section)", url: "/#about" },
+      { title: "About Us (Page)", url: "/about" },
+      { title: "Academics (Section)", url: "/#academics" },
+      { title: "Admissions (Page)", url: "/admission" },
+      { title: "Contact Us (Section)", url: "/#contact" },
+      { title: "Chairman's Message", url: "/about/chairman-message" },
+      { title: "Principal's Desk", url: "/about/principal-message" },
+      { title: "Campus Life", url: "/#campus-life" },
+      { title: "Gallery (Section)", url: "/#gallery" },
+      { title: "Gallery Album", url: "/gallery-album" },
+      { title: "Enquiry (Section)", url: "/#enquiry" },
+      { title: "Mandatory Disclosure", url: "/mandatory-disclosure" },
+      { title: "Parent Portal", url: "/connectivity/parent-teacher-meeting" },
+      { title: "Notice & News", url: "/news" },
+      { title: "Press Release", url: "/press-release" },
+      { title: "Brochures", url: "/brochures" },
+    ];
+
+    const rawMenu = dbMenuItems.length > 0 ? dbMenuItems : (fallbackMenuItemsList as RecordItem[]);
+    const options: { title: string; url: string }[] = [];
+    const addedUrls = new Set<string>();
+
+    defaults.forEach((d) => addedUrls.add(d.url));
+
+    rawMenu.forEach((item) => {
+      const isPublished = item.isPublished !== false && String(item.isPublished) !== "false";
+      if (!isPublished) return;
+      const url = String(item.targetUrl || item.url || item.href || (item.slug ? `/${item.slug}` : "")).trim();
+      const title = String(item.title || "").trim();
+      if (url && title && !addedUrls.has(url)) {
+        addedUrls.add(url);
+        options.push({ title, url });
+      }
+    });
+
+    dbSectionPages.forEach((p) => {
+      const isPublished = p.isPublished !== false && String(p.isPublished) !== "false";
+      if (!isPublished) return;
+      const url = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
+      const title = String(p.title || "").trim();
+      if (url && title && !addedUrls.has(url)) {
+        addedUrls.add(url);
+        options.push({ title, url });
+      }
+    });
+
+    options.sort((a, b) => a.title.localeCompare(b.title));
+
+    return { defaultSitePages: defaults, menuOptions: options };
+  }, [dbMenuItems, dbSectionPages]);
 
   const currentPopupBanner = useMemo(() => {
     return {
@@ -1004,52 +1103,107 @@ export function HomeLayoutEditorModal({
                             </button>
                           </div>
 
-                          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                            {Array.isArray(col.links) && col.links.map((link: any, linkIdx: number) => (
-                              <div key={linkIdx} className="p-2 rounded-lg bg-slate-50 border border-slate-100 space-y-1.5 relative group">
-                                <div className="flex items-center justify-between">
-                                  <input
-                                    type="text"
-                                    placeholder="Link Title"
-                                    value={link.title || ""}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      updateFooterColumns((cols) => {
-                                        cols[colIdx].links[linkIdx].title = val;
-                                        return cols;
-                                      });
-                                    }}
-                                    className="w-full text-xs font-semibold text-slate-800 bg-transparent border-b border-transparent focus:border-slate-300 outline-none"
-                                  />
-                                  <button
-                                    type="button"
-                                    title="Remove Link"
-                                    onClick={() => {
-                                      updateFooterColumns((cols) => {
-                                        cols[colIdx].links = cols[colIdx].links.filter((_: any, idx: number) => idx !== linkIdx);
-                                        return cols;
-                                      });
-                                    }}
-                                    className="text-slate-400 hover:text-red-500 text-xs ml-1 cursor-pointer"
-                                  >
-                                    <i className="bi bi-x-lg" />
-                                  </button>
+                          <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+                            {Array.isArray(col.links) && col.links.map((link: any, linkIdx: number) => {
+                              const isMatchedOption =
+                                defaultSitePages.some((p) => p.url === link.href) ||
+                                menuOptions.some((p) => p.url === link.href);
+
+                              return (
+                                <div key={linkIdx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 relative group hover:border-slate-300 transition-colors shadow-2xs">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <input
+                                      type="text"
+                                      placeholder="Link Title (e.g. Academics)"
+                                      value={link.title || ""}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        updateFooterColumns((cols) => {
+                                          cols[colIdx].links[linkIdx].title = val;
+                                          return cols;
+                                        });
+                                      }}
+                                      className="w-full text-xs font-bold text-slate-800 bg-white border border-slate-200 rounded-lg px-2.5 py-1 outline-none focus:border-[#1a5d9c]"
+                                    />
+                                    <button
+                                      type="button"
+                                      title="Remove Link"
+                                      onClick={() => {
+                                        updateFooterColumns((cols) => {
+                                          cols[colIdx].links = cols[colIdx].links.filter((_: any, idx: number) => idx !== linkIdx);
+                                          return cols;
+                                        });
+                                      }}
+                                      className="text-slate-400 hover:text-red-500 text-xs p-1 cursor-pointer shrink-0"
+                                    >
+                                      <i className="bi bi-x-lg" />
+                                    </button>
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                      Target URL / Menu Item
+                                    </label>
+                                    <div className="relative">
+                                      <select
+                                        value={isMatchedOption ? link.href : "__custom__"}
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          if (val !== "__custom__") {
+                                            const allItems = [...defaultSitePages, ...menuOptions];
+                                            const matched = allItems.find((p) => p.url === val);
+                                            updateFooterColumns((cols) => {
+                                              cols[colIdx].links[linkIdx].href = val;
+                                              if (matched && (!cols[colIdx].links[linkIdx].title || cols[colIdx].links[linkIdx].title === "New Link")) {
+                                                cols[colIdx].links[linkIdx].title = matched.title.replace(/\s*\((Section|Page)\)/, "");
+                                              }
+                                              return cols;
+                                            });
+                                          }
+                                        }}
+                                        className="w-full text-[11px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 pr-7 outline-none focus:border-[#1a5d9c] cursor-pointer appearance-none font-medium"
+                                      >
+                                        <option value="__custom__">Custom URL / Manual Input...</option>
+                                        
+                                        <optgroup label="Main Website Sections">
+                                          {defaultSitePages.map((page) => (
+                                            <option key={page.url} value={page.url}>
+                                              {page.title} ({page.url})
+                                            </option>
+                                          ))}
+                                        </optgroup>
+
+                                        {menuOptions.length > 0 && (
+                                          <optgroup label="Navigation Menu Items & Pages">
+                                            {menuOptions.map((page) => (
+                                              <option key={page.url} value={page.url}>
+                                                {page.title} ({page.url})
+                                              </option>
+                                            ))}
+                                          </optgroup>
+                                        )}
+                                      </select>
+                                      <i className="bi bi-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+                                    </div>
+
+                                    <input
+                                      type="text"
+                                      placeholder="Target URL (e.g. /#enquiry or /about)"
+                                      value={link.href || ""}
+                                      disabled={isMatchedOption}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        updateFooterColumns((cols) => {
+                                          cols[colIdx].links[linkIdx].href = val;
+                                          return cols;
+                                        });
+                                      }}
+                                      className="w-full text-[11px] font-mono text-slate-600 bg-white border border-slate-200 rounded-lg px-2.5 py-1 outline-none focus:border-[#1a5d9c] disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                    />
+                                  </div>
                                 </div>
-                                <input
-                                  type="text"
-                                  placeholder="Target URL (e.g. /#enquiry or /about)"
-                                  value={link.href || ""}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    updateFooterColumns((cols) => {
-                                      cols[colIdx].links[linkIdx].href = val;
-                                      return cols;
-                                    });
-                                  }}
-                                  className="w-full text-[11px] font-mono text-slate-500 bg-white border border-slate-200 rounded-md px-2 py-1 outline-none"
-                                />
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
 
                           <button
