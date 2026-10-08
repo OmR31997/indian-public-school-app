@@ -11,6 +11,7 @@ import {
   Trash2,
   UploadCloud,
   ImageIcon,
+  Loader2,
 } from "lucide-react";
 import fallbackSiteData from "@/public/cloud-datasource.json";
 import { RecordItem } from "../types/admin.types";
@@ -55,6 +56,7 @@ export function HomeLayoutEditorModal({
     | "rawJson"
   >("header");
   const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadingCard, setUploadingCard] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string>("");
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
@@ -2054,7 +2056,7 @@ export function HomeLayoutEditorModal({
           {activeTab === "sec3" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
                     <i className="bi bi-star-fill text-[#1a5d9c]" /> Section 3: Why Choose IPS ({(homeObj["section-3"]?.[0]?.cardItem || []).length} Cards)
                   </h3>
@@ -2067,73 +2069,187 @@ export function HomeLayoutEditorModal({
                   </button>
                 </div>
 
+                {/* Section Header Controls */}
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {(Array.isArray(homeObj["section-3"]?.[0]?.cardItem) ? homeObj["section-3"][0].cardItem : []).map((card: any, idx: number) => (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                        <span className="text-[11px] font-bold text-slate-400">Card #{idx + 1}</span>
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => moveItemInSection("section-3", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowUp size={12} />
-                          </button>
-                          <button type="button" onClick={() => moveItemInSection("section-3", idx, "down")} disabled={idx === homeObj["section-3"][0].cardItem.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowDown size={12} />
-                          </button>
-                          <button type="button" onClick={() => deleteItemFromSection("section-3", idx)} className="text-red-500 hover:text-red-700">
-                            <Trash2 size={12} />
-                          </button>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Eyebrow / Section Title</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-3"]?.[0]?.heading || ""}
+                      onChange={(e) => {
+                        const sec3 = [...(homeObj["section-3"] || [{}])];
+                        sec3[0] = { ...sec3[0], heading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Main Heading</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-3"]?.[0]?.mainHeading || ""}
+                      onChange={(e) => {
+                        const sec3 = [...(homeObj["section-3"] || [{}])];
+                        sec3[0] = { ...sec3[0], mainHeading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {(Array.isArray(homeObj["section-3"]?.[0]?.cardItem) ? homeObj["section-3"][0].cardItem : []).map((card: any, idx: number) => {
+                    const cardImgUrl = card.icoUrl || card.fileUrl || card.imageUrl || "";
+                    const isCardUploading = uploadingCard === `sec3-${idx}`;
+
+                    return (
+                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                          <span className="text-[11px] font-bold text-slate-400">Card #{idx + 1}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-3", idx, "up")}
+                              disabled={idx === 0}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowUp size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-3", idx, "down")}
+                              disabled={idx === (homeObj["section-3"]?.[0]?.cardItem || []).length - 1}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowDown size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteItemFromSection("section-3", idx)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Heading / Feature Title</label>
+                          <input
+                            type="text"
+                            placeholder="Feature Title (e.g. CBSE Curriculum)"
+                            value={card.heading || card.title || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const sec3 = [...(homeObj["section-3"] || [{}])];
+                              const cards = [...(sec3[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], heading: val, title: val };
+                              sec3[0] = { ...sec3[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Description</label>
+                          <textarea
+                            rows={2}
+                            placeholder="Feature Description"
+                            value={card.description || ""}
+                            onChange={(e) => {
+                              const sec3 = [...(homeObj["section-3"] || [{}])];
+                              const cards = [...(sec3[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], description: e.target.value };
+                              sec3[0] = { ...sec3[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Redirect URL / Link Target</label>
+                          <input
+                            type="text"
+                            placeholder="Redirect URL (e.g. /about, /academics)"
+                            value={card.redirectUrl || card.linkUrl || card.targetUrl || card.url || ""}
+                            onChange={(e) => {
+                              const sec3 = [...(homeObj["section-3"] || [{}])];
+                              const cards = [...(sec3[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], redirectUrl: e.target.value, linkUrl: e.target.value };
+                              sec3[0] = { ...sec3[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-mono outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+
+                        {/* Image / Icon Preview & Upload */}
+                        <div className="space-y-1.5 pt-1">
+                          {cardImgUrl ? (
+                            <div className="relative h-20 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
+                              <img src={cardImgUrl} alt={card.heading || "Icon"} className="h-full w-full object-contain p-2" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const sec3 = [...(homeObj["section-3"] || [{}])];
+                                    const cards = [...(sec3[0].cardItem || [])];
+                                    cards[idx] = { ...cards[idx], icoUrl: "", fileUrl: "", imageUrl: "" };
+                                    sec3[0] = { ...sec3[0], cardItem: cards };
+                                    updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                                  }}
+                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
+                                >
+                                  <Trash2 size={11} /> Remove Icon
+                                </button>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
+                            {isCardUploading ? (
+                              <>
+                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud size={13} /> {cardImgUrl ? "Change Icon / Image" : "Upload Icon / Image"}
+                              </>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={isCardUploading}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadingCard(`sec3-${idx}`);
+                                  try {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      const sec3 = [...(homeObj["section-3"] || [{}])];
+                                      const cards = [...(sec3[0].cardItem || [])];
+                                      cards[idx] = { ...cards[idx], icoUrl: url, fileUrl: url, imageUrl: url };
+                                      sec3[0] = { ...sec3[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                                    }
+                                  } finally {
+                                    setUploadingCard(null);
+                                    e.target.value = "";
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
                         </div>
                       </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Heading / Feature Title</label>
-                        <input
-                          type="text"
-                          placeholder="Feature Title (e.g. CBSE Curriculum)"
-                          value={card.heading || ""}
-                          onChange={(e) => {
-                            const sec3 = [...(homeObj["section-3"] || [{}])];
-                            const cards = [...(sec3[0].cardItem || [])];
-                            cards[idx] = { ...cards[idx], heading: e.target.value };
-                            sec3[0] = { ...sec3[0], cardItem: cards };
-                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                          }}
-                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Card Description</label>
-                        <textarea
-                          rows={2}
-                          placeholder="Feature Description"
-                          value={card.description || ""}
-                          onChange={(e) => {
-                            const sec3 = [...(homeObj["section-3"] || [{}])];
-                            const cards = [...(sec3[0].cardItem || [])];
-                            cards[idx] = { ...cards[idx], description: e.target.value };
-                            sec3[0] = { ...sec3[0], cardItem: cards };
-                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                          }}
-                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none focus:border-[#1a5d9c]"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Redirect URL / Link Target (e.g. /academics, #admissions)</label>
-                        <input
-                          type="text"
-                          placeholder="Redirect URL (e.g. /about, /academics, #admissions)"
-                          value={card.redirectUrl || card.linkUrl || card.targetUrl || card.url || ""}
-                          onChange={(e) => {
-                            const sec3 = [...(homeObj["section-3"] || [{}])];
-                            const cards = [...(sec3[0].cardItem || [])];
-                            cards[idx] = { ...cards[idx], redirectUrl: e.target.value, linkUrl: e.target.value };
-                            sec3[0] = { ...sec3[0], cardItem: cards };
-                            updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                          }}
-                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-mono outline-none focus:border-[#1a5d9c]"
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -2143,79 +2259,190 @@ export function HomeLayoutEditorModal({
           {activeTab === "sec4" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
                     <i className="bi bi-book-fill text-[#1a5d9c]" /> Section 4: Academic Journey Stages ({(homeObj["section-4"]?.[0]?.cardItem || []).length} Stages)
                   </h3>
                   <button
                     type="button"
-                    onClick={() => addItemToSection("section-4", { heading: "Grade X – XII", mainHeading: "New Stage", description: "Stage curriculum details" })}
+                    onClick={() => addItemToSection("section-4", { heading: "Grade X – XII", mainHeading: "New Stage", description: "Stage curriculum details", fileUrl: "" })}
                     className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
                   >
                     <Plus size={14} /> Add Academic Stage
                   </button>
                 </div>
 
+                {/* Section Header Controls */}
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {(Array.isArray(homeObj["section-4"]?.[0]?.cardItem) ? homeObj["section-4"][0].cardItem : []).map((stage: any, idx: number) => (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                        <span className="text-[11px] font-bold text-slate-400">Stage #{idx + 1}</span>
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => moveItemInSection("section-4", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowUp size={12} />
-                          </button>
-                          <button type="button" onClick={() => moveItemInSection("section-4", idx, "down")} disabled={idx === homeObj["section-4"][0].cardItem.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowDown size={12} />
-                          </button>
-                          <button type="button" onClick={() => deleteItemFromSection("section-4", idx)} className="text-red-500 hover:text-red-700">
-                            <Trash2 size={12} />
-                          </button>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Eyebrow / Section Title</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-4"]?.[0]?.heading || ""}
+                      onChange={(e) => {
+                        const sec4 = [...(homeObj["section-4"] || [{}])];
+                        sec4[0] = { ...sec4[0], heading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-4": sec4 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Main Heading</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-4"]?.[0]?.mainHeading || ""}
+                      onChange={(e) => {
+                        const sec4 = [...(homeObj["section-4"] || [{}])];
+                        sec4[0] = { ...sec4[0], mainHeading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-4": sec4 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {(Array.isArray(homeObj["section-4"]?.[0]?.cardItem) ? homeObj["section-4"][0].cardItem : []).map((stage: any, idx: number) => {
+                    const cardImgUrl = stage.fileUrl || stage.imageUrl || "";
+                    const isCardUploading = uploadingCard === `sec4-${idx}`;
+
+                    return (
+                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                          <span className="text-[11px] font-bold text-slate-400">Stage #{idx + 1}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-4", idx, "up")}
+                              disabled={idx === 0}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowUp size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-4", idx, "down")}
+                              disabled={idx === (homeObj["section-4"]?.[0]?.cardItem || []).length - 1}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowDown size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteItemFromSection("section-4", idx)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Grade range"
+                            value={stage.heading || ""}
+                            onChange={(e) => {
+                              const sec4 = [...(homeObj["section-4"] || [{}])];
+                              const stages = [...(sec4[0].cardItem || [])];
+                              stages[idx] = { ...stages[idx], heading: e.target.value };
+                              sec4[0] = { ...sec4[0], cardItem: stages };
+                              updateHome((prev) => ({ ...prev, "section-4": sec4 }));
+                            }}
+                            className="w-1/2 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Stage title"
+                            value={stage.mainHeading || stage.title || ""}
+                            onChange={(e) => {
+                              const sec4 = [...(homeObj["section-4"] || [{}])];
+                              const stages = [...(sec4[0].cardItem || [])];
+                              stages[idx] = { ...stages[idx], mainHeading: e.target.value, title: e.target.value };
+                              sec4[0] = { ...sec4[0], cardItem: stages };
+                              updateHome((prev) => ({ ...prev, "section-4": sec4 }));
+                            }}
+                            className="w-1/2 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-[#1a5d9c] outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+                        <textarea
+                          rows={2}
+                          placeholder="Curriculum & stage details"
+                          value={stage.description || ""}
+                          onChange={(e) => {
+                            const sec4 = [...(homeObj["section-4"] || [{}])];
+                            const stages = [...(sec4[0].cardItem || [])];
+                            stages[idx] = { ...stages[idx], description: e.target.value };
+                            sec4[0] = { ...sec4[0], cardItem: stages };
+                            updateHome((prev) => ({ ...prev, "section-4": sec4 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none focus:border-[#1a5d9c]"
+                        />
+
+                        {/* Image Preview & Upload */}
+                        <div className="space-y-1.5 pt-1">
+                          {cardImgUrl ? (
+                            <div className="relative h-24 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
+                              <img src={cardImgUrl} alt={stage.mainHeading || "Stage Image"} className="h-full w-full object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const sec4 = [...(homeObj["section-4"] || [{}])];
+                                    const stages = [...(sec4[0].cardItem || [])];
+                                    stages[idx] = { ...stages[idx], fileUrl: "", imageUrl: "" };
+                                    sec4[0] = { ...sec4[0], cardItem: stages };
+                                    updateHome((prev) => ({ ...prev, "section-4": sec4 }));
+                                  }}
+                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
+                                >
+                                  <Trash2 size={11} /> Remove Image
+                                </button>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
+                            {isCardUploading ? (
+                              <>
+                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud size={13} /> {cardImgUrl ? "Change Image" : "Upload Image"}
+                              </>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={isCardUploading}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadingCard(`sec4-${idx}`);
+                                  try {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      const sec4 = [...(homeObj["section-4"] || [{}])];
+                                      const stages = [...(sec4[0].cardItem || [])];
+                                      stages[idx] = { ...stages[idx], fileUrl: url, imageUrl: url };
+                                      sec4[0] = { ...sec4[0], cardItem: stages };
+                                      updateHome((prev) => ({ ...prev, "section-4": sec4 }));
+                                    }
+                                  } finally {
+                                    setUploadingCard(null);
+                                    e.target.value = "";
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
                         </div>
                       </div>
-
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="Grade range"
-                          value={stage.heading || ""}
-                          onChange={(e) => {
-                            const sec4 = [...(homeObj["section-4"] || [{}])];
-                            const stages = [...(sec4[0].cardItem || [])];
-                            stages[idx] = { ...stages[idx], heading: e.target.value };
-                            sec4[0] = { ...sec4[0], cardItem: stages };
-                            updateHome((prev) => ({ ...prev, "section-4": sec4 }));
-                          }}
-                          className="w-1/2 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Stage title"
-                          value={stage.mainHeading || ""}
-                          onChange={(e) => {
-                            const sec4 = [...(homeObj["section-4"] || [{}])];
-                            const stages = [...(sec4[0].cardItem || [])];
-                            stages[idx] = { ...stages[idx], mainHeading: e.target.value };
-                            sec4[0] = { ...sec4[0], cardItem: stages };
-                            updateHome((prev) => ({ ...prev, "section-4": sec4 }));
-                          }}
-                          className="w-1/2 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-[#1a5d9c] outline-none"
-                        />
-                      </div>
-                      <textarea
-                        rows={2}
-                        value={stage.description || ""}
-                        onChange={(e) => {
-                          const sec4 = [...(homeObj["section-4"] || [{}])];
-                          const stages = [...(sec4[0].cardItem || [])];
-                          stages[idx] = { ...stages[idx], description: e.target.value };
-                          sec4[0] = { ...sec4[0], cardItem: stages };
-                          updateHome((prev) => ({ ...prev, "section-4": sec4 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -2225,62 +2452,175 @@ export function HomeLayoutEditorModal({
           {activeTab === "sec5" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
                     <i className="bi bi-activity text-[#1a5d9c]" /> Section 5: Co-Curricular Activities ({(homeObj["section-5"]?.[0]?.cardItem || []).length} Cards)
                   </h3>
                   <button
                     type="button"
-                    onClick={() => addItemToSection("section-5", { heading: "New Activity", description: "Activity details", redirectUrl: "/about" })}
+                    onClick={() => addItemToSection("section-5", { heading: "New Activity", description: "Activity details", fileUrl: "", redirectUrl: "/about" })}
                     className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
                   >
                     <Plus size={14} /> Add Activity
                   </button>
                 </div>
 
+                {/* Section Header Controls */}
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {(Array.isArray(homeObj["section-5"]?.[0]?.cardItem) ? homeObj["section-5"][0].cardItem : []).map((activity: any, idx: number) => (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                        <span className="text-[11px] font-bold text-slate-400">Activity #{idx + 1}</span>
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => moveItemInSection("section-5", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowUp size={12} />
-                          </button>
-                          <button type="button" onClick={() => moveItemInSection("section-5", idx, "down")} disabled={idx === homeObj["section-5"][0].cardItem.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowDown size={12} />
-                          </button>
-                          <button type="button" onClick={() => deleteItemFromSection("section-5", idx)} className="text-red-500 hover:text-red-700">
-                            <Trash2 size={12} />
-                          </button>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Eyebrow / Section Title</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-5"]?.[0]?.heading || ""}
+                      onChange={(e) => {
+                        const sec5 = [...(homeObj["section-5"] || [{}])];
+                        sec5[0] = { ...sec5[0], heading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-5": sec5 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Main Heading</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-5"]?.[0]?.mainHeading || ""}
+                      onChange={(e) => {
+                        const sec5 = [...(homeObj["section-5"] || [{}])];
+                        sec5[0] = { ...sec5[0], mainHeading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-5": sec5 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {(Array.isArray(homeObj["section-5"]?.[0]?.cardItem) ? homeObj["section-5"][0].cardItem : []).map((activity: any, idx: number) => {
+                    const cardImgUrl = activity.fileUrl || activity.imageUrl || "";
+                    const isCardUploading = uploadingCard === `sec5-${idx}`;
+
+                    return (
+                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                          <span className="text-[11px] font-bold text-slate-400">Activity #{idx + 1}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-5", idx, "up")}
+                              disabled={idx === 0}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowUp size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-5", idx, "down")}
+                              disabled={idx === (homeObj["section-5"]?.[0]?.cardItem || []).length - 1}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowDown size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteItemFromSection("section-5", idx)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Activity Title"
+                          value={activity.heading || activity.title || ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const sec5 = [...(homeObj["section-5"] || [{}])];
+                            const cards = [...(sec5[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], heading: val, title: val };
+                            sec5[0] = { ...sec5[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-5": sec5 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                        />
+                        <textarea
+                          rows={2}
+                          placeholder="Activity details & description"
+                          value={activity.description || ""}
+                          onChange={(e) => {
+                            const sec5 = [...(homeObj["section-5"] || [{}])];
+                            const cards = [...(sec5[0].cardItem || [])];
+                            cards[idx] = { ...cards[idx], description: e.target.value };
+                            sec5[0] = { ...sec5[0], cardItem: cards };
+                            updateHome((prev) => ({ ...prev, "section-5": sec5 }));
+                          }}
+                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none focus:border-[#1a5d9c]"
+                        />
+
+                        {/* Image Preview & Upload */}
+                        <div className="space-y-1.5 pt-1">
+                          {cardImgUrl ? (
+                            <div className="relative h-24 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
+                              <img src={cardImgUrl} alt={activity.heading || "Activity"} className="h-full w-full object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const sec5 = [...(homeObj["section-5"] || [{}])];
+                                    const cards = [...(sec5[0].cardItem || [])];
+                                    cards[idx] = { ...cards[idx], fileUrl: "", imageUrl: "" };
+                                    sec5[0] = { ...sec5[0], cardItem: cards };
+                                    updateHome((prev) => ({ ...prev, "section-5": sec5 }));
+                                  }}
+                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
+                                >
+                                  <Trash2 size={11} /> Remove Image
+                                </button>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
+                            {isCardUploading ? (
+                              <>
+                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud size={13} /> {cardImgUrl ? "Change Image" : "Upload Image"}
+                              </>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={isCardUploading}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadingCard(`sec5-${idx}`);
+                                  try {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      const sec5 = [...(homeObj["section-5"] || [{}])];
+                                      const cards = [...(sec5[0].cardItem || [])];
+                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                      sec5[0] = { ...sec5[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-5": sec5 }));
+                                    }
+                                  } finally {
+                                    setUploadingCard(null);
+                                    e.target.value = "";
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
                         </div>
                       </div>
-                      <input
-                        type="text"
-                        value={activity.heading || ""}
-                        onChange={(e) => {
-                          const sec5 = [...(homeObj["section-5"] || [{}])];
-                          const cards = [...(sec5[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], heading: e.target.value };
-                          sec5[0] = { ...sec5[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none"
-                      />
-                      <textarea
-                        rows={2}
-                        value={activity.description || ""}
-                        onChange={(e) => {
-                          const sec5 = [...(homeObj["section-5"] || [{}])];
-                          const cards = [...(sec5[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], description: e.target.value };
-                          sec5[0] = { ...sec5[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -2290,83 +2630,204 @@ export function HomeLayoutEditorModal({
           {activeTab === "sec6" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
                     <i className="bi bi-building-fill text-[#1a5d9c]" /> Section 6: Campus Infrastructure Cards ({(homeObj["section-6"]?.[0]?.cardItem || []).length} Cards)
                   </h3>
                   <button
                     type="button"
-                    onClick={() => addItemToSection("section-6", { title: "New Facility", "sub-title": "Facility features", fileUrl: "" })}
+                    onClick={() => addItemToSection("section-6", { title: "New Facility", heading: "New Facility", "sub-title": "Facility features", description: "Facility features", fileUrl: "", imageUrl: "" })}
                     className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
                   >
                     <Plus size={14} /> Add Facility Card
                   </button>
                 </div>
 
+                {/* Section Header Controls */}
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {(Array.isArray(homeObj["section-6"]?.[0]?.cardItem) ? homeObj["section-6"][0].cardItem : []).map((infra: any, idx: number) => (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                        <span className="text-[11px] font-bold text-slate-400">Facility #{idx + 1}</span>
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => moveItemInSection("section-6", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowUp size={12} />
-                          </button>
-                          <button type="button" onClick={() => moveItemInSection("section-6", idx, "down")} disabled={idx === homeObj["section-6"][0].cardItem.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowDown size={12} />
-                          </button>
-                          <button type="button" onClick={() => deleteItemFromSection("section-6", idx)} className="text-red-500 hover:text-red-700">
-                            <Trash2 size={12} />
-                          </button>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Eyebrow / Section Title</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-6"]?.[0]?.heading || ""}
+                      onChange={(e) => {
+                        const sec6 = [...(homeObj["section-6"] || [{}])];
+                        sec6[0] = { ...sec6[0], heading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500">Main Heading</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-6"]?.[0]?.mainHeading || ""}
+                      onChange={(e) => {
+                        const sec6 = [...(homeObj["section-6"] || [{}])];
+                        sec6[0] = { ...sec6[0], mainHeading: e.target.value };
+                        updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-slate-500">Section Description</label>
+                  <textarea
+                    rows={2}
+                    value={
+                      Array.isArray(homeObj["section-6"]?.[0]?.description)
+                        ? homeObj["section-6"][0].description[0] || ""
+                        : homeObj["section-6"]?.[0]?.description || ""
+                    }
+                    onChange={(e) => {
+                      const sec6 = [...(homeObj["section-6"] || [{}])];
+                      sec6[0] = { ...sec6[0], description: [e.target.value] };
+                      updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                    }}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                  />
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {(Array.isArray(homeObj["section-6"]?.[0]?.cardItem) ? homeObj["section-6"][0].cardItem : []).map((infra: any, idx: number) => {
+                    const cardImgUrl = infra.fileUrl || infra.imageUrl || infra.icoUrl || "";
+                    const isCardUploading = uploadingCard === `sec6-${idx}`;
+
+                    return (
+                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                          <span className="text-[11px] font-bold text-slate-400">Facility #{idx + 1}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-6", idx, "up")}
+                              disabled={idx === 0}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowUp size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-6", idx, "down")}
+                              disabled={idx === (homeObj["section-6"]?.[0]?.cardItem || []).length - 1}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowDown size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteItemFromSection("section-6", idx)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Facility Title</label>
+                          <input
+                            type="text"
+                            value={infra.title || infra.heading || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const sec6 = [...(homeObj["section-6"] || [{}])];
+                              const cards = [...(sec6[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], title: val, heading: val };
+                              sec6[0] = { ...sec6[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Subtitle / Feature Description</label>
+                          <input
+                            type="text"
+                            value={infra["sub-title"] || infra.description || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const sec6 = [...(homeObj["section-6"] || [{}])];
+                              const cards = [...(sec6[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], "sub-title": val, description: val };
+                              sec6[0] = { ...sec6[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+
+                        {/* Image Preview & Upload Button */}
+                        <div className="space-y-1.5 pt-1">
+                          {cardImgUrl ? (
+                            <div className="relative h-28 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
+                              <img
+                                src={cardImgUrl}
+                                alt={infra.title || "Facility"}
+                                className="h-full w-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const sec6 = [...(homeObj["section-6"] || [{}])];
+                                    const cards = [...(sec6[0].cardItem || [])];
+                                    cards[idx] = { ...cards[idx], fileUrl: "", imageUrl: "", icoUrl: "" };
+                                    sec6[0] = { ...sec6[0], cardItem: cards };
+                                    updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                                  }}
+                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
+                                >
+                                  <Trash2 size={11} /> Remove
+                                </button>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
+                            {isCardUploading ? (
+                              <>
+                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud size={13} /> {cardImgUrl ? "Change Image" : "Upload Image"}
+                              </>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={isCardUploading}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadingCard(`sec6-${idx}`);
+                                  try {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      const sec6 = [...(homeObj["section-6"] || [{}])];
+                                      const cards = [...(sec6[0].cardItem || [])];
+                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                      sec6[0] = { ...sec6[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                                    }
+                                  } finally {
+                                    setUploadingCard(null);
+                                    e.target.value = "";
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
                         </div>
                       </div>
-                      <input
-                        type="text"
-                        value={infra.title || ""}
-                        onChange={(e) => {
-                          const sec6 = [...(homeObj["section-6"] || [{}])];
-                          const cards = [...(sec6[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], title: e.target.value };
-                          sec6[0] = { ...sec6[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-6": sec6 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none"
-                      />
-                      <input
-                        type="text"
-                        value={infra["sub-title"] || ""}
-                        onChange={(e) => {
-                          const sec6 = [...(homeObj["section-6"] || [{}])];
-                          const cards = [...(sec6[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], "sub-title": e.target.value };
-                          sec6[0] = { ...sec6[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-6": sec6 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none"
-                      />
-                      <label className="flex cursor-pointer items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50">
-                        <UploadCloud size={13} /> Upload Image
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const url = await uploadImage(file);
-                              if (url) {
-                                const sec6 = [...(homeObj["section-6"] || [{}])];
-                                const cards = [...(sec6[0].cardItem || [])];
-                                cards[idx] = { ...cards[idx], fileUrl: url };
-                                sec6[0] = { ...sec6[0], cardItem: cards };
-                                updateHome((prev) => ({ ...prev, "section-6": sec6 }));
-                              }
-                            }
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -2830,13 +3291,13 @@ export function HomeLayoutEditorModal({
           {activeTab === "sec8" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
                     <i className="bi bi-mortarboard-fill text-[#1a5d9c]" /> Section 8: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)
                   </h3>
                   <button
                     type="button"
-                    onClick={() => addItemToSection("section-8", { title: "New Level", description: "Course level details", fileUrl: "" })}
+                    onClick={() => addItemToSection("section-8", { title: "New Level", heading: "New Level", description: "Course level details", fileUrl: "", imageUrl: "" })}
                     className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
                   >
                     <Plus size={14} /> Add Course Level
@@ -2844,78 +3305,136 @@ export function HomeLayoutEditorModal({
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {(Array.isArray(homeObj["section-8"]?.[0]?.cardItem) ? homeObj["section-8"][0].cardItem : []).map((course: any, idx: number) => (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                        <span className="text-[11px] font-bold text-slate-400">Course Level #{idx + 1}</span>
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => moveItemInSection("section-8", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowUp size={12} />
-                          </button>
-                          <button type="button" onClick={() => moveItemInSection("section-8", idx, "down")} disabled={idx === homeObj["section-8"][0].cardItem.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                            <ArrowDown size={12} />
-                          </button>
-                          <button type="button" onClick={() => deleteItemFromSection("section-8", idx)} className="text-red-500 hover:text-red-700">
-                            <Trash2 size={12} />
-                          </button>
+                  {(Array.isArray(homeObj["section-8"]?.[0]?.cardItem) ? homeObj["section-8"][0].cardItem : []).map((course: any, idx: number) => {
+                    const cardImgUrl = course.fileUrl || course.imageUrl || "";
+                    const isCardUploading = uploadingCard === `sec8-${idx}`;
+
+                    return (
+                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                          <span className="text-[11px] font-bold text-slate-400">Course Level #{idx + 1}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-8", idx, "up")}
+                              disabled={idx === 0}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowUp size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveItemInSection("section-8", idx, "down")}
+                              disabled={idx === (homeObj["section-8"]?.[0]?.cardItem || []).length - 1}
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                            >
+                              <ArrowDown size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteItemFromSection("section-8", idx)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Course Level Title</label>
+                          <input
+                            type="text"
+                            value={course.title || course.heading || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const sec8 = [...(homeObj["section-8"] || [{}])];
+                              const cards = [...(sec8[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], title: val, heading: val };
+                              sec8[0] = { ...sec8[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Course Description</label>
+                          <textarea
+                            rows={2}
+                            value={course.description || ""}
+                            onChange={(e) => {
+                              const sec8 = [...(homeObj["section-8"] || [{}])];
+                              const cards = [...(sec8[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], description: e.target.value };
+                              sec8[0] = { ...sec8[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none focus:border-[#1a5d9c]"
+                          />
+                        </div>
+
+                        {/* Image Preview & Upload */}
+                        <div className="space-y-1.5 pt-1">
+                          {cardImgUrl ? (
+                            <div className="relative h-24 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
+                              <img src={cardImgUrl} alt={course.title || "Course"} className="h-full w-full object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const sec8 = [...(homeObj["section-8"] || [{}])];
+                                    const cards = [...(sec8[0].cardItem || [])];
+                                    cards[idx] = { ...cards[idx], fileUrl: "", imageUrl: "" };
+                                    sec8[0] = { ...sec8[0], cardItem: cards };
+                                    updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                                  }}
+                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
+                                >
+                                  <Trash2 size={11} /> Remove Image
+                                </button>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
+                            {isCardUploading ? (
+                              <>
+                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud size={13} /> {cardImgUrl ? "Change Image" : "Upload Image"}
+                              </>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={isCardUploading}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadingCard(`sec8-${idx}`);
+                                  try {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      const sec8 = [...(homeObj["section-8"] || [{}])];
+                                      const cards = [...(sec8[0].cardItem || [])];
+                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                      sec8[0] = { ...sec8[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                                    }
+                                  } finally {
+                                    setUploadingCard(null);
+                                    e.target.value = "";
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-3">
-                        {course.fileUrl && (
-                          <div className="relative h-16 w-20 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shrink-0">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={course.fileUrl} alt={course.title} className="h-full w-full object-cover" />
-                          </div>
-                        )}
-                        <input
-                          type="text"
-                          value={course.title || ""}
-                          onChange={(e) => {
-                            const sec8 = [...(homeObj["section-8"] || [{}])];
-                            const cards = [...(sec8[0].cardItem || [])];
-                            cards[idx] = { ...cards[idx], title: e.target.value };
-                            sec8[0] = { ...sec8[0], cardItem: cards };
-                            updateHome((prev) => ({ ...prev, "section-8": sec8 }));
-                          }}
-                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none"
-                        />
-                      </div>
-                      <textarea
-                        rows={2}
-                        value={course.description || ""}
-                        onChange={(e) => {
-                          const sec8 = [...(homeObj["section-8"] || [{}])];
-                          const cards = [...(sec8[0].cardItem || [])];
-                          cards[idx] = { ...cards[idx], description: e.target.value };
-                          sec8[0] = { ...sec8[0], cardItem: cards };
-                          updateHome((prev) => ({ ...prev, "section-8": sec8 }));
-                        }}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none"
-                      />
-                      <label className="flex cursor-pointer items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50">
-                        <UploadCloud size={13} /> Upload Image
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const url = await uploadImage(file);
-                              if (url) {
-                                const sec8 = [...(homeObj["section-8"] || [{}])];
-                                const cards = [...(sec8[0].cardItem || [])];
-                                cards[idx] = { ...cards[idx], fileUrl: url };
-                                sec8[0] = { ...sec8[0], cardItem: cards };
-                                updateHome((prev) => ({ ...prev, "section-8": sec8 }));
-                              }
-                            }
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -3057,7 +3576,7 @@ export function HomeLayoutEditorModal({
                         <button type="button" onClick={() => moveItemInSection("section-10", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
                           <ArrowUp size={12} />
                         </button>
-                        <button type="button" onClick={() => moveItemInSection("section-10", idx, "down")} disabled={idx === homeObj["section-10"][0].list.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
+                        <button type="button" onClick={() => moveItemInSection("section-10", idx, "down")} disabled={idx === (homeObj["section-10"]?.[0]?.list || []).length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
                           <ArrowDown size={12} />
                         </button>
                       </div>

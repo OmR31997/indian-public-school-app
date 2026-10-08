@@ -114,12 +114,11 @@ export function About() {
         <div className="lg:col-span-6">
           <Reveal>
             <div
-              className="inline-flex items-center gap-2.5 px-3.5 py-1 text-xs font-extrabold tracking-wider uppercase backdrop-blur-md shadow-sm border"
+              className="inline-flex items-center gap-2.5 px-3.5 py-1 text-xs font-extrabold tracking-wider uppercase backdrop-blur-md shadow-sm border text-[var(--navy)] dark:text-[var(--gold)]"
               style={{
                 borderRadius: "var(--badge-radius, 9999px)",
                 background: "var(--gold-soft, rgba(244, 189, 79, 0.15))",
                 borderColor: "var(--gold, #f4bd4f)",
-                color: "var(--navy, #102a4c)",
               }}
             >
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--gold, #f4bd4f)" }} />
@@ -127,8 +126,7 @@ export function About() {
             </div>
 
             <h2
-              className="mt-4 text-3xl font-extrabold leading-[1.15] dark:text-slate-100 sm:text-4xl lg:text-5xl font-[var(--font-display)]"
-              style={{ color: "var(--navy, #102a4c)" }}
+              className="mt-4 text-3xl font-extrabold leading-[1.15] text-foreground dark:text-slate-100 sm:text-4xl lg:text-5xl font-[var(--font-display)]"
             >
               {text(section.subHeading)}
             </h2>
@@ -175,8 +173,7 @@ export function About() {
                         <Icon className="size-5" />
                       </span>
                       <h3
-                        className="text-lg font-bold dark:text-slate-100 font-[var(--font-display)]"
-                        style={{ color: "var(--navy, #102a4c)" }}
+                        className="text-lg font-bold text-foreground dark:text-slate-100 font-[var(--font-display)]"
                       >
                         {title}
                       </h3>

@@ -28,10 +28,10 @@ export function HomeClient({ textContent }: { textContent?: string | null }) {
         <Hero />
         <QuickActions />
         {textContent && textContent.trim().length > 0 && (
-          <section className="bg-slate-50 py-8 border-y border-slate-100">
+          <section className="bg-secondary/40 py-8 border-y border-border">
             <div className="container-page mx-auto max-w-6xl px-4 sm:px-6">
               <div
-                className="prose max-w-none space-y-6 text-slate-800 leading-relaxed font-sans dynamic-page-content"
+                className="prose dark:prose-invert max-w-none space-y-6 text-foreground leading-relaxed font-sans dynamic-page-content"
                 dangerouslySetInnerHTML={{ __html: processHtmlAssetUrls(textContent) }}
               />
             </div>
