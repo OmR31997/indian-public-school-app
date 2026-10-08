@@ -469,7 +469,8 @@ export function getPopupBannerConfig(siteData?: SiteData | null): Required<Popup
   }
   const resolvedImageUrl = imageUrl(rawImageUrl) || getAssetUrl(rawImageUrl) || "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
   const showTitle = pb.showTitle !== false;
-  const title = showTitle ? (pb.title !== undefined && text(pb.title).trim() !== "" && text(pb.title) !== "Admissions Open 2026–27" ? text(pb.title) : "Enquiry") : "";
+  const rawTitle = pb.title !== undefined ? text(pb.title).trim() : "";
+  const title = showTitle ? (rawTitle !== "" && !rawTitle.includes("2026") && !rawTitle.includes("2027") && rawTitle !== "Admissions Open 2026–27" ? rawTitle : "Enquiry") : "";
   const rawSubtitle = text(pb.subtitle) || "";
   const subtitle = rawSubtitle.toLowerCase().includes("enroll your child") ? "" : rawSubtitle;
   const enquiryButtonText = text(pb.enquiryButtonText) || "Enquiry Now";

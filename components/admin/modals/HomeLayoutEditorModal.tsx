@@ -1247,64 +1247,20 @@ export function HomeLayoutEditorModal({
                     </label>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-bold text-slate-600">Pop-Up Modal Title Headline</label>
-                      <label className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={currentPopupBanner.showTitle !== false}
-                          onChange={(e) => updatePopupBannerField("showTitle", e.target.checked)}
-                          className="size-3.5 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
-                        />
-                        <span className="text-[10px] font-bold text-slate-700">Display Title Overlay</span>
-                      </label>
-                    </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label className="text-[11px] font-bold text-slate-600 block">Pop-Up Modal Title Headline</label>
                     <input
                       type="text"
-                      placeholder="Leave blank to hide title, or type custom headline (e.g. Admissions Open 2026–27)"
+                      placeholder="Type custom headline (e.g. Enquiry)"
                       value={currentPopupBanner.title ?? ""}
-                      onChange={(e) => updatePopupBannerField("title", e.target.value)}
+                      onChange={(e) => {
+                        updatePopupBannerField("title", e.target.value);
+                        updatePopupBannerField("showTitle", true);
+                      }}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
                   </div>
 
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Pop-Up Subtitle / Description</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Indian Public School"
-                      value={
-                        (currentPopupBanner.subtitle ?? "").toLowerCase().includes("enroll your child")
-                          ? ""
-                          : (currentPopupBanner.subtitle ?? "")
-                      }
-                      onChange={(e) => updatePopupBannerField("subtitle", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Enquiry Button Label</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Enquiry Now"
-                      value={currentPopupBanner.enquiryButtonText ?? "Enquiry Now"}
-                      onChange={(e) => updatePopupBannerField("enquiryButtonText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Close Button Label</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Close"
-                      value={currentPopupBanner.closeButtonText ?? "Close"}
-                      onChange={(e) => updatePopupBannerField("closeButtonText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
                 </div>
 
                 {/* Image Chooser & Gallery Modal */}
@@ -1318,6 +1274,7 @@ export function HomeLayoutEditorModal({
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <input
                       type="text"
+                      disabled
                       placeholder="https://res.cloudinary.com/... or /assets/..."
                       value={
                         (currentPopupBanner.imageUrl && !currentPopupBanner.imageUrl.includes("Banner_8") && !currentPopupBanner.imageUrl.includes("file_"))
@@ -1325,7 +1282,7 @@ export function HomeLayoutEditorModal({
                           : "/Settings/Home/POP_UP_IMAGE.jpeg"
                       }
                       onChange={(e) => updatePopupBannerField("imageUrl", e.target.value)}
-                      className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
+                      className="flex-1 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 px-3 py-2 text-xs font-semibold outline-none cursor-not-allowed select-all"
                     />
 
                     <button
@@ -1447,292 +1404,6 @@ export function HomeLayoutEditorModal({
                   </div>
                 </div>
 
-                {/* ADMIN INTERACTIVE IMAGE RESIZING & COVERAGE STUDIO CONTROLS */}
-                <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 space-y-4">
-                  <h4 className="text-xs font-bold text-[#082A52] flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <i className="bi bi-aspect-ratio-fill text-[#1a5d9c]" /> Admin Pop-Up Studio: Screen Area Coverage & Resizing
-                    </span>
-                    <span className="text-[10px] font-semibold text-[#1a5d9c] bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200">
-                      Area Coverage Manager
-                    </span>
-                  </h4>
-
-                  {/* Coverage Size Presets */}
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-600 block">Pop-Up Screen Area Coverage Presets</label>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {[
-                        { label: "Compact (450px)", width: 450, height: 320, preset: "sm" },
-                        { label: "Medium (600px)", width: 600, height: 400, preset: "md" },
-                        { label: "Large (760px)", width: 760, height: 460, preset: "lg" },
-                        { label: "Extra Wide (920px)", width: 920, height: 520, preset: "xl" },
-                        { label: "Full Hero (95%)", width: 1100, height: 600, preset: "full" },
-                      ].map((item) => (
-                        <button
-                          key={item.preset}
-                          type="button"
-                          onClick={() => {
-                            updatePopupBannerField("modalWidth", item.preset);
-                            updatePopupBannerField("imageWidth", item.width);
-                            const currentRatio = datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10";
-                            const parts = currentRatio.split("/").map(Number);
-                            const calculatedHeight = (parts.length === 2 && parts[0] > 0) ? Math.round((item.width * parts[1]) / parts[0]) : item.height;
-                            updatePopupBannerField("imageMaxHeight", calculatedHeight);
-                          }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${(datasource?.home?.[0]?.identity?.popupBanner?.modalWidth ?? datasource?.popupBanner?.modalWidth ?? "lg") === item.preset
-                            ? "bg-[#1a5d9c] text-white border-[#1a5d9c] shadow-xs"
-                            : "bg-white text-slate-700 border-slate-200 hover:bg-blue-50/70"
-                            }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2 border-t border-blue-200/60">
-                    {/* Image Fit Mode */}
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Fit Mode</label>
-                      <select
-                        value={datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "cover"}
-                        onChange={(e) => updatePopupBannerField("imageFit", e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                      >
-                        <option value="cover">Cover (Full Bleed Poster)</option>
-                        <option value="contain">Contain (Show Entire Image)</option>
-                        <option value="fill">Fill (Stretch to Fill)</option>
-                      </select>
-                    </div>
-
-                    {/* Aspect Ratio */}
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Aspect Ratio</label>
-                      <select
-                        value={datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10"}
-                        onChange={(e) => {
-                          const newRatio = e.target.value;
-                          const currentWidth = datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600;
-                          const parts = newRatio.split("/").map(Number);
-                          if (parts.length === 2 && parts[0] > 0) {
-                            const calculatedHeight = Math.round((currentWidth * parts[1]) / parts[0]);
-                            updatePopupBannerField("imageMaxHeight", calculatedHeight);
-                          }
-                          updatePopupBannerField("aspectRatio", newRatio);
-                        }}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                      >
-                        <option value="16/10">16:10 Full Bleed Poster</option>
-                        <option value="16/9">16:9 Landscape Banner</option>
-                        <option value="4/3">4:3 Standard Card</option>
-                        <option value="1/1">1:1 Square</option>
-                        <option value="3/2">3:2 Photo</option>
-                        <option value="2/1">2:1 Wide Panorama</option>
-                      </select>
-                    </div>
-
-                    {/* Image Focus Position */}
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-600 block mb-1">Image Focus Position</label>
-                      <select
-                        value={datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center"}
-                        onChange={(e) => updatePopupBannerField("imagePosition", e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                      >
-                        <option value="center">Center</option>
-                        <option value="top">Top Focus</option>
-                        <option value="bottom">Bottom Focus</option>
-                      </select>
-                    </div>
-
-                    {/* Click to Zoom on Frontend */}
-                    <div className="flex items-center pt-5">
-                      <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-slate-200 w-full">
-                        <input
-                          type="checkbox"
-                          checked={(datasource?.home?.[0]?.identity?.popupBanner?.showImageZoomOnClick ?? datasource?.popupBanner?.showImageZoomOnClick) !== false}
-                          onChange={(e) => updatePopupBannerField("showImageZoomOnClick", e.target.checked)}
-                          className="size-4 rounded text-[#1a5d9c] focus:ring-[#1a5d9c] cursor-pointer"
-                        />
-                        <span className="text-[11px] font-bold text-slate-700">Allow Image Lightbox Zoom</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Sliders for Image Width (px) & Height (px) */}
-                  <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-blue-200/60">
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                          <i className="bi bi-arrows-expand-vertical text-[#1a5d9c] rotate-90" /> Container Width (px)
-                        </label>
-                        <span className="text-xs font-mono font-bold text-[#1a5d9c] bg-blue-100 px-2 py-0.5 rounded-md">
-                          {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px
-                        </span>
-                      </div>
-                      <input
-                        type="range"
-                        min={320}
-                        max={1100}
-                        step={10}
-                        value={datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}
-                        onChange={(e) => {
-                          const newWidth = parseInt(e.target.value);
-                          updatePopupBannerField("imageWidth", newWidth);
-                          updatePopupBannerField("modalWidth", "custom");
-                          const currentRatio = datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10";
-                          const parts = currentRatio.split("/").map(Number);
-                          if (parts.length === 2 && parts[0] > 0) {
-                            const calculatedHeight = Math.round((newWidth * parts[1]) / parts[0]);
-                            updatePopupBannerField("imageMaxHeight", calculatedHeight);
-                          }
-                        }}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ew-resize accent-[#1a5d9c]"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                          <i className="bi bi-arrows-expand-vertical text-[#1a5d9c]" /> Container Height (px)
-                        </label>
-                        <span className="text-xs font-mono font-bold text-[#1a5d9c] bg-blue-100 px-2 py-0.5 rounded-md">
-                          {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px
-                        </span>
-                      </div>
-                      <input
-                        type="range"
-                        min={200}
-                        max={750}
-                        step={10}
-                        value={datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}
-                        onChange={(e) => updatePopupBannerField("imageMaxHeight", parseInt(e.target.value))}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ns-resize accent-[#1a5d9c]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* LIVE INTERACTIVE ADMIN CANVAS PREVIEW (WITH EXACT CANVAS RESIZE HANDLE MATCHING SCREENSHOT) */}
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
-                      <i className="bi bi-eye-fill text-[#1a5d9c] text-sm" /> Admin Live Canvas Studio (Drag Blue Corner Handle to Resize)
-                    </label>
-                    <span className="text-[11px] font-semibold text-slate-600 font-mono bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
-                      Covering Area: {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px × {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px
-                    </span>
-                  </div>
-
-                  <div className="relative rounded-3xl border border-slate-200 bg-slate-900/90 p-6 sm:p-8 flex flex-col items-center justify-center min-h-[380px]">
-                    {/* Blue Dashed Selection Container Frame matching screenshot */}
-                    <div className="relative p-1.5 rounded-[28px] border-2 border-dashed border-[#1a5d9c] transition-all">
-                      {/* Floating Dark Control Toolbar above matching screenshot */}
-                      <div className="absolute -top-4 left-4 z-40 flex items-center gap-2 rounded-xl bg-slate-950 px-3 py-1 text-[11px] font-bold text-white shadow-xl border border-slate-800">
-                        <span className="font-mono text-slate-400">&lt;div&gt;</span>
-                        <span className="bg-slate-800 px-2.5 py-0.5 rounded-lg text-slate-200 flex items-center gap-1">
-                          <i className="bi bi-chevron-up text-[9px]" /> Outer Box (&lt;div&gt;)
-                        </span>
-                        <span className="bg-[#1a5d9c] px-2 py-0.5 rounded-md text-white font-mono text-[10px]">
-                          {datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600} × {datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}
-                        </span>
-                      </div>
-
-                      {/* Mockup Poster Card Container - Matching PopupBannerModal 100% */}
-                      <div
-                        className="relative w-full rounded-[24px] border border-blue-400/30 bg-slate-950 text-white shadow-2xl overflow-hidden flex flex-col justify-between group transition-all"
-                        style={{
-                          width: `${datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? datasource?.popupBanner?.imageWidth ?? 600}px`,
-                          maxWidth: "100%",
-                          aspectRatio: (datasource?.home?.[0]?.identity?.popupBanner?.aspectRatio ?? datasource?.popupBanner?.aspectRatio ?? "16/10").replace('/', ' / '),
-                          height: `${datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? datasource?.popupBanner?.imageMaxHeight ?? 400}px`,
-                        }}
-                      >
-                        {/* Poster Graphic Image Container */}
-                        <div className="relative w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
-                          {(() => {
-                            const rawUrl = (datasource?.home?.[0]?.identity?.popupBanner?.imageUrl || datasource?.popupBanner?.imageUrl || "").trim();
-                            const validUrl = (rawUrl && !rawUrl.includes("Banner_8") && !rawUrl.includes("file_")) ? rawUrl : "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
-                            const resolvedUrl = getAssetUrl(validUrl) || "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
-                            return (
-                              <img
-                                src={resolvedUrl}
-                                alt="Admin Banner Preview"
-                                onError={(e) => {
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
-                                }}
-                                className="w-full h-full transition-transform duration-500 group-hover:scale-[1.02]"
-                                style={{
-                                  objectFit: (datasource?.home?.[0]?.identity?.popupBanner?.imageFit ?? datasource?.popupBanner?.imageFit ?? "contain") as any,
-                                  objectPosition: datasource?.home?.[0]?.identity?.popupBanner?.imagePosition ?? datasource?.popupBanner?.imagePosition ?? "center",
-                                }}
-                              />
-                            );
-                          })()}
-                        </div>
-
-                        {/* Dedicated Bottom Footer Action Bar */}
-                        <div className="shrink-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800/80 px-4 py-3 flex items-center justify-between gap-3 relative z-20">
-                          {/* Title & Subtitle */}
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            {(datasource?.home?.[0]?.identity?.popupBanner?.showTitle ?? datasource?.popupBanner?.showTitle) !== false && (datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title) && (
-                              <h4 className="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-snug truncate">
-                                {datasource?.home?.[0]?.identity?.popupBanner?.title ?? datasource?.popupBanner?.title}
-                              </h4>
-                            )}
-                            {datasource?.home?.[0]?.identity?.popupBanner?.subtitle && !(datasource?.home?.[0]?.identity?.popupBanner?.subtitle || "").toLowerCase().includes("enroll your child") && (
-                              <p className="text-[10px] font-bold text-sky-300 uppercase tracking-wider truncate">
-                                {datasource?.home?.[0]?.identity?.popupBanner?.subtitle}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex items-center gap-2 shrink-0 ml-auto">
-                            <span className="bg-gradient-to-r from-[#1a5d9c] via-blue-700 to-[#102a4c] text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-md border border-blue-400/30 flex items-center gap-1.5">
-                              <i className="bi bi-pencil-square text-xs text-sky-200" />
-                              {datasource?.home?.[0]?.identity?.popupBanner?.enquiryButtonText ?? "Enquiry Now"}
-                            </span>
-
-                            <span className="bg-slate-800 text-slate-200 font-extrabold text-xs px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-1.5">
-                              <i className="bi bi-x-lg text-[9px]" />
-                              {datasource?.home?.[0]?.identity?.popupBanner?.closeButtonText ?? "Close"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Solid Blue Square Drag Handle at Corner matching screenshot */}
-                      <div
-                        className="absolute -bottom-3 -right-3 size-6 bg-[#1a5d9c] border-2 border-white rounded-md shadow-xl grid place-items-center cursor-nwse-resize z-50 hover:scale-125 transition-transform"
-                        title="Drag corner handle to adjust width & height live"
-                        onMouseDown={(e) => {
-                          const startX = e.clientX;
-                          const startY = e.clientY;
-                          const startW = datasource?.home?.[0]?.identity?.popupBanner?.imageWidth ?? 600;
-                          const startH = datasource?.home?.[0]?.identity?.popupBanner?.imageMaxHeight ?? 400;
-                          const onMouseMove = (moveEv: MouseEvent) => {
-                            const deltaX = moveEv.clientX - startX;
-                            const deltaY = moveEv.clientY - startY;
-                            const newW = Math.max(320, Math.min(1100, startW + deltaX));
-                            const newH = Math.max(200, Math.min(750, startH + deltaY));
-                            updatePopupBannerField("imageWidth", newW);
-                            updatePopupBannerField("imageMaxHeight", newH);
-                            updatePopupBannerField("modalWidth", "custom");
-                          };
-                          const onMouseUp = () => {
-                            window.removeEventListener("mousemove", onMouseMove);
-                            window.removeEventListener("mouseup", onMouseUp);
-                          };
-                          window.addEventListener("mousemove", onMouseMove);
-                          window.addEventListener("mouseup", onMouseUp);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Cloudinary Gallery Modal Integration */}
@@ -3707,8 +3378,8 @@ export function HomeLayoutEditorModal({
                     <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain drop-shadow-xl" />
                   </div>
                   <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
-                    <span className="text-[10px] sm:text-xs font-black tracking-[0.25em] text-blue-400">ADMISSIONS OPEN</span>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">{currentPopupBanner.title || "Enquiry & Admission 2026–27"}</h2>
+                    <span className="text-[10px] sm:text-xs font-black tracking-[0.25em] text-blue-400">ENQUIRY</span>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">{currentPopupBanner.title || "Enquiry"}</h2>
                     <div className="w-12 sm:w-14 h-1.5 bg-amber-400 rounded-full" />
                     <p className="text-xs sm:text-sm text-blue-200/90 font-medium">{currentPopupBanner.subtitle || "Indian Public School, Sambalpur"}</p>
                     <button className="bg-amber-400 text-slate-950 font-black text-xs sm:text-sm px-6 py-3 rounded-full shadow-lg">{currentPopupBanner.enquiryButtonText || "Enquire Now"}</button>
@@ -3748,8 +3419,7 @@ export function HomeLayoutEditorModal({
                     <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
                   </div>
                   <div className="w-full md:w-1/2 p-4 sm:p-6 md:p-8 bg-[#091b38] flex flex-col justify-start md:justify-center overflow-y-auto flex-1 h-auto md:h-full pb-6">
-                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-amber-400">ENQUIRY FORM</span>
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight">{currentPopupBanner.title || "Quick Enquiry Now"}</h2>
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight">{currentPopupBanner.title || "Enquiry"}</h2>
                     <p className="text-[11px] sm:text-xs text-blue-200/90 pb-3">{currentPopupBanner.subtitle || "Indian Public School, Sambalpur"}</p>
                     <div className="bg-[#0b1b36] p-4 sm:p-5 rounded-2xl border border-blue-400/30 shadow-2xl text-white space-y-2.5 sm:space-y-3 [&_label]:text-amber-300 [&_label]:font-extrabold [&_label]:text-xs [&_label]:tracking-wide [&_input]:bg-[#040b1a] [&_input]:border-blue-400/40 [&_input]:text-white [&_input]:placeholder:text-blue-300/40 [&_input]:rounded-xl [&_input]:focus:border-amber-400 [&_input]:focus:ring-2 [&_input]:focus:ring-amber-400/20 [&_textarea]:bg-[#040b1a] [&_textarea]:border-blue-400/40 [&_textarea]:text-white [&_textarea]:placeholder:text-blue-300/40 [&_textarea]:rounded-xl [&_button[role=combobox]]:bg-[#040b1a] [&_button[role=combobox]]:border-blue-400/40 [&_button[role=combobox]]:text-white [&_button[type=submit]]:bg-gradient-to-r [&_button[type=submit]]:from-amber-400 [&_button[type=submit]]:via-yellow-400 [&_button[type=submit]]:to-amber-500 [&_button[type=submit]]:text-slate-950 [&_button[type=submit]]:font-black [&_button[type=submit]]:shadow-lg [&_button[type=submit]]:shadow-amber-500/25 [&_button[type=submit]]:border-0 [&_button[type=submit]]:rounded-xl">
                       <AdmissionEnquiryForm onSuccess={() => setShowLivePopUpPreview(false)} onClose={() => setShowLivePopUpPreview(false)} />
@@ -3768,9 +3438,9 @@ export function HomeLayoutEditorModal({
                   <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <i className="bi bi-trophy-fill text-amber-400 text-2xl sm:text-3xl drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
-                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-amber-300">GOLDEN EXCELLENCE</span>
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-amber-300">ENQUIRY</span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">{currentPopupBanner.title || "ADMISSIONS OPEN 2026–27"}</h2>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">{currentPopupBanner.title || "Enquiry"}</h2>
                     <div className="w-14 sm:w-16 h-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full" />
                     <p className="text-xs sm:text-sm font-semibold text-amber-100/80">{currentPopupBanner.subtitle || "Build Your Child's Brighter Future"}</p>
                     <button className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm px-6 py-3 rounded-full shadow-lg shadow-amber-500/30">{currentPopupBanner.enquiryButtonText || "Enquire Now"}</button>
@@ -3786,7 +3456,7 @@ export function HomeLayoutEditorModal({
                   </div>
                   <div className="shrink-0 bg-slate-900/95 border-t border-slate-800 px-3.5 py-2.5 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
                     <div>
-                      <h2 className="text-xs sm:text-sm font-extrabold text-white">{currentPopupBanner.title || "Admissions Open 2026–27"}</h2>
+                      <h2 className="text-xs sm:text-sm font-extrabold text-white">{currentPopupBanner.title || "Enquiry"}</h2>
                       <p className="text-[10px] sm:text-[11px] font-bold text-amber-400">{currentPopupBanner.subtitle || "Indian Public School, Sambalpur"}</p>
                     </div>
                     <div className="flex items-center gap-2">

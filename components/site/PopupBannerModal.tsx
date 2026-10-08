@@ -146,12 +146,12 @@ export function PopupBannerModal() {
               {/* Content Panel */}
               <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-blue-400">ADMISSIONS OPEN</span>
+                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-blue-400">ENQUIRY</span>
                   <span className="h-px bg-blue-500/50 flex-1" />
                 </div>
 
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">
-                  {config.title || "Enquiry & Admission for 2026–27"}
+                  {config.title || "Enquiry"}
                 </h2>
 
                 <div className="w-12 sm:w-14 h-1.5 bg-amber-400 rounded-full" />
@@ -292,7 +292,6 @@ export function PopupBannerModal() {
 
               <div className="w-full md:w-1/2 p-4 sm:p-6 md:p-8 bg-[#091b38] flex flex-col justify-start md:justify-center overflow-y-auto flex-1 h-auto md:h-full pb-6">
                 <div className="mb-3 sm:mb-4 space-y-1 pr-6">
-                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-amber-400">ENQUIRY FORM</span>
                   <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight font-[var(--font-display)]">
                     {config.title && config.title !== "Admissions Open 2026–27" && config.title !== "ADMISSIONS OPEN 2026–27" ? config.title : "Enquiry"}
                   </h2>
@@ -353,11 +352,11 @@ export function PopupBannerModal() {
               <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <i className="bi bi-trophy-fill text-amber-400 text-2xl sm:text-3xl drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
-                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-amber-300">GOLDEN EXCELLENCE</span>
+                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-amber-300">ENQUIRY</span>
                 </div>
 
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight font-[var(--font-display)]">
-                  {config.title && config.title !== "ADMISSIONS OPEN 2026–27" && config.title !== "Admissions Open 2026–27" ? config.title : "Enquiry"}
+                  {config.title || "Enquiry"}
                 </h2>
 
                 <div className="w-14 sm:w-16 h-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full" />
