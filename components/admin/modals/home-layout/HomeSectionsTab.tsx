@@ -460,78 +460,13 @@ export function HomeSectionsTab({
         </div>
       )}
 
-      {/* TAB: Section 5 */}
-      {activeTab === "sec5" && (
-        <div className="space-y-5">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                <i className="bi bi-activity text-[#1a5d9c]" /> Section 5: Co-Curricular Activities ({(homeObj["section-5"]?.[0]?.cardItem || []).length} Cards)
-              </h3>
-              <button
-                type="button"
-                onClick={() => addItemToSection("section-5", { heading: "New Activity", description: "Activity details", redirectUrl: "/about" })}
-                className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
-              >
-                <Plus size={14} /> Add Activity
-              </button>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {(Array.isArray(homeObj["section-5"]?.[0]?.cardItem) ? homeObj["section-5"][0].cardItem : []).map((activity: any, idx: number) => (
-                <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                    <span className="text-[11px] font-bold text-slate-400">Activity #{idx + 1}</span>
-                    <div className="flex items-center gap-1">
-                      <button type="button" onClick={() => moveItemInSection("section-5", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                        <ArrowUp size={12} />
-                      </button>
-                      <button type="button" onClick={() => moveItemInSection("section-5", idx, "down")} disabled={idx === homeObj["section-5"][0].cardItem.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                        <ArrowDown size={12} />
-                      </button>
-                      <button type="button" onClick={() => deleteItemFromSection("section-5", idx)} className="text-red-500 hover:text-red-700">
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    value={activity.heading || ""}
-                    onChange={(e) => {
-                      const sec5 = [...(homeObj["section-5"] || [{}])];
-                      const cards = [...(sec5[0].cardItem || [])];
-                      cards[idx] = { ...cards[idx], heading: e.target.value };
-                      sec5[0] = { ...sec5[0], cardItem: cards };
-                      updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                    }}
-                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none"
-                  />
-                  <textarea
-                    rows={2}
-                    value={activity.description || ""}
-                    onChange={(e) => {
-                      const sec5 = [...(homeObj["section-5"] || [{}])];
-                      const cards = [...(sec5[0].cardItem || [])];
-                      cards[idx] = { ...cards[idx], description: e.target.value };
-                      sec5[0] = { ...sec5[0], cardItem: cards };
-                      updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                    }}
-                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* TAB: Section 6 */}
       {activeTab === "sec6" && (
         <div className="space-y-5">
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                <i className="bi bi-building-fill text-[#1a5d9c]" /> Section 6: Campus Infrastructure Cards ({(homeObj["section-6"]?.[0]?.cardItem || []).length} Cards)
+                <i className="bi bi-building-fill text-[#1a5d9c]" /> Section 5: Campus Infrastructure Cards ({(homeObj["section-6"]?.[0]?.cardItem || []).length} Cards)
               </h3>
               <button
                 type="button"
@@ -628,7 +563,7 @@ export function HomeSectionsTab({
             <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <i className="bi bi-people-fill text-[#1a5d9c]" /> Section 7: Student Life Showcase
+                  <i className="bi bi-people-fill text-[#1a5d9c]" /> Section 6: Student Life Showcase
                 </h3>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-[#1a5d9c] border border-blue-100">
                   {cardsList.length} {cardsList.length === 1 ? "Image" : "Images"} configured
@@ -1056,7 +991,7 @@ export function HomeSectionsTab({
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                <i className="bi bi-mortarboard-fill text-[#1a5d9c]" /> Section 8: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)
+                <i className="bi bi-mortarboard-fill text-[#1a5d9c]" /> Section 7: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)
               </h3>
               <button
                 type="button"
@@ -1150,7 +1085,7 @@ export function HomeSectionsTab({
         <div className="space-y-5">
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
             <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-              <i className="bi bi-person-badge-fill text-[#1a5d9c]" /> Section 9: Best CBSE School / Director Message
+              <i className="bi bi-person-badge-fill text-[#1a5d9c]" /> Section 8: Best CBSE School / Director Message
             </h3>
             <div className="grid gap-3 sm:grid-cols-2">
               <input
@@ -1263,7 +1198,7 @@ export function HomeSectionsTab({
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                <i className="bi bi-newspaper text-[#1a5d9c]" /> Section 10: News & Notice Board Items ({(homeObj["section-10"]?.[0]?.list || []).length})
+                <i className="bi bi-newspaper text-[#1a5d9c]" /> Section 9: News & Notice Board Items ({(homeObj["section-10"]?.[0]?.list || []).length})
               </h3>
               <button
                 type="button"

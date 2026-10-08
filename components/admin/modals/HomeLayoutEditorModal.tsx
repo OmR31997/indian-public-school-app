@@ -53,7 +53,6 @@ export function HomeLayoutEditorModal({
     | "sec2"
     | "sec3"
     | "sec4"
-    | "sec5"
     | "sec6"
     | "sec7"
     | "sec8"
@@ -625,12 +624,11 @@ export function HomeLayoutEditorModal({
             { id: "sec2", label: "Sec 2: Key Stats", icon: "bi-bar-chart-fill" },
             { id: "sec3", label: "Sec 3: Why Choose", icon: "bi-star-fill" },
             { id: "sec4", label: "Sec 4: Academics", icon: "bi-book-fill" },
-            { id: "sec5", label: "Sec 5: Activities", icon: "bi-activity" },
-            { id: "sec6", label: "Sec 6: Campus", icon: "bi-building-fill" },
-            { id: "sec7", label: "Sec 7: Student Life", icon: "bi-people-fill" },
-            { id: "sec8", label: "Sec 8: Courses", icon: "bi-mortarboard-fill" },
-            { id: "sec9", label: "Sec 9: Director Message", icon: "bi-person-badge-fill" },
-            { id: "sec10", label: "Sec 10: News & Notices", icon: "bi-newspaper" },
+            { id: "sec6", label: "Sec 5: Campus", icon: "bi-building-fill" },
+            { id: "sec7", label: "Sec 6: Student Life", icon: "bi-people-fill" },
+            { id: "sec8", label: "Sec 7: Courses", icon: "bi-mortarboard-fill" },
+            { id: "sec9", label: "Sec 8: Director Message", icon: "bi-person-badge-fill" },
+            { id: "sec10", label: "Sec 9: News & Notices", icon: "bi-newspaper" },
             { id: "rawJson", label: "Raw JSON", icon: "bi-code-slash" },
           ].map((tab) => (
             <button
@@ -2112,191 +2110,13 @@ export function HomeLayoutEditorModal({
             </div>
           )}
 
-          {/* TAB: Section 5 */}
-          {activeTab === "sec5" && (
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                    <i className="bi bi-activity text-[#1a5d9c]" /> Section 5: Co-Curricular Activities ({(homeObj["section-5"]?.[0]?.cardItem || []).length} Cards)
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => addItemToSection("section-5", { heading: "New Activity", description: "Activity details", fileUrl: "", redirectUrl: "/about" })}
-                    className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
-                  >
-                    <Plus size={14} /> Add Activity
-                  </button>
-                </div>
-
-                {/* Section Header Controls */}
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Eyebrow / Section Title</label>
-                    <input
-                      type="text"
-                      value={homeObj["section-5"]?.[0]?.heading || ""}
-                      onChange={(e) => {
-                        const sec5 = [...(homeObj["section-5"] || [{}])];
-                        sec5[0] = { ...sec5[0], heading: e.target.value };
-                        updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                      }}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Main Heading</label>
-                    <input
-                      type="text"
-                      value={homeObj["section-5"]?.[0]?.mainHeading || ""}
-                      onChange={(e) => {
-                        const sec5 = [...(homeObj["section-5"] || [{}])];
-                        sec5[0] = { ...sec5[0], mainHeading: e.target.value };
-                        updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                      }}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {(Array.isArray(homeObj["section-5"]?.[0]?.cardItem) ? homeObj["section-5"][0].cardItem : []).map((activity: any, idx: number) => {
-                    const cardImgUrl = activity.fileUrl || activity.imageUrl || "";
-                    const isCardUploading = uploadingCard === `sec5-${idx}`;
-
-                    return (
-                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                          <span className="text-[11px] font-bold text-slate-400">Activity #{idx + 1}</span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => moveItemInSection("section-5", idx, "up")}
-                              disabled={idx === 0}
-                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
-                            >
-                              <ArrowUp size={12} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveItemInSection("section-5", idx, "down")}
-                              disabled={idx === (homeObj["section-5"]?.[0]?.cardItem || []).length - 1}
-                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
-                            >
-                              <ArrowDown size={12} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => deleteItemFromSection("section-5", idx)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 size={12} />
-                            </button>
-                          </div>
-                        </div>
-                        <input
-                          type="text"
-                          placeholder="Activity Title"
-                          value={activity.heading || activity.title || ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            const sec5 = [...(homeObj["section-5"] || [{}])];
-                            const cards = [...(sec5[0].cardItem || [])];
-                            cards[idx] = { ...cards[idx], heading: val, title: val };
-                            sec5[0] = { ...sec5[0], cardItem: cards };
-                            updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                          }}
-                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                        />
-                        <textarea
-                          rows={2}
-                          placeholder="Activity details & description"
-                          value={activity.description || ""}
-                          onChange={(e) => {
-                            const sec5 = [...(homeObj["section-5"] || [{}])];
-                            const cards = [...(sec5[0].cardItem || [])];
-                            cards[idx] = { ...cards[idx], description: e.target.value };
-                            sec5[0] = { ...sec5[0], cardItem: cards };
-                            updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                          }}
-                          className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none focus:border-[#1a5d9c]"
-                        />
-
-                        {/* Image Preview & Upload */}
-                        <div className="space-y-1.5 pt-1">
-                          {cardImgUrl ? (
-                            <div className="relative h-24 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
-                              <img src={cardImgUrl} alt={activity.heading || "Activity"} className="h-full w-full object-cover" />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const sec5 = [...(homeObj["section-5"] || [{}])];
-                                    const cards = [...(sec5[0].cardItem || [])];
-                                    cards[idx] = { ...cards[idx], fileUrl: "", imageUrl: "" };
-                                    sec5[0] = { ...sec5[0], cardItem: cards };
-                                    updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                                  }}
-                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
-                                >
-                                  <Trash2 size={11} /> Remove Image
-                                </button>
-                              </div>
-                            </div>
-                          ) : null}
-
-                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
-                            {isCardUploading ? (
-                              <>
-                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
-                              </>
-                            ) : (
-                              <>
-                                <UploadCloud size={13} /> {cardImgUrl ? "Change Image" : "Upload Image"}
-                              </>
-                            )}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              disabled={isCardUploading}
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setUploadingCard(`sec5-${idx}`);
-                                  try {
-                                    const url = await uploadImage(file);
-                                    if (url) {
-                                      const sec5 = [...(homeObj["section-5"] || [{}])];
-                                      const cards = [...(sec5[0].cardItem || [])];
-                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
-                                      sec5[0] = { ...sec5[0], cardItem: cards };
-                                      updateHome((prev) => ({ ...prev, "section-5": sec5 }));
-                                    }
-                                  } finally {
-                                    setUploadingCard(null);
-                                    e.target.value = "";
-                                  }
-                                }
-                              }}
-                              className="hidden"
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* TAB: Section 6 */}
           {activeTab === "sec6" && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                    <i className="bi bi-building-fill text-[#1a5d9c]" /> Section 6: Campus Infrastructure Cards ({(homeObj["section-6"]?.[0]?.cardItem || []).length} Cards)
+                    <i className="bi bi-building-fill text-[#1a5d9c]" /> Section 5: Campus Infrastructure Cards ({(homeObj["section-6"]?.[0]?.cardItem || []).length} Cards)
                   </h3>
                   <button
                     type="button"
@@ -2514,7 +2334,7 @@ export function HomeLayoutEditorModal({
                 <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                      <i className="bi bi-people-fill text-[#1a5d9c]" /> Section 7: Student Life Showcase
+                      <i className="bi bi-people-fill text-[#1a5d9c]" /> Section 6: Student Life Showcase
                     </h3>
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-[#1a5d9c] border border-blue-100">
                       {cardsList.length} {cardsList.length === 1 ? "Image" : "Images"} configured
@@ -2943,7 +2763,7 @@ export function HomeLayoutEditorModal({
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                    <i className="bi bi-mortarboard-fill text-[#1a5d9c]" /> Section 8: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)
+                    <i className="bi bi-mortarboard-fill text-[#1a5d9c]" /> Section 7: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)
                   </h3>
                   <button
                     type="button"
@@ -3095,7 +2915,7 @@ export function HomeLayoutEditorModal({
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <i className="bi bi-person-badge-fill text-[#1a5d9c]" /> Section 9: Best CBSE School / Director Message
+                  <i className="bi bi-person-badge-fill text-[#1a5d9c]" /> Section 8: Best CBSE School / Director Message
                 </h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <input
@@ -3208,7 +3028,7 @@ export function HomeLayoutEditorModal({
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                    <i className="bi bi-newspaper text-[#1a5d9c]" /> Section 10: News & Notice Board Items ({(homeObj["section-10"]?.[0]?.list || []).length})
+                    <i className="bi bi-newspaper text-[#1a5d9c]" /> Section 9: News & Notice Board Items ({(homeObj["section-10"]?.[0]?.list || []).length})
                   </h3>
                   <button
                     type="button"

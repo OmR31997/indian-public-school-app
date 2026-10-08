@@ -9,7 +9,6 @@ import { WhyChoose } from "@/components/site/WhyChoose";
 import { Academics } from "@/components/site/Academics";
 import { IntroVideo } from "@/components/site/IntroVideo";
 import { SchoolIntroduction } from "@/components/site/SchoolIntroduction";
-import { BeyondClassroom } from "@/components/site/BeyondClassroom";
 import { Infrastructure } from "@/components/site/Infrastructure";
 import { StudentLife } from "@/components/site/StudentLife";
 import { Achievements } from "@/components/site/Achievements";
@@ -41,7 +40,6 @@ export function HomeClient({ textContent }: { textContent?: string | null }) {
         <Stats />
         <WhyChoose />
         <Academics />
-        <BeyondClassroom />
         <Infrastructure />
         <StudentLife />
         <Achievements />
