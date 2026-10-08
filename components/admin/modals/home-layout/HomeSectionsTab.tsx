@@ -16,6 +16,7 @@ interface HomeSectionsTabProps {
   moveTopArrayItem: (key: string, index: number, dir: "up" | "down") => void;
   uploadImage: (file: File) => Promise<string>;
   onOpenGallery?: () => void;
+  onOpenGalleryPicker?: (onSelect: (url: string) => void, title?: string) => void;
 }
 
 export function HomeSectionsTab({
@@ -30,6 +31,7 @@ export function HomeSectionsTab({
   moveTopArrayItem,
   uploadImage,
   onOpenGallery,
+  onOpenGalleryPicker,
 }: HomeSectionsTabProps) {
   const [uploadingCard, setUploadingCard] = useState<string | null>(null);
   return (
@@ -336,38 +338,60 @@ export function HomeSectionsTab({
                           )}
                         </div>
 
-                        {/* Upload File Button */}
-                        <label className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition shadow-2xs">
-                          <UploadCloud size={14} className="text-[#1a5d9c]" />
-                          <span>{uploadingCard === `sec3-${idx}` ? "Uploading..." : "Upload Image"}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            disabled={uploadingCard === `sec3-${idx}`}
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                setUploadingCard(`sec3-${idx}`);
-                                try {
-                                  const url = await uploadImage(file);
-                                  if (url) {
-                                    const sec3 = [...(homeObj["section-3"] || [{}])];
-                                    const cards = [...(sec3[0].cardItem || [])];
-                                    cards[idx] = { ...cards[idx], icoUrl: url, icon: url, imageUrl: url, fileUrl: url };
-                                    sec3[0] = { ...sec3[0], cardItem: cards };
-                                    updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                        {/* Upload & Gallery Buttons */}
+                        <div className="flex flex-1 items-center gap-1.5">
+                          {onOpenGalleryPicker && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onOpenGalleryPicker((url) => {
+                                  const sec3 = [...(homeObj["section-3"] || [{}])];
+                                  const cards = [...(sec3[0].cardItem || [])];
+                                  cards[idx] = { ...cards[idx], icoUrl: url, icon: url, imageUrl: url, fileUrl: url };
+                                  sec3[0] = { ...sec3[0], cardItem: cards };
+                                  updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                                }, "Choose Icon from Gallery");
+                              }}
+                              className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs cursor-pointer"
+                              title="Pick icon from Cloudinary Gallery"
+                            >
+                              <ImageIcon size={13} className="text-amber-600" />
+                              <span>Gallery</span>
+                            </button>
+                          )}
+
+                          <label className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition shadow-2xs">
+                            <UploadCloud size={13} className="text-[#1a5d9c]" />
+                            <span>{uploadingCard === `sec3-${idx}` ? "Uploading..." : "Upload"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={uploadingCard === `sec3-${idx}`}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadingCard(`sec3-${idx}`);
+                                  try {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      const sec3 = [...(homeObj["section-3"] || [{}])];
+                                      const cards = [...(sec3[0].cardItem || [])];
+                                      cards[idx] = { ...cards[idx], icoUrl: url, icon: url, imageUrl: url, fileUrl: url };
+                                      sec3[0] = { ...sec3[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                                    }
+                                  } catch (err) {
+                                    console.error("Failed to upload icon:", err);
+                                  } finally {
+                                    setUploadingCard(null);
+                                    e.target.value = "";
                                   }
-                                } catch (err) {
-                                  console.error("Failed to upload icon:", err);
-                                } finally {
-                                  setUploadingCard(null);
-                                  e.target.value = "";
                                 }
-                              }
-                            }}
-                            className="hidden"
-                          />
-                        </label>
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -625,34 +649,55 @@ export function HomeSectionsTab({
                   <p className="text-[11px] text-slate-500">Upload multiple photos to display in the Student Life section masonry grid.</p>
                 </div>
 
-                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#124272] transition-colors shadow-sm">
-                  <Plus size={16} /> Add Image(s)
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={async (e) => {
-                      const files = Array.from(e.target.files || []);
-                      if (files.length === 0) return;
-                      const currentCards = [...(homeObj["section-7"]?.[0]?.cardItem || [])];
-                      for (const file of files) {
-                        const url = await uploadImage(file);
-                        if (url) {
-                          const autoTitle = file.name
-                            .replace(/\.[^/.]+$/, "")
-                            .replace(/[-_]/g, " ")
-                            .trim();
+                <div className="flex items-center gap-2">
+                  {onOpenGalleryPicker && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onOpenGalleryPicker((url) => {
+                          const currentCards = [...(homeObj["section-7"]?.[0]?.cardItem || [])];
+                          const autoTitle = "Gallery Photo";
                           currentCards.push({ title: autoTitle, fileUrl: url });
+                          const sec7 = [...(homeObj["section-7"] || [{}])];
+                          sec7[0] = { ...sec7[0], cardItem: currentCards };
+                          updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                        }, "Select Photo for Student Life from Gallery");
+                      }}
+                      className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
+                    >
+                      <ImageIcon size={15} className="text-amber-600" /> Choose from Gallery
+                    </button>
+                  )}
+
+                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#124272] transition-colors shadow-sm">
+                    <Plus size={16} /> Add Image(s)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length === 0) return;
+                        const currentCards = [...(homeObj["section-7"]?.[0]?.cardItem || [])];
+                        for (const file of files) {
+                          const url = await uploadImage(file);
+                          if (url) {
+                            const autoTitle = file.name
+                              .replace(/\.[^/.]+$/, "")
+                              .replace(/[-_]/g, " ")
+                              .trim();
+                            currentCards.push({ title: autoTitle, fileUrl: url });
+                          }
                         }
-                      }
-                      const sec7 = [...(homeObj["section-7"] || [{}])];
-                      sec7[0] = { ...sec7[0], cardItem: currentCards };
-                      updateHome((prev) => ({ ...prev, "section-7": sec7 }));
-                      e.target.value = "";
-                    }}
-                    className="hidden"
-                  />
-                </label>
+                        const sec7 = [...(homeObj["section-7"] || [{}])];
+                        sec7[0] = { ...sec7[0], cardItem: currentCards };
+                        updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                        e.target.value = "";
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
 
               {cardsList.length === 0 ? (
@@ -703,27 +748,48 @@ export function HomeSectionsTab({
                       </div>
 
                       <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-slate-200/60">
-                        <label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-bold text-[#1a5d9c] hover:underline">
-                          <UploadCloud size={14} /> Change Photo
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const url = await uploadImage(file);
-                                if (url) {
+                        <div className="flex items-center gap-2">
+                          {onOpenGalleryPicker && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onOpenGalleryPicker((url) => {
                                   const sec7 = [...(homeObj["section-7"] || [{}])];
                                   const cards = [...(sec7[0].cardItem || [])];
                                   cards[cardIdx] = { ...cards[cardIdx], fileUrl: url };
                                   sec7[0] = { ...sec7[0], cardItem: cards };
                                   updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                                }, "Pick Photo from Gallery");
+                              }}
+                              className="flex items-center gap-1 text-[11px] font-bold text-amber-700 hover:text-amber-900 cursor-pointer"
+                              title="Select existing photo from Cloudinary Gallery"
+                            >
+                              <ImageIcon size={13} className="text-amber-600" /> Gallery
+                            </button>
+                          )}
+
+                          <label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-bold text-[#1a5d9c] hover:underline">
+                            <UploadCloud size={14} /> Change Photo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const url = await uploadImage(file);
+                                  if (url) {
+                                    const sec7 = [...(homeObj["section-7"] || [{}])];
+                                    const cards = [...(sec7[0].cardItem || [])];
+                                    cards[cardIdx] = { ...cards[cardIdx], fileUrl: url };
+                                    sec7[0] = { ...sec7[0], cardItem: cards };
+                                    updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                                  }
                                 }
-                              }
-                            }}
-                            className="hidden"
-                          />
-                        </label>
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
 
                         <button
                           type="button"
@@ -1134,25 +1200,42 @@ export function HomeSectionsTab({
                       <img src={homeObj["section-9"][0].fileUrls[0]} alt="Director" className="h-full w-full object-cover" />
                     </div>
                   )}
-                  <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
-                    <UploadCloud size={14} /> Upload Director Photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await uploadImage(file);
-                          if (url) {
+                  <div className="flex flex-1 flex-col gap-1.5">
+                    {onOpenGalleryPicker && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onOpenGalleryPicker((url) => {
                             const sec9 = [...(homeObj["section-9"] || [{}])];
                             sec9[0] = { ...sec9[0], fileUrls: [url] };
                             updateHome((prev) => ({ ...prev, "section-9": sec9 }));
+                          }, "Pick Director Photo from Gallery");
+                        }}
+                        className="flex cursor-pointer items-center justify-center gap-1 rounded-lg border border-amber-300 bg-amber-50 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
+                      >
+                        <ImageIcon size={13} className="text-amber-600" /> Pick from Gallery
+                      </button>
+                    )}
+                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
+                      <UploadCloud size={14} /> Upload Director Photo
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const url = await uploadImage(file);
+                            if (url) {
+                              const sec9 = [...(homeObj["section-9"] || [{}])];
+                              sec9[0] = { ...sec9[0], fileUrls: [url] };
+                              updateHome((prev) => ({ ...prev, "section-9": sec9 }));
+                            }
                           }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -1166,25 +1249,42 @@ export function HomeSectionsTab({
                       <img src={homeObj["section-9"][0].bgImageUrl} alt="Banner Background" className="h-full w-full object-cover" />
                     </div>
                   )}
-                  <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
-                    <UploadCloud size={14} /> Upload Banner Background
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await uploadImage(file);
-                          if (url) {
+                  <div className="flex flex-1 flex-col gap-1.5">
+                    {onOpenGalleryPicker && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onOpenGalleryPicker((url) => {
                             const sec9 = [...(homeObj["section-9"] || [{}])];
                             sec9[0] = { ...sec9[0], bgImageUrl: url };
                             updateHome((prev) => ({ ...prev, "section-9": sec9 }));
+                          }, "Pick Banner Background from Gallery");
+                        }}
+                        className="flex cursor-pointer items-center justify-center gap-1 rounded-lg border border-amber-300 bg-amber-50 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
+                      >
+                        <ImageIcon size={13} className="text-amber-600" /> Pick from Gallery
+                      </button>
+                    )}
+                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50">
+                      <UploadCloud size={14} /> Upload Banner Background
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const url = await uploadImage(file);
+                            if (url) {
+                              const sec9 = [...(homeObj["section-9"] || [{}])];
+                              sec9[0] = { ...sec9[0], bgImageUrl: url };
+                              updateHome((prev) => ({ ...prev, "section-9": sec9 }));
+                            }
                           }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

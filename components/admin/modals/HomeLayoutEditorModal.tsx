@@ -64,6 +64,14 @@ export function HomeLayoutEditorModal({
   const [uploadError, setUploadError] = useState<string>("");
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const [galleryPickerTarget, setGalleryPickerTarget] = useState<"popupBanner" | "introVideo" | "videoPoster" | null>(null);
+  const [galleryPickerCallback, setGalleryPickerCallback] = useState<((url: string) => void) | null>(null);
+  const [galleryTitle, setGalleryTitle] = useState<string>("Cloudinary Media Gallery");
+
+  const openGalleryPicker = (onSelect: (url: string) => void, customTitle?: string) => {
+    setGalleryPickerCallback(() => onSelect);
+    setGalleryTitle(customTitle || "Choose Media Asset from Gallery");
+    setIsGalleryOpen(true);
+  };
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [showLivePopUpPreview, setShowLivePopUpPreview] = useState<boolean>(false);
 
@@ -1577,6 +1585,7 @@ export function HomeLayoutEditorModal({
               moveTopArrayItem={moveTopArrayItem}
               uploadImage={uploadImage}
               menuOptions={menuOptions}
+              onOpenGallery={openGalleryPicker}
             />
           )}
 
@@ -1930,38 +1939,58 @@ export function HomeLayoutEditorModal({
                               )}
                             </div>
 
-                            {/* Upload File Button */}
-                            <label className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition shadow-2xs">
-                              <UploadCloud size={14} className="text-[#1a5d9c]" />
-                              <span>{uploadingCard === `sec3-${idx}` ? "Uploading..." : "Upload Image"}</span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                disabled={uploadingCard === `sec3-${idx}`}
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    setUploadingCard(`sec3-${idx}`);
-                                    try {
-                                      const url = await uploadImage(file);
-                                      if (url) {
-                                        const sec3 = [...(homeObj["section-3"] || [{}])];
-                                        const cards = [...(sec3[0].cardItem || [])];
-                                        cards[idx] = { ...cards[idx], icoUrl: url, icon: url, imageUrl: url, fileUrl: url };
-                                        sec3[0] = { ...sec3[0], cardItem: cards };
-                                        updateHome((prev) => ({ ...prev, "section-3": sec3 }));
-                                      }
-                                    } catch (err) {
-                                      console.error("Failed to upload icon:", err);
-                                    } finally {
-                                      setUploadingCard(null);
-                                      e.target.value = "";
-                                    }
-                                  }
+                            {/* Upload & Gallery Buttons */}
+                            <div className="flex flex-1 items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  openGalleryPicker((url) => {
+                                    const sec3 = [...(homeObj["section-3"] || [{}])];
+                                    const cards = [...(sec3[0].cardItem || [])];
+                                    cards[idx] = { ...cards[idx], icoUrl: url, icon: url, imageUrl: url, fileUrl: url };
+                                    sec3[0] = { ...sec3[0], cardItem: cards };
+                                    updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                                  }, "Choose Card Icon from Gallery");
                                 }}
-                                className="hidden"
-                              />
-                            </label>
+                                className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs cursor-pointer"
+                                title="Pick icon from Cloudinary Gallery"
+                              >
+                                <ImageIcon size={13} className="text-amber-600" />
+                                <span>Gallery</span>
+                              </button>
+
+                              <label className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition shadow-2xs">
+                                <UploadCloud size={13} className="text-[#1a5d9c]" />
+                                <span>{uploadingCard === `sec3-${idx}` ? "Uploading..." : "Upload"}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  disabled={uploadingCard === `sec3-${idx}`}
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      setUploadingCard(`sec3-${idx}`);
+                                      try {
+                                        const url = await uploadImage(file);
+                                        if (url) {
+                                          const sec3 = [...(homeObj["section-3"] || [{}])];
+                                          const cards = [...(sec3[0].cardItem || [])];
+                                          cards[idx] = { ...cards[idx], icoUrl: url, icon: url, imageUrl: url, fileUrl: url };
+                                          sec3[0] = { ...sec3[0], cardItem: cards };
+                                          updateHome((prev) => ({ ...prev, "section-3": sec3 }));
+                                        }
+                                      } catch (err) {
+                                        console.error("Failed to upload icon:", err);
+                                      } finally {
+                                        setUploadingCard(null);
+                                        e.target.value = "";
+                                      }
+                                    }
+                                  }}
+                                  className="hidden"
+                                />
+                              </label>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -2387,34 +2416,53 @@ export function HomeLayoutEditorModal({
                       <p className="text-[11px] text-slate-500">Upload multiple photos to display in the Student Life section masonry grid.</p>
                     </div>
 
-                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#124272] transition-colors shadow-sm">
-                      <Plus size={16} /> Add Image(s)
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={async (e) => {
-                          const files = Array.from(e.target.files || []);
-                          if (files.length === 0) return;
-                          const currentCards = [...(homeObj["section-7"]?.[0]?.cardItem || [])];
-                          for (const file of files) {
-                            const url = await uploadImage(file);
-                            if (url) {
-                              const autoTitle = file.name
-                                .replace(/\.[^/.]+$/, "")
-                                .replace(/[-_]/g, " ")
-                                .trim();
-                              currentCards.push({ title: autoTitle, fileUrl: url });
-                            }
-                          }
-                          const sec7 = [...(homeObj["section-7"] || [{}])];
-                          sec7[0] = { ...sec7[0], cardItem: currentCards };
-                          updateHome((prev) => ({ ...prev, "section-7": sec7 }));
-                          e.target.value = "";
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          openGalleryPicker((url) => {
+                            const currentCards = [...(homeObj["section-7"]?.[0]?.cardItem || [])];
+                            const autoTitle = "Gallery Photo";
+                            currentCards.push({ title: autoTitle, fileUrl: url });
+                            const sec7 = [...(homeObj["section-7"] || [{}])];
+                            sec7[0] = { ...sec7[0], cardItem: currentCards };
+                            updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                          }, "Select Photo for Student Life from Gallery");
                         }}
-                        className="hidden"
-                      />
-                    </label>
+                        className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
+                      >
+                        <ImageIcon size={15} className="text-amber-600" /> Choose from Gallery
+                      </button>
+
+                      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#124272] transition-colors shadow-sm">
+                        <Plus size={16} /> Add Image(s)
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={async (e) => {
+                            const files = Array.from(e.target.files || []);
+                            if (files.length === 0) return;
+                            const currentCards = [...(homeObj["section-7"]?.[0]?.cardItem || [])];
+                            for (const file of files) {
+                              const url = await uploadImage(file);
+                              if (url) {
+                                const autoTitle = file.name
+                                  .replace(/\.[^/.]+$/, "")
+                                  .replace(/[-_]/g, " ")
+                                  .trim();
+                                currentCards.push({ title: autoTitle, fileUrl: url });
+                              }
+                            }
+                            const sec7 = [...(homeObj["section-7"] || [{}])];
+                            sec7[0] = { ...sec7[0], cardItem: currentCards };
+                            updateHome((prev) => ({ ...prev, "section-7": sec7 }));
+                            e.target.value = "";
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
 
                   {cardsList.length === 0 ? (
@@ -3248,14 +3296,18 @@ export function HomeLayoutEditorModal({
       </AnimatePresence>
 
       <CloudinaryGalleryModal
-        isOpen={isGalleryOpen || Boolean(galleryPickerTarget)}
+        isOpen={isGalleryOpen || Boolean(galleryPickerTarget) || Boolean(galleryPickerCallback)}
         onClose={() => {
           setIsGalleryOpen(false);
           setGalleryPickerTarget(null);
+          setGalleryPickerCallback(null);
         }}
         onSelectImage={(url) => {
           if (url) {
-            if (galleryPickerTarget === "introVideo") {
+            if (galleryPickerCallback) {
+              galleryPickerCallback(url);
+              setGalleryPickerCallback(null);
+            } else if (galleryPickerTarget === "introVideo") {
               updateHome((prev: any) => {
                 const prevVid = prev["section-video"]?.[0] || {};
                 const prevSec8 = prev["section-8"]?.[0] || {};
@@ -3287,7 +3339,7 @@ export function HomeLayoutEditorModal({
             ? "Select Campus Intro Video from Gallery"
             : galleryPickerTarget === "videoPoster"
             ? "Select Video Poster Thumbnail from Gallery"
-            : "Select Image from Cloudinary Gallery"
+            : galleryTitle
         }
       />
     </div>

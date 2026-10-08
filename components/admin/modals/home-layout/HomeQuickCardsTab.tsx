@@ -31,6 +31,7 @@ interface HomeQuickCardsTabProps {
   moveTopArrayItem?: (key: string, index: number, dir: "up" | "down") => void;
   uploadImage?: (file: File) => Promise<string>;
   menuOptions?: { title: string; url: string }[];
+  onOpenGallery?: (onSelect: (url: string) => void, title?: string) => void;
 }
 
 export function HomeQuickCardsTab({
@@ -39,6 +40,7 @@ export function HomeQuickCardsTab({
   moveTopArrayItem,
   uploadImage,
   menuOptions = [],
+  onOpenGallery,
 }: HomeQuickCardsTabProps) {
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
 
@@ -212,21 +214,41 @@ export function HomeQuickCardsTab({
                       )}
                     </div>
 
-                    {/* Upload File Button */}
-                    <label className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition shadow-2xs">
-                      <UploadCloud size={14} className="text-[#1a5d9c]" />
-                      <span>{uploadingIdx === idx ? "Uploading..." : "Upload Image"}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        disabled={uploadingIdx === idx}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) void handleFileUpload(idx, file);
-                        }}
-                        className="hidden"
-                      />
-                    </label>
+                    {/* Gallery & Upload Buttons */}
+                    <div className="flex flex-1 items-center gap-1.5">
+                      {onOpenGallery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onOpenGallery((url) => {
+                              const cards = [...(homeObj.menuCard || [])];
+                              cards[idx] = { ...cards[idx], icoUrl: url, iconUrl: url, imageUrl: url, icon: url };
+                              updateHome((prev) => ({ ...prev, menuCard: cards }));
+                            }, "Select Card Icon from Gallery");
+                          }}
+                          className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs cursor-pointer"
+                          title="Pick existing icon from Cloudinary Gallery"
+                        >
+                          <ImageIcon size={13} className="text-amber-600" />
+                          <span>Gallery</span>
+                        </button>
+                      )}
+
+                      <label className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition shadow-2xs">
+                        <UploadCloud size={13} className="text-[#1a5d9c]" />
+                        <span>{uploadingIdx === idx ? "Uploading..." : "Upload"}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={uploadingIdx === idx}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) void handleFileUpload(idx, file);
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
 
