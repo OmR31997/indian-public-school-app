@@ -58,7 +58,6 @@ export function HomeLayoutEditorModal({
     | "sec8"
     | "sec9"
     | "sec10"
-    | "rawJson"
   >("header");
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadingCard, setUploadingCard] = useState<string | null>(null);
@@ -287,14 +286,7 @@ export function HomeLayoutEditorModal({
 
   const handleSave = () => {
     let finalVal = datasource;
-    if (activeTab === "rawJson") {
-      try {
-        finalVal = JSON.parse(jsonText);
-      } catch {
-        setUploadError("Invalid JSON syntax in Raw JSON Editor tab");
-        return;
-      }
-    }
+
 
     const homeList = Array.isArray(finalVal.home) ? [...finalVal.home] : [{}];
     const firstHome = { ...(homeList[0] || {}) };
@@ -629,7 +621,6 @@ export function HomeLayoutEditorModal({
             { id: "sec8", label: "Sec 7: Courses", icon: "bi-mortarboard-fill" },
             { id: "sec9", label: "Sec 8: Director Message", icon: "bi-person-badge-fill" },
             { id: "sec10", label: "Sec 9: News & Notices", icon: "bi-newspaper" },
-            { id: "rawJson", label: "Raw JSON", icon: "bi-code-slash" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -3091,20 +3082,6 @@ export function HomeLayoutEditorModal({
             </div>
           )}
 
-          {/* TAB: Raw JSON */}
-          {activeTab === "rawJson" && (
-            <div className="space-y-3">
-              <p className="text-xs font-semibold text-slate-500 flex items-center gap-2">
-                <i className="bi bi-code-slash text-[#1a5d9c]" /> Advanced Raw JSON Schema Editor for all sections
-              </p>
-              <textarea
-                rows={22}
-                value={jsonText}
-                onChange={(e) => setJsonText(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-900 p-4 font-mono text-xs text-emerald-400 outline-none leading-relaxed"
-              />
-            </div>
-          )}
         </div>
 
         {/* Modal Footer */}
