@@ -70,39 +70,7 @@
       "banner": {
         "fileUrls": []
       },
-      "section-1": [
-        {
-          "heading": "About Our School",
-          "subHeading": "Building Confident Learners for a Changing World",
-          "description": [
-            "Indian Public School is a co-educational CBSE school where academic rigour meets genuine care. Our classrooms are designed for enquiry rather than repetition, and our teachers know every child by name, strength and ambition.",
-            "From the earliest years to senior secondary, students are guided to think clearly, speak confidently, collaborate generously and act with integrity."
-          ],
-          "cardItem": [
-            {
-              "icoUrl": "",
-              "heading": "Our Mission",
-              "description": "To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child.",
-              "redirectUrl": "/about-us/mission-vision"
-            },
-            {
-              "icoUrl": "",
-              "heading": "Our Vision",
-              "description": "To be a school where academic excellence, character and creativity grow together — preparing students for a changing world.",
-              "redirectUrl": "/about-us/mission-vision"
-            }
-          ],
-          "btnLinkText": {
-            "text": "Discover Our Story",
-            "url": "/about-us/school-establishment"
-          },
-          "briefCard": [
-            {
-              "heading": "A green, purpose-built campus"
-            }
-          ]
-        }
-      ],
+      "section-1": [],
       "section-2": [
         {
           "count": "1000+",
