@@ -2196,18 +2196,20 @@ export function HomeLayoutEditorModal({
                 <div className="grid gap-3 sm:grid-cols-2">
                   {(Array.isArray(homeObj["section-6"]?.[0]?.cardItem) ? homeObj["section-6"][0].cardItem : []).map((infra: any, idx: number) => {
                     const cardImgUrl = infra.fileUrl || infra.imageUrl || infra.icoUrl || "";
+                    const displayImgUrl = cardImgUrl ? getAssetUrl(cardImgUrl) : "";
                     const isCardUploading = uploadingCard === `sec6-${idx}`;
 
                     return (
-                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2.5 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                      <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-3 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
                           <span className="text-[11px] font-bold text-slate-400">Facility #{idx + 1}</span>
                           <div className="flex items-center gap-1">
                             <button
                               type="button"
                               onClick={() => moveItemInSection("section-6", idx, "up")}
                               disabled={idx === 0}
-                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30 p-1"
+                              title="Move up"
                             >
                               <ArrowUp size={12} />
                             </button>
@@ -2215,14 +2217,16 @@ export function HomeLayoutEditorModal({
                               type="button"
                               onClick={() => moveItemInSection("section-6", idx, "down")}
                               disabled={idx === (homeObj["section-6"]?.[0]?.cardItem || []).length - 1}
-                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                              className="text-slate-400 hover:text-slate-700 disabled:opacity-30 p-1"
+                              title="Move down"
                             >
                               <ArrowDown size={12} />
                             </button>
                             <button
                               type="button"
                               onClick={() => deleteItemFromSection("section-6", idx)}
-                              className="text-red-500 hover:text-red-700"
+                              className="text-red-500 hover:text-red-700 p-1"
+                              title="Delete facility card"
                             >
                               <Trash2 size={12} />
                             </button>
@@ -2242,7 +2246,8 @@ export function HomeLayoutEditorModal({
                               sec6[0] = { ...sec6[0], cardItem: cards };
                               updateHome((prev) => ({ ...prev, "section-6": sec6 }));
                             }}
-                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                            placeholder="e.g. Science Labs"
                           />
                         </div>
 
@@ -2259,20 +2264,57 @@ export function HomeLayoutEditorModal({
                               sec6[0] = { ...sec6[0], cardItem: cards };
                               updateHome((prev) => ({ ...prev, "section-6": sec6 }));
                             }}
-                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none focus:border-[#1a5d9c]"
+                            className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs outline-none focus:border-[#1a5d9c]"
+                            placeholder="e.g. Physics, chemistry and biology labs."
                           />
                         </div>
 
-                        {/* Image Preview & Upload Button */}
-                        <div className="space-y-1.5 pt-1">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Image Path / URL (Disabled)</label>
+                          <input
+                            type="text"
+                            value={cardImgUrl}
+                            disabled
+                            readOnly
+                            placeholder="No image attached"
+                            className="w-full rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-mono text-slate-500 cursor-not-allowed outline-none select-all"
+                          />
+                        </div>
+
+                        {/* Linked Image Preview & Actions */}
+                        <div className="space-y-2 pt-1">
+                          <label className="text-[10px] font-bold text-slate-500 block">Attached Facility Image</label>
                           {cardImgUrl ? (
-                            <div className="relative h-28 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
+                            <div className="relative h-36 w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-900 group shadow-2xs">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
-                                src={cardImgUrl}
-                                alt={infra.title || "Facility"}
-                                className="h-full w-full object-cover"
+                                src={displayImgUrl}
+                                alt={infra.title || "Campus Facility"}
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "/assets/Album/ClassRoom.webp";
+                                }}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                               />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <div className="absolute top-2 left-2 rounded-md bg-black/65 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-white flex items-center gap-1 shadow-sm">
+                                <ImageIcon size={10} className="text-amber-400" /> Attached Image
+                              </div>
+                              <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    openGalleryPicker((url) => {
+                                      const sec6 = [...(homeObj["section-6"] || [{}])];
+                                      const cards = [...(sec6[0].cardItem || [])];
+                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                      sec6[0] = { ...sec6[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                                    }, `Choose Image for ${infra.title || "Facility"}`);
+                                  }}
+                                  className="rounded-md bg-amber-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-amber-700 flex items-center gap-1 shadow-sm cursor-pointer"
+                                >
+                                  <ImageIcon size={11} /> Gallery
+                                </button>
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -2282,50 +2324,74 @@ export function HomeLayoutEditorModal({
                                     sec6[0] = { ...sec6[0], cardItem: cards };
                                     updateHome((prev) => ({ ...prev, "section-6": sec6 }));
                                   }}
-                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
+                                  className="rounded-md bg-rose-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm cursor-pointer"
                                 >
                                   <Trash2 size={11} /> Remove
                                 </button>
                               </div>
                             </div>
-                          ) : null}
+                          ) : (
+                            <div className="flex h-24 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400">
+                              <ImageIcon size={20} className="text-slate-300 mb-1" />
+                              <span className="text-[11px] font-medium">No image attached</span>
+                            </div>
+                          )}
 
-                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
-                            {isCardUploading ? (
-                              <>
-                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
-                              </>
-                            ) : (
-                              <>
-                                <UploadCloud size={13} /> {cardImgUrl ? "Change Image" : "Upload Image"}
-                              </>
-                            )}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              disabled={isCardUploading}
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setUploadingCard(`sec6-${idx}`);
-                                  try {
-                                    const url = await uploadImage(file);
-                                    if (url) {
-                                      const sec6 = [...(homeObj["section-6"] || [{}])];
-                                      const cards = [...(sec6[0].cardItem || [])];
-                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
-                                      sec6[0] = { ...sec6[0], cardItem: cards };
-                                      updateHome((prev) => ({ ...prev, "section-6": sec6 }));
-                                    }
-                                  } finally {
-                                    setUploadingCard(null);
-                                    e.target.value = "";
-                                  }
-                                }
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                openGalleryPicker((url) => {
+                                  const sec6 = [...(homeObj["section-6"] || [{}])];
+                                  const cards = [...(sec6[0].cardItem || [])];
+                                  cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                  sec6[0] = { ...sec6[0], cardItem: cards };
+                                  updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                                }, `Choose Image for ${infra.title || "Facility"}`);
                               }}
-                              className="hidden"
-                            />
-                          </label>
+                              className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-amber-300 bg-amber-50 py-1.5 text-[11px] font-bold text-amber-800 hover:bg-amber-100 transition-colors shadow-2xs"
+                              title="Choose existing photo from Cloudinary Gallery"
+                            >
+                              <ImageIcon size={13} className="text-amber-600" /> Choose from Gallery
+                            </button>
+
+                            <label className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
+                              {isCardUploading ? (
+                                <>
+                                  <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                                </>
+                              ) : (
+                                <>
+                                  <UploadCloud size={13} /> {cardImgUrl ? "Change Upload" : "Upload Image"}
+                                </>
+                              )}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                disabled={isCardUploading}
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setUploadingCard(`sec6-${idx}`);
+                                    try {
+                                      const url = await uploadImage(file);
+                                      if (url) {
+                                        const sec6 = [...(homeObj["section-6"] || [{}])];
+                                        const cards = [...(sec6[0].cardItem || [])];
+                                        cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                        sec6[0] = { ...sec6[0], cardItem: cards };
+                                        updateHome((prev) => ({ ...prev, "section-6": sec6 }));
+                                      }
+                                    } finally {
+                                      setUploadingCard(null);
+                                      e.target.value = "";
+                                    }
+                                  }
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
                         </div>
                       </div>
                     );
