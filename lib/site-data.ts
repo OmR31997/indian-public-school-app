@@ -203,7 +203,7 @@ export async function getSiteData(): Promise<SiteData> {
     getOptionalApi<SiteLogoSetting | { value?: SiteLogoSetting }>("/school-settings/key/site_logo"),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/news", { limit: 10, page: 1, sortOrder: "desc" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/gallery", { limit: 50, page: 1, sortOrder: "desc" }),
-    getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/reviews", { limit: 12, page: 1, sortOrder: "desc" }),
+    getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/reviews", { limit: 12, page: 1, sortOrder: "desc", isApproved: "true" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/menu-items", { publishedOnly: "true" }),
   ]);
   const siteData = siteResponse ? unwrapSetting<SiteData>(siteResponse) : fallback;
