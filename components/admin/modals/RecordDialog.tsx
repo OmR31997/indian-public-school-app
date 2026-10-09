@@ -745,22 +745,58 @@ export function RecordDialog({
                 ) : type === "select" ? (
                   (() => {
                     const isGalleryEventType = resource.key === "gallery" && field === "eventType";
+                    const isGalleryDirectory = resource.key === "gallery" && field === "directory";
                     const currentVal = String(values[field] ?? "");
+
+                    const getAutoEventType = (dir: string): string => {
+                      if (!dir) return "";
+                      const clean = dir.trim();
+                      if (clean === "Settings/Icons" || clean.endsWith("/Icons") || clean.toLowerCase() === "icons") return "Icons";
+                      if (clean === "Settings/Logos" || clean.endsWith("/Logos") || clean.toLowerCase() === "logos") return "Logos";
+                      if (clean === "Settings/Home" || clean.endsWith("/Home") || clean.toLowerCase() === "home") return "Home";
+                      if (clean.startsWith("Settings")) return "Settings";
+                      if (clean === "Documents/Admission") return "AdmissionDocuments";
+                      if (clean.startsWith("Documents")) return "Documents";
+                      if (clean.startsWith("Album/")) {
+                        const sub = clean.slice("Album/".length);
+                        if (sub) return sub;
+                      }
+                      if (clean === "Album") return "General";
+                      if (clean === "PressRelease") return "PressRelease";
+                      return clean;
+                    };
+
+                    const getAutoDirectory = (evt: string): string => {
+                      if (!evt) return "";
+                      if (evt === "Icons") return "Settings/Icons";
+                      if (evt === "Logos") return "Settings/Logos";
+                      if (evt === "Home") return "Settings/Home";
+                      if (evt === "Settings") return "Settings/Logos";
+                      if (evt === "Documents") return "Documents/General";
+                      if (evt === "AdmissionDocuments") return "Documents/Admission";
+                      if (evt === "News" || evt === "PressRelease") return "PressRelease";
+                      if (["Events", "Hostel", "Infrastructure", "Empowerment", "Competitions", "Partners", "Achievements", "Reviews", "Awareness", "Sports", "Activities", "Campus", "Arts"].includes(evt)) {
+                        return `Album/${evt}`;
+                      }
+                      if (evt === "General") return "Album";
+                      return evt;
+                    };
+
+                    const handleSelectDirectory = (val: string) => {
+                      setValue("directory", val);
+                      const autoEvt = getAutoEventType(val);
+                      if (autoEvt) {
+                        setValue("eventType", autoEvt);
+                      }
+                    };
 
                     const handleSelectEventType = (val: string) => {
                       setValue("eventType", val);
                       const currentDir = String(values["directory"] ?? "");
-                      if (!currentDir || currentDir === "/album/" || currentDir.startsWith("/album/") || currentDir.startsWith("indian-public-school/assets/")) {
-                        if (val === "Documents") {
-                          setValue("directory", "indian-public-school/assets/Documents");
-                        } else if (val === "News") {
-                          setValue("directory", "indian-public-school/assets/News");
-                        } else if (val === "Infrastructure") {
-                          setValue("directory", "indian-public-school/assets/Infrastructure");
-                        } else if (val === "Settings") {
-                          setValue("directory", "indian-public-school/assets/Settings");
-                        } else {
-                          setValue("directory", `/album/${val}`);
+                      if (!currentDir) {
+                        const autoDir = getAutoDirectory(val);
+                        if (autoDir) {
+                          setValue("directory", autoDir);
                         }
                       }
                     };
@@ -774,7 +810,9 @@ export function RecordDialog({
                           value={currentVal}
                           onChange={(event) => {
                             const val = event.target.value;
-                            if (isGalleryEventType) {
+                            if (isGalleryDirectory) {
+                              handleSelectDirectory(val);
+                            } else if (isGalleryEventType) {
                               handleSelectEventType(val);
                             } else {
                               setValue(field, val);

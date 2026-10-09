@@ -239,7 +239,7 @@ export const RESOURCE_FILTERS: Record<string, { label: string; key: string; opti
     { label: "Status", key: "status", options: ["All", "New", "In Progress", "Contacted", "Resolved", "Closed"] },
   ],
   gallery: [
-    { label: "Event Type", key: "eventType", options: ["All", "General", "Settings", "AdmissionDocuments", "Documents", "News", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Awareness", "Celebration", "Academic", "Infrastructure"] },
+    { label: "Event Type", key: "eventType", options: ["All", "General", "Settings", "Icons", "Logos", "Home", "AdmissionDocuments", "Documents", "News", "Campus", "Events", "Sports", "Activities", "Hostel", "Arts", "Awareness", "Celebration", "Academic", "Infrastructure"] },
     {
       label: "Directory",
       key: "directory",
@@ -258,6 +258,7 @@ export const RESOURCE_FILTERS: Record<string, { label: string; key: string; opti
         "PressRelease",
         "Settings/Logos",
         "Settings/Home",
+        "Settings/Icons",
         "Documents/General",
         "Documents/Admission",
         "Student",

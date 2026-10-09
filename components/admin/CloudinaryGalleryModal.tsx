@@ -182,16 +182,22 @@ export function CloudinaryGalleryModal({
     try {
       const formData = new FormData();
       formData.append("file", file);
+      const isIconsCategory = activeCategory === "Icons" || activeCategory === "Settings/Icons";
+      const isLogosCategory = activeCategory === "Logos" || activeCategory === "Settings/Logos";
       const isSettingsCategory = activeCategory && (activeCategory.toLowerCase().includes("setting") || activeCategory === "Settings");
-      formData.append("album", isSettingsCategory ? "Settings" : activeCategory === "AdmissionDocuments" ? "Admission" : "Visual Editor Picked");
+      formData.append("album", isIconsCategory || isLogosCategory || isSettingsCategory ? "Settings" : activeCategory === "AdmissionDocuments" ? "Admission" : "Visual Editor Picked");
       if (activeCategory && activeCategory !== "All") {
         formData.append(
           "folder",
-          isSettingsCategory
-            ? "Settings/Home"
-            : activeCategory === "AdmissionDocuments"
-              ? "Documents/Admission"
-              : activeCategory
+          isIconsCategory
+            ? "Settings/Icons"
+            : isLogosCategory
+              ? "Settings/Logos"
+              : isSettingsCategory
+                ? "Settings/Home"
+                : activeCategory === "AdmissionDocuments"
+                  ? "Documents/Admission"
+                  : activeCategory
         );
       }
 
@@ -288,6 +294,8 @@ export function CloudinaryGalleryModal({
 
     categoryMap.set("all", "All");
     categoryMap.set("settings", "Settings");
+    categoryMap.set("icons", "Icons");
+    categoryMap.set("logos", "Logos");
     categoryMap.set("admissiondocuments", "AdmissionDocuments");
 
     mediaList.forEach((m) => {
