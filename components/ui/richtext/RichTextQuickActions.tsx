@@ -123,9 +123,9 @@ export const RichTextQuickActions: React.FC<RichTextQuickActionsProps> = ({
                 )}
 
                 {/* Quick Resizes */}
-                <span className={`text-[10px] font-extrabold uppercase ${(!selectedBlockEl && !selectedImageEl) ? "text-slate-400" : "text-blue-800"}`}>Width:</span>
+                <span className={`text-[10px] font-extrabold uppercase ${(!selectedBlockEl && !selectedImageEl && !selectedTableEl) ? "text-slate-400" : "text-blue-800"}`}>Width:</span>
                 {[25, 50, 75, 100].map((pct) => {
-                    const isDisabled = !selectedBlockEl && !selectedImageEl;
+                    const isDisabled = !selectedBlockEl && !selectedImageEl && !selectedTableEl;
                     return (
                         <button
                             key={pct}
@@ -134,10 +134,13 @@ export const RichTextQuickActions: React.FC<RichTextQuickActionsProps> = ({
                             onClick={() => {
                                 const iframe = iframeRef.current;
                                 const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
-                                const target = selectedBlockEl || selectedImageEl || (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) || (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement);
+                                const target = selectedTableEl || selectedBlockEl || selectedImageEl || (doc?.querySelector(".wysiwyg-selected-block") as HTMLElement) || (doc?.querySelector("img.wysiwyg-selected-img") as HTMLElement);
                                 if (target) {
                                     target.style.width = pct === 100 ? "100%" : `${pct}%`;
                                     target.style.maxWidth = "100%";
+                                    if (target.tagName === "TABLE" && pct < 100 && target.style.marginLeft === "auto" && target.style.marginRight === "auto") {
+                                        target.style.display = "table";
+                                    }
                                     syncIframeToState();
                                 }
                             }}
@@ -146,7 +149,7 @@ export const RichTextQuickActions: React.FC<RichTextQuickActionsProps> = ({
                                     ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 cursor-not-allowed"
                                     : "border-blue-200 bg-white text-slate-700 hover:bg-blue-100 cursor-pointer"
                             }`}
-                            title={isDisabled ? "Not Allowed / Not Applicable — Select a block box or image first" : `Quick resize width to ${pct}%`}
+                            title={isDisabled ? "Not Allowed / Not Applicable — Select a block box, table, or image first" : `Quick resize width to ${pct}%`}
                         >
                             {pct}%
                         </button>
@@ -156,20 +159,20 @@ export const RichTextQuickActions: React.FC<RichTextQuickActionsProps> = ({
                 <div className="h-4 w-px bg-blue-200 mx-0.5" />
 
                 {/* Alignment */}
-                <span className={`text-[10px] font-extrabold uppercase ${!selectedImageEl ? "text-slate-400" : "text-blue-800"}`}>Align:</span>
+                <span className={`text-[10px] font-extrabold uppercase ${(!selectedImageEl && !selectedTableEl && !selectedBlockEl) ? "text-slate-400" : "text-blue-800"}`}>Align:</span>
                 {[
-                    { align: "left" as const, Icon: AlignLeft, title: "Float Left Wrap" },
-                    { align: "center" as const, Icon: AlignCenter, title: "Center Block" },
-                    { align: "right" as const, Icon: AlignRight, title: "Float Right Wrap" },
+                    { align: "left" as const, Icon: AlignLeft, title: "Left / Float Left" },
+                    { align: "center" as const, Icon: AlignCenter, title: "Center Table / Component" },
+                    { align: "right" as const, Icon: AlignRight, title: "Right / Float Right" },
                 ].map(({ align, Icon, title }) => {
-                    const isDisabled = !selectedImageEl;
+                    const isDisabled = !selectedImageEl && !selectedTableEl && !selectedBlockEl;
                     return (
                         <button
                             key={align}
                             type="button"
                             disabled={isDisabled}
                             onClick={() => applyImageAlignment(align)}
-                            title={isDisabled ? "Not Allowed / Not Applicable — Select an inserted image first" : title}
+                            title={isDisabled ? "Not Allowed / Not Applicable — Select an image, table, or component block first" : title}
                             className={`rounded-lg border p-1 transition ${
                                 isDisabled
                                     ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 cursor-not-allowed"
@@ -312,6 +315,32 @@ export const RichTextQuickActions: React.FC<RichTextQuickActionsProps> = ({
                         <span className="text-[11px] font-extrabold text-indigo-950 flex items-center gap-1">
                             <Table size={13} className="text-indigo-600" /> Table Actions:
                         </span>
+                        <div className="flex items-center gap-1 bg-white border border-indigo-200 rounded-lg p-0.5">
+                            <button
+                                type="button"
+                                onClick={() => applyImageAlignment("left")}
+                                className="rounded px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 hover:bg-indigo-100 transition cursor-pointer flex items-center gap-1"
+                                title="Align Table Left"
+                            >
+                                <AlignLeft size={12} /> Left
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => applyImageAlignment("center")}
+                                className="rounded px-1.5 py-0.5 text-[10px] font-extrabold bg-indigo-600 text-white hover:bg-indigo-700 transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                                title="Center Table on Page"
+                            >
+                                <AlignCenter size={12} /> Center Table
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => applyImageAlignment("right")}
+                                className="rounded px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 hover:bg-indigo-100 transition cursor-pointer flex items-center gap-1"
+                                title="Align Table Right"
+                            >
+                                <AlignRight size={12} /> Right
+                            </button>
+                        </div>
                         <button
                             type="button"
                             onClick={addTableRowAbove}

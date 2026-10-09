@@ -85,10 +85,10 @@ export function CareersView() {
       const list = Array.isArray(body.data)
         ? body.data
         : Array.isArray(body.items)
-        ? body.items
-        : Array.isArray(body)
-        ? body
-        : [];
+          ? body.items
+          : Array.isArray(body)
+            ? body
+            : [];
       setPosts(list);
     } catch (err) {
       console.error("Failed to load active career openings:", err);
@@ -334,7 +334,6 @@ export function CareersView() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-[var(--navy)] dark:text-white flex items-center gap-2 font-[var(--font-display)]">
-              <Briefcase className="w-5 h-5 text-[var(--primary)]" />
               Open Positions ({filteredPosts.length})
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
