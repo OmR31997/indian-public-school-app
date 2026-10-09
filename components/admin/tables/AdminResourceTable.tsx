@@ -286,7 +286,7 @@ export function HeaderFooterSettingsCard({
   items: RecordItem[];
   onSaveComplete: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<"logo" | "certified" | "trust" | "partner">("logo");
+  const [activeTab, setActiveTab] = useState<"certified" | "trust" | "partner">("certified");
   const [galleryPickerField, setGalleryPickerField] = useState<"logoUrl" | "secondaryLogoUrl" | "badgeUrl" | "trustLogoUrl" | "partnerLogoUrl" | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -623,7 +623,7 @@ export function HeaderFooterSettingsCard({
             <h3 className="font-display text-xl font-bold text-[#102a4c]">Header & Footer Branding Settings</h3>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Configure School Logo, Certified Board info, and Trust Board details. Applied automatically if present.
+            Configure Certified Board info, Trust Board details, and Academic Partner. Applied automatically if present.
           </p>
         </div>
         <button
@@ -653,14 +653,6 @@ export function HeaderFooterSettingsCard({
 
       {/* Tabs Switcher */}
       <div className="mt-5 flex flex-wrap gap-2 border-b border-slate-100 pb-4">
-        <button
-          type="button"
-          onClick={() => setActiveTab("logo")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-        >
-          <UploadCloud size={15} /> School Logo
-        </button>
         <button
           type="button"
           onClick={() => setActiveTab("certified")}
@@ -693,101 +685,7 @@ export function HeaderFooterSettingsCard({
         </div>
       )}
 
-      {/* Tab 1: Logo */}
-      {activeTab === "logo" && (
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Primary Logo Image</label>
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  placeholder="https://res.cloudinary.com/... or /assets/logo.png"
-                  value={siteLogo.logoUrl}
-                  onChange={(e) => setSiteLogo((p) => ({ ...p, logoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
-                />
-                <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
-                  {uploadingSetting === "logoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
-                  <span>{uploadingSetting === "logoUrl" ? "Uploading…" : "Upload"}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleDirectSettingFileUpload("logoUrl", file);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setGalleryPickerField("logoUrl")}
-                  className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
-                >
-                  Gallery
-                </button>
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Secondary / Foundation Logo Image</label>
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  placeholder="/assets/Settings/Logos/AakashFoundationLogo.png"
-                  value={siteLogo.secondaryLogoUrl}
-                  onChange={(e) => setSiteLogo((p) => ({ ...p, secondaryLogoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
-                />
-                <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
-                  {uploadingSetting === "secondaryLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
-                  <span>{uploadingSetting === "secondaryLogoUrl" ? "Uploading…" : "Upload"}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleDirectSettingFileUpload("secondaryLogoUrl", file);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setGalleryPickerField("secondaryLogoUrl")}
-                  className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
-                >
-                  Gallery
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Live Header Preview</span>
-            <div className="flex items-center justify-center gap-3 rounded-2xl bg-white p-4 text-slate-900 shadow-sm border border-slate-200 min-w-[280px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={imageUrl(siteLogo.logoUrl || DEFAULT_LOGO)}
-                alt="Main Logo"
-                className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imageUrl(DEFAULT_LOGO); }}
-              />
-              <div className="h-6 w-[1.5px] bg-slate-300 rounded-full" aria-hidden="true" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={imageUrl(siteLogo.secondaryLogoUrl || DEFAULT_SECONDARY_LOGO)}
-                alt="Aakash Foundation Logo"
-                className="h-7 md:h-8 w-auto object-contain"
-                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imageUrl(DEFAULT_SECONDARY_LOGO); }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Tab 2: Certified Board */}
       {activeTab === "certified" && (
@@ -1392,7 +1290,7 @@ export function ResourceView({
                         {(canEdit || canDelete || isMediaResource || rowPreviewUrl) && (
                           <td className="whitespace-nowrap px-5 py-4">
                             <div className="flex items-center justify-end gap-1">
-                              {rowPreviewUrl && (
+                              {rowPreviewUrl && item.key !== "site_logo" && (
                                 <a
                                   href={rowPreviewUrl}
                                   target="_blank"
@@ -1403,14 +1301,16 @@ export function ResourceView({
                                   <ExternalLink size={16} />
                                 </a>
                               )}
-                              <button
-                                onClick={() => setDetailItem(item)}
-                                className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
-                                title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
-                              >
-                                <Eye size={16} />
-                              </button>
-                              {canEdit && (
+                              {item.key !== "site_logo" && (
+                                <button
+                                  onClick={() => setDetailItem(item)}
+                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
+                                  title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
+                                >
+                                  <Eye size={16} />
+                                </button>
+                              )}
+                              {canEdit && item.key !== "site_logo" && (
                                 <button
                                   onClick={() => onEdit(item)}
                                   className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
