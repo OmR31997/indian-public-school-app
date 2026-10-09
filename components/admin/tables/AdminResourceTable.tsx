@@ -1409,7 +1409,7 @@ export function ResourceView({
                               >
                                 <Eye size={16} />
                               </button>
-                              {canEdit && item.key !== "site_logo" && item.key !== "site_datasource" && (
+                              {canEdit && (
                                 <button
                                   onClick={() => onEdit(item)}
                                   className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
@@ -1511,7 +1511,7 @@ export function ResourceView({
             item={detailItem}
             resource={resource}
             onClose={() => setDetailItem(null)}
-            onEdit={canEdit && detailItem.key !== "site_logo" && detailItem.key !== "site_datasource" ? () => onEdit(detailItem) : undefined}
+            onEdit={canEdit ? () => onEdit(detailItem) : undefined}
             onDelete={canDelete && !(resource.key === "users" && isSuperAdminRole(detailItem.role)) ? () => onDelete(detailItem) : undefined}
           />
         )

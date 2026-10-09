@@ -437,7 +437,7 @@ export function MediaDetailDialog({
             </div>
 
             <div className="flex items-center gap-2">
-              {onEdit && item.key !== "site_logo" && (
+              {onEdit && (
                 <button
                   type="button"
                   onClick={() => {

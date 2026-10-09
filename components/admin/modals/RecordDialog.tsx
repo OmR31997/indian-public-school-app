@@ -56,7 +56,7 @@ export function RecordDialog({
   onClearError?: () => void;
   onSave: (value: Record<string, unknown>, options?: { keepOpen?: boolean }) => void | Promise<void>;
 }) {
-  if (resource.key === "school-settings" && (record?.key === "site_datasource" || !record)) {
+  if (resource.key === "school-settings") {
     return (
       <HomeLayoutEditorModal
         token={token}
