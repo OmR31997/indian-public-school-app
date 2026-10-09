@@ -1530,18 +1530,9 @@ export function HomeLayoutEditorModal({
                       className="flex-1 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 px-3 py-2 text-xs font-semibold outline-none cursor-not-allowed select-all"
                     />
 
-                    <button
-                      type="button"
-                      onClick={() => setIsGalleryOpen(true)}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-800 px-3.5 py-2 text-xs font-bold text-white hover:bg-slate-900 transition cursor-pointer shrink-0 shadow-2xs"
-                    >
-                      <ImageIcon size={14} />
-                      <span>Choose from Gallery</span>
-                    </button>
-
-                    <label className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition cursor-pointer shrink-0 shadow-2xs">
-                      <UploadCloud size={16} />
-                      <span>{uploading ? "Uploading..." : "Upload File"}</span>
+                    <label className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#1a5d9c] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition cursor-pointer shrink-0 shadow-2xs">
+                      {uploading ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                      <span>{uploading ? "Uploading…" : "Upload"}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -1555,6 +1546,15 @@ export function HomeLayoutEditorModal({
                         }}
                       />
                     </label>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsGalleryOpen(true)}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shrink-0 shadow-2xs"
+                    >
+                      <ImageIcon size={14} className="text-amber-500" />
+                      <span>Gallery</span>
+                    </button>
                   </div>
                 </div>
 

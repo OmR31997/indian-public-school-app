@@ -27,6 +27,7 @@ import {
   ShieldCheck,
   Sparkles,
   ExternalLink,
+  Image,
 } from "lucide-react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
@@ -286,7 +287,7 @@ export function HeaderFooterSettingsCard({
   items: RecordItem[];
   onSaveComplete: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<"certified" | "trust" | "partner">("certified");
+  const [activeTab, setActiveTab] = useState<"logo" | "certified" | "trust" | "partner">("logo");
   const [galleryPickerField, setGalleryPickerField] = useState<"logoUrl" | "secondaryLogoUrl" | "badgeUrl" | "trustLogoUrl" | "partnerLogoUrl" | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -655,6 +656,14 @@ export function HeaderFooterSettingsCard({
       <div className="mt-5 flex flex-wrap gap-2 border-b border-slate-100 pb-4">
         <button
           type="button"
+          onClick={() => setActiveTab("logo")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+        >
+          <Image size={15} /> School Logo & Header
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab("certified")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
@@ -685,7 +694,131 @@ export function HeaderFooterSettingsCard({
         </div>
       )}
 
+      {/* Tab 1: Logo & Header Branding */}
+      {activeTab === "logo" && (
+        <div className="mt-5 grid gap-6 sm:grid-cols-2">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Primary Logo Image (Banner / IPS Logo)</label>
+              <div className="mt-1 flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="/Settings/Logos/IPSLogo.png or BannerLogo.png"
+                  value={siteLogo.logoUrl}
+                  onChange={(e) => setSiteLogo((p) => ({ ...p, logoUrl: e.target.value }))}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+                />
+                <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
+                  {uploadingSetting === "logoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                  <span>{uploadingSetting === "logoUrl" ? "Uploading…" : "Upload"}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleDirectSettingFileUpload("logoUrl", file);
+                    }}
+                    className="hidden"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setGalleryPickerField("logoUrl")}
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                >
+                  <Image size={14} className="text-amber-500" />
+                  <span>Gallery</span>
+                </button>
+              </div>
+            </div>
 
+            <div>
+              <label className="block text-xs font-bold text-slate-700">Secondary / Foundation Logo Image</label>
+              <div className="mt-1 flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="/Settings/Logos/AakashFoundationLogo.png"
+                  value={siteLogo.secondaryLogoUrl}
+                  onChange={(e) => setSiteLogo((p) => ({ ...p, secondaryLogoUrl: e.target.value }))}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+                />
+                <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
+                  {uploadingSetting === "secondaryLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                  <span>{uploadingSetting === "secondaryLogoUrl" ? "Uploading…" : "Upload"}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleDirectSettingFileUpload("secondaryLogoUrl", file);
+                    }}
+                    className="hidden"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setGalleryPickerField("secondaryLogoUrl")}
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                >
+                  <Image size={14} className="text-amber-500" />
+                  <span>Gallery</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-1">
+              <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 select-none">
+                <input
+                  type="checkbox"
+                  checked={siteLogo.showSecondaryLogo !== false}
+                  onChange={(e) => setSiteLogo((p) => ({ ...p, showSecondaryLogo: e.target.checked }))}
+                  className="h-4 w-4 rounded-md border-slate-300 text-[#1a5d9c] focus:ring-[#1a5d9c]"
+                />
+                Show Secondary / Foundation Logo in Header
+              </label>
+            </div>
+
+
+          </div>
+
+          <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Live Header Logo Branding Preview</span>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs flex items-center justify-between gap-3 overflow-x-auto">
+              <div className="flex items-center gap-3 shrink-0">
+                {siteLogo.logoUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={imageUrl(siteLogo.logoUrl)}
+                    alt="Primary Logo Preview"
+                    className="h-10 max-h-12 w-auto object-contain"
+                  />
+                ) : (
+                  <div className="font-bold text-sm text-[#102a4c]">
+                    {siteLogo.logoText || "Indian Public School"}
+                  </div>
+                )}
+
+                {siteLogo.showSecondaryLogo !== false && siteLogo.secondaryLogoUrl && (
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="h-7 w-[1.5px] bg-slate-200 rounded-full" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageUrl(siteLogo.secondaryLogoUrl)}
+                      alt="Secondary Logo Preview"
+                      className="h-8 max-h-10 w-auto object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-500 italic">
+              This preview shows how your site logo banner &amp; optional foundation logo will appear in the main navigation bar.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Tab 2: Certified Board */}
       {activeTab === "certified" && (
@@ -735,9 +868,10 @@ export function HeaderFooterSettingsCard({
                 <button
                   type="button"
                   onClick={() => setGalleryPickerField("badgeUrl")}
-                  className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
                 >
-                  Gallery
+                  <Image size={14} className="text-amber-500" />
+                  <span>Gallery</span>
                 </button>
               </div>
             </div>
@@ -811,9 +945,10 @@ export function HeaderFooterSettingsCard({
                 <button
                   type="button"
                   onClick={() => setGalleryPickerField("trustLogoUrl")}
-                  className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
                 >
-                  Gallery
+                  <Image size={14} className="text-amber-500" />
+                  <span>Gallery</span>
                 </button>
               </div>
             </div>
@@ -898,9 +1033,10 @@ export function HeaderFooterSettingsCard({
                 <button
                   type="button"
                   onClick={() => setGalleryPickerField("partnerLogoUrl")}
-                  className="inline-flex items-center gap-1 shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
                 >
-                  Gallery
+                  <Image size={14} className="text-amber-500" />
+                  <span>Gallery</span>
                 </button>
               </div>
             </div>
