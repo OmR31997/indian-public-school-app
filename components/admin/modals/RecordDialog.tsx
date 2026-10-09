@@ -31,7 +31,7 @@ import { toCleanRelativeAssetPath, getAssetUrl } from "@/lib/utils";
 import { HomeLayoutEditorModal } from "./HomeLayoutEditorModal";
 import { Resource, RecordItem } from "../types/admin.types";
 import { API_URL, resources } from "../config/admin.config";
-import { isRequiredField, isSuperAdminRole, itemId, titleCase } from "../utils/admin.helpers";
+import { asPaginatedPayload, isRequiredField, isSuperAdminRole, itemId, titleCase } from "../utils/admin.helpers";
 
 export function RecordDialog({
   token,
@@ -103,6 +103,40 @@ export function RecordDialog({
     step: "preparing",
   });
   const [galleryPickerField, setGalleryPickerField] = useState<string | null>(null);
+
+  const [publishedPagesState, setPublishedPagesState] = useState<RecordItem[]>([]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    axios
+      .get(`${API_URL}/pages/published`)
+      .then((res) => {
+        const parsed = asPaginatedPayload(res.data);
+        if (isMounted && Array.isArray(parsed.items) && parsed.items.length > 0) {
+          setPublishedPagesState(parsed.items);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const effectiveSectionPages = React.useMemo(() => {
+    const pageMap = new Map<string, RecordItem>();
+    (allSectionPages || []).forEach((p) => {
+      const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
+      if (id) pageMap.set(id, p);
+    });
+    (publishedPagesState || []).forEach((p) => {
+      const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
+      if (id) {
+        const existing = pageMap.get(id) || {};
+        pageMap.set(id, { ...existing, ...p, isPublished: true });
+      }
+    });
+    return Array.from(pageMap.values());
+  }, [allSectionPages, publishedPagesState]);
 
   const setValue = (field: string, value: unknown) => {
     if (onClearError && formError) onClearError();
@@ -456,7 +490,7 @@ export function RecordDialog({
                       className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-sm font-semibold text-slate-800 outline-none transition hover:border-slate-300 focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer"
                     >
                       <option value="">-- None (Root Level 1 Item) --</option>
-                      {(resource.key === "menu-items" ? allMenuItems : allSectionPages)
+                      {(resource.key === "menu-items" ? allMenuItems : effectiveSectionPages)
                         .filter((item) => itemId(item) !== (record ? itemId(record) : ""))
                         .filter(
                           (item, idx, arr) =>
@@ -493,10 +527,13 @@ export function RecordDialog({
 
                     const pagesMap = new Map<string, string>();
                     defaultSitePages.forEach((p) => pagesMap.set(p.url, p.title));
-                    allSectionPages.forEach((p) => {
+                    effectiveSectionPages.forEach((p) => {
                       const isPublished = p.isPublished !== false && p.isPublished !== "false";
                       if (!isPublished) return;
-                      const pageUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
+                      let pageUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
+                      if (pageUrl && !pageUrl.startsWith("/") && !pageUrl.startsWith("http")) {
+                        pageUrl = `/${pageUrl}`;
+                      }
                       if (pageUrl) {
                         pagesMap.set(pageUrl, String(p.title || pageUrl));
                       }

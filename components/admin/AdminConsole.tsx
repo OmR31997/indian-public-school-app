@@ -213,8 +213,19 @@ export function AdminConsole() {
     }
   }, [token]);
 
+  const fetchPublishedPages = useCallback(() => {
+    axios
+      .get(`${API_URL}/pages/published`)
+      .then((res) => {
+        const parsed = asPaginatedPayload(res.data);
+        setPublishedPages(parsed.items);
+      })
+      .catch(() => { });
+  }, []);
+
   const refresh = useCallback(async () => {
     setLoading(true); setError("");
+    fetchPublishedPages();
     const readable = resources.filter((resource) => (resource.key !== "users" || token) && canAccessResource(resource.key));
     const results = await Promise.allSettled(readable.map((resource) => fetchResource(resource.key)));
     const networkFailures = results.filter(
@@ -224,7 +235,7 @@ export function AdminConsole() {
       setError("Cannot connect to backend API server. Check that the API is running on http://localhost:5000.");
     }
     setLoading(false);
-  }, [fetchResource, token, canAccessResource]);
+  }, [fetchResource, token, canAccessResource, fetchPublishedPages]);
 
   // Notification Hook (SOLID Architecture & Smart Load Optimization)
   const {
@@ -252,28 +263,25 @@ export function AdminConsole() {
   const [publishedPages, setPublishedPages] = useState<RecordItem[]>([]);
 
   useEffect(() => {
-    axios
-      .get(`${API_URL}/pages/published`)
-      .then((res) => {
-        const items = Array.isArray(res.data) ? res.data : Array.isArray(res.data?.items) ? res.data.items : [];
-        if (items.length > 0) setPublishedPages(items);
-      })
-      .catch(() => { });
-  }, []);
+    fetchPublishedPages();
+  }, [fetchPublishedPages]);
 
   const combinedPages = useMemo(() => {
     const pageMap = new Map<string, RecordItem>();
     (((fallbackSiteData as any).pages as RecordItem[]) || []).forEach((p) => {
       const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
-      if (id) pageMap.set(id, p);
-    });
-    (publishedPages || []).forEach((p) => {
-      const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
-      if (id) pageMap.set(id, p);
+      if (id) pageMap.set(id, { ...p, isPublished: true });
     });
     (data.pages || []).forEach((p) => {
       const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
       if (id) pageMap.set(id, p);
+    });
+    (publishedPages || []).forEach((p) => {
+      const id = String(p.slug || p.targetUrl || p._id || p.publicId || "");
+      if (id) {
+        const existing = pageMap.get(id) || {};
+        pageMap.set(id, { ...existing, ...p, isPublished: true });
+      }
     });
     return Array.from(pageMap.values());
   }, [data.pages, publishedPages]);
@@ -349,6 +357,9 @@ export function AdminConsole() {
         setEditing(null);
       }
       await fetchResource(current.key);
+      if (current.key === "pages") {
+        fetchPublishedPages();
+      }
     } catch (reason) {
       if (axios.isAxiosError(reason)) {
         const data = reason.response?.data as { message?: string | string[] } | undefined;
@@ -381,6 +392,9 @@ export function AdminConsole() {
       const path = current.key === "users" ? `auth/users/${id}` : `${current.key}/${id}`;
       await securedRequest("delete", path);
       await fetchResource(current.key);
+      if (current.key === "pages") {
+        fetchPublishedPages();
+      }
     } catch (reason) {
       if (axios.isAxiosError(reason)) {
         const data = reason.response?.data as { message?: string | string[] } | undefined;

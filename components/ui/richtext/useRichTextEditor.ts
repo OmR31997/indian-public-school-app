@@ -67,6 +67,10 @@ export function useRichTextEditor({
     const [pdfStudioTheme, setPdfStudioTheme] = useState<"light" | "dark" | "banner" | "badge">("light");
     const [pdfStudioMaxHeight, setPdfStudioMaxHeight] = useState(420);
 
+    // Image Frame & Card Studio Modal States
+    const [isFrameStudioOpen, setIsFrameStudioOpen] = useState(false);
+    const [frameStudioImageUrl, setFrameStudioImageUrl] = useState("");
+
     // Link Creator / Hyperlink Modal States
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
     const [linkText, setLinkText] = useState("");
@@ -88,6 +92,17 @@ export function useRichTextEditor({
             setPdfStudioTitle(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
         }
         setIsPdfStudioOpen(true);
+    };
+
+    const openFrameStudio = (url = "") => {
+        if (url) {
+            setFrameStudioImageUrl(url);
+        } else if (selectedImageEl?.src) {
+            setFrameStudioImageUrl(selectedImageEl.src);
+        } else {
+            setFrameStudioImageUrl("");
+        }
+        setIsFrameStudioOpen(true);
     };
 
     const openTableStudio = (tab: "builder" | "csv" = "builder") => {
@@ -1499,6 +1514,10 @@ export function useRichTextEditor({
     };
 
     const insertComponent = (type: string) => {
+        if (type === "frameCard") {
+            openFrameStudio();
+            return;
+        }
         if (type === "hyperlink") {
             openLinkModal();
             return;
@@ -1613,6 +1632,10 @@ export function useRichTextEditor({
         setEditingAnchorEl,
         // Methods
         openPdfStudio,
+        isFrameStudioOpen,
+        setIsFrameStudioOpen,
+        openFrameStudio,
+        frameStudioImageUrl,
         openTableStudio,
         openDocStudio,
         openLinkModal,
