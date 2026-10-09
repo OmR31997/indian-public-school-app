@@ -2755,10 +2755,12 @@ export function HomeLayoutEditorModal({
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                           <input
                             type="text"
+                            disabled
+                            readOnly
                             placeholder="e.g. https://res.cloudinary.com/.../IPSIntroVideo.mp4"
                             value={videoUrlVal}
                             onChange={(e) => updateVideoData({ introFileUrl: e.target.value, videoUrl: e.target.value })}
-                            className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono text-slate-800 outline-none focus:border-[#1a5d9c] shadow-2xs"
+                            className="flex-1 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed px-3.5 py-2.5 text-xs font-mono outline-none shadow-2xs select-all"
                           />
 
                           <div className="flex items-center gap-2 shrink-0 flex-wrap">
@@ -3018,6 +3020,18 @@ export function HomeLayoutEditorModal({
                           />
                         </div>
 
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Image Path / URL (Disabled)</label>
+                          <input
+                            type="text"
+                            value={cardImgUrl}
+                            disabled
+                            readOnly
+                            placeholder="No image attached"
+                            className="w-full rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-mono text-slate-500 cursor-not-allowed outline-none select-all"
+                          />
+                        </div>
+
                         {/* Image Preview & Upload */}
                         <div className="space-y-1.5 pt-1">
                           {cardImgUrl ? (
@@ -3132,6 +3146,17 @@ export function HomeLayoutEditorModal({
                 {/* Director Photo */}
                 <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
                   <span className="text-[11px] font-bold text-slate-700 block">Director / Intro Photo</span>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Image Path / URL (Disabled)</label>
+                    <input
+                      type="text"
+                      value={homeObj["section-9"]?.[0]?.fileUrls?.[0] || ""}
+                      disabled
+                      readOnly
+                      placeholder="No image attached"
+                      className="w-full rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-mono text-slate-500 cursor-not-allowed outline-none select-all"
+                    />
+                  </div>
                   <div className="flex items-center gap-3">
                     {homeObj["section-9"]?.[0]?.fileUrls?.[0] && (
                       <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shrink-0">
