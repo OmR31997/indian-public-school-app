@@ -219,35 +219,13 @@ export function PopupBannerModal() {
                 </div>
 
                 {/* Quick Admission Form Container with Clean White Inputs Directly on Navy BG */}
-                <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2 [&_.grid]:grid-cols-1 [&_.grid]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg [&_button[type=submit]]:hidden">
+                <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2.5 [&_form>div:first-child]:grid-cols-1 [&_form>div:first-child]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg">
                   <AdmissionEnquiryForm
-                    onSuccess={() => handleClose()}
                     onClose={() => handleClose()}
                   />
                   <p className="text-[11px] text-blue-200/70 text-center pt-1 font-medium">
                     * Privacy: We respect your details & data privacy.
                   </p>
-                </div>
-
-                {/* Dual Horizontal Action Buttons (Blue & Red side-by-side like picture) */}
-                <div className="w-full max-w-sm sm:max-w-md mx-auto grid grid-cols-2 gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleEnquiry}
-                    className="bg-[#1a5d9c] hover:bg-blue-600 text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-lg border border-blue-400/30 flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
-                  >
-                    <i className="bi bi-pencil-square text-xs" />
-                    <span>{config.enquiryButtonText || "ENQUIRE NOW"}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="bg-[#942b3b] hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-lg border border-rose-500/30 flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
-                  >
-                    <i className="bi bi-x-circle text-xs" />
-                    <span>{config.closeButtonText || "CANCEL"}</span>
-                  </button>
                 </div>
               </div>
             </motion.div>

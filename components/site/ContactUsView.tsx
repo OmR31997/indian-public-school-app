@@ -55,7 +55,7 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000
 // Validation Schemas
 const inquirySchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  contact: z.string().regex(/^[0-9+\-\s()]{8,15}$/, "Enter a valid contact phone number"),
+  contact: z.string().regex(/^\d{10}$/, "Contact number must be 10 digits (numbers only)"),
   email: z.string().email("Enter a valid email address"),
   inquiryType: z.string().min(1, "Please select an inquiry type"),
   subject: z.string().optional(),
@@ -486,7 +486,17 @@ export function ContactUsView() {
                                 <FormItem>
                                   <FormLabel>Contact Number *</FormLabel>
                                   <FormControl>
-                                    <Input inputMode="tel" placeholder="+91 9876543210" {...field} />
+                                    <Input
+                                      type="tel"
+                                      inputMode="numeric"
+                                      maxLength={10}
+                                      placeholder="e.g. 9876543210"
+                                      {...field}
+                                      onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, "");
+                                        field.onChange(val);
+                                      }}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>

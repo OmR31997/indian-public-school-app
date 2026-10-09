@@ -1531,7 +1531,7 @@ export function HomeLayoutEditorModal({
                     />
 
                     <label className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#1a5d9c] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition cursor-pointer shrink-0 shadow-2xs">
-                      {uploading ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                      {uploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
                       <span>{uploading ? "Uploading…" : "Upload"}</span>
                       <input
                         type="file"
@@ -3429,13 +3429,9 @@ export function HomeLayoutEditorModal({
                       <div className="w-12 h-1 bg-blue-500/80 rounded-full mx-auto my-1" />
                       {currentPopupBanner.subtitle && <p className="text-xs sm:text-sm text-blue-200/90 font-medium">{currentPopupBanner.subtitle}</p>}
                     </div>
-                    <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2 [&_.grid]:grid-cols-1 [&_.grid]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg [&_button[type=submit]]:hidden">
-                      <AdmissionEnquiryForm onSuccess={() => setShowLivePopUpPreview(false)} onClose={() => setShowLivePopUpPreview(false)} />
+                    <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2.5 [&_form>div:first-child]:grid-cols-1 [&_form>div:first-child]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg">
+                      <AdmissionEnquiryForm onClose={() => setShowLivePopUpPreview(false)} />
                       <p className="text-[11px] text-blue-200/70 text-center pt-1 font-medium">* Privacy: We respect your details & data privacy.</p>
-                    </div>
-                    <div className="w-full max-w-sm sm:max-w-md mx-auto grid grid-cols-2 gap-3 pt-1">
-                      <button className="bg-[#1a5d9c] text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-lg border border-blue-400/30 flex items-center justify-center gap-1.5"><i className="bi bi-pencil-square text-xs" /><span>ENQUIRE NOW</span></button>
-                      <button onClick={() => setShowLivePopUpPreview(false)} className="bg-[#942b3b] text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-lg border border-rose-500/30 flex items-center justify-center gap-1.5"><i className="bi bi-x-circle text-xs" /><span>CANCEL</span></button>
                     </div>
                   </div>
                 </div>
