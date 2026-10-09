@@ -22,6 +22,7 @@ import { HomeQuickCardsTab } from "./home-layout/HomeQuickCardsTab";
 import { AnimatePresence } from "motion/react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { AdmissionEnquiryForm } from "@/components/site/AdmissionEnquiryForm";
+import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
 import { getAssetUrl } from "@/lib/utils";
 
 export function HomeLayoutEditorModal({
@@ -61,6 +62,11 @@ export function HomeLayoutEditorModal({
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadingCard, setUploadingCard] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string>("");
+  const [uploadStatus, setUploadStatus] = useState<FileUploadStatus>({
+    isUploading: false,
+    progress: 0,
+    step: "preparing",
+  });
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const [galleryPickerTarget, setGalleryPickerTarget] = useState<"popupBanner" | "introVideo" | "videoPoster" | null>(null);
   const [galleryPickerCallback, setGalleryPickerCallback] = useState<((url: string) => void) | null>(null);
@@ -264,6 +270,21 @@ export function HomeLayoutEditorModal({
   const uploadImage = async (file: File, album = "Home", folder?: string): Promise<string> => {
     setUploading(true);
     setUploadError("");
+
+    const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+    const formattedSize = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+
+    setUploadStatus({
+      isUploading: true,
+      fileName: file.name,
+      fileSize: formattedSize,
+      fileType: file.type,
+      previewUrl,
+      progress: 5,
+      step: "preparing",
+      stageMessage: "Step 1/3: Reading binary buffer & initializing Cloudinary payload…",
+    });
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -272,22 +293,68 @@ export function HomeLayoutEditorModal({
         formData.append("folder", folder);
       }
 
+      setUploadStatus((prev) => ({
+        ...prev,
+        progress: 15,
+        step: "uploading",
+        stageMessage: "Step 2/3: Transmitting asset to server & Cloudinary CDN…",
+      }));
+
       const res = await axios.post(`${API_URL}/uploads`, formData, {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadStatus((prev) => ({
+              ...prev,
+              progress: Math.min(pct, 95),
+              step: pct >= 95 ? "processing" : "uploading",
+              stageMessage:
+                pct >= 95
+                  ? "Step 3/3: Optimizing asset & generating Cloudinary CDN links…"
+                  : `Step 2/3: Transmitting asset to CDN server (${pct}%)…`,
+            }));
+          }
+        },
       });
+
+      setUploadStatus((prev) => ({
+        ...prev,
+        progress: 98,
+        step: "processing",
+        stageMessage: "Step 3/3: Processing asset & generating Cloudinary response URL…",
+      }));
 
       const data = res.data?.data ?? res.data;
       const url = data?.url || (Array.isArray(data?.fileUrl) ? data.fileUrl[0] : data?.fileUrl);
       if (!url) throw new Error("No URL returned from upload");
+
+      setUploadStatus((prev) => ({
+        ...prev,
+        progress: 100,
+        step: "done",
+        stageMessage: "Upload complete! Asset added to editor.",
+      }));
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       return url;
     } catch (err) {
-      setUploadError(axios.isAxiosError(err) ? String(err.response?.data?.message || err.message) : "Upload failed.");
+      const errMsg = axios.isAxiosError(err) ? String(err.response?.data?.message || err.message) : "Upload failed.";
+      setUploadError(errMsg);
+      setUploadStatus((prev) => ({
+        ...prev,
+        step: "error",
+        errorMessage: errMsg,
+        stageMessage: "Upload encountered an error.",
+      }));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       return "";
     } finally {
       setUploading(false);
+      setUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
     }
   };
 
@@ -642,6 +709,12 @@ export function HomeLayoutEditorModal({
             </button>
           ))}
         </div>
+
+        {(uploadStatus.isUploading || uploadStatus.step === "done" || uploadStatus.step === "error") && (
+          <div className="shrink-0 border-b border-blue-200 bg-blue-50/90 px-6 py-3 shadow-xs animate-in fade-in duration-200">
+            <FileUploadProgressLoader status={uploadStatus} />
+          </div>
+        )}
 
         {/* Modal Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">

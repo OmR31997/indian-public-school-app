@@ -26,6 +26,7 @@ import { CloudinaryGalleryModal, getFileType } from "@/components/admin/Cloudina
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
 import { isPdfFile, getCloudinaryInlineViewerUrl } from "@/lib/file-preview";
 import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
+import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
 import { toCleanRelativeAssetPath, getAssetUrl } from "@/lib/utils";
 import { HomeLayoutEditorModal } from "./HomeLayoutEditorModal";
 import { Resource, RecordItem } from "../types/admin.types";
@@ -96,6 +97,11 @@ export function RecordDialog({
   const [values, setValues] = useState<Record<string, unknown>>(initial);
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string>("");
+  const [uploadStatus, setUploadStatus] = useState<FileUploadStatus>({
+    isUploading: false,
+    progress: 0,
+    step: "preparing",
+  });
   const [galleryPickerField, setGalleryPickerField] = useState<string | null>(null);
 
   const setValue = (field: string, value: unknown) => {
@@ -106,6 +112,22 @@ export function RecordDialog({
   const handleFileUpload = async (field: string, file: File) => {
     setUploading(field);
     setUploadError("");
+
+    const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+    const formattedSize = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+
+    setUploadStatus({
+      isUploading: true,
+      field,
+      fileName: file.name,
+      fileSize: formattedSize,
+      fileType: file.type,
+      previewUrl,
+      progress: 5,
+      step: "preparing",
+      stageMessage: "Step 1/3: Reading binary buffer & initializing Cloudinary payload…",
+    });
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -126,12 +148,40 @@ export function RecordDialog({
         }
       }
 
+      setUploadStatus((prev) => ({
+        ...prev,
+        progress: 15,
+        step: "uploading",
+        stageMessage: "Step 2/3: Transmitting asset to server & Cloudinary CDN…",
+      }));
+
       const res = await axios.post(`${API_URL}/uploads`, formData, {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadStatus((prev) => ({
+              ...prev,
+              progress: Math.min(pct, 95),
+              step: pct >= 95 ? "processing" : "uploading",
+              stageMessage:
+                pct >= 95
+                  ? "Step 3/3: Optimizing asset & generating Cloudinary CDN links…"
+                  : `Step 2/3: Transmitting asset to CDN server (${pct}%)…`,
+            }));
+          }
+        },
       });
+
+      setUploadStatus((prev) => ({
+        ...prev,
+        progress: 98,
+        step: "processing",
+        stageMessage: "Step 3/3: Processing asset & generating Cloudinary response URL…",
+      }));
 
       const data = res.data?.data ?? res.data;
       const rawUrl = data?.url || (Array.isArray(data?.fileUrl) ? data.fileUrl[0] : data?.fileUrl);
@@ -155,10 +205,30 @@ export function RecordDialog({
         }
         return prev;
       });
+
+      setUploadStatus((prev) => ({
+        ...prev,
+        progress: 100,
+        step: "done",
+        stageMessage: "Upload complete! Cloudinary asset synced.",
+      }));
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (err) {
-      setUploadError(axios.isAxiosError(err) ? String(err.response?.data?.message || err.message) : "Failed to upload image to Cloudinary.");
+      const errMsg = axios.isAxiosError(err)
+        ? String(err.response?.data?.message || err.message)
+        : "Failed to upload image to Cloudinary.";
+      setUploadError(errMsg);
+      setUploadStatus((prev) => ({
+        ...prev,
+        step: "error",
+        errorMessage: errMsg,
+        stageMessage: "Upload encountered an error.",
+      }));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } finally {
       setUploading(null);
+      setUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
     }
   };
 
@@ -259,6 +329,11 @@ export function RecordDialog({
                         <span>Pick from Cloudinary Gallery</span>
                       </button>
                     </div>
+
+                    {uploadStatus.field === field && (uploadStatus.isUploading || uploadStatus.step === "done" || uploadStatus.step === "error") && (
+                      <FileUploadProgressLoader status={uploadStatus} />
+                    )}
+
                     {(() => {
                       const rawVal = values[field];
                       const fileUrls: string[] = Array.isArray(rawVal)
@@ -685,13 +760,53 @@ export function RecordDialog({
                   })()
                 ) : (
                   <div>
-                    <input
-                      required={required}
-                      type={type}
-                      value={String(values[field] ?? "").slice(0, type === "date" ? 10 : undefined)}
-                      onChange={(event) => setValue(field, type === "number" ? Number(event.target.value) : event.target.value)}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm opacity-90 outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100"
-                    />
+                    {type === "text" && field.toLowerCase().match(/(url|image|logo|avatar|photo|file|icon|banner|attachment|badge|poster)/i) ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            required={required}
+                            type="text"
+                            placeholder="https://res.cloudinary.com/... or /assets/..."
+                            value={String(values[field] ?? "")}
+                            onChange={(event) => setValue(field, event.target.value)}
+                            className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs"
+                          />
+                          <label className="inline-flex cursor-pointer items-center gap-1.5 shrink-0 rounded-xl bg-[#1a5d9c] px-3.5 py-2.5 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
+                            {uploading === field ? <LoaderCircle size={15} className="animate-spin" /> : <UploadCloud size={15} />}
+                            <span>{uploading === field ? "Uploading…" : "Upload"}</span>
+                            <input
+                              type="file"
+                              accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx"
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+                                if (file) void handleFileUpload(field, file);
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setGalleryPickerField(field)}
+                            className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                          >
+                            <ImageIcon size={15} className="text-amber-500" />
+                            <span>Gallery</span>
+                          </button>
+                        </div>
+
+                        {uploadStatus.field === field && (uploadStatus.isUploading || uploadStatus.step === "done" || uploadStatus.step === "error") && (
+                          <FileUploadProgressLoader status={uploadStatus} />
+                        )}
+                      </div>
+                    ) : (
+                      <input
+                        required={required}
+                        type={type}
+                        value={String(values[field] ?? "").slice(0, type === "date" ? 10 : undefined)}
+                        onChange={(event) => setValue(field, type === "number" ? Number(event.target.value) : event.target.value)}
+                        className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm opacity-90 outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs"
+                      />
+                    )}
                   </div>
                 )}
               </label>
