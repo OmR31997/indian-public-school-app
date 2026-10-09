@@ -15,7 +15,6 @@ import { Achievements } from "@/components/site/Achievements";
 import { Testimonials } from "@/components/site/Testimonials";
 import { NewsEvents } from "@/components/site/NewsEvents";
 import { Gallery } from "@/components/site/Gallery";
-import { AdmissionsCTA } from "@/components/site/AdmissionsCTA";
 import { processHtmlAssetUrls } from "@/lib/site-data";
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { Contact } from "@/components/site/Contact";
@@ -47,7 +46,6 @@ export function HomeClient({ textContent }: { textContent?: string | null }) {
         <Testimonials />
         <NewsEvents />
         <Gallery />
-        <AdmissionsCTA />
         <EnquiryForm />
         <Contact />
       </main>
