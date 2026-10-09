@@ -439,7 +439,7 @@ export function AdminConsole() {
         </div>
       </div>
       <nav className="flex-1 space-y-5 overflow-y-auto">
-        <button onClick={() => { setActive("overview"); setMobileMenu(false); }} className={`sidebar-link ${active === "overview" ? "sidebar-link-active" : ""}`}><LayoutDashboard size={18} /> Overview</button>
+        <button onClick={() => { setActive("overview"); setMobileMenu(false); }} className={`sidebar-link cursor-pointer ${active === "overview" ? "sidebar-link-active" : ""}`}><LayoutDashboard size={18} /> Overview</button>
         {sectionNames.slice(1).map((section) => {
           const sectionResources = resources.filter((resource) => resourceSections[resource.key] === section && canAccessResource(resource.key));
           if (!sectionResources.length) return null;
@@ -456,7 +456,7 @@ export function AdminConsole() {
                     <button
                       key={resource.key}
                       onClick={() => { setActive(resource.key); setMobileMenu(false); }}
-                      className={`sidebar-link ${active === resource.key ? "sidebar-link-active" : ""}`}
+                      className={`sidebar-link cursor-pointer ${active === resource.key ? "sidebar-link-active" : ""}`}
                     >
                       <Icon size={18} />
                       <span>{resource.label}</span>
@@ -491,15 +491,15 @@ export function AdminConsole() {
                 <p className="text-[10px] font-semibold text-blue-200 uppercase tracking-wider">{currentUser?.role || (isSuperAdmin ? "Super Admin" : "Sub Admin")}</p>
               </div>
             </div>
-            <button onClick={() => setChangePasswordOpen(true)} className="sidebar-link w-full text-xs">
+            <button onClick={() => setChangePasswordOpen(true)} className="sidebar-link cursor-pointer w-full text-xs">
               <KeyRound size={16} /> Change password
             </button>
-            <button onClick={signOut} className="sidebar-link w-full text-xs">
+            <button onClick={signOut} className="sidebar-link cursor-pointer w-full text-xs">
               <LogOut size={16} /> Sign out
             </button>
           </>
         ) : (
-          <button onClick={() => setLoginOpen(true)} className="sidebar-link w-full">
+          <button onClick={() => setLoginOpen(true)} className="sidebar-link cursor-pointer w-full">
             <LogIn size={18} /> Admin sign in
           </button>
         )}

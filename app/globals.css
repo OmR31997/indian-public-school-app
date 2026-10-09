@@ -350,6 +350,13 @@
   font-weight: 600;
   color: oklch(0.86 0.025 250);
   transition: background-color 150ms ease, color 150ms ease;
+  cursor: pointer;
+
+  &:hover {
+    cursor: pointer;
+    background-color: color-mix(in oklab, white 8%, transparent);
+    color: white;
+  }
 }
 
 @utility sidebar-link-active {

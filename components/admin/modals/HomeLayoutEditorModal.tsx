@@ -25,6 +25,24 @@ import { AdmissionEnquiryForm } from "@/components/site/AdmissionEnquiryForm";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
 import { getAssetUrl } from "@/lib/utils";
 
+const EDITOR_TABS = [
+  { id: "header", label: "Header Config", icon: "bi-card-heading" },
+  { id: "footer", label: "Footer Config", icon: "bi-layout-text-window" },
+  { id: "whatsapp", label: "WhatsApp Widget", icon: "bi-whatsapp" },
+  { id: "popupBanner", label: "Pop-Up Banner", icon: "bi-window-stack" },
+  { id: "hero", label: "Hero Poster", icon: "bi-person-standing" },
+  { id: "quickCards", label: "Quick Cards", icon: "bi-grid-3x3-gap" },
+  { id: "video", label: "Intro Video Setup", icon: "bi-camera-video-fill" },
+  { id: "sec1", label: "Sec 1: About", icon: "bi-building" },
+  { id: "sec2", label: "Sec 2: Key Stats", icon: "bi-bar-chart-fill" },
+  { id: "sec3", label: "Sec 3: Why Choose", icon: "bi-star-fill" },
+  { id: "sec4", label: "Sec 4: Academics", icon: "bi-book-fill" },
+  { id: "sec6", label: "Sec 5: Campus", icon: "bi-building-fill" },
+  { id: "sec7", label: "Sec 6: Student Life", icon: "bi-people-fill" },
+  { id: "sec8", label: "Sec 7: Courses", icon: "bi-mortarboard-fill" },
+  { id: "sec9", label: "Sec 8: Director Message", icon: "bi-person-badge-fill" },
+];
+
 export function HomeLayoutEditorModal({
   token,
   record,
@@ -421,36 +439,16 @@ export function HomeLayoutEditorModal({
     try {
       await onSave(
         {
-          key: "site_datasource",
-          category: "Content",
-          description: "Full home page layout configuration datasource",
+          key: record?.key || "site_datasource",
+          category: record?.category || "Content",
+          description: record?.description || "Full home page layout configuration datasource",
           status: "Active",
           value: finalVal,
           isPublic: true,
         },
         { keepOpen: true }
       );
-
-      if (token && logoObj && Object.keys(logoObj).length > 0) {
-        try {
-          await axios.post(
-            `${API_URL}/school-settings`,
-            {
-              key: "site_logo",
-              category: "Branding",
-              description: "School logo and header branding titles",
-              value: logoObj,
-              isPublic: true,
-              status: "Active",
-            },
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-        } catch (e) {
-          console.warn("Syncing standalone site_logo skipped or failed:", e);
-        }
-      }
-
-      setSaveSuccess("Layout & Branding settings saved successfully!");
+      setSaveSuccess("Layout saved & published successfully!");
       setTimeout(() => {
         setSaveSuccess("");
       }, 5000);
@@ -476,36 +474,6 @@ export function HomeLayoutEditorModal({
       const next = {
         ...prev,
         header: headerObj,
-        home: homeList,
-      };
-      setJsonText(JSON.stringify(next, null, 2));
-      return next;
-    });
-  };
-
-  const updateLogoField = (field: string, val: any) => {
-    setDatasource((prev: any) => {
-      const homeList = Array.isArray(prev?.home) ? [...prev.home] : [{}];
-      const firstHome = { ...(homeList[0] || {}) };
-      const identityObj = { ...(firstHome.identity || {}) };
-      const logoObj = {
-        ...(identityObj.site_logo || prev?.site_logo || {}),
-        [field]: val,
-      };
-      const headerObj = { ...(identityObj.header || prev?.header || {}), [field]: val };
-      const footerObj = { ...(identityObj.footer || prev?.footer || {}), [field]: val };
-
-      identityObj.site_logo = logoObj;
-      identityObj.header = headerObj;
-      identityObj.footer = footerObj;
-      firstHome.identity = identityObj;
-      homeList[0] = firstHome;
-
-      const next = {
-        ...prev,
-        site_logo: logoObj,
-        header: headerObj,
-        footer: footerObj,
         home: homeList,
       };
       setJsonText(JSON.stringify(next, null, 2));
@@ -747,23 +715,7 @@ export function HomeLayoutEditorModal({
 
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1.5 border-b border-slate-200 bg-slate-50/90 p-3 overflow-x-auto scrollbar-thin shrink-0 whitespace-nowrap">
-          {[
-            { id: "header", label: "Header Config", icon: "bi-card-heading" },
-            { id: "footer", label: "Footer Config", icon: "bi-layout-text-window" },
-            { id: "whatsapp", label: "WhatsApp Widget", icon: "bi-whatsapp" },
-            { id: "popupBanner", label: "Pop-Up Banner", icon: "bi-window-stack" },
-            { id: "hero", label: "Hero Poster", icon: "bi-person-standing" },
-            { id: "quickCards", label: "Quick Cards", icon: "bi-grid-3x3-gap" },
-            { id: "video", label: "Intro Video Setup", icon: "bi-camera-video-fill" },
-            { id: "sec1", label: "Sec 1: About", icon: "bi-building" },
-            { id: "sec2", label: "Sec 2: Key Stats", icon: "bi-bar-chart-fill" },
-            { id: "sec3", label: "Sec 3: Why Choose", icon: "bi-star-fill" },
-            { id: "sec4", label: "Sec 4: Academics", icon: "bi-book-fill" },
-            { id: "sec6", label: "Sec 5: Campus", icon: "bi-building-fill" },
-            { id: "sec7", label: "Sec 6: Student Life", icon: "bi-people-fill" },
-            { id: "sec8", label: "Sec 7: Courses", icon: "bi-mortarboard-fill" },
-            { id: "sec9", label: "Sec 8: Director Message", icon: "bi-person-badge-fill" },
-          ].map((tab) => (
+          {EDITOR_TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -799,111 +751,9 @@ export function HomeLayoutEditorModal({
           {/* TAB: Header */}
           {activeTab === "header" && (
             <div className="space-y-5">
-              {/* Logo & Identity Branding */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
                 <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <i className="bi bi-shield-lock-fill text-[#1a5d9c]" /> Header Logo & School Branding Identity
-                </h3>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {/* Main Logo Image */}
-                  <div className="sm:col-span-2">
-                    <label className="text-[11px] font-bold text-slate-500 block mb-1">Main School Logo Asset</label>
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 shrink-0 rounded-xl border border-slate-200 bg-white p-1 flex items-center justify-center overflow-hidden">
-                        {(datasource?.home?.[0]?.identity?.site_logo?.logoUrl || datasource?.site_logo?.logoUrl || datasource?.header?.logoUrl) ? (
-                          <img
-                            src={getAssetUrl(datasource?.home?.[0]?.identity?.site_logo?.logoUrl || datasource?.site_logo?.logoUrl || datasource?.header?.logoUrl)}
-                            alt="Main Logo"
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        ) : (
-                          <ImageIcon size={20} className="text-slate-300" />
-                        )}
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="/Settings/Logos/IPSLogo.png"
-                        value={datasource?.home?.[0]?.identity?.site_logo?.logoUrl || datasource?.site_logo?.logoUrl || datasource?.header?.logoUrl || ""}
-                        onChange={(e) => updateLogoField("logoUrl", e.target.value)}
-                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          openGalleryPicker((url) => updateLogoField("logoUrl", url), "Select Main School Logo")
-                        }
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50 transition cursor-pointer shrink-0"
-                      >
-                        <ImageIcon size={14} /> Gallery
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* School Title / Name */}
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">School Title / Logo Text</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Indian Public School"
-                      value={datasource?.home?.[0]?.identity?.site_logo?.logoText || datasource?.site_logo?.logoText || datasource?.header?.logoText || ""}
-                      onChange={(e) => updateLogoField("logoText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  {/* School Subtitle */}
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">School Tagline / Logo Subtext</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Sambalpur | Affiliated to CBSE"
-                      value={datasource?.home?.[0]?.identity?.site_logo?.logoSubText || datasource?.site_logo?.logoSubText || datasource?.header?.logoSubText || ""}
-                      onChange={(e) => updateLogoField("logoSubText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  {/* Secondary Partner Logo */}
-                  <div className="sm:col-span-2">
-                    <label className="text-[11px] font-bold text-slate-500 block mb-1">Secondary / Academic Partner Logo (Optional)</label>
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 shrink-0 rounded-xl border border-slate-200 bg-white p-1 flex items-center justify-center overflow-hidden">
-                        {(datasource?.home?.[0]?.identity?.site_logo?.secondaryLogoUrl || datasource?.site_logo?.secondaryLogoUrl) ? (
-                          <img
-                            src={getAssetUrl(datasource?.home?.[0]?.identity?.site_logo?.secondaryLogoUrl || datasource?.site_logo?.secondaryLogoUrl)}
-                            alt="Secondary Logo"
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        ) : (
-                          <ImageIcon size={18} className="text-slate-300" />
-                        )}
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="/Settings/Logos/AakashFoundationLogo.png"
-                        value={datasource?.home?.[0]?.identity?.site_logo?.secondaryLogoUrl || datasource?.site_logo?.secondaryLogoUrl || ""}
-                        onChange={(e) => updateLogoField("secondaryLogoUrl", e.target.value)}
-                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          openGalleryPicker((url) => updateLogoField("secondaryLogoUrl", url), "Select Secondary Partner Logo")
-                        }
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-[#1a5d9c] hover:bg-blue-50 transition cursor-pointer shrink-0"
-                      >
-                        <ImageIcon size={14} /> Gallery
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Announcement & Top Bar Contact */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
-                <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
-                  <i className="bi bi-card-heading text-[#1a5d9c]" /> Announcement Bar & Header Action Controls
+                  <i className="bi bi-card-heading text-[#1a5d9c]" /> Website Header & Navigation Top Bar Configuration
                 </h3>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -914,50 +764,6 @@ export function HomeLayoutEditorModal({
                       placeholder="e.g. Admissions Open for Session 2026-27 | Apply Online Today"
                       value={datasource?.home?.[0]?.identity?.header?.noticeText || datasource?.header?.noticeText || ""}
                       onChange={(e) => updateHeaderField("noticeText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Header Phone Number</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. +91 8114320555"
-                      value={datasource?.home?.[0]?.identity?.header?.phone || datasource?.header?.phone || ""}
-                      onChange={(e) => updateHeaderField("phone", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">Header Email Address</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. info@indianpublicschool.in"
-                      value={datasource?.home?.[0]?.identity?.header?.email || datasource?.header?.email || ""}
-                      onChange={(e) => updateHeaderField("email", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">CTA Button Text</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Apply Now"
-                      value={datasource?.home?.[0]?.identity?.header?.ctaText || datasource?.header?.ctaText || ""}
-                      onChange={(e) => updateHeaderField("ctaText", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-500">CTA Button URL Target</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. /#admissions or /admission"
-                      value={datasource?.home?.[0]?.identity?.header?.ctaUrl || datasource?.header?.ctaUrl || ""}
-                      onChange={(e) => updateHeaderField("ctaUrl", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c]"
                     />
                   </div>
@@ -3201,13 +3007,30 @@ export function HomeLayoutEditorModal({
                   <h3 className="text-sm font-bold text-[#102a4c] flex items-center gap-2">
                     <i className="bi bi-mortarboard-fill text-[#1a5d9c]" /> Section 7: Our Courses ({(homeObj["section-8"]?.[0]?.cardItem || []).length} Level Cards)
                   </h3>
-                  <button
-                    type="button"
-                    onClick={() => addItemToSection("section-8", { title: "New Level", heading: "New Level", description: "Course level details", fileUrl: "", imageUrl: "" })}
-                    className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
-                  >
-                    <Plus size={14} /> Add Course Level
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        openGalleryPicker((url) => {
+                          const currentCards = [...(homeObj["section-8"]?.[0]?.cardItem || [])];
+                          currentCards.push({ title: "New Level", heading: "New Level", description: "Course level details", fileUrl: url, imageUrl: url });
+                          const sec8 = [...(homeObj["section-8"] || [{}])];
+                          sec8[0] = { ...sec8[0], cardItem: currentCards };
+                          updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                        }, "Select Photo for Course Level from Gallery");
+                      }}
+                      className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
+                    >
+                      <ImageIcon size={14} className="text-amber-600" /> Choose from Gallery
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => addItemToSection("section-8", { title: "New Level", heading: "New Level", description: "Course level details", fileUrl: "", imageUrl: "" })}
+                      className="flex items-center gap-1 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c]"
+                    >
+                      <Plus size={14} /> Add Course Level
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -3295,7 +3118,22 @@ export function HomeLayoutEditorModal({
                           {cardImgUrl ? (
                             <div className="relative h-24 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
                               <img src={cardImgUrl} alt={course.title || "Course"} className="h-full w-full object-cover" />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    openGalleryPicker((url) => {
+                                      const sec8 = [...(homeObj["section-8"] || [{}])];
+                                      const cards = [...(sec8[0].cardItem || [])];
+                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                      sec8[0] = { ...sec8[0], cardItem: cards };
+                                      updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                                    }, `Choose Image for ${course.title || "Course Level"}`);
+                                  }}
+                                  className="rounded-md bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-amber-600 flex items-center gap-1 shadow-sm cursor-pointer"
+                                >
+                                  <ImageIcon size={11} /> Gallery
+                                </button>
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -3305,50 +3143,74 @@ export function HomeLayoutEditorModal({
                                     sec8[0] = { ...sec8[0], cardItem: cards };
                                     updateHome((prev) => ({ ...prev, "section-8": sec8 }));
                                   }}
-                                  className="rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm"
+                                  className="rounded-md bg-rose-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-rose-700 flex items-center gap-1 shadow-sm cursor-pointer"
                                 >
-                                  <Trash2 size={11} /> Remove Image
+                                  <Trash2 size={11} /> Remove
                                 </button>
                               </div>
                             </div>
-                          ) : null}
+                          ) : (
+                            <div className="flex h-24 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400">
+                              <ImageIcon size={20} className="text-slate-300 mb-1" />
+                              <span className="text-[11px] font-medium">No image attached</span>
+                            </div>
+                          )}
 
-                          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
-                            {isCardUploading ? (
-                              <>
-                                <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
-                              </>
-                            ) : (
-                              <>
-                                <UploadCloud size={13} /> {cardImgUrl ? "Change Image" : "Upload Image"}
-                              </>
-                            )}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              disabled={isCardUploading}
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setUploadingCard(`sec8-${idx}`);
-                                  try {
-                                    const url = await uploadImage(file);
-                                    if (url) {
-                                      const sec8 = [...(homeObj["section-8"] || [{}])];
-                                      const cards = [...(sec8[0].cardItem || [])];
-                                      cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
-                                      sec8[0] = { ...sec8[0], cardItem: cards };
-                                      updateHome((prev) => ({ ...prev, "section-8": sec8 }));
-                                    }
-                                  } finally {
-                                    setUploadingCard(null);
-                                    e.target.value = "";
-                                  }
-                                }
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                openGalleryPicker((url) => {
+                                  const sec8 = [...(homeObj["section-8"] || [{}])];
+                                  const cards = [...(sec8[0].cardItem || [])];
+                                  cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                  sec8[0] = { ...sec8[0], cardItem: cards };
+                                  updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                                }, `Choose Image for ${course.title || "Course Level"}`);
                               }}
-                              className="hidden"
-                            />
-                          </label>
+                              className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-amber-300 bg-amber-50 py-1.5 text-[11px] font-bold text-amber-800 hover:bg-amber-100 transition-colors shadow-2xs"
+                              title="Choose existing photo from Cloudinary Gallery"
+                            >
+                              <ImageIcon size={13} className="text-amber-600" /> Choose from Gallery
+                            </button>
+
+                            <label className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 bg-slate-50 py-1.5 text-[11px] font-bold text-[#1a5d9c] hover:bg-blue-50 transition-colors">
+                              {isCardUploading ? (
+                                <>
+                                  <Loader2 size={13} className="animate-spin text-[#1a5d9c]" /> Uploading...
+                                </>
+                              ) : (
+                                <>
+                                  <UploadCloud size={13} /> {cardImgUrl ? "Change Upload" : "Upload Image"}
+                                </>
+                              )}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                disabled={isCardUploading}
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setUploadingCard(`sec8-${idx}`);
+                                    try {
+                                      const url = await uploadImage(file);
+                                      if (url) {
+                                        const sec8 = [...(homeObj["section-8"] || [{}])];
+                                        const cards = [...(sec8[0].cardItem || [])];
+                                        cards[idx] = { ...cards[idx], fileUrl: url, imageUrl: url };
+                                        sec8[0] = { ...sec8[0], cardItem: cards };
+                                        updateHome((prev) => ({ ...prev, "section-8": sec8 }));
+                                      }
+                                    } finally {
+                                      setUploadingCard(null);
+                                      e.target.value = "";
+                                    }
+                                  }
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
                         </div>
                       </div>
                     );
@@ -3468,7 +3330,7 @@ export function HomeLayoutEditorModal({
         <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-6 py-4">
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-500 font-medium">
-              Editing <strong className="text-[#1a5d9c]">{activeTab}</strong> — edits update the live datasource instantly.
+              Editing <strong className="text-[#1a5d9c]">{EDITOR_TABS.find((t) => t.id === activeTab)?.label || activeTab}</strong> — edits update the live datasource instantly.
             </span>
             {saveSuccess && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 animate-in fade-in duration-200">
