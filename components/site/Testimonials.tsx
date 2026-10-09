@@ -2,12 +2,50 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Quote, Star, User } from "lucide-react";
 import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
 import { homeData, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { getOptionalApi, unwrapCollection } from "@/lib/api-client";
+import { getAssetUrl } from "@/lib/utils";
+
+function TestimonialAvatar({ src, name }: { src?: string; name: string }) {
+  const [failed, setFailed] = useState(false);
+
+  const cleanSrc = src && !src.includes("Anonymous.png") ? src : undefined;
+
+  if (!cleanSrc || failed) {
+    const initials = name
+      ? name
+          .trim()
+          .split(/\s+/)
+          .map((n) => n[0])
+          .filter(Boolean)
+          .slice(0, 2)
+          .join("")
+          .toUpperCase()
+      : "";
+
+    return (
+      <div
+        className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary text-xs border border-primary/20 shadow-xs"
+        aria-hidden
+      >
+        {initials || <User className="size-5 text-primary/70" />}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={cleanSrc}
+      alt={name}
+      onError={() => setFailed(true)}
+      className="size-11 shrink-0 rounded-full object-cover border-2 border-gold/40 shadow-xs"
+    />
+  );
+}
 
 export function Testimonials() {
   const siteData = useSiteData();
@@ -38,11 +76,23 @@ export function Testimonials() {
       const quoteText = text(review.feedback || review.quote || review.message || review.comment);
       const nameText = text(review.name || review.author || review.title);
       if (!quoteText && !nameText) return null;
+
+      const rawAvatar = text(
+        review.avatar ||
+        review.avatarUrl ||
+        review.image ||
+        review.photo ||
+        review.photoUrl ||
+        review.avatar_url ||
+        review.userImage
+      );
+
       return {
         quote: quoteText,
         name: nameText || "Anonymous",
         role: text(review.batch || review.role, "School community"),
         rating: Math.min(5, Math.max(1, Number(review.rating) || 5)),
+        avatar: rawAvatar ? getAssetUrl(rawAvatar) : undefined,
       };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -93,10 +143,13 @@ export function Testimonials() {
                 transition={{ duration: 0.5, ease: EASE }}
               >
                 <p className="mt-5 font-display text-xl leading-snug sm:text-2xl">{t.quote.replace(/^["'\u201C\u201D]+|["'\u201C\u201D]+$/g, "")}</p>
-                <footer className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <div>
-                    <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                <footer className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-border/40 pt-5">
+                  <div className="flex items-center gap-3">
+                    <TestimonialAvatar src={t.avatar} name={t.name} />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                    </div>
                   </div>
                   <div className="flex gap-0.5" aria-label={`${t.rating} out of 5`}>
                     {Array.from({ length: t.rating }).map((_, i) => (
@@ -148,4 +201,5 @@ export function Testimonials() {
     </section>
   );
 }
+
 
