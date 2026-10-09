@@ -306,7 +306,7 @@ export function AdminConsole() {
     return axios({ method, url: `${API_URL}/${path}`, data: body, headers: { Authorization: `Bearer ${token}` } });
   };
 
-  const save = async (values: Record<string, unknown>) => {
+  const save = async (values: Record<string, unknown>, options?: { keepOpen?: boolean }) => {
     if (!current) return;
     setSaving(true); setError("");
     try {
@@ -344,20 +344,27 @@ export function AdminConsole() {
         const path = current.key === "menu-items" && id ? `${current.key}/${id}` : editing ? `${current.key}/${id}` : current.key;
         await securedRequest(editing ? "patch" : "post", path, payload);
       }
-      setFormOpen(false); setEditing(null); await fetchResource(current.key);
+      if (!options?.keepOpen) {
+        setFormOpen(false);
+        setEditing(null);
+      }
+      await fetchResource(current.key);
     } catch (reason) {
       if (axios.isAxiosError(reason)) {
         const data = reason.response?.data as { message?: string | string[] } | undefined;
         const msg = data?.message || reason.message;
         setError(Array.isArray(msg) ? msg.join(", ") : String(msg));
         if (reason.response?.status === 404) {
-          setFormOpen(false);
-          setEditing(null);
+          if (!options?.keepOpen) {
+            setFormOpen(false);
+            setEditing(null);
+          }
           void fetchResource(current.key);
         }
       } else {
         setError(reason instanceof Error ? reason.message : "Unable to save this record.");
       }
+      throw reason;
     }
     finally { setSaving(false); }
   };

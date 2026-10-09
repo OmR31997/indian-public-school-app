@@ -54,7 +54,7 @@ export function RecordDialog({
   allMenuItems?: RecordItem[];
   onClose: () => void;
   onClearError?: () => void;
-  onSave: (value: Record<string, unknown>) => void;
+  onSave: (value: Record<string, unknown>, options?: { keepOpen?: boolean }) => void | Promise<void>;
 }) {
   if (resource.key === "school-settings" && (record?.key === "site_datasource" || !record)) {
     return (

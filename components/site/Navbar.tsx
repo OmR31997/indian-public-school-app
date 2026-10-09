@@ -87,15 +87,12 @@ export function AnnouncementBar() {
 
   return (
     <div className="surface-navy relative z-40 text-navy-foreground">
-      <div className="container-page flex flex-col items-center justify-between gap-2 py-2.5 text-center sm:flex-row sm:text-left">
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start">
-          <span className="mr-2 inline-block rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold-foreground uppercase">
-            NEW
-          </span>
+      <div className="container-page flex items-center justify-center gap-2 py-2.5 text-center">
+        <div className="flex flex-wrap items-center justify-center gap-3 text-center">
           <span className="text-xs sm:text-sm font-semibold text-white/95">{noticeText}</span>
         </div>
       </div>
-    </div >
+    </div>
   );
 }
 

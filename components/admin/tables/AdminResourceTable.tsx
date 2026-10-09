@@ -705,7 +705,7 @@ export function HeaderFooterSettingsCard({
                   placeholder="https://res.cloudinary.com/... or /assets/logo.png"
                   value={siteLogo.logoUrl}
                   onChange={(e) => setSiteLogo((p) => ({ ...p, logoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium outline-none text-slate-700"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
                 />
                 <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
                   {uploadingSetting === "logoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
@@ -739,7 +739,7 @@ export function HeaderFooterSettingsCard({
                   placeholder="/assets/Settings/Logos/AakashFoundationLogo.png"
                   value={siteLogo.secondaryLogoUrl}
                   onChange={(e) => setSiteLogo((p) => ({ ...p, secondaryLogoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium outline-none text-slate-700"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
                 />
                 <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
                   {uploadingSetting === "secondaryLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
@@ -818,7 +818,7 @@ export function HeaderFooterSettingsCard({
                   readOnly
                   value={certifiedBoard.badgeUrl}
                   onChange={(e) => setCertifiedBoard((p) => ({ ...p, badgeUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium outline-none text-slate-700"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
                 />
                 <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
                   {uploadingSetting === "badgeUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
@@ -894,7 +894,7 @@ export function HeaderFooterSettingsCard({
                   readOnly
                   value={trustBoard.logoUrl}
                   onChange={(e) => setTrustBoard((p) => ({ ...p, logoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium outline-none text-slate-700"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
                 />
                 <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
                   {uploadingSetting === "trustLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
@@ -981,7 +981,7 @@ export function HeaderFooterSettingsCard({
                   readOnly
                   value={academicPartner.logoUrl}
                   onChange={(e) => setAcademicPartner((p) => ({ ...p, logoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium outline-none text-slate-700"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
                 />
                 <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
                   {uploadingSetting === "partnerLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}

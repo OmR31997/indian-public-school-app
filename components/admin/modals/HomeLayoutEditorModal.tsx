@@ -40,7 +40,7 @@ export function HomeLayoutEditorModal({
   allMenuItems?: RecordItem[];
   allSectionPages?: RecordItem[];
   onClose: () => void;
-  onSave: (value: Record<string, unknown>) => void;
+  onSave: (value: Record<string, unknown>, options?: { keepOpen?: boolean }) => void | Promise<void>;
 }) {
   const [activeTab, setActiveTab] = useState<
     | "header"
@@ -79,6 +79,8 @@ export function HomeLayoutEditorModal({
   };
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [showLivePopUpPreview, setShowLivePopUpPreview] = useState<boolean>(false);
+  const [saveSuccess, setSaveSuccess] = useState<string>("");
+  const [isSavingLocal, setIsSavingLocal] = useState<boolean>(false);
 
   React.useEffect(() => {
     const handleFullscreenChange = () => {
@@ -358,9 +360,12 @@ export function HomeLayoutEditorModal({
     }
   };
 
-  const handleSave = () => {
-    let finalVal = datasource;
+  const handleSave = async () => {
+    setIsSavingLocal(true);
+    setSaveSuccess("");
+    setUploadError("");
 
+    let finalVal = datasource;
 
     const homeList = Array.isArray(finalVal.home) ? [...finalVal.home] : [{}];
     const firstHome = { ...(homeList[0] || {}) };
@@ -413,14 +418,28 @@ export function HomeLayoutEditorModal({
       home: homeList,
     };
 
-    onSave({
-      key: record?.key || "site_datasource",
-      category: record?.category || "Content",
-      description: record?.description || "Full home page layout configuration datasource",
-      status: "Active",
-      value: finalVal,
-      isPublic: true,
-    });
+    try {
+      await onSave(
+        {
+          key: record?.key || "site_datasource",
+          category: record?.category || "Content",
+          description: record?.description || "Full home page layout configuration datasource",
+          status: "Active",
+          value: finalVal,
+          isPublic: true,
+        },
+        { keepOpen: true }
+      );
+      setSaveSuccess("Layout saved & published successfully!");
+      setTimeout(() => {
+        setSaveSuccess("");
+      }, 5000);
+    } catch (err: any) {
+      console.error("Error saving home layout:", err);
+      setUploadError(err?.message || "Failed to save & publish layout. Please try again.");
+    } finally {
+      setIsSavingLocal(false);
+    }
   };
 
   const updateHeaderField = (field: string, val: string) => {
@@ -3208,25 +3227,37 @@ export function HomeLayoutEditorModal({
 
         {/* Modal Footer */}
         <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-6 py-4">
-          <span className="text-xs text-slate-500 font-medium">
-            Editing <strong className="text-[#1a5d9c]">{activeTab}</strong> — edits update the live datasource instantly.
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-500 font-medium">
+              Editing <strong className="text-[#1a5d9c]">{activeTab}</strong> — edits update the live datasource instantly.
+            </span>
+            {saveSuccess && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 animate-in fade-in duration-200">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                {saveSuccess}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={onClose}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
+              onClick={handleCloseModal}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
             >
-              Cancel
+              Close
             </button>
             <button
               type="button"
               onClick={handleSave}
-              disabled={saving || uploading}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-emerald-700 disabled:opacity-50"
+              disabled={saving || isSavingLocal || uploading}
+              className={`flex items-center gap-1.5 rounded-xl px-5 py-2 text-xs font-bold text-white shadow-md transition cursor-pointer ${
+                saveSuccess
+                  ? "bg-emerald-700 hover:bg-emerald-800"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              } disabled:opacity-50`}
             >
-              {saving ? <span className="animate-spin">⏳</span> : null}
-              <span>Save & Publish Layout</span>
+              {saving || isSavingLocal ? <span className="animate-spin">⏳</span> : null}
+              <span>{saveSuccess ? "✓ Saved & Published" : "Save & Publish Layout"}</span>
             </button>
           </div>
         </div>
