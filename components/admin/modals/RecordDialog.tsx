@@ -301,7 +301,7 @@ export function RecordDialog({
         <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5 shrink-0 rounded-t-3xl z-20">
           <div>
             <h2 className="font-display text-2xl font-bold text-[#102a4c]">
-              {record ? "Edit" : resource.key === "school-settings" ? "Add / Edit" : "Add"} {resource.label.endsWith("s") ? resource.label.slice(0, -1) : resource.label}
+              {record ? "Edit" : "Add"} {resource.label.endsWith("s") ? resource.label.slice(0, -1) : resource.label}
             </h2>
             <p className="text-sm text-slate-500">Changes are sent to the school API and synced to Cloudinary.</p>
           </div>
