@@ -109,33 +109,16 @@ export function HomeSectionsTab({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-bold text-slate-500">Mission & Vision Cards</label>
-                <button
-                  type="button"
-                  onClick={() => addItemToSection("section-1", { heading: "New Pillar", description: "Pillar details", redirectUrl: "/about" })}
-                  className="flex items-center gap-1 text-xs font-bold text-[#1a5d9c] hover:underline"
-                >
-                  <Plus size={13} /> Add Card
-                </button>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {(Array.isArray(homeObj["section-1"]?.[0]?.cardItem) ? homeObj["section-1"][0].cardItem : []).map((card: any, idx: number) => (
                   <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-slate-400">Pillar #{idx + 1}</span>
-                      <div className="flex items-center gap-1">
-                        <button type="button" onClick={() => moveItemInSection("section-1", idx, "up")} disabled={idx === 0} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                          <ArrowUp size={12} />
-                        </button>
-                        <button type="button" onClick={() => moveItemInSection("section-1", idx, "down")} disabled={idx === homeObj["section-1"][0].cardItem.length - 1} className="text-slate-400 hover:text-slate-700 disabled:opacity-30">
-                          <ArrowDown size={12} />
-                        </button>
-                        <button type="button" onClick={() => deleteItemFromSection("section-1", idx)} className="text-red-500 hover:text-red-700">
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
+                      <span className="text-[11px] font-bold text-slate-400">{idx === 0 ? "Our Mission (Card #1)" : idx === 1 ? "Our Vision (Card #2)" : `Card #${idx + 1}`}</span>
                     </div>
                     <input
                       type="text"
+                      placeholder="Title (e.g. Our Mission)"
                       value={card.heading || ""}
                       onChange={(e) => {
                         const sec = [...(homeObj["section-1"] || [{}])];
@@ -148,6 +131,7 @@ export function HomeSectionsTab({
                     />
                     <textarea
                       rows={2}
+                      placeholder="Description"
                       value={card.description || ""}
                       onChange={(e) => {
                         const sec = [...(homeObj["section-1"] || [{}])];
@@ -158,6 +142,67 @@ export function HomeSectionsTab({
                       }}
                       className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none"
                     />
+
+                    {/* Icon / Image Upload Controls (Gallery & Cloudinary) */}
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <input
+                        type="text"
+                        readOnly
+                        placeholder="Icon/Image URL (pick via Gallery or Upload)"
+                        value={card.icoUrl || card.imageUrl || card.fileUrl || card.icon || ""}
+                        className="flex-1 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs text-slate-500 outline-none cursor-not-allowed"
+                      />
+                      {onOpenGalleryPicker && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onOpenGalleryPicker((url) => {
+                              const sec = [...(homeObj["section-1"] || [{}])];
+                              const cards = [...(sec[0].cardItem || [])];
+                              cards[idx] = { ...cards[idx], icoUrl: url, imageUrl: url, fileUrl: url, icon: url };
+                              sec[0] = { ...sec[0], cardItem: cards };
+                              updateHome((prev) => ({ ...prev, "section-1": sec }));
+                            }, "Choose Icon from Gallery");
+                          }}
+                          className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
+                          title="Pick icon from Cloudinary Gallery"
+                        >
+                          <ImageIcon size={13} className="text-amber-600" />
+                          <span>Gallery</span>
+                        </button>
+                      )}
+                      <label className="flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs">
+                        <UploadCloud size={13} className="text-[#1a5d9c]" />
+                        <span>{uploadingCard === `sec1-${idx}` ? "Uploading..." : "Upload"}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={uploadingCard === `sec1-${idx}`}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setUploadingCard(`sec1-${idx}`);
+                              try {
+                                const url = await uploadImage(file);
+                                if (url) {
+                                  const sec = [...(homeObj["section-1"] || [{}])];
+                                  const cards = [...(sec[0].cardItem || [])];
+                                  cards[idx] = { ...cards[idx], icoUrl: url, imageUrl: url, fileUrl: url, icon: url };
+                                  sec[0] = { ...sec[0], cardItem: cards };
+                                  updateHome((prev) => ({ ...prev, "section-1": sec }));
+                                }
+                              } catch (err) {
+                                console.error("Failed to upload icon:", err);
+                              } finally {
+                                setUploadingCard(null);
+                                e.target.value = "";
+                              }
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
                 ))}
               </div>
