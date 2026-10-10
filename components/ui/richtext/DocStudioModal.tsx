@@ -206,10 +206,17 @@ export const DocStudioModal: React.FC<DocStudioModalProps> = ({
                             <div className="flex gap-2">
                                 <input
                                     type="text"
+                                    readOnly
+                                    disabled
                                     value={docStudioUrl}
-                                    onChange={(e) => setDocStudioUrl(e.target.value)}
-                                    placeholder={docType === "word" ? "Paste Word doc URL..." : "Paste Excel spreadsheet URL..."}
-                                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-200 outline-none focus:border-blue-500"
+                                    placeholder={
+                                        docStudioUrl
+                                            ? docStudioUrl
+                                            : docType === "word"
+                                            ? "No Word document selected — click Gallery to select..."
+                                            : "No Excel spreadsheet selected — click Gallery to select..."
+                                    }
+                                    className="w-full rounded-xl border border-slate-800 bg-slate-950/80 px-3.5 py-2 text-xs font-mono text-slate-400 outline-none cursor-not-allowed select-none"
                                 />
                                 <button
                                     type="button"
