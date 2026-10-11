@@ -252,15 +252,26 @@ export function useRichTextEditor({
           <head>
             <meta charset="utf-8">
             <style>
+              html {
+                background: #f1f5f9;
+                padding: 24px 16px;
+                min-height: 100vh;
+                box-sizing: border-box;
+              }
               body {
                 font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                 font-size: 15px;
                 line-height: 1.7;
                 color: #1e293b;
-                padding: 24px;
-                margin: 0;
-                min-height: 380px;
+                padding: 36px 44px;
+                margin: 0 auto;
+                max-width: 1200px;
+                min-height: 580px;
+                background: #ffffff;
+                box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04);
+                border-radius: 16px;
                 outline: none;
+                box-sizing: border-box;
               }
               body:empty:before, body[data-empty="true"]:before {
                 content: attr(data-placeholder);
@@ -308,18 +319,19 @@ export function useRichTextEditor({
               .wysiwyg-block-toolbar {
                 position: absolute !important;
                 top: -38px !important;
-                right: 0 !important;
                 display: flex !important;
+                flex-wrap: wrap !important;
                 align-items: center !important;
                 gap: 4px !important;
+                max-width: calc(100vw - 32px) !important;
                 background: #0f172a !important;
                 color: #ffffff !important;
-                padding: 3px 8px !important;
+                padding: 4px 8px !important;
                 border-radius: 8px !important;
                 font-size: 11px !important;
                 font-weight: 700 !important;
                 font-family: system-ui, sans-serif !important;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.35) !important;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.4) !important;
                 border: 1px solid rgba(255,255,255,0.2) !important;
                 z-index: 999999 !important;
                 user-select: none !important;
@@ -351,6 +363,42 @@ export function useRichTextEditor({
               }
               .wysiwyg-block-toolbar button.btn-add-line:hover {
                 background: #059669 !important;
+              }
+              body.wysiwyg-is-moving-mode,
+              body.wysiwyg-is-moving-mode * {
+                cursor: grabbing !important;
+                cursor: -webkit-grabbing !important;
+                user-select: none !important;
+              }
+              .wysiwyg-moving-block {
+                outline: 3px dashed #f59e0b !important;
+                outline-offset: 4px !important;
+                box-shadow: 0 0 25px rgba(245, 158, 11, 0.5), 0 0 0 4px rgba(245, 158, 11, 0.2) !important;
+                border-radius: 12px !important;
+                animation: wysiwygPulseMove 1.5s infinite alternate !important;
+                position: relative !important;
+                cursor: grabbing !important;
+              }
+              @keyframes wysiwygPulseMove {
+                0% { outline-color: #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+                100% { outline-color: #3b82f6; box-shadow: 0 0 25px rgba(59, 130, 246, 0.65); }
+              }
+              .wysiwyg-drop-indicator {
+                height: 4px !important;
+                background: #3b82f6 !important;
+                border-radius: 4px !important;
+                margin: 8px 0 !important;
+                box-shadow: 0 0 14px #3b82f6 !important;
+                pointer-events: none !important;
+                transition: all 0.15s ease !important;
+              }
+              .wysiwyg-block-toolbar button.btn-pick-move {
+                background: #f59e0b !important;
+                color: #0f172a !important;
+              }
+              .wysiwyg-block-toolbar button.btn-pick-move:hover {
+                background: #d97706 !important;
+                color: #ffffff !important;
               }
               hr { border: none; border-top: 2px solid #e2e8f0; margin: 1.5rem 0; }
               pre { background: #0f172a; color: #38bdf8; padding: 16px; border-radius: 14px; font-family: monospace; overflow-x: auto; }
@@ -412,18 +460,427 @@ export function useRichTextEditor({
                 onChange(cleanHtml);
             };
 
+            const updateMovingState = (movingEl: HTMLElement | null) => {
+                if (!doc || !doc.body) return;
+                if (movingEl) {
+                    doc.body.classList.add("wysiwyg-is-moving-mode");
+                } else {
+                    doc.body.classList.remove("wysiwyg-is-moving-mode");
+                    doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+                }
+            };
+
+            const isComponentContainer = (el: HTMLElement): boolean => {
+                if (!doc || !el || el === doc.body || el === doc.documentElement) return false;
+                if (
+                    el.classList.contains("wysiwyg-block-toolbar") ||
+                    el.classList.contains("wysiwyg-resize-handle") ||
+                    el.classList.contains("wysiwyg-drop-indicator")
+                ) return false;
+
+                const tag = el.tagName.toLowerCase();
+                if (
+                    tag === "section" ||
+                    tag === "table" ||
+                    tag === "figure" ||
+                    tag === "blockquote" ||
+                    tag === "h1" ||
+                    tag === "h2" ||
+                    tag === "h3" ||
+                    tag === "h4" ||
+                    tag === "h5" ||
+                    tag === "h6" ||
+                    tag === "p" ||
+                    tag === "hr" ||
+                    tag === "ul" ||
+                    tag === "ol" ||
+                    tag === "li" ||
+                    tag === "a" ||
+                    tag === "pre" ||
+                    tag === "code" ||
+                    tag === "iframe" ||
+                    tag === "img"
+                ) return true;
+
+                if (tag === "div") {
+                    const style = (el.getAttribute("style") || "").toLowerCase();
+                    const classNames = (el.className || "").toLowerCase();
+                    return (
+                        style.includes("border") ||
+                        style.includes("background") ||
+                        style.includes("display: flex") ||
+                        style.includes("display: grid") ||
+                        classNames.includes("card") ||
+                        classNames.includes("banner") ||
+                        el.children.length > 0 ||
+                        !!el.textContent?.trim()
+                    );
+                }
+                return false;
+            };
+
+            const getClosestDropTarget = (target: HTMLElement, clientY: number): { dropTarget: HTMLElement; insertBefore: boolean } | null => {
+                if (!doc || !doc.body) return null;
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+
+                let candidate: HTMLElement | null = target;
+                while (candidate && candidate.parentElement && candidate.parentElement !== doc.body && candidate.parentElement.tagName !== "BODY") {
+                    if (isComponentContainer(candidate) && candidate !== movingBlock && !movingBlock?.contains(candidate)) {
+                        break;
+                    }
+                    candidate = candidate.parentElement;
+                }
+
+                if (!candidate || candidate === doc.body || candidate === doc.documentElement || candidate === movingBlock || movingBlock?.contains(candidate)) {
+                    const bodyChildren = Array.from(doc.body.children).filter(
+                        (child) =>
+                            child !== movingBlock &&
+                            !child.classList.contains("wysiwyg-block-toolbar") &&
+                            !child.classList.contains("wysiwyg-resize-handle") &&
+                            !child.classList.contains("wysiwyg-drop-indicator")
+                    ) as HTMLElement[];
+
+                    if (bodyChildren.length === 0) return null;
+
+                    let closestChild = bodyChildren[0];
+                    let minDistance = Math.abs(clientY - (closestChild.getBoundingClientRect().top + closestChild.getBoundingClientRect().height / 2));
+
+                    for (let i = 1; i < bodyChildren.length; i++) {
+                        const child = bodyChildren[i];
+                        const dist = Math.abs(clientY - (child.getBoundingClientRect().top + child.getBoundingClientRect().height / 2));
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            closestChild = child;
+                        }
+                    }
+                    candidate = closestChild;
+                }
+
+                if (candidate && candidate !== movingBlock && !movingBlock?.contains(candidate)) {
+                    const rect = candidate.getBoundingClientRect();
+                    const insertBefore = clientY < rect.top + rect.height / 2;
+                    return { dropTarget: candidate, insertBefore };
+                }
+                return null;
+            };
+
+            function bindBlockSelection(targetBlock: HTMLElement) {
+                if (!doc || !targetBlock) return;
+                doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+                doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+
+                targetBlock.classList.add("wysiwyg-selected-block");
+                setSelectedBlockEl(targetBlock);
+
+                if (targetBlock.tagName === "A") {
+                    const computedDisplay = doc.defaultView?.getComputedStyle(targetBlock).display;
+                    if (!computedDisplay || computedDisplay === "inline") {
+                        targetBlock.style.display = "inline-block";
+                    }
+                    targetBlock.style.cursor = "grab";
+                }
+
+                targetBlock.setAttribute("draggable", "true");
+                targetBlock.ondragstart = (dragEv: DragEvent) => {
+                    dragEv.stopPropagation();
+                    if (dragEv.dataTransfer) {
+                        dragEv.dataTransfer.setData("text/wysiwyg-block-drag", "1");
+                        dragEv.dataTransfer.effectAllowed = "move";
+                    }
+                    doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                    targetBlock.classList.add("wysiwyg-moving-block");
+                    targetBlock.style.opacity = "0.55";
+                    updateMovingState(targetBlock);
+                };
+                targetBlock.ondragend = () => {
+                    targetBlock.style.opacity = "";
+                    targetBlock.classList.remove("wysiwyg-moving-block");
+                    updateMovingState(null);
+                };
+                targetBlock.ondblclick = (dEv: MouseEvent) => {
+                    dEv.stopPropagation();
+                    dEv.preventDefault();
+                    if (targetBlock.classList.contains("wysiwyg-moving-block")) {
+                        targetBlock.classList.remove("wysiwyg-moving-block");
+                        updateMovingState(null);
+                    } else {
+                        doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                        targetBlock.classList.add("wysiwyg-moving-block");
+                        updateMovingState(targetBlock);
+                    }
+                };
+
+                const subInteractiveList = targetBlock.tagName === "IMG" || targetBlock.tagName === "A"
+                    ? [targetBlock]
+                    : Array.from(targetBlock.querySelectorAll<HTMLElement>("img, a"));
+
+                subInteractiveList.forEach((subEl) => {
+                    subEl.setAttribute("draggable", "true");
+                    subEl.ondragstart = (dragEv: DragEvent) => {
+                        dragEv.stopPropagation();
+                        if (dragEv.dataTransfer) {
+                            dragEv.dataTransfer.setData("text/wysiwyg-block-drag", "1");
+                            dragEv.dataTransfer.effectAllowed = "move";
+                        }
+                        doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                        subEl.classList.add("wysiwyg-moving-block");
+                        subEl.style.opacity = "0.55";
+                        updateMovingState(subEl);
+                    };
+                    subEl.ondragend = () => {
+                        subEl.style.opacity = "";
+                        subEl.classList.remove("wysiwyg-moving-block");
+                        updateMovingState(null);
+                    };
+                    subEl.ondblclick = (dEv: MouseEvent) => {
+                        dEv.stopPropagation();
+                        dEv.preventDefault();
+                        if (subEl.classList.contains("wysiwyg-moving-block")) {
+                            subEl.classList.remove("wysiwyg-moving-block");
+                            updateMovingState(null);
+                        } else {
+                            doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                            subEl.classList.add("wysiwyg-moving-block");
+                            updateMovingState(subEl);
+                            bindBlockSelection(subEl);
+                        }
+                    };
+                });
+
+                let parentBlock: HTMLElement | null = null;
+                let pCurr: HTMLElement | null = targetBlock.parentElement;
+                while (pCurr && pCurr !== doc.body && pCurr.tagName !== "BODY") {
+                    if (isComponentContainer(pCurr)) {
+                        parentBlock = pCurr;
+                        break;
+                    }
+                    pCurr = pCurr.parentElement;
+                }
+
+                const currentPos = doc.defaultView?.getComputedStyle(targetBlock).position;
+                if (!currentPos || currentPos === "static") {
+                    targetBlock.style.position = "relative";
+                }
+
+                const tb = doc.createElement("div");
+                tb.className = "wysiwyg-block-toolbar";
+                tb.contentEditable = "false";
+
+                const blockRect = targetBlock.getBoundingClientRect();
+                const isNearTop = targetBlock.offsetTop < 45 || blockRect.top < 45;
+                const isNearLeft = blockRect.left < 180 || targetBlock.offsetLeft < 180;
+                const isOverflowHidden = doc.defaultView?.getComputedStyle(targetBlock).overflow !== "visible";
+
+                if (isNearTop || isOverflowHidden) {
+                    tb.style.setProperty("top", "6px", "important");
+                } else {
+                    tb.style.setProperty("top", "-38px", "important");
+                }
+
+                if (isNearLeft) {
+                    tb.style.setProperty("left", isNearTop || isOverflowHidden ? "6px" : "0px", "important");
+                    tb.style.setProperty("right", "auto", "important");
+                } else {
+                    tb.style.setProperty("right", isNearTop || isOverflowHidden ? "6px" : "0px", "important");
+                    tb.style.setProperty("left", "auto", "important");
+                }
+
+                const parentBtnHtml = parentBlock
+                    ? `<button type="button" class="btn-select-parent" title="Switch selection to Outer Parent Box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="m18 15-6-6-6 6"/></svg>Outer Box (&lt;${parentBlock.tagName.toLowerCase()}&gt;)</button>`
+                    : ``;
+
+                tb.innerHTML = `
+                    <span style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
+                    ${parentBtnHtml}
+                    <label style="display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,0.18); padding:2px 6px; border-radius:4px; cursor:pointer;" title="Change Component Background Color">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.6 1.95-1.5.28-1.02-.32-2.12-1.35-2.42-.42-.12-.7-.47-.7-.91 0-.6.44-1.09 1.04-1.15.59-.06 1.13.34 1.25.93.38 1.83 1.94 3.05 3.81 3.05 2.21 0 4-1.79 4-4 0-4.42-3.58-8-8-8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/></svg>
+                        <span style="font-size:10px; font-weight:800;">BG</span>
+                        <input type="color" class="btn-bg-picker" style="width:16px; height:16px; border:none; padding:0; background:none; cursor:pointer;" />
+                    </label>
+                    <button type="button" class="btn-pick-move" title="Double-Click or Click here to Move & Auto-Arrange object anywhere"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l3-3-3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>Move / Auto-Arrange</button>
+                    <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
+                    <button type="button" class="btn-move-up" title="Move Up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
+                    <button type="button" class="btn-move-down" title="Move Down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+                    <button type="button" class="btn-delete" title="Delete Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
+                `;
+
+                tb.querySelector(".btn-pick-move")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (targetBlock.classList.contains("wysiwyg-moving-block")) {
+                        targetBlock.classList.remove("wysiwyg-moving-block");
+                        updateMovingState(null);
+                    } else {
+                        doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                        targetBlock.classList.add("wysiwyg-moving-block");
+                        updateMovingState(targetBlock);
+                    }
+                });
+
+                if (parentBlock) {
+                    tb.querySelector(".btn-select-parent")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        bindBlockSelection(parentBlock!);
+                    });
+                }
+
+                tb.querySelector(".btn-bg-picker")?.addEventListener("input", (evt: any) => {
+                    evt.stopPropagation();
+                    applyBgToElement(targetBlock, evt.target.value);
+                    syncContent();
+                });
+
+                tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    targetBlock.remove();
+                    setSelectedBlockEl(null);
+                    setSelectedImageEl(null);
+                    syncContent();
+                });
+
+                tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    const newP = doc.createElement("p");
+                    newP.innerHTML = "<br>";
+                    targetBlock.insertAdjacentElement("afterend", newP);
+
+                    const sel = doc.getSelection();
+                    if (sel) {
+                        const range = doc.createRange();
+                        range.setStart(newP, 0);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                    syncContent();
+                });
+
+                tb.querySelector(".btn-move-up")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (targetBlock.previousElementSibling) {
+                        targetBlock.parentNode?.insertBefore(targetBlock, targetBlock.previousElementSibling);
+                        syncContent();
+                    }
+                });
+
+                tb.querySelector(".btn-move-down")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (targetBlock.nextElementSibling) {
+                        targetBlock.parentNode?.insertBefore(targetBlock.nextElementSibling, targetBlock);
+                        syncContent();
+                    }
+                });
+
+                targetBlock.appendChild(tb);
+
+                const handle = doc.createElement("div");
+                handle.className = "wysiwyg-resize-handle bottom-right";
+                handle.title = "Drag corner to extend or reduce size";
+                handle.contentEditable = "false";
+
+                let startX = 0;
+                let startY = 0;
+                let startW = 0;
+                let startH = 0;
+
+                const onMouseMove = (moveEv: MouseEvent) => {
+                    const dx = moveEv.clientX - startX;
+                    const dy = moveEv.clientY - startY;
+                    const newW = Math.max(120, startW + dx);
+                    targetBlock.style.width = newW + "px";
+                    targetBlock.style.maxWidth = "100%";
+                    if (Math.abs(dy) > 15) {
+                        const newH = Math.max(40, startH + dy);
+                        targetBlock.style.height = newH + "px";
+                    }
+                };
+
+                const onMouseUp = () => {
+                    doc.removeEventListener("mousemove", onMouseMove);
+                    doc.removeEventListener("mouseup", onMouseUp);
+                    window.removeEventListener("mousemove", onMouseMove);
+                    window.removeEventListener("mouseup", onMouseUp);
+                    syncContent();
+                };
+
+                handle.addEventListener("mousedown", (mEv: MouseEvent) => {
+                    mEv.stopPropagation();
+                    mEv.preventDefault();
+                    startX = mEv.clientX;
+                    startY = mEv.clientY;
+                    startW = targetBlock.offsetWidth;
+                    startH = targetBlock.offsetHeight;
+
+                    doc.addEventListener("mousemove", onMouseMove);
+                    doc.addEventListener("mouseup", onMouseUp);
+                    window.addEventListener("mousemove", onMouseMove);
+                    window.addEventListener("mouseup", onMouseUp);
+                });
+
+                targetBlock.appendChild(handle);
+            }
+
+            const handleDocMouseMove = (e: MouseEvent) => {
+                if (!doc) return;
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+                if (!movingBlock) return;
+
+                updateMovingState(movingBlock);
+
+                const result = getClosestDropTarget(e.target as HTMLElement, e.clientY);
+
+                doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+
+                if (result) {
+                    const indicator = doc.createElement("div");
+                    indicator.className = "wysiwyg-drop-indicator";
+                    indicator.contentEditable = "false";
+                    if (result.insertBefore) {
+                        result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget);
+                    } else {
+                        result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget.nextElementSibling);
+                    }
+                }
+            };
+
             const handleDocClick = (e: MouseEvent) => {
+                if (!doc) return;
                 const target = e.target as HTMLElement;
 
                 if (target?.closest?.(".wysiwyg-block-toolbar") || target?.closest?.(".wysiwyg-resize-handle")) {
                     return;
                 }
 
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+                if (movingBlock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const result = getClosestDropTarget(target, e.clientY);
+                    if (result) {
+                        if (result.insertBefore) {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget);
+                        } else {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget.nextElementSibling);
+                        }
+                    } else {
+                        doc.body.appendChild(movingBlock);
+                    }
+
+                    movingBlock.classList.remove("wysiwyg-moving-block");
+                    updateMovingState(null);
+                    bindBlockSelection(movingBlock);
+                    syncContent();
+                    return;
+                }
+
                 const imgEl = (target && target.tagName === "IMG" ? target : target?.closest?.("img")) as HTMLImageElement | null;
                 const anchorEl = (target && target.tagName === "A" ? target : target?.closest?.("a")) as HTMLAnchorElement | null;
-                const tableEl = (target && target.tagName === "TABLE" ? target : target?.closest?.("table")) as HTMLTableElement | null;
-                const cellEl = (target && (target.tagName === "TD" || target.tagName === "TH") ? target : target?.closest?.("td, th")) as HTMLTableCellElement | null;
-                const rowEl = (target && target.tagName === "TR" ? target : target?.closest?.("tr")) as HTMLTableRowElement | null;
 
                 if (imgEl) {
                     imgEl.classList.add("wysiwyg-selected-img");
@@ -444,129 +901,17 @@ export function useRichTextEditor({
                         container.appendChild(imgEl);
                     }
 
-                    container.classList.add("wysiwyg-selected-block");
-                    setSelectedBlockEl(container);
-
-                    if (!container.querySelector(".wysiwyg-resize-handle")) {
-                        const tb = doc.createElement("div");
-                        tb.className = "wysiwyg-block-toolbar";
-                        tb.contentEditable = "false";
-
-                        const isImgNearTop = container.offsetTop < 42 || container.getBoundingClientRect().top < 42;
-                        if (isImgNearTop) {
-                            tb.style.setProperty("top", "6px", "important");
-                            tb.style.setProperty("right", "6px", "important");
-                        } else {
-                            tb.style.setProperty("top", "-38px", "important");
-                            tb.style.setProperty("right", "0px", "important");
-                        }
-
-                        tb.innerHTML = `
-                            <span style="opacity:0.8; font-family:monospace;">&lt;img&gt;</span>
-                            <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
-                            <button type="button" class="btn-delete" title="Delete Image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
-                        `;
-
-                        tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                            container.remove();
-                            setSelectedBlockEl(null);
-                            setSelectedImageEl(null);
-                            syncContent();
-                        });
-
-                        tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                            const newP = doc.createElement("p");
-                            newP.innerHTML = "<br>";
-                            container.insertAdjacentElement("afterend", newP);
-
-                            const sel = doc.getSelection();
-                            if (sel) {
-                                const range = doc.createRange();
-                                range.setStart(newP, 0);
-                                range.collapse(true);
-                                sel.removeAllRanges();
-                                sel.addRange(range);
-                            }
-                            syncContent();
-                        });
-
-                        container.appendChild(tb);
-
-                        const handle = doc.createElement("div");
-                        handle.className = "wysiwyg-resize-handle bottom-right";
-                        handle.title = "Drag corner to extend or reduce image size";
-                        handle.contentEditable = "false";
-
-                        let startX = 0;
-                        let startY = 0;
-                        let startW = 0;
-                        let startH = 0;
-
-                        const onMouseMove = (moveEv: MouseEvent) => {
-                            const dx = moveEv.clientX - startX;
-                            const dy = moveEv.clientY - startY;
-                            const newW = Math.max(60, startW + dx);
-                            imgEl.style.width = newW + "px";
-                            imgEl.style.maxWidth = "100%";
-                            container.style.width = newW + "px";
-                            container.style.maxWidth = "100%";
-                            if (Math.abs(dy) > 15) {
-                                const newH = Math.max(40, startH + dy);
-                                imgEl.style.height = newH + "px";
-                            } else {
-                                imgEl.style.height = "auto";
-                            }
-                        };
-
-                        const onMouseUp = () => {
-                            doc.removeEventListener("mousemove", onMouseMove);
-                            doc.removeEventListener("mouseup", onMouseUp);
-                            window.removeEventListener("mousemove", onMouseMove);
-                            window.removeEventListener("mouseup", onMouseUp);
-                            syncContent();
-                        };
-
-                        handle.addEventListener("mousedown", (mEv: MouseEvent) => {
-                            mEv.stopPropagation();
-                            mEv.preventDefault();
-                            startX = mEv.clientX;
-                            startY = mEv.clientY;
-                            startW = imgEl.offsetWidth || container.offsetWidth;
-                            startH = imgEl.offsetHeight || container.offsetHeight;
-
-                            doc.addEventListener("mousemove", onMouseMove);
-                            doc.addEventListener("mouseup", onMouseUp);
-                            window.addEventListener("mousemove", onMouseMove);
-                            window.addEventListener("mouseup", onMouseUp);
-                        });
-
-                        container.appendChild(handle);
-                    }
+                    bindBlockSelection(container);
                     return;
                 }
 
-                const isComponentContainer = (el: HTMLElement): boolean => {
-                    if (!el || el === doc.body || el === doc.documentElement) return false;
-                    const tag = el.tagName.toLowerCase();
-                    if (tag === "section" || tag === "table" || tag === "figure" || tag === "blockquote") return true;
-                    if (tag === "div") {
-                        const style = (el.getAttribute("style") || "").toLowerCase();
-                        const classNames = (el.className || "").toLowerCase();
-                        return (
-                            style.includes("border") ||
-                            style.includes("background") ||
-                            style.includes("display: flex") ||
-                            style.includes("display: grid") ||
-                            classNames.includes("card") ||
-                            classNames.includes("banner")
-                        );
-                    }
-                    return false;
-                };
+                if (anchorEl) {
+                    doc.querySelectorAll("a.wysiwyg-selected-link").forEach((el) => el.classList.remove("wysiwyg-selected-link"));
+                    anchorEl.classList.add("wysiwyg-selected-link");
+                    setSelectedAnchorEl(anchorEl);
+                    bindBlockSelection(anchorEl);
+                    return;
+                }
 
                 let topBlock: HTMLElement | null = null;
                 let curr: HTMLElement | null = target;
@@ -580,216 +925,9 @@ export function useRichTextEditor({
                 if (!topBlock && curr && curr !== doc.body && isComponentContainer(curr)) {
                     topBlock = curr;
                 }
-
-                const targetForResizing = topBlock;
-
-                if (targetForResizing && targetForResizing.querySelector(".wysiwyg-resize-handle")) {
-                    return;
+                if (topBlock) {
+                    bindBlockSelection(topBlock);
                 }
-
-                doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
-                doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
-                doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
-                doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
-
-                if (!targetForResizing) {
-                    if (!anchorEl && !tableEl) {
-                        setSelectedBlockEl(null);
-                        setSelectedImageEl(null);
-                        setSelectedAnchorEl(null);
-                        setSelectedTableEl(null);
-                        setSelectedTableCellEl(null);
-                        setSelectedTableRowEl(null);
-                    }
-                    if (anchorEl) {
-                        anchorEl.classList.add("wysiwyg-selected-link");
-                        setSelectedAnchorEl(anchorEl);
-                    }
-                    if (tableEl) {
-                        setSelectedTableEl(tableEl);
-                        setSelectedTableCellEl(cellEl);
-                        setSelectedTableRowEl(rowEl);
-                    }
-                    return;
-                }
-
-                if (anchorEl) {
-                    anchorEl.classList.add("wysiwyg-selected-link");
-                    setSelectedAnchorEl(anchorEl);
-                } else {
-                    setSelectedAnchorEl(null);
-                }
-
-                if (tableEl) {
-                    setSelectedTableEl(tableEl);
-                    setSelectedTableCellEl(cellEl);
-                    setSelectedTableRowEl(rowEl);
-                }
-
-                const bindBlockSelection = (targetBlock: HTMLElement) => {
-                    doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
-                    doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
-
-                    targetBlock.classList.add("wysiwyg-selected-block");
-                    setSelectedBlockEl(targetBlock);
-
-                    let parentBlock: HTMLElement | null = null;
-                    let pCurr: HTMLElement | null = targetBlock.parentElement;
-                    while (pCurr && pCurr !== doc.body && pCurr.tagName !== "BODY") {
-                        if (isComponentContainer(pCurr)) {
-                            parentBlock = pCurr;
-                            break;
-                        }
-                        pCurr = pCurr.parentElement;
-                    }
-
-                    const currentPos = doc.defaultView?.getComputedStyle(targetBlock).position;
-                    if (!currentPos || currentPos === "static") {
-                        targetBlock.style.position = "relative";
-                    }
-
-                    const tb = doc.createElement("div");
-                    tb.className = "wysiwyg-block-toolbar";
-                    tb.contentEditable = "false";
-
-                    const isNearTop = targetBlock.offsetTop < 45 || targetBlock.getBoundingClientRect().top < 45;
-                    const isOverflowHidden = doc.defaultView?.getComputedStyle(targetBlock).overflow !== "visible";
-
-                    if (isNearTop || isOverflowHidden) {
-                        tb.style.setProperty("top", "6px", "important");
-                        tb.style.setProperty("right", "6px", "important");
-                    } else {
-                        tb.style.setProperty("top", "-38px", "important");
-                        tb.style.setProperty("right", "0px", "important");
-                    }
-
-                    const parentBtnHtml = parentBlock
-                        ? `<button type="button" class="btn-select-parent" title="Switch selection to Outer Parent Box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="m18 15-6-6-6 6"/></svg>Outer Box (&lt;${parentBlock.tagName.toLowerCase()}&gt;)</button>`
-                        : ``;
-
-                    tb.innerHTML = `
-                        <span style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
-                        ${parentBtnHtml}
-                        <label style="display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,0.18); padding:2px 6px; border-radius:4px; cursor:pointer;" title="Change Component Background Color">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.6 1.95-1.5.28-1.02-.32-2.12-1.35-2.42-.42-.12-.7-.47-.7-.91 0-.6.44-1.09 1.04-1.15.59-.06 1.13.34 1.25.93.38 1.83 1.94 3.05 3.81 3.05 2.21 0 4-1.79 4-4 0-4.42-3.58-8-8-8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/></svg>
-                            <span style="font-size:10px; font-weight:800;">BG</span>
-                            <input type="color" class="btn-bg-picker" style="width:16px; height:16px; border:none; padding:0; background:none; cursor:pointer;" />
-                        </label>
-                        <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
-                        <button type="button" class="btn-move-up" title="Move Up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
-                        <button type="button" class="btn-move-down" title="Move Down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-                        <button type="button" class="btn-delete" title="Delete Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
-                    `;
-
-                    if (parentBlock) {
-                        tb.querySelector(".btn-select-parent")?.addEventListener("mousedown", (evt) => {
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                            bindBlockSelection(parentBlock!);
-                        });
-                    }
-
-                    tb.querySelector(".btn-bg-picker")?.addEventListener("input", (evt: any) => {
-                        evt.stopPropagation();
-                        applyBgToElement(targetBlock, evt.target.value);
-                        syncContent();
-                    });
-
-                    tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        targetBlock.remove();
-                        setSelectedBlockEl(null);
-                        setSelectedImageEl(null);
-                        syncContent();
-                    });
-
-                    tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        const newP = doc.createElement("p");
-                        newP.innerHTML = "<br>";
-                        targetBlock.insertAdjacentElement("afterend", newP);
-
-                        const sel = doc.getSelection();
-                        if (sel) {
-                            const range = doc.createRange();
-                            range.setStart(newP, 0);
-                            range.collapse(true);
-                            sel.removeAllRanges();
-                            sel.addRange(range);
-                        }
-                        syncContent();
-                    });
-
-                    tb.querySelector(".btn-move-up")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        if (targetBlock.previousElementSibling) {
-                            targetBlock.parentNode?.insertBefore(targetBlock, targetBlock.previousElementSibling);
-                            syncContent();
-                        }
-                    });
-
-                    tb.querySelector(".btn-move-down")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        if (targetBlock.nextElementSibling) {
-                            targetBlock.parentNode?.insertBefore(targetBlock.nextElementSibling, targetBlock);
-                            syncContent();
-                        }
-                    });
-
-                    targetBlock.appendChild(tb);
-
-                    const handle = doc.createElement("div");
-                    handle.className = "wysiwyg-resize-handle bottom-right";
-                    handle.title = "Drag corner to extend or reduce size";
-                    handle.contentEditable = "false";
-
-                    let startX = 0;
-                    let startY = 0;
-                    let startW = 0;
-                    let startH = 0;
-
-                    const onMouseMove = (moveEv: MouseEvent) => {
-                        const dx = moveEv.clientX - startX;
-                        const dy = moveEv.clientY - startY;
-                        const newW = Math.max(120, startW + dx);
-                        targetBlock.style.width = newW + "px";
-                        targetBlock.style.maxWidth = "100%";
-                        if (Math.abs(dy) > 15) {
-                            const newH = Math.max(40, startH + dy);
-                            targetBlock.style.height = newH + "px";
-                        }
-                    };
-
-                    const onMouseUp = () => {
-                        doc.removeEventListener("mousemove", onMouseMove);
-                        doc.removeEventListener("mouseup", onMouseUp);
-                        window.removeEventListener("mousemove", onMouseMove);
-                        window.removeEventListener("mouseup", onMouseUp);
-                        syncContent();
-                    };
-
-                    handle.addEventListener("mousedown", (mEv: MouseEvent) => {
-                        mEv.stopPropagation();
-                        mEv.preventDefault();
-                        startX = mEv.clientX;
-                        startY = mEv.clientY;
-                        startW = targetBlock.offsetWidth;
-                        startH = targetBlock.offsetHeight;
-
-                        doc.addEventListener("mousemove", onMouseMove);
-                        doc.addEventListener("mouseup", onMouseUp);
-                        window.addEventListener("mousemove", onMouseMove);
-                        window.addEventListener("mouseup", onMouseUp);
-                    });
-
-                    targetBlock.appendChild(handle);
-                };
-
-                bindBlockSelection(targetForResizing);
             };
 
             const handleSelectionOrInput = () => {
@@ -849,13 +987,52 @@ export function useRichTextEditor({
 
             const handleDragOver = (e: DragEvent) => {
                 e.preventDefault();
-                if (e.dataTransfer) {
+                if (!doc) return;
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+
+                if (movingBlock) {
+                    if (e.dataTransfer) {
+                        e.dataTransfer.dropEffect = "move";
+                    }
+                    const result = getClosestDropTarget(e.target as HTMLElement, e.clientY);
+
+                    if (result) {
+                        doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+                        const indicator = doc.createElement("div");
+                        indicator.className = "wysiwyg-drop-indicator";
+                        indicator.contentEditable = "false";
+
+                        if (result.insertBefore) {
+                            result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget);
+                        } else {
+                            result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget.nextElementSibling);
+                        }
+                    }
+                } else if (e.dataTransfer) {
                     e.dataTransfer.dropEffect = "copy";
                 }
             };
 
             const handleDrop = (e: DragEvent) => {
+                if (!doc) return;
                 e.preventDefault();
+
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+                const indicator = doc.querySelector(".wysiwyg-drop-indicator") as HTMLElement | null;
+
+                if (movingBlock && indicator && indicator.parentElement) {
+                    indicator.parentElement.insertBefore(movingBlock, indicator);
+                    indicator.remove();
+                    movingBlock.classList.remove("wysiwyg-moving-block");
+                    movingBlock.style.opacity = "";
+                    updateMovingState(null);
+                    bindBlockSelection(movingBlock);
+                    syncContent();
+                    return;
+                }
+
+                doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+
                 const compId = e.dataTransfer?.getData("text/plain");
 
                 if (compId) {
@@ -898,9 +1075,65 @@ export function useRichTextEditor({
                 }
             };
 
+            const handleDocDblClick = (e: MouseEvent) => {
+                if (!doc) return;
+                const target = e.target as HTMLElement;
+                if (!target || target === doc.body || target === doc.documentElement) return;
+                if (target.closest(".wysiwyg-block-toolbar") || target.closest(".wysiwyg-resize-handle")) return;
+
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+
+                if (movingBlock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const result = getClosestDropTarget(target, e.clientY);
+                    if (result) {
+                        if (result.insertBefore) {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget);
+                        } else {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget.nextElementSibling);
+                        }
+                    } else {
+                        doc.body.appendChild(movingBlock);
+                    }
+
+                    movingBlock.classList.remove("wysiwyg-moving-block");
+                    updateMovingState(null);
+                    bindBlockSelection(movingBlock);
+                    syncContent();
+                    return;
+                }
+
+                let targetBlock: HTMLElement | null = null;
+                let curr: HTMLElement | null = target;
+                while (curr && curr.parentElement && curr.parentElement !== doc.body && curr.parentElement.tagName !== "BODY") {
+                    if (isComponentContainer(curr)) {
+                        targetBlock = curr;
+                        break;
+                    }
+                    curr = curr.parentElement;
+                }
+                if (!targetBlock && curr && curr !== doc.body && isComponentContainer(curr)) {
+                    targetBlock = curr;
+                }
+
+                if (targetBlock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                    targetBlock.classList.add("wysiwyg-moving-block");
+                    updateMovingState(targetBlock);
+                    bindBlockSelection(targetBlock);
+                }
+            };
+
             doc.addEventListener("keyup", syncContent);
             doc.addEventListener("paste", () => setTimeout(syncContent, 50));
             doc.addEventListener("click", handleDocClick);
+            doc.addEventListener("mousemove", handleDocMouseMove);
+            doc.addEventListener("dblclick", handleDocDblClick);
             doc.addEventListener("selectionchange", handleSelectionOrInput);
             doc.addEventListener("input", handleSelectionOrInput);
             doc.addEventListener("keydown", handleKeyDown);
