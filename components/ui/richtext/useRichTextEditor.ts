@@ -28,6 +28,9 @@ export function useRichTextEditor({
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [showToolbox, setShowToolbox] = useState(true);
 
+    const [canvasMode, setCanvasMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+    const [pageBgColor, setPageBgColor] = useState<string>("#ffffff");
+
     const [colorMenuOpen, setColorMenuOpen] = useState(false);
     const [highlightMenuOpen, setHighlightMenuOpen] = useState(false);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -252,26 +255,40 @@ export function useRichTextEditor({
           <head>
             <meta charset="utf-8">
             <style>
+              * {
+                box-sizing: border-box !important;
+              }
               html {
                 background: #f1f5f9;
-                padding: 24px 16px;
+                padding: 16px 0;
+                margin: 0;
+                width: 100%;
                 min-height: 100vh;
                 box-sizing: border-box;
+                overflow-x: hidden !important;
               }
               body {
                 font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                 font-size: 15px;
                 line-height: 1.7;
                 color: #1e293b;
-                padding: 36px 44px;
+                padding: 32px 36px;
                 margin: 0 auto;
-                max-width: 1200px;
+                width: 100%;
+                max-width: 100%;
                 min-height: 580px;
                 background: #ffffff;
                 box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04);
-                border-radius: 16px;
+                border-radius: 0;
                 outline: none;
                 box-sizing: border-box;
+                overflow-x: hidden !important;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+              }
+              img, table, iframe, pre, figure, section, div, p, blockquote {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
               }
               body:empty:before, body[data-empty="true"]:before {
                 content: attr(data-placeholder);
@@ -1263,9 +1280,45 @@ export function useRichTextEditor({
         }
     };
 
+    const updateCanvasMode = (mode: "desktop" | "tablet" | "mobile") => {
+        setCanvasMode(mode);
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        if (doc && doc.body) {
+            const widthMap = {
+                desktop: "100%",
+                tablet: "768px",
+                mobile: "375px",
+            };
+            doc.body.style.width = widthMap[mode];
+            doc.body.style.maxWidth = "100%";
+            doc.body.style.boxSizing = "border-box";
+            doc.body.style.transition = "all 0.35s ease";
+            if (mode === "desktop") {
+                doc.body.style.margin = "0 auto";
+                doc.body.style.borderRadius = "0";
+                doc.body.style.padding = "32px 36px";
+            } else {
+                doc.body.style.margin = "0 auto";
+                doc.body.style.borderRadius = "16px";
+                if (mode === "mobile") {
+                    doc.body.style.padding = "20px 16px";
+                } else {
+                    doc.body.style.padding = "28px 32px";
+                }
+            }
+            if (doc.documentElement) {
+                doc.documentElement.style.overflowX = "hidden";
+                doc.documentElement.style.margin = "0";
+                doc.documentElement.style.padding = mode === "desktop" ? "0" : "16px 0";
+            }
+            syncIframeToState();
+        }
+    };
+
     const getCleanHtmlFromDoc = (d: Document): string => {
         const clone = d.body.cloneNode(true) as HTMLElement;
-        clone.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+        clone.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar, .wysiwyg-drop-indicator").forEach((el) => el.remove());
         clone.querySelectorAll("figure.wysiwyg-img-container").forEach((fig) => {
             const img = fig.querySelector("img");
             if (img) {
@@ -1274,22 +1327,28 @@ export function useRichTextEditor({
             fig.remove();
         });
         clone.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+        clone.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
         clone.querySelectorAll("img.wysiwyg-selected-img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
         clone.querySelectorAll("a.wysiwyg-selected-link").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
         const html = clone.innerHTML;
         if (html === "<br>") return "";
 
-        const bodyBg = d.body.style.backgroundColor;
-        if (bodyBg && bodyBg !== "transparent" && bodyBg !== "rgba(0, 0, 0, 0)") {
-            const firstChild = clone.firstElementChild;
-            if (clone.children.length === 1 && firstChild && firstChild.classList.contains("wysiwyg-page-wrapper")) {
-                (firstChild as HTMLElement).style.backgroundColor = bodyBg;
-                return clone.innerHTML;
-            } else {
-                return `<div class="wysiwyg-page-wrapper" style="background-color: ${bodyBg}; padding: 24px; border-radius: 16px; min-height: 100%;">${html}</div>`;
-            }
+        const bodyBg = d.body.style.backgroundColor || pageBgColor;
+        const bodyColor = d.body.style.color;
+        const bodyWidth = d.body.style.maxWidth || "100%";
+
+        const firstChild = clone.firstElementChild;
+        if (clone.children.length === 1 && firstChild && firstChild.classList.contains("wysiwyg-page-wrapper")) {
+            if (bodyBg && bodyBg !== "transparent") (firstChild as HTMLElement).style.backgroundColor = bodyBg;
+            if (bodyColor) (firstChild as HTMLElement).style.color = bodyColor;
+            (firstChild as HTMLElement).setAttribute("data-canvas-mode", canvasMode);
+            return clone.innerHTML;
+        } else {
+            const bgStyle = bodyBg && bodyBg !== "transparent" ? `background-color: ${bodyBg};` : "";
+            const colorStyle = bodyColor ? `color: ${bodyColor};` : "";
+            const borderRadiusCss = canvasMode === "desktop" ? "0px" : "16px";
+            return `<div class="wysiwyg-page-wrapper" data-canvas-mode="${canvasMode}" style="${bgStyle} ${colorStyle} padding: 32px 24px; margin: 0 auto; width: 100%; max-width: ${bodyWidth}; border-radius: ${borderRadiusCss}; min-height: 100%; box-sizing: border-box; overflow-x: hidden; word-wrap: break-word; overflow-wrap: break-word;">${html}</div>`;
         }
-        return html;
     };
 
     const syncIframeToState = () => {
@@ -1863,6 +1922,12 @@ export function useRichTextEditor({
         setLinkStyle,
         editingAnchorEl,
         setEditingAnchorEl,
+        canvasMode,
+        setCanvasMode,
+        updateCanvasMode,
+        pageBgColor,
+        setPageBgColor,
+        updatePageBgColor,
         // Methods
         openPdfStudio,
         isFrameStudioOpen,
@@ -1894,7 +1959,6 @@ export function useRichTextEditor({
         applyBgToElement,
         updateBlockBgColor,
         selectParentBlock,
-        updatePageBgColor,
         openStudioForTargetImage,
         openStudioForSelectedImage,
         applyQuickImageResize,
