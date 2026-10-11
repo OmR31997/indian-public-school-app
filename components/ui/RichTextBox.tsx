@@ -163,6 +163,10 @@ export function RichTextBox({
                 selectedAnchorEl={editor.selectedAnchorEl}
                 insertParagraphAfterSelectedBlock={editor.insertParagraphAfterSelectedBlock}
                 deleteSelectedBlock={editor.deleteSelectedBlock}
+                canvasMode={editor.canvasMode}
+                updateCanvasMode={editor.updateCanvasMode}
+                pageBgColor={editor.pageBgColor}
+                updatePageBgColor={editor.updatePageBgColor}
             />
 
             {/* Main Content Workspace with Visual Basic Toolbox */}
@@ -224,7 +228,7 @@ export function RichTextBox({
 
                     {editor.activeTab === "preview" && (
                         <div
-                            className={`w-full p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base dynamic-page-content ${editor.isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
+                            className={`w-full max-w-full overflow-x-hidden box-border p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base dynamic-page-content ${editor.isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
                                 }`}
                             dangerouslySetInnerHTML={{
                                 __html:
@@ -253,7 +257,10 @@ export function RichTextBox({
                 isOpen={editor.isGalleryOpen}
                 onClose={() => editor.setIsGalleryOpen(false)}
                 onSelectImage={(url) => {
-                    if (editor.isPdfStudioOpen) {
+                    if (editor.isFrameStudioOpen) {
+                        editor.setFrameStudioImageUrl(url);
+                        editor.setIsGalleryOpen(false);
+                    } else if (editor.isPdfStudioOpen) {
                         editor.setPdfStudioUrl(url);
                         const rawFileName = url.split("/").pop() || "Official Document";
                         const cleanName = rawFileName.replace(/\.(pdf|jpg|jpeg|png|webp)$/i, "").replace(/[-_]/g, " ");
