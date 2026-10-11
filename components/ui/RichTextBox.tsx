@@ -277,8 +277,9 @@ export function RichTextBox({
                             editor.setDocType("word");
                         }
                         editor.setIsGalleryOpen(false);
-                    } else if (editor.selectedImageEl) {
-                        editor.selectedImageEl.src = isPdfFile(url) ? getCloudinaryPdfThumbnailUrl(url, 1, 1000) : url;
+                    } else if (editor.selectedImageEl || editor.selectedBlockEl?.querySelector("img") || (editor.selectedBlockEl?.tagName === "IMG" ? editor.selectedBlockEl : null)) {
+                        const targetImg = (editor.selectedImageEl || (editor.selectedBlockEl?.tagName === "IMG" ? editor.selectedBlockEl : editor.selectedBlockEl?.querySelector("img"))) as HTMLImageElement;
+                        targetImg.src = isPdfFile(url) ? getCloudinaryPdfThumbnailUrl(url, 1, 1000) : url;
                         editor.setSelectedImageEl(null);
                         editor.syncIframeToState();
                         editor.setIsGalleryOpen(false);

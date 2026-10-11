@@ -106,7 +106,20 @@ export function CloudinaryGalleryModal({
       setLoading(true);
       try {
         const galleryRes = await getOptionalApi<any>("/gallery?limit=1000");
-        const dbItems = unwrapCollection<any>(galleryRes);
+        let dbItems = unwrapCollection<any>(galleryRes);
+
+        // Fallback to offline collections if API fails, times out, or returns empty
+        if (!dbItems || dbItems.length === 0) {
+          try {
+            const fallbackRes = await fetch("/collections/galleries.json");
+            if (fallbackRes.ok) {
+              const fallbackJson = await fallbackRes.json();
+              if (Array.isArray(fallbackJson) && fallbackJson.length > 0) {
+                dbItems = fallbackJson;
+              }
+            }
+          } catch {}
+        }
 
         const fetchedMedia: MediaItem[] = (Array.isArray(dbItems) ? dbItems : []).flatMap(
           (item: any, idx: number): MediaItem[] => {

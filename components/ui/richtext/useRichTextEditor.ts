@@ -706,9 +706,15 @@ export function useRichTextEditor({
                     ? `<button type="button" class="btn-select-parent" title="Switch selection to Outer Parent Box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="m18 15-6-6-6 6"/></svg>Outer Box (&lt;${parentBlock.tagName.toLowerCase()}&gt;)</button>`
                     : ``;
 
+                const targetImgEl = (targetBlock.tagName === "IMG" ? targetBlock : targetBlock.querySelector("img")) as HTMLImageElement | null;
+                const changeImgBtnHtml = targetImgEl
+                    ? `<button type="button" class="btn-change-image" title="Change / Replace Image from Media Gallery" style="background:#2563eb; color:#ffffff; padding:2px 8px; border-radius:4px; font-weight:700; font-size:11px; display:inline-flex; align-items:center; gap:4px; border:none; cursor:pointer;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:2px;"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>Change Image</button>`
+                    : ``;
+
                 tb.innerHTML = `
                     <span style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
                     ${parentBtnHtml}
+                    ${changeImgBtnHtml}
                     <label style="display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,0.18); padding:2px 6px; border-radius:4px; cursor:pointer;" title="Change Component Background Color">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.6 1.95-1.5.28-1.02-.32-2.12-1.35-2.42-.42-.12-.7-.47-.7-.91 0-.6.44-1.09 1.04-1.15.59-.06 1.13.34 1.25.93.38 1.83 1.94 3.05 3.81 3.05 2.21 0 4-1.79 4-4 0-4.42-3.58-8-8-8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/></svg>
                         <span style="font-size:10px; font-weight:800;">BG</span>
@@ -720,6 +726,17 @@ export function useRichTextEditor({
                     <button type="button" class="btn-move-down" title="Move Down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
                     <button type="button" class="btn-delete" title="Delete Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
                 `;
+
+                if (targetImgEl) {
+                    tb.querySelector(".btn-change-image")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        doc.querySelectorAll("img").forEach((i) => i.classList.remove("wysiwyg-selected-img"));
+                        targetImgEl.classList.add("wysiwyg-selected-img");
+                        setSelectedImageEl(targetImgEl);
+                        setIsGalleryOpen(true);
+                    });
+                }
 
                 tb.querySelector(".btn-pick-move")?.addEventListener("mousedown", (evt) => {
                     evt.stopPropagation();
@@ -902,6 +919,12 @@ export function useRichTextEditor({
                 if (imgEl) {
                     imgEl.classList.add("wysiwyg-selected-img");
                     setSelectedImageEl(imgEl);
+
+                    if (imgEl.closest("section, article")) {
+                        const parentComp = imgEl.closest("section, article") as HTMLElement;
+                        bindBlockSelection(parentComp);
+                        return;
+                    }
 
                     let container: HTMLElement;
                     if (imgEl.parentElement && imgEl.parentElement.classList.contains("wysiwyg-img-container")) {

@@ -94,6 +94,23 @@ export const RichTextQuickActions: React.FC<RichTextQuickActionsProps> = ({
             <div className="flex items-center gap-1.5 flex-wrap">
                 {selectedEl && (
                     <>
+                        {Boolean(selectedImageEl || (selectedBlockEl?.tagName === "IMG" ? selectedBlockEl : selectedBlockEl?.querySelector("img"))) && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const img = selectedImageEl || (selectedBlockEl?.tagName === "IMG" ? selectedBlockEl : selectedBlockEl?.querySelector("img")) as HTMLImageElement | null;
+                                    if (img) {
+                                        img.classList.add("wysiwyg-selected-img");
+                                    }
+                                    setIsGalleryOpen(true);
+                                }}
+                                className="flex items-center gap-1.5 rounded-xl border border-blue-400 bg-blue-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer animate-in fade-in"
+                                title="Change or replace this image using Media Gallery"
+                            >
+                                <ImageIcon size={13} />
+                                <span>Change Image (Gallery)</span>
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={selectParentBlock}
