@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { LoaderCircle } from "lucide-react";
 import { useTheme, ThemeConfig, DEFAULT_THEME } from "@/components/providers/ThemeProvider";
 import { API_URL } from "../config/admin.config";
 
@@ -15,6 +16,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
   const [themes, setThemes] = useState<ThemeConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingThemeId, setDeletingThemeId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -212,6 +214,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
     }
     if (!confirm(`Are you sure you want to delete theme "${theme.name}"?`)) return;
 
+    setDeletingThemeId(theme._id);
     setSaving(true);
     setError(null);
     try {
@@ -223,6 +226,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
       setError(err.response?.data?.message || "Failed to delete theme");
     } finally {
       setSaving(false);
+      setDeletingThemeId(null);
     }
   };
 
@@ -527,11 +531,15 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                         {!theme.isPreset && theme._id && (
                           <button
                             onClick={() => handleDeleteTheme(theme)}
-                            disabled={isActive || saving}
-                            className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all disabled:opacity-40"
-                            title="Delete Theme"
+                            disabled={isActive || saving || Boolean(deletingThemeId)}
+                            className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all disabled:opacity-40 cursor-pointer"
+                            title={deletingThemeId === theme._id ? "Deleting Theme..." : "Delete Theme"}
                           >
-                            <i className="bi bi-trash-fill"></i>
+                            {deletingThemeId === theme._id ? (
+                              <LoaderCircle className="w-3.5 h-3.5 animate-spin text-red-500" />
+                            ) : (
+                              <i className="bi bi-trash-fill"></i>
+                            )}
                           </button>
                         )}
                       </div>
@@ -573,10 +581,22 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                   <button
                     onClick={() => handleSaveTheme(true)}
                     disabled={saving}
-                    className="inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold bg-[#102a4c] hover:bg-[#1a3d6a] text-white transition-all shadow-md whitespace-nowrap shrink-0"
+                    className="inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold bg-[#102a4c] hover:bg-[#1a3d6a] text-white transition-all shadow-md whitespace-nowrap shrink-0 disabled:opacity-60 cursor-pointer"
                   >
-                    <i className="bi bi-floppy-fill text-[#f4bd4f]"></i>
-                    <span>{customizerMode === "create" ? "Create & Save Theme" : "Update Theme"}</span>
+                    {saving ? (
+                      <LoaderCircle className="w-3.5 h-3.5 animate-spin text-[#f4bd4f]" />
+                    ) : (
+                      <i className="bi bi-floppy-fill text-[#f4bd4f]"></i>
+                    )}
+                    <span>
+                      {saving
+                        ? customizerMode === "create"
+                          ? "Creating Theme..."
+                          : "Updating Theme..."
+                        : customizerMode === "create"
+                        ? "Create & Save Theme"
+                        : "Update Theme"}
+                    </span>
                   </button>
                 </div>
               </div>

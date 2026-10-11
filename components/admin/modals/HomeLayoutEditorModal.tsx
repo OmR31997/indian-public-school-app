@@ -3357,8 +3357,8 @@ export function HomeLayoutEditorModal({
                   : "bg-emerald-600 hover:bg-emerald-700"
               } disabled:opacity-50`}
             >
-              {saving || isSavingLocal ? <span className="animate-spin">⏳</span> : null}
-              <span>{saveSuccess ? "✓ Saved & Published" : "Save & Publish Layout"}</span>
+              {saving || isSavingLocal ? <Loader2 size={14} className="animate-spin text-white" /> : null}
+              <span>{saving || isSavingLocal ? "Saving & Publishing..." : saveSuccess ? "✓ Saved & Published" : "Save & Publish Layout"}</span>
             </button>
           </div>
         </div>

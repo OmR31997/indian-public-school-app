@@ -11,6 +11,7 @@ import {
   Trash2,
   X,
   SlidersHorizontal,
+  LoaderCircle,
 } from "lucide-react";
 import { getFileType } from "@/components/admin/CloudinaryGalleryModal";
 import { FileViewerModal } from "@/components/ui/FileViewerModal";
@@ -212,12 +213,14 @@ export function StructuredDetailValue({
 export function MediaDetailDialog({
   item,
   resource,
+  isDeleting = false,
   onClose,
   onEdit,
   onDelete,
 }: {
   item: RecordItem;
   resource?: Resource;
+  isDeleting?: boolean;
   onClose: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -452,13 +455,23 @@ export function MediaDetailDialog({
               {onDelete && (
                 <button
                   type="button"
+                  disabled={isDeleting}
                   onClick={() => {
-                    onClose();
                     onDelete();
                   }}
-                  className="inline-flex items-center gap-2 rounded-xl border border-red-200/80 bg-red-50/80 px-4 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100 hover:border-red-300 hover:text-red-700 cursor-pointer active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-xl border border-red-200/80 bg-red-50/80 px-4 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100 hover:border-red-300 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95"
                 >
-                  <Trash2 size={14} className="text-red-500" /> Delete
+                  {isDeleting ? (
+                    <>
+                      <LoaderCircle size={14} className="animate-spin text-red-600" />
+                      <span>Deleting…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} className="text-red-500" />
+                      <span>Delete</span>
+                    </>
+                  )}
                 </button>
               )}
             </div>

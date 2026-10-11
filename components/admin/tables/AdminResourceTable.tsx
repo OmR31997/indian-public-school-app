@@ -48,10 +48,12 @@ export function MenuHierarchyFlow({
   items,
   onEdit,
   onDelete,
+  deletingId,
 }: {
   items: RecordItem[];
   onEdit: (item: RecordItem) => void;
   onDelete: (item: RecordItem) => void;
+  deletingId?: string | null;
 }) {
   const itemMap = new Map<string, RecordItem & { children: any[] }>();
 
@@ -117,11 +119,16 @@ export function MenuHierarchyFlow({
                 </button>
                 <button
                   type="button"
+                  disabled={Boolean(deletingId)}
                   onClick={() => onDelete(root)}
-                  className="rounded-lg p-1.5 text-red-300 hover:bg-white/10 hover:text-red-200"
-                  title="Delete Root Item"
+                  className="rounded-lg p-1.5 text-red-300 hover:bg-white/10 hover:text-red-200 disabled:opacity-50 cursor-pointer"
+                  title={deletingId === itemId(root) ? "Deleting..." : "Delete Root Item"}
                 >
-                  <Trash2 size={15} />
+                  {deletingId === itemId(root) ? (
+                    <LoaderCircle size={15} className="animate-spin text-red-300" />
+                  ) : (
+                    <Trash2 size={15} />
+                  )}
                 </button>
               </div>
             </div>
@@ -156,11 +163,16 @@ export function MenuHierarchyFlow({
                         </button>
                         <button
                           type="button"
+                          disabled={Boolean(deletingId)}
                           onClick={() => onDelete(sub)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                          title="Delete Sub Item"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 cursor-pointer"
+                          title={deletingId === itemId(sub) ? "Deleting..." : "Delete Sub Item"}
                         >
-                          <Trash2 size={14} />
+                          {deletingId === itemId(sub) ? (
+                            <LoaderCircle size={14} className="animate-spin text-red-600" />
+                          ) : (
+                            <Trash2 size={14} />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -190,11 +202,16 @@ export function MenuHierarchyFlow({
                                 </button>
                                 <button
                                   type="button"
+                                  disabled={Boolean(deletingId)}
                                   onClick={() => onDelete(subSub)}
-                                  className="rounded-lg p-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                                  title="Delete Sub-item"
+                                  className="rounded-lg p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 cursor-pointer"
+                                  title={deletingId === itemId(subSub) ? "Deleting..." : "Delete Sub-item"}
                                 >
-                                  <Trash2 size={13} />
+                                  {deletingId === itemId(subSub) ? (
+                                    <LoaderCircle size={13} className="animate-spin text-red-600" />
+                                  ) : (
+                                    <Trash2 size={13} />
+                                  )}
                                 </button>
                               </div>
                             </div>
@@ -1083,6 +1100,7 @@ export function ResourceView({
   resource,
   items,
   loading,
+  deletingId,
   query,
   meta,
   onQueryChange,
@@ -1097,6 +1115,7 @@ export function ResourceView({
   resource: Resource;
   items: RecordItem[];
   loading: boolean;
+  deletingId?: string | null;
   query: QueryParamsState;
   meta: PaginationMeta | undefined;
   onQueryChange: (params: Partial<QueryParamsState>) => void;
@@ -1115,6 +1134,12 @@ export function ResourceView({
   const [activeAlbum, setActiveAlbum] = useState<string>("All");
   const [detailItem, setDetailItem] = useState<RecordItem | null>(null);
   const [localSearch, setLocalSearch] = useState(query.search || "");
+
+  useEffect(() => {
+    if (detailItem && !items.some((i) => itemId(i) === itemId(detailItem))) {
+      setDetailItem(null);
+    }
+  }, [items, detailItem]);
 
   useEffect(() => {
     setLocalSearch(query.search || "");
@@ -1308,7 +1333,9 @@ export function ResourceView({
                   return (
                     <div
                       key={itemId(item)}
-                      className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition hover:border-slate-300 hover:shadow-md"
+                      className={`group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition hover:border-slate-300 hover:shadow-md ${
+                        deletingId === itemId(item) ? "opacity-50 pointer-events-none ring-2 ring-red-300" : ""
+                      }`}
                     >
                       <div className="relative aspect-video w-full overflow-hidden bg-slate-100 flex items-center justify-center">
                         <SmartFileThumbnail
@@ -1319,15 +1346,16 @@ export function ResourceView({
                         <div className="absolute inset-0 bg-slate-950/40 opacity-0 transition group-hover:opacity-100 flex items-center justify-center gap-2">
                           <button
                             onClick={() => setDetailItem(item)}
-                            className="rounded-xl bg-white/90 p-2 text-slate-800 shadow-md hover:bg-white hover:scale-105 transition"
+                            className="rounded-xl bg-white/90 p-2 text-slate-800 shadow-md hover:bg-white hover:scale-105 transition cursor-pointer"
                             title="Inspect item"
                           >
                             <Eye size={16} />
                           </button>
                           {canEdit && (
                             <button
+                              disabled={Boolean(deletingId)}
                               onClick={() => onEdit(item)}
-                              className="rounded-xl bg-white/90 p-2 text-[#1a5d9c] shadow-md hover:bg-white hover:scale-105 transition"
+                              className="rounded-xl bg-white/90 p-2 text-[#1a5d9c] shadow-md hover:bg-white hover:scale-105 transition disabled:opacity-40 cursor-pointer"
                               title="Edit item"
                             >
                               <Pencil size={16} />
@@ -1335,11 +1363,20 @@ export function ResourceView({
                           )}
                           {canDelete && (
                             <button
+                              disabled={Boolean(deletingId)}
                               onClick={() => onDelete(item)}
-                              className="rounded-xl bg-white/90 p-2 text-red-600 shadow-md hover:bg-white hover:scale-105 transition"
-                              title="Delete item"
+                              className={`rounded-xl bg-white/90 p-2 shadow-md transition ${
+                                deletingId === itemId(item)
+                                  ? "text-red-600 cursor-wait ring-1 ring-red-300"
+                                  : "text-red-600 hover:bg-white hover:scale-105 disabled:opacity-40 cursor-pointer"
+                              }`}
+                              title={deletingId === itemId(item) ? "Deleting item..." : "Delete item"}
                             >
-                              <Trash2 size={16} />
+                              {deletingId === itemId(item) ? (
+                                <LoaderCircle size={16} className="animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 size={16} />
+                              )}
                             </button>
                           )}
                         </div>
@@ -1362,7 +1399,7 @@ export function ResourceView({
             )}
           </div>
         ) : isMenuResource && menuViewMode === "flow" ? (
-          <MenuHierarchyFlow items={items} onEdit={onEdit} onDelete={onDelete} />
+          <MenuHierarchyFlow items={items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -1390,7 +1427,12 @@ export function ResourceView({
                     const isSuperUser = resource.key === "users" && isSuperAdminRole(item.role);
                     const rowPreviewUrl = getPreviewUrl(item);
                     return (
-                      <tr key={itemId(item)} className="transition hover:bg-slate-50/80">
+                      <tr
+                        key={itemId(item)}
+                        className={`transition ${
+                          deletingId === itemId(item) ? "bg-red-50/40 opacity-50 pointer-events-none" : "hover:bg-slate-50/80"
+                        }`}
+                      >
                         {resource.fields.map((field) => {
                           const formatted = formatValue(field, item[field], item, items);
                           if (field === "role") {
@@ -1440,7 +1482,7 @@ export function ResourceView({
                               {item.key !== "site_logo" && (
                                 <button
                                   onClick={() => setDetailItem(item)}
-                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
+                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
                                   title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
                                 >
                                   <Eye size={16} />
@@ -1448,8 +1490,9 @@ export function ResourceView({
                               )}
                               {canEdit && item.key !== "site_logo" && (
                                 <button
+                                  disabled={Boolean(deletingId)}
                                   onClick={() => onEdit(item)}
-                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
+                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] disabled:opacity-40 cursor-pointer"
                                   title="Edit record"
                                 >
                                   <Pencil size={16} />
@@ -1466,11 +1509,20 @@ export function ResourceView({
                                   </button>
                                 ) : (
                                   <button
+                                    disabled={Boolean(deletingId)}
                                     onClick={() => onDelete(item)}
-                                    className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                                    title="Delete record"
+                                    className={`rounded-lg p-2 transition ${
+                                      deletingId === itemId(item)
+                                        ? "bg-red-50 text-red-600 cursor-wait ring-1 ring-red-300"
+                                        : "text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-40 cursor-pointer"
+                                    }`}
+                                    title={deletingId === itemId(item) ? "Deleting record..." : "Delete record"}
                                   >
-                                    <Trash2 size={16} />
+                                    {deletingId === itemId(item) ? (
+                                      <LoaderCircle size={16} className="animate-spin text-red-600" />
+                                    ) : (
+                                      <Trash2 size={16} />
+                                    )}
                                   </button>
                                 )
                               )}
@@ -1547,6 +1599,7 @@ export function ResourceView({
           <MediaDetailDialog
             item={detailItem}
             resource={resource}
+            isDeleting={Boolean(deletingId && detailItem && deletingId === itemId(detailItem))}
             onClose={() => setDetailItem(null)}
             onEdit={canEdit ? () => onEdit(detailItem) : undefined}
             onDelete={canDelete && !(resource.key === "users" && isSuperAdminRole(detailItem.role)) ? () => onDelete(detailItem) : undefined}

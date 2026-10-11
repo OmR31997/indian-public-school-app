@@ -305,12 +305,23 @@ export function RecordDialog({
             </h2>
             <p className="text-sm text-slate-500">Changes are sent to the school API and synced to Cloudinary.</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 cursor-pointer">
+          <button
+            type="button"
+            disabled={saving || Boolean(uploading)}
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
             <X size={19} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 grid gap-4 sm:grid-cols-2">
+        {saving && (
+          <div className="relative h-1 w-full overflow-hidden bg-blue-100 shrink-0">
+            <div className="h-full w-full bg-[#1a5d9c] animate-pulse" />
+          </div>
+        )}
+
+        <div className={`flex-1 overflow-y-auto p-6 grid gap-4 sm:grid-cols-2 ${saving ? "opacity-75 pointer-events-none" : ""}`}>
           {formError && (
             <div className="sm:col-span-2 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-900 shadow-2xs animate-in fade-in duration-150">
               <AlertCircle size={18} className="shrink-0 text-red-600 mt-0.5" />
@@ -890,15 +901,29 @@ export function RecordDialog({
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/80 px-6 py-4 shrink-0 rounded-b-3xl z-10">
-          <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">
+          <button
+            type="button"
+            disabled={saving || Boolean(uploading)}
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
             Cancel
           </button>
           <button
+            type="submit"
             disabled={saving || Boolean(uploading)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition"
           >
-            {saving && <LoaderCircle size={16} className="animate-spin" />}
-            {saving ? "Saving…" : "Save changes"}
+            {saving && <LoaderCircle size={16} className="animate-spin text-white" />}
+            <span>
+              {saving
+                ? record
+                  ? "Updating record…"
+                  : "Adding record…"
+                : record
+                  ? `Update ${resource.label.endsWith("s") ? resource.label.slice(0, -1) : resource.label}`
+                  : `Add ${resource.label.endsWith("s") ? resource.label.slice(0, -1) : resource.label}`}
+            </span>
           </button>
         </div>
       </form>
