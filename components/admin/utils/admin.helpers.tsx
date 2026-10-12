@@ -330,6 +330,9 @@ export function titleCase(value: string) {
   if (value === "inquiryType" || value === "enquirieType") return "Enquiry Type";
   if (value === "profileImageUrl") return "Student Profile Photo (Cloudinary)";
   if (value === "marksheetUrl") return "Previous Year Marksheet (Cloudinary)";
+  if (value === "avatar") return "Avatar / Profile Photo";
+  if (value === "resume") return "Resume / CV Document";
+  if (value === "document") return "Document / Certificates";
   if (value === "parentId") return "Parent Item (Hierarchy)";
   if (value === "targetUrl") return "Target Redirect URL";
   if (value === "textContent") return "Page Rich Content (HTML/Text)";

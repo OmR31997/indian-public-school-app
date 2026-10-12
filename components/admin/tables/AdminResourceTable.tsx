@@ -18,6 +18,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   LoaderCircle,
   UploadCloud,
   Check,
@@ -32,7 +33,7 @@ import {
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
 import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types/admin.types";
-import { API_URL } from "../config/admin.config";
+import { API_URL, resourcePath } from "../config/admin.config";
 import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
 import { MediaDetailDialog } from "../modals/MediaDetailDialog";
 import { HomePreviewModal } from "../modals/HomePreviewModal";
@@ -1406,7 +1407,10 @@ export function ResourceView({
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-500">
                   {resource.fields.map((field) => (
-                    <th key={field} className="whitespace-nowrap px-5 py-3.5">
+                    <th
+                      key={field}
+                      className={`whitespace-nowrap px-5 py-3.5 ${field === "status" ? "text-center" : ""}`}
+                    >
                       {field}
                     </th>
                   ))}
@@ -1445,6 +1449,130 @@ export function ResourceView({
                             );
                           }
 
+                          if (field === "name") {
+                            const avatarUrl = item.avatar || item.profileImageUrl || item.photo;
+                            return (
+                              <td key={field} className="max-w-[240px] px-5 py-4 text-sm text-slate-900 font-bold">
+                                <div className="flex items-center gap-2.5">
+                                  {avatarUrl ? (
+                                    <img
+                                      src={imageUrl(String(avatarUrl))}
+                                      alt={String(item.name || "Avatar")}
+                                      className="h-8 w-8 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                    />
+                                  ) : resource.key === "students" || resource.key === "staff" ? (
+                                    <div className="h-8 w-8 rounded-full bg-[#102a4c] text-[#f4bd4f] font-bold text-[11px] flex items-center justify-center shrink-0 border border-white/10">
+                                      {String(item.name || "").substring(0, 2).toUpperCase() || "?"}
+                                    </div>
+                                  ) : null}
+                                  <span className="truncate">{formatted}</span>
+                                </div>
+                              </td>
+                            );
+                          }
+
+                          if (field === "status") {
+                            const statusStr = String(item[field] || "Active");
+                            const sLower = statusStr.toLowerCase();
+                            const isAct = sLower === "active" || sLower === "published" || sLower === "approved";
+                            const isMid = sLower === "on leave" || sLower === "in progress" || sLower === "pending";
+                            const isOff = sLower === "inactive" || sLower === "draft" || sLower === "closed" || sLower === "rejected";
+
+                            const statusOptions = resource.options?.status || (
+                              resource.key === "students"
+                                ? ["Active", "Inactive"]
+                                : resource.key === "staff"
+                                ? ["Active", "On Leave", "Inactive"]
+                                : []
+                            );
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit && statusOptions.length > 0 ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={statusStr}
+                                      onChange={async (e) => {
+                                        const newStatus = e.target.value;
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { status: newStatus },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update status", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isAct
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : isMid
+                                          ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100/80"
+                                          : isOff
+                                          ? "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
+                                          : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                      title="Click to change status"
+                                    >
+                                      {statusOptions.map((opt) => (
+                                        <option key={opt} value={opt} className="text-slate-900 bg-white font-semibold">
+                                          {opt}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : isMid
+                                          ? "bg-amber-500 shadow-xs shadow-amber-400"
+                                          : isOff
+                                          ? "bg-rose-500 shadow-xs shadow-rose-400"
+                                          : "bg-slate-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isAct ? "text-emerald-600" : isMid ? "text-amber-600" : isOff ? "text-rose-600" : "text-slate-500"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isAct
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : isMid
+                                        ? "border-amber-200 bg-amber-50 text-amber-800"
+                                        : isOff
+                                        ? "border-rose-200 bg-rose-50 text-rose-800"
+                                        : "border-slate-200 bg-slate-50 text-slate-700"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : isMid
+                                          ? "bg-amber-500 shadow-xs shadow-amber-400"
+                                          : isOff
+                                          ? "bg-rose-500 shadow-xs shadow-rose-400"
+                                          : "bg-slate-400"
+                                      }`}
+                                    />
+                                    <span>{statusStr}</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          }
+
                           return (
                             <td key={field} className="max-w-[220px] px-5 py-4 text-sm text-slate-600">
                               <span
@@ -1465,9 +1593,14 @@ export function ResourceView({
                             </td>
                           );
                         })}
-                        {(canEdit || canDelete || isMediaResource || rowPreviewUrl) && (
-                          <td className="whitespace-nowrap px-5 py-4">
-                            <div className="flex items-center justify-end gap-1">
+                        {(() => {
+                          if (!canEdit && !canDelete && !isMediaResource && !rowPreviewUrl) {
+                            return null;
+                          }
+
+                          return (
+                            <td className="whitespace-nowrap px-5 py-4">
+                              <div className="flex items-center justify-end gap-1">
                               {rowPreviewUrl && item.key !== "site_logo" && (
                                 <a
                                   href={rowPreviewUrl}
@@ -1528,7 +1661,8 @@ export function ResourceView({
                               )}
                             </div>
                           </td>
-                        )}
+                        );
+                      })()}
                       </tr>
                     );
                   })

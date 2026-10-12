@@ -78,36 +78,75 @@ export function StructuredDetailValue({
     }
   }
 
-  if (typeof val === "string" && (val.startsWith("http://") || val.startsWith("https://"))) {
+  if (
+    typeof val === "string" &&
+    (val.startsWith("http://") ||
+      val.startsWith("https://") ||
+      (val.startsWith("/") &&
+        (/\.(jpg|jpeg|png|webp|gif|svg|pdf|doc|docx)$/i.test(val) ||
+          val.includes("/Student/") ||
+          val.includes("/Staff/") ||
+          val.includes("/Careers/") ||
+          val.includes("/AdmissionDocuments/"))))
+  ) {
+    const fullUrl = imageUrl(val);
+    const isDoc = isDocumentFile(val) || isPdfFile(val);
     const isImg =
       (/\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(val) ||
-      val.includes("cloudinary") ||
-      val.includes("/uploads/")) && !isDocumentFile(val);
+        val.includes("cloudinary") ||
+        val.includes("/uploads/") ||
+        keyName === "avatar") &&
+      !isDoc;
+
     if (isImg) {
       return (
         <div className="flex items-center gap-3 font-sans">
           <SmartFileThumbnail
-            url={imageUrl(val)}
+            url={fullUrl}
             alt={keyName}
             className="h-12 w-12 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
           />
           <div className="min-w-0 flex-1">
             <a
-              href={val}
+              href={fullUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="truncate text-xs font-bold text-[#1a5d9c] hover:underline block"
             >
               {val}
             </a>
-            <span className="text-[10px] text-slate-400 font-medium">Asset Attachment</span>
+            <span className="text-[10px] text-slate-400 font-medium">Image Attachment</span>
           </div>
         </div>
       );
     }
+
+    if (isDoc) {
+      return (
+        <div className="flex items-center gap-3 font-sans">
+          <SmartFileThumbnail
+            url={fullUrl}
+            alt={keyName}
+            className="h-12 w-12 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <a
+              href={fullUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="truncate text-xs font-bold text-[#1a5d9c] hover:underline block"
+            >
+              {val}
+            </a>
+            <span className="text-[10px] text-slate-400 font-medium">Document / Attachment</span>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <a
-        href={val}
+        href={fullUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="break-all text-xs font-bold text-[#1a5d9c] hover:underline font-sans"
@@ -118,6 +157,50 @@ export function StructuredDetailValue({
   }
 
   if (Array.isArray(val)) {
+    const isUrlArray =
+      val.length > 0 &&
+      val.every(
+        (itemVal) =>
+          typeof itemVal === "string" &&
+          (itemVal.startsWith("http://") ||
+            itemVal.startsWith("https://") ||
+            itemVal.startsWith("/") ||
+            /\.(jpg|jpeg|png|webp|gif|svg|pdf|doc|docx)$/i.test(itemVal))
+      );
+
+    if (isUrlArray) {
+      return (
+        <div className="flex flex-col gap-2.5 font-sans">
+          {val.map((itemVal, i) => {
+            const strVal = String(itemVal);
+            const fullUrl = imageUrl(strVal);
+            return (
+              <div key={i} className="flex items-center gap-3 p-1.5 rounded-xl border border-slate-100 bg-slate-50/60">
+                <SmartFileThumbnail
+                  url={fullUrl}
+                  alt={`${keyName}-${i}`}
+                  className="h-10 w-10 rounded-lg object-cover border border-slate-200 shadow-2xs shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <a
+                    href={fullUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="truncate text-xs font-bold text-[#1a5d9c] hover:underline block"
+                  >
+                    {strVal}
+                  </a>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    Document {i + 1} of {val.length}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-wrap gap-1 font-sans">
         {val.map((itemVal, i) => (

@@ -309,6 +309,8 @@ export function CloudinaryGalleryModal({
     categoryMap.set("settings", "Settings");
     categoryMap.set("icons", "Icons");
     categoryMap.set("logos", "Logos");
+    categoryMap.set("student", "Student");
+    categoryMap.set("staff", "Staff");
     categoryMap.set("admissiondocuments", "AdmissionDocuments");
 
     mediaList.forEach((m) => {
@@ -346,6 +348,22 @@ export function CloudinaryGalleryModal({
       if (activeCategory === "Images") return fType === "image";
 
       const activeNorm = normalizeCategoryKey(activeCategory).toLowerCase();
+
+      if (activeNorm === "student") {
+        return (
+          m.category.toLowerCase().includes("student") ||
+          (m.directory && m.directory.toLowerCase().includes("student")) ||
+          m.url.toLowerCase().includes("student")
+        );
+      }
+
+      if (activeNorm === "staff") {
+        return (
+          m.category.toLowerCase().includes("staff") ||
+          (m.directory && m.directory.toLowerCase().includes("staff")) ||
+          m.url.toLowerCase().includes("staff")
+        );
+      }
 
       if (activeNorm === "admissiondocuments") {
         return (
