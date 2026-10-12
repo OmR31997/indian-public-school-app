@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
-import { Link as LinkIcon, X, CheckCircle2, Trash2, Check } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Link as LinkIcon, X, CheckCircle2, Trash2, Check, Globe, Building2, ShieldCheck, AlertTriangle } from "lucide-react";
+import axios from "axios";
+import { API_URL } from "@/lib/api-client";
 
 export interface LinkStudioModalProps {
     isOpen: boolean;
@@ -18,6 +20,33 @@ export interface LinkStudioModalProps {
     setLinkStyle: (style: "text" | "gold-button" | "navy-button" | "outline-button" | "pill-badge") => void;
     applyHyperlink: () => void;
     removeHyperlink: () => void;
+    menuItems?: Array<any>;
+}
+
+// Recursive parser helper for nested menu items from https://api-ips.ezsoftapp.in/api/v1/menu-items API
+function parseMenuItemsRecursively(items: any[], parentTitle = ""): Array<{ title: string; rawTitle: string; url: string }> {
+    let result: Array<{ title: string; rawTitle: string; url: string }> = [];
+    if (!Array.isArray(items)) return result;
+
+    items.forEach((item) => {
+        const isPublished = item.isPublished !== false && String(item.isPublished) !== "false";
+        if (!isPublished) return;
+
+        const url = String(item.targetUrl || item.linkUrl || item.url || item.href || (item.slug ? `/${item.slug}` : "")).trim();
+        const rawTitle = String(item.title || "").trim();
+        const displayTitle = parentTitle ? `${parentTitle} ➔ ${rawTitle}` : rawTitle;
+
+        if (url && rawTitle && url !== "#") {
+            result.push({ title: displayTitle, rawTitle, url });
+        }
+
+        if (Array.isArray(item.subItems) && item.subItems.length > 0) {
+            const subParsed = parseMenuItemsRecursively(item.subItems, parentTitle ? `${parentTitle} ➔ ${rawTitle}` : rawTitle);
+            result = result.concat(subParsed);
+        }
+    });
+
+    return result;
 }
 
 export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
@@ -35,7 +64,111 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
     setLinkStyle,
     applyHyperlink,
     removeHyperlink,
+    menuItems: propMenuItems,
 }) => {
+    const [linkMode, setLinkMode] = useState<"internal" | "external">("internal");
+    const [rawApiItems, setRawApiItems] = useState<any[]>([]);
+    const [loadingMenu, setLoadingMenu] = useState<boolean>(false);
+    const [securityNotice, setSecurityNotice] = useState<string>("");
+
+    // Determine link mode when modal opens or linkUrl changes initially
+    useEffect(() => {
+        if (!isOpen) return;
+        const clean = (linkUrl || "").trim().toLowerCase();
+        if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("//") || clean.startsWith("mailto:") || clean.startsWith("tel:")) {
+            setLinkMode("external");
+        } else {
+            setLinkMode("internal");
+        }
+    }, [isOpen]);
+
+    // Fetch dynamic menu items from https://api-ips.ezsoftapp.in/api/v1/menu-items?publishedOnly=true
+    useEffect(() => {
+        if (!isOpen) return;
+        let isMounted = true;
+
+        const fetchDynamicMenu = async () => {
+            setLoadingMenu(true);
+            try {
+                const res = await axios.get(`${API_URL}/menu-items?publishedOnly=true`);
+                const items = res.data?.data ?? res.data ?? [];
+                if (isMounted && Array.isArray(items) && items.length > 0) {
+                    setRawApiItems(items);
+                }
+            } catch (e) {
+                // Ignore API error gracefully
+            } finally {
+                if (isMounted) setLoadingMenu(false);
+            }
+        };
+
+        fetchDynamicMenu();
+        return () => {
+            isMounted = false;
+        };
+    }, [isOpen]);
+
+    // Combine and recursively parse menuItems from API response & props
+    const dynamicMenuItems = useMemo(() => {
+        const rawList = propMenuItems && propMenuItems.length > 0 ? propMenuItems : rawApiItems;
+        const parsed = parseMenuItemsRecursively(rawList);
+
+        // Deduplicate by URL
+        const unique: Array<{ title: string; rawTitle: string; url: string }> = [];
+        const seenUrls = new Set<string>();
+
+        parsed.forEach((item) => {
+            if (!seenUrls.has(item.url)) {
+                seenUrls.add(item.url);
+                unique.push(item);
+            }
+        });
+
+        return unique;
+    }, [propMenuItems, rawApiItems]);
+
+    // Security sanitizer for external URLs
+    const sanitizeExternalUrl = (raw: string): string => {
+        let trimmed = raw.trim();
+        if (!trimmed) return "";
+
+        // Block dangerous script protocols
+        const lower = trimmed.toLowerCase();
+        if (lower.startsWith("javascript:") || lower.startsWith("data:") || lower.startsWith("vbscript:") || lower.startsWith("blob:")) {
+            setSecurityNotice("Security blocked dangerous script protocol");
+            return "";
+        }
+
+        // Auto-fix domain to https://
+        if (
+            !lower.startsWith("http://") &&
+            !lower.startsWith("https://") &&
+            !lower.startsWith("//") &&
+            !lower.startsWith("mailto:") &&
+            !lower.startsWith("tel:") &&
+            !lower.startsWith("#")
+        ) {
+            trimmed = `https://${trimmed}`;
+        }
+
+        setSecurityNotice("");
+        return trimmed;
+    };
+
+    const handleApply = () => {
+        if (linkMode === "external") {
+            const cleanUrl = sanitizeExternalUrl(linkUrl);
+            if (!cleanUrl && linkUrl) {
+                return; // Block submission if security error
+            }
+            setLinkUrl(cleanUrl);
+            if (!linkTarget || linkTarget === "_self") {
+                setLinkTarget("_blank");
+            }
+        }
+        applyHyperlink();
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -79,51 +212,128 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
                         />
                     </div>
 
-                    {/* Link URL Field & Quick Presets */}
+                    {/* URL Type Selector: Internal vs External */}
                     <div>
-                        <div className="flex items-center justify-between mb-1">
-                            <label className="text-xs font-bold text-slate-700">
-                                Redirect Destination URL <span className="text-red-500">*</span>
-                            </label>
-                            <span className="text-[11px] font-semibold text-blue-600">Quick Page Presets</span>
-                        </div>
-                        <input
-                            type="text"
-                            value={linkUrl}
-                            onChange={(e) => setLinkUrl(e.target.value)}
-                            placeholder="e.g. /admission, /about, https://example.com"
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-[#1a5d9c] focus:bg-white focus:ring-2 focus:ring-blue-100 transition"
-                        />
-
-                        {/* Preset Buttons */}
-                        <div className="mt-2.5 flex flex-wrap gap-1.5">
-                            {[
-                                { label: "Admission Form", icon: "bi bi-mortarboard-fill", url: "/admission" },
-                                { label: "About IPS", icon: "bi bi-building", url: "/about" },
-                                { label: "Contact Us", icon: "bi bi-telephone-fill", url: "/contact" },
-                                { label: "Academics", icon: "bi bi-book-fill", url: "/academics" },
-                                { label: "CBSE Disclosure", icon: "bi bi-file-earmark-text-fill", url: "/mandatory-public-disclosure" },
-                                { label: "Gallery", icon: "bi bi-images", url: "/gallery" },
-                                { label: "Email Contact", icon: "bi bi-envelope-fill", url: "mailto:info@indianpublicschool.edu.in" },
-                                { label: "Call Phone", icon: "bi bi-telephone-outbound-fill", url: "tel:+919876543210" },
-                            ].map((preset) => (
-                                <button
-                                    key={preset.url}
-                                    type="button"
-                                    onClick={() => {
-                                        setLinkUrl(preset.url);
-                                        if (!linkText || linkText === "https://") {
-                                            setLinkText(preset.label);
-                                        }
-                                    }}
-                                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-[#1a5d9c] transition cursor-pointer"
-                                >
-                                    <i className={`${preset.icon} text-[#1a5d9c]`} />
-                                    <span>{preset.label}</span>
-                                </button>
-                            ))}
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            Destination Link Type
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl border border-slate-200 bg-slate-100">
+                            <button
+                                type="button"
+                                onClick={() => setLinkMode("internal")}
+                                className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                                    linkMode === "internal"
+                                        ? "bg-[#1a5d9c] text-white shadow-md"
+                                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                }`}
+                            >
+                                <Building2 size={14} />
+                                <span>Internal Site Page</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setLinkMode("external");
+                                    if (!linkTarget || linkTarget === "_self") {
+                                        setLinkTarget("_blank");
+                                    }
+                                }}
+                                className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                                    linkMode === "external"
+                                        ? "bg-[#1a5d9c] text-white shadow-md"
+                                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                }`}
+                            >
+                                <Globe size={14} />
+                                <span>External Web URL</span>
+                            </button>
                         </div>
                     </div>
+
+                    {/* Dynamic URL Inputs */}
+                    {linkMode === "internal" ? (
+                        <div className="space-y-2">
+                            <label className="block text-xs font-bold text-slate-700">
+                                Select Internal Page <span className="text-slate-400 font-normal">(Live menu-items API response)</span>
+                            </label>
+
+                            {/* Dropdown from API menuItems including nested subItems */}
+                            <select
+                                value={dynamicMenuItems.some((m) => m.url === linkUrl) ? linkUrl : ""}
+                                onChange={(e) => {
+                                    const selectedUrl = e.target.value;
+                                    setLinkUrl(selectedUrl);
+                                    const selectedItem = dynamicMenuItems.find((m) => m.url === selectedUrl);
+                                    if (selectedItem && (!linkText || linkText === "https://")) {
+                                        setLinkText(selectedItem.rawTitle);
+                                    }
+                                }}
+                                className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer"
+                            >
+                                <option value="" disabled>
+                                    {loadingMenu ? "-- Loading menuItems from API... --" : "-- Select Internal Page / Menu Item --"}
+                                </option>
+                                {dynamicMenuItems.map((item) => (
+                                    <option key={`${item.url}-${item.title}`} value={item.url}>
+                                        {item.title} ({item.url})
+                                    </option>
+                                ))}
+                            </select>
+
+                            {/* Disabled Input field for Internal Link Path */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Internal URL Path (Disabled)
+                                </label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    disabled
+                                    value={linkUrl}
+                                    placeholder="Select an internal page route from dropdown above..."
+                                    className="w-full rounded-xl border border-slate-300 bg-slate-100 px-3.5 py-2 text-xs font-mono font-semibold text-slate-500 outline-none cursor-not-allowed select-none"
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            <label className="block text-xs font-bold text-slate-700">
+                                External Destination URL <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={linkUrl}
+                                    onChange={(e) => {
+                                        setLinkUrl(e.target.value);
+                                        setSecurityNotice("");
+                                    }}
+                                    onBlur={() => {
+                                        if (linkUrl) {
+                                            const cleaned = sanitizeExternalUrl(linkUrl);
+                                            setLinkUrl(cleaned);
+                                        }
+                                    }}
+                                    placeholder="e.g. https://www.example.com, mailto:info@school.edu.in, or tel:+919876543210"
+                                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-xs font-mono font-semibold text-slate-800 outline-none focus:border-[#1a5d9c] focus:bg-white focus:ring-2 focus:ring-blue-100 transition"
+                                />
+                            </div>
+
+                            {/* Security Sanitation & Status Indicator */}
+                            <div className="flex items-center justify-between px-1 text-[11px]">
+                                {securityNotice ? (
+                                    <span className="flex items-center gap-1 font-bold text-red-600">
+                                        <AlertTriangle size={13} /> {securityNotice}
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                                        <ShieldCheck size={13} className="text-emerald-600" />
+                                        Secure Link Validation Enabled (Auto https:// & noopener)
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Link Target Toggle */}
                     <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-3">
@@ -134,12 +344,14 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
                         <button
                             type="button"
                             onClick={() => setLinkTarget(linkTarget === "_blank" ? "_self" : "_blank")}
-                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${linkTarget === "_blank" ? "bg-[#1a5d9c]" : "bg-slate-300"
-                                }`}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                linkTarget === "_blank" ? "bg-[#1a5d9c]" : "bg-slate-300"
+                            }`}
                         >
                             <span
-                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${linkTarget === "_blank" ? "translate-x-5" : "translate-x-0"
-                                    }`}
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                                    linkTarget === "_blank" ? "translate-x-5" : "translate-x-0"
+                                }`}
                             />
                         </button>
                     </div>
@@ -181,10 +393,11 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
                                     key={st.id}
                                     type="button"
                                     onClick={() => setLinkStyle(st.id as any)}
-                                    className={`flex flex-col text-left p-2.5 rounded-2xl border transition-all cursor-pointer ${linkStyle === st.id
-                                        ? "border-[#1a5d9c] bg-blue-50/70 ring-2 ring-blue-500/20 shadow-xs"
-                                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                                        }`}
+                                    className={`flex flex-col text-left p-2.5 rounded-2xl border transition-all cursor-pointer ${
+                                        linkStyle === st.id
+                                            ? "border-[#1a5d9c] bg-blue-50/70 ring-2 ring-blue-500/20 shadow-xs"
+                                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                                    }`}
                                 >
                                     <div className="flex items-center justify-between w-full mb-0.5">
                                         <span className="text-xs font-bold text-slate-800">{st.name}</span>
@@ -292,7 +505,7 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
 
                 {/* Footer Buttons */}
                 <div className="flex items-center justify-between bg-slate-50 border-t border-slate-200 px-6 py-3.5">
-                    {(editingAnchorEl || selectedAnchorEl) ? (
+                    {editingAnchorEl || selectedAnchorEl ? (
                         <button
                             type="button"
                             onClick={removeHyperlink}
@@ -301,7 +514,9 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
                             <Trash2 size={13} />
                             <span>Remove Link</span>
                         </button>
-                    ) : <div />}
+                    ) : (
+                        <div />
+                    )}
 
                     <div className="flex items-center gap-2">
                         <button
@@ -313,7 +528,7 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
                         </button>
                         <button
                             type="button"
-                            onClick={applyHyperlink}
+                            onClick={handleApply}
                             className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:brightness-110 transition cursor-pointer"
                         >
                             <Check size={14} />

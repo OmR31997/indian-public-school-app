@@ -125,6 +125,10 @@ export function AdminConsole() {
   }, [queryParams]);
 
   const [loading, setLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const isRefreshingRef = useRef(false);
+  const fetchSequenceRef = useRef<Record<string, number>>({});
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [token, setToken] = useState("");
@@ -134,10 +138,8 @@ export function AdminConsole() {
   const [formOpen, setFormOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [saving, setSaving] = useState(false);
-
-
-
-
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const currentUser = useMemo(() => {
     if (!token) return null;
@@ -165,6 +167,18 @@ export function AdminConsole() {
 
 
   const fetchResource = useCallback(async (key: ResourceKey, overrideQuery?: Partial<QueryParamsState>) => {
+    const isSearchAction = overrideQuery?.search !== undefined;
+    const isCurrent = active === key;
+    const seq = (fetchSequenceRef.current[key] || 0) + 1;
+    fetchSequenceRef.current[key] = seq;
+
+    if (!isRefreshingRef.current && isCurrent) {
+      setTableLoading(true);
+      if (isSearchAction) {
+        setIsSearching(true);
+      }
+    }
+
     try {
       const defaultLimit = key === "gallery" ? 100 : DEFAULT_QUERY.limit;
       const currentQuery = {
@@ -199,6 +213,10 @@ export function AdminConsole() {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
+      if (fetchSequenceRef.current[key] !== seq) {
+        return;
+      }
+
       const parsed = asPaginatedPayload(response.data, key);
       setData((previous) => ({ ...previous, [key]: parsed.items }));
       setMetaData((previous) => ({ ...previous, [key]: parsed.meta }));
@@ -210,8 +228,16 @@ export function AdminConsole() {
         document.cookie = "ips_admin_session=; Path=/; Max-Age=0; SameSite=Lax";
       }
       throw err;
+    } finally {
+      if (fetchSequenceRef.current[key] === seq && isCurrent) {
+        setTableLoading(false);
+        setIsSearching(false);
+      }
     }
-  }, [token]);
+  }, [token, active]);
+
+  const [publishedPages, setPublishedPages] = useState<RecordItem[]>([]);
+  const [allMenuItems, setAllMenuItems] = useState<RecordItem[]>([]);
 
   const fetchPublishedPages = useCallback(() => {
     axios
@@ -223,9 +249,24 @@ export function AdminConsole() {
       .catch(() => { });
   }, []);
 
+  const fetchAllMenuItems = useCallback(() => {
+    axios
+      .get(`${API_URL}/menu-items`, {
+        params: { flat: "true" },
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      })
+      .then((res) => {
+        const parsed = asPaginatedPayload(res.data, "menu-items");
+        setAllMenuItems(parsed.items);
+      })
+      .catch(() => { });
+  }, [token]);
+
   const refresh = useCallback(async () => {
+    isRefreshingRef.current = true;
     setLoading(true); setError("");
     fetchPublishedPages();
+    fetchAllMenuItems();
     const readable = resources.filter((resource) => (resource.key !== "users" || token) && canAccessResource(resource.key));
     const results = await Promise.allSettled(readable.map((resource) => fetchResource(resource.key)));
     const networkFailures = results.filter(
@@ -235,7 +276,8 @@ export function AdminConsole() {
       setError("Cannot connect to backend API server. Check that the API is running on http://localhost:5000.");
     }
     setLoading(false);
-  }, [fetchResource, token, canAccessResource, fetchPublishedPages]);
+    isRefreshingRef.current = false;
+  }, [fetchResource, token, canAccessResource, fetchPublishedPages, fetchAllMenuItems]);
 
   // Notification Hook (SOLID Architecture & Smart Load Optimization)
   const {
@@ -260,11 +302,11 @@ export function AdminConsole() {
   const careerNotifications = useCareerNotifications(API_URL, token);
 
   const notificationRef = useRef<HTMLDivElement>(null);
-  const [publishedPages, setPublishedPages] = useState<RecordItem[]>([]);
 
   useEffect(() => {
     fetchPublishedPages();
-  }, [fetchPublishedPages]);
+    fetchAllMenuItems();
+  }, [fetchPublishedPages, fetchAllMenuItems]);
 
   const combinedPages = useMemo(() => {
     const pageMap = new Map<string, RecordItem>();
@@ -316,6 +358,7 @@ export function AdminConsole() {
 
   const save = async (values: Record<string, unknown>, options?: { keepOpen?: boolean }) => {
     if (!current) return;
+    const isEditing = Boolean(editing);
     setSaving(true); setError("");
     try {
       if (current.key === "users") {
@@ -360,6 +403,14 @@ export function AdminConsole() {
       if (current.key === "pages") {
         fetchPublishedPages();
       }
+      if (current.key === "menu-items") {
+        fetchAllMenuItems();
+      }
+      setActionFeedback({
+        type: "success",
+        message: isEditing ? "Record updated successfully." : "New record added successfully.",
+      });
+      setTimeout(() => setActionFeedback(null), 3500);
     } catch (reason) {
       if (axios.isAxiosError(reason)) {
         const data = reason.response?.data as { message?: string | string[] } | undefined;
@@ -387,14 +438,24 @@ export function AdminConsole() {
       return;
     }
     if (!window.confirm("Delete this record? Associated Cloudinary files will also be removed.")) return;
+    const id = itemId(item);
+    setDeletingId(id);
+    setError("");
     try {
-      const id = itemId(item);
       const path = current.key === "users" ? `auth/users/${id}` : `${current.key}/${id}`;
       await securedRequest("delete", path);
       await fetchResource(current.key);
       if (current.key === "pages") {
         fetchPublishedPages();
       }
+      if (current.key === "menu-items") {
+        fetchAllMenuItems();
+      }
+      setActionFeedback({
+        type: "success",
+        message: "Record deleted successfully.",
+      });
+      setTimeout(() => setActionFeedback(null), 3500);
     } catch (reason) {
       if (axios.isAxiosError(reason)) {
         const data = reason.response?.data as { message?: string | string[] } | undefined;
@@ -406,6 +467,8 @@ export function AdminConsole() {
       } else {
         setError(reason instanceof Error ? reason.message : "Unable to delete this record.");
       }
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -686,7 +749,7 @@ export function AdminConsole() {
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
             title="Refresh Console Data"
           >
-            <RefreshCw size={18} className="text-[#102a4c]" />
+            <RefreshCw size={18} className={`text-[#102a4c] ${loading ? "animate-spin" : ""}`} />
           </button>
           {token && (
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 pr-3 shadow-xs">
@@ -701,8 +764,64 @@ export function AdminConsole() {
           )}
         </div>
       </header>
-      <div className="p-5 lg:p-9">{error && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><span>{error}</span><button onClick={() => setError("")}><X size={16} /></button></div>}{active === "overview" ? <Overview data={data} loading={loading} onNavigate={setActive} /> : active === "careers" ? <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} /> : active === "theme" ? <ThemeManagementTab token={token} /> : current && <ResourceView resource={current} items={currentItems} loading={loading} query={queryParams[current.key] || DEFAULT_QUERY} meta={metaData[current.key]} onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)} onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }} onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }} onDelete={remove} canCreate={canUpdateResource(current.key)} canEdit={canUpdateResource(current.key)} canDelete={canDeleteResource(current.key)} token={token} />}</div>
+      <div className="p-5 lg:p-9">
+        {error && (
+          <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <span>{error}</span>
+            <button onClick={() => setError("")}><X size={16} /></button>
+          </div>
+        )}
+        {active === "overview" ? (
+          <Overview data={data} loading={loading} onNavigate={setActive} />
+        ) : active === "careers" ? (
+          <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} />
+        ) : active === "theme" ? (
+          <ThemeManagementTab token={token} />
+        ) : current && (
+          <ResourceView
+            resource={current}
+            items={currentItems}
+            loading={loading || tableLoading}
+            isSearching={isSearching}
+            deletingId={deletingId}
+            query={queryParams[current.key] || DEFAULT_QUERY}
+            meta={metaData[current.key]}
+            onQueryChange={(newQuery) => fetchResource(current.key, newQuery)}
+            onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }}
+            onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }}
+            onDelete={remove}
+            canCreate={canUpdateResource(current.key)}
+            canEdit={canUpdateResource(current.key)}
+            canDelete={canDeleteResource(current.key)}
+            allMenuItems={allMenuItems}
+            token={token}
+          />
+        )}
+      </div>
     </section>
+
+    {/* Floating Action Loaders & Status Badges */}
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none items-end">
+      {saving && (
+        <div className="flex items-center gap-2.5 rounded-2xl bg-[#102a4c] px-4 py-2.5 text-xs font-bold text-white shadow-2xl border border-blue-400/30 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <LoaderCircle size={15} className="animate-spin text-amber-400" />
+          <span>{editing ? "Updating record in database…" : "Saving new record…"}</span>
+        </div>
+      )}
+      {deletingId && (
+        <div className="flex items-center gap-2.5 rounded-2xl bg-red-950 px-4 py-2.5 text-xs font-bold text-white shadow-2xl border border-red-700/50 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <LoaderCircle size={15} className="animate-spin text-red-400" />
+          <span>Deleting record & linked assets…</span>
+        </div>
+      )}
+      {actionFeedback && (
+        <div className="flex items-center gap-2 rounded-2xl bg-emerald-900 px-4 py-2.5 text-xs font-bold text-white shadow-2xl border border-emerald-600/40 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <Check size={15} className="text-emerald-400" />
+          <span>{actionFeedback.message}</span>
+        </div>
+      )}
+    </div>
+
     {formOpen && current && (
       <RecordDialog
         token={token}
@@ -711,7 +830,7 @@ export function AdminConsole() {
         saving={saving}
         formError={error}
         allSectionPages={combinedPages}
-        allMenuItems={data["menu-items"] || []}
+        allMenuItems={allMenuItems.length > 0 ? allMenuItems : (data["menu-items"] || [])}
         onClose={() => { setFormOpen(false); setEditing(null); setError(""); }}
         onClearError={() => setError("")}
         onSave={save}

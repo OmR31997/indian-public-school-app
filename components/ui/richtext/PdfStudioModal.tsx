@@ -80,10 +80,15 @@ export function PdfStudioModal({
               <div className="flex gap-2">
                 <input
                   type="text"
+                  readOnly
+                  disabled
                   value={pdfStudioUrl}
-                  onChange={(e) => setPdfStudioUrl(e.target.value)}
-                  placeholder="Paste PDF URL or select from gallery..."
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-200 outline-none focus:border-rose-500"
+                  placeholder={
+                    pdfStudioUrl
+                      ? pdfStudioUrl
+                      : "No PDF document selected — click Gallery to select..."
+                  }
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950/80 px-3.5 py-2 text-xs font-mono text-slate-400 outline-none cursor-not-allowed select-none"
                 />
                 <button
                   type="button"

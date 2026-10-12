@@ -26,6 +26,13 @@ import {
     FileSpreadsheet,
     Plus,
     Trash2,
+    Monitor,
+    Tablet,
+    Smartphone,
+    Maximize2,
+    Paintbrush,
+    Sun,
+    Moon,
 } from "lucide-react";
 import { TEXT_COLORS, HIGHLIGHT_COLORS } from "./richtext.constants";
 
@@ -46,6 +53,11 @@ export interface RichTextToolbarProps {
     selectedAnchorEl: HTMLAnchorElement | null;
     insertParagraphAfterSelectedBlock: () => void;
     deleteSelectedBlock: () => void;
+    // Responsive Canvas Controls
+    canvasMode?: "desktop" | "tablet" | "mobile";
+    updateCanvasMode?: (mode: "desktop" | "tablet" | "mobile") => void;
+    pageBgColor?: string;
+    updatePageBgColor?: (color: string) => void;
 }
 
 export const RichTextToolbar: React.FC<RichTextToolbarProps> = ({
@@ -65,6 +77,10 @@ export const RichTextToolbar: React.FC<RichTextToolbarProps> = ({
     selectedAnchorEl,
     insertParagraphAfterSelectedBlock,
     deleteSelectedBlock,
+    canvasMode = "desktop",
+    updateCanvasMode,
+    pageBgColor = "#ffffff",
+    updatePageBgColor,
 }) => {
     if (activeTab !== "visual") return null;
 
@@ -355,6 +371,53 @@ export const RichTextToolbar: React.FC<RichTextToolbarProps> = ({
                     <Redo size={15} />
                 </button>
             </div>
+
+            <div className="h-5 w-px bg-slate-200 mx-0.5" />
+
+            {/* Responsive Screen Viewport Selector */}
+            {updateCanvasMode && (
+                <div className="flex items-center rounded-xl border border-slate-200/80 bg-white p-0.5 shadow-2xs">
+                    <button
+                        type="button"
+                        onClick={() => updateCanvasMode("desktop")}
+                        title="Desktop Screen Canvas (100% Wide)"
+                        className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
+                            canvasMode === "desktop"
+                                ? "bg-blue-600 text-white shadow-2xs"
+                                : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                    >
+                        <Monitor size={14} />
+                        <span className="hidden sm:inline">Desktop (100%)</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => updateCanvasMode("tablet")}
+                        title="Tablet Device Screen Canvas (768px)"
+                        className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
+                            canvasMode === "tablet"
+                                ? "bg-blue-600 text-white shadow-2xs"
+                                : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                    >
+                        <Tablet size={14} />
+                        <span className="hidden sm:inline">Tablet</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => updateCanvasMode("mobile")}
+                        title="Smartphone Screen Canvas (375px)"
+                        className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
+                            canvasMode === "mobile"
+                                ? "bg-blue-600 text-white shadow-2xs"
+                                : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                    >
+                        <Smartphone size={14} />
+                        <span className="hidden sm:inline">Mobile</span>
+                    </button>
+                </div>
+            )}
 
             {/* Remove Selected Element & Add Text Below in Top Toolbar */}
             {(selectedBlockEl || selectedImageEl || selectedAnchorEl) && (

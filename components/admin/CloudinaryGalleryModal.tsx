@@ -106,7 +106,20 @@ export function CloudinaryGalleryModal({
       setLoading(true);
       try {
         const galleryRes = await getOptionalApi<any>("/gallery?limit=1000");
-        const dbItems = unwrapCollection<any>(galleryRes);
+        let dbItems = unwrapCollection<any>(galleryRes);
+
+        // Fallback to offline collections if API fails, times out, or returns empty
+        if (!dbItems || dbItems.length === 0) {
+          try {
+            const fallbackRes = await fetch("/collections/galleries.json");
+            if (fallbackRes.ok) {
+              const fallbackJson = await fallbackRes.json();
+              if (Array.isArray(fallbackJson) && fallbackJson.length > 0) {
+                dbItems = fallbackJson;
+              }
+            }
+          } catch {}
+        }
 
         const fetchedMedia: MediaItem[] = (Array.isArray(dbItems) ? dbItems : []).flatMap(
           (item: any, idx: number): MediaItem[] => {
@@ -176,7 +189,7 @@ export function CloudinaryGalleryModal({
       previewUrl,
       progress: 5,
       step: "preparing",
-      stageMessage: "Step 1/3: Reading binary buffer & initializing Cloudinary payload…",
+      stageMessage: "Preparing upload…",
     });
 
     try {
@@ -220,7 +233,7 @@ export function CloudinaryGalleryModal({
         ...prev,
         progress: 15,
         step: "uploading",
-        stageMessage: "Step 2/3: Transmitting asset to server & Cloudinary CDN…",
+        stageMessage: "Uploading file…",
       }));
 
       const res = await axios.post(`${API_URL}/uploads`, formData, {
@@ -232,10 +245,7 @@ export function CloudinaryGalleryModal({
               ...prev,
               progress: Math.min(pct, 95),
               step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95
-                  ? "Step 3/3: Optimizing asset & generating Cloudinary CDN links…"
-                  : `Step 2/3: Transmitting asset to CDN server (${pct}%)…`,
+              stageMessage: pct >= 95 ? "Processing file…" : `Uploading file (${pct}%)…`,
             }));
           }
         },
@@ -245,7 +255,7 @@ export function CloudinaryGalleryModal({
         ...prev,
         progress: 98,
         step: "processing",
-        stageMessage: "Step 3/3: Processing asset & generating Cloudinary response URL…",
+        stageMessage: "Processing file…",
       }));
 
       const data = res.data?.data ?? res.data;
@@ -268,21 +278,21 @@ export function CloudinaryGalleryModal({
         ...prev,
         progress: 100,
         step: "done",
-        stageMessage: "Upload complete! Asset added to gallery.",
+        stageMessage: "Upload complete!",
       }));
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 800));
     } catch (err: any) {
-      console.error("Cloudinary upload failed:", err);
+      console.error("Upload failed:", err);
       const errMsg = err?.response?.data?.message || err.message || "Failed to upload file.";
       setUploadError(errMsg);
       setUploadStatus((prev) => ({
         ...prev,
         step: "error",
         errorMessage: errMsg,
-        stageMessage: "Upload encountered an error.",
+        stageMessage: "Upload failed.",
       }));
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     } finally {
       setUploading(false);
       setUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
@@ -296,6 +306,8 @@ export function CloudinaryGalleryModal({
     categoryMap.set("settings", "Settings");
     categoryMap.set("icons", "Icons");
     categoryMap.set("logos", "Logos");
+    categoryMap.set("student", "Student");
+    categoryMap.set("staff", "Staff");
     categoryMap.set("admissiondocuments", "AdmissionDocuments");
 
     mediaList.forEach((m) => {
@@ -333,6 +345,22 @@ export function CloudinaryGalleryModal({
       if (activeCategory === "Images") return fType === "image";
 
       const activeNorm = normalizeCategoryKey(activeCategory).toLowerCase();
+
+      if (activeNorm === "student") {
+        return (
+          m.category.toLowerCase().includes("student") ||
+          (m.directory && m.directory.toLowerCase().includes("student")) ||
+          m.url.toLowerCase().includes("student")
+        );
+      }
+
+      if (activeNorm === "staff") {
+        return (
+          m.category.toLowerCase().includes("staff") ||
+          (m.directory && m.directory.toLowerCase().includes("staff")) ||
+          m.url.toLowerCase().includes("staff")
+        );
+      }
 
       if (activeNorm === "admissiondocuments") {
         return (
@@ -390,8 +418,18 @@ export function CloudinaryGalleryModal({
               placeholder="Search files by name or URL..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-2 text-xs font-semibold outline-none focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition cursor-pointer"
+                title="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
 
           {/* Upload Button */}

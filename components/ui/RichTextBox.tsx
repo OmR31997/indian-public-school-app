@@ -163,6 +163,10 @@ export function RichTextBox({
                 selectedAnchorEl={editor.selectedAnchorEl}
                 insertParagraphAfterSelectedBlock={editor.insertParagraphAfterSelectedBlock}
                 deleteSelectedBlock={editor.deleteSelectedBlock}
+                canvasMode={editor.canvasMode}
+                updateCanvasMode={editor.updateCanvasMode}
+                pageBgColor={editor.pageBgColor}
+                updatePageBgColor={editor.updatePageBgColor}
             />
 
             {/* Main Content Workspace with Visual Basic Toolbox */}
@@ -224,7 +228,7 @@ export function RichTextBox({
 
                     {editor.activeTab === "preview" && (
                         <div
-                            className={`w-full p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base dynamic-page-content ${editor.isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
+                            className={`w-full max-w-full overflow-x-hidden box-border p-6 text-slate-800 border border-slate-100 rounded-2xl bg-white leading-relaxed text-base dynamic-page-content ${editor.isFullscreen ? "flex-1 overflow-y-auto" : "min-h-[460px]"
                                 }`}
                             dangerouslySetInnerHTML={{
                                 __html:
@@ -273,8 +277,9 @@ export function RichTextBox({
                             editor.setDocType("word");
                         }
                         editor.setIsGalleryOpen(false);
-                    } else if (editor.selectedImageEl) {
-                        editor.selectedImageEl.src = isPdfFile(url) ? getCloudinaryPdfThumbnailUrl(url, 1, 1000) : url;
+                    } else if (editor.selectedImageEl || editor.selectedBlockEl?.querySelector("img") || (editor.selectedBlockEl?.tagName === "IMG" ? editor.selectedBlockEl : null)) {
+                        const targetImg = (editor.selectedImageEl || (editor.selectedBlockEl?.tagName === "IMG" ? editor.selectedBlockEl : editor.selectedBlockEl?.querySelector("img"))) as HTMLImageElement;
+                        targetImg.src = isPdfFile(url) ? getCloudinaryPdfThumbnailUrl(url, 1, 1000) : url;
                         editor.setSelectedImageEl(null);
                         editor.syncIframeToState();
                         editor.setIsGalleryOpen(false);

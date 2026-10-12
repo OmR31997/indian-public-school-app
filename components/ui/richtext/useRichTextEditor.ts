@@ -28,6 +28,9 @@ export function useRichTextEditor({
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [showToolbox, setShowToolbox] = useState(true);
 
+    const [canvasMode, setCanvasMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+    const [pageBgColor, setPageBgColor] = useState<string>("#ffffff");
+
     const [colorMenuOpen, setColorMenuOpen] = useState(false);
     const [highlightMenuOpen, setHighlightMenuOpen] = useState(false);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -252,15 +255,40 @@ export function useRichTextEditor({
           <head>
             <meta charset="utf-8">
             <style>
+              * {
+                box-sizing: border-box !important;
+              }
+              html {
+                background: #f1f5f9;
+                padding: 16px 0;
+                margin: 0;
+                width: 100%;
+                min-height: 100vh;
+                box-sizing: border-box;
+                overflow-x: hidden !important;
+              }
               body {
                 font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                 font-size: 15px;
                 line-height: 1.7;
                 color: #1e293b;
-                padding: 24px;
-                margin: 0;
-                min-height: 380px;
+                padding: 32px 36px;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 100%;
+                min-height: 580px;
+                background: #ffffff;
+                box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04);
+                border-radius: 0;
                 outline: none;
+                box-sizing: border-box;
+                overflow-x: hidden !important;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+              }
+              img, table, iframe, pre, figure, section, div, p, blockquote {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
               }
               body:empty:before, body[data-empty="true"]:before {
                 content: attr(data-placeholder);
@@ -307,38 +335,52 @@ export function useRichTextEditor({
               }
               .wysiwyg-block-toolbar {
                 position: absolute !important;
-                top: -38px !important;
-                right: 0 !important;
-                display: flex !important;
+                display: inline-flex !important;
+                flex-wrap: nowrap !important;
+                white-space: nowrap !important;
                 align-items: center !important;
                 gap: 4px !important;
+                width: max-content !important;
+                max-width: calc(100vw - 24px) !important;
                 background: #0f172a !important;
                 color: #ffffff !important;
-                padding: 3px 8px !important;
-                border-radius: 8px !important;
+                padding: 3.5px 8px !important;
+                border-radius: 9999px !important;
                 font-size: 11px !important;
                 font-weight: 700 !important;
-                font-family: system-ui, sans-serif !important;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.35) !important;
-                border: 1px solid rgba(255,255,255,0.2) !important;
-                z-index: 999999 !important;
+                font-family: system-ui, -apple-system, sans-serif !important;
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.2) !important;
+                z-index: 9999999 !important;
                 user-select: none !important;
+                pointer-events: auto !important;
+                transition: opacity 0.15s ease, box-shadow 0.15s ease !important;
+              }
+              .wysiwyg-block-toolbar:hover {
+                box-shadow: 0 12px 30px -4px rgba(0,0,0,0.65), 0 0 0 1.5px rgba(255,255,255,0.3) !important;
               }
               .wysiwyg-block-toolbar button {
                 background: rgba(255,255,255,0.18) !important;
                 color: #ffffff !important;
                 border: none !important;
-                border-radius: 4px !important;
-                padding: 3px 7px !important;
+                border-radius: 9999px !important;
+                padding: 2.5px 7px !important;
                 font-size: 11px !important;
                 font-weight: 700 !important;
                 cursor: pointer !important;
                 display: inline-flex !important;
                 align-items: center !important;
-                gap: 4px !important;
+                gap: 3px !important;
+                white-space: nowrap !important;
+                line-height: 1.3 !important;
               }
               .wysiwyg-block-toolbar button:hover {
                 background: rgba(255,255,255,0.35) !important;
+              }
+              .wysiwyg-block-toolbar button.btn-fit-text {
+                background: #6366f1 !important;
+              }
+              .wysiwyg-block-toolbar button.btn-fit-text:hover {
+                background: #4f46e5 !important;
               }
               .wysiwyg-block-toolbar button.btn-delete {
                 background: #ef4444 !important;
@@ -351,6 +393,42 @@ export function useRichTextEditor({
               }
               .wysiwyg-block-toolbar button.btn-add-line:hover {
                 background: #059669 !important;
+              }
+              body.wysiwyg-is-moving-mode,
+              body.wysiwyg-is-moving-mode * {
+                cursor: grabbing !important;
+                cursor: -webkit-grabbing !important;
+                user-select: none !important;
+              }
+              .wysiwyg-moving-block {
+                outline: 3px dashed #f59e0b !important;
+                outline-offset: 4px !important;
+                box-shadow: 0 0 25px rgba(245, 158, 11, 0.5), 0 0 0 4px rgba(245, 158, 11, 0.2) !important;
+                border-radius: 12px !important;
+                animation: wysiwygPulseMove 1.5s infinite alternate !important;
+                position: relative !important;
+                cursor: grabbing !important;
+              }
+              @keyframes wysiwygPulseMove {
+                0% { outline-color: #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+                100% { outline-color: #3b82f6; box-shadow: 0 0 25px rgba(59, 130, 246, 0.65); }
+              }
+              .wysiwyg-drop-indicator {
+                height: 4px !important;
+                background: #3b82f6 !important;
+                border-radius: 4px !important;
+                margin: 8px 0 !important;
+                box-shadow: 0 0 14px #3b82f6 !important;
+                pointer-events: none !important;
+                transition: all 0.15s ease !important;
+              }
+              .wysiwyg-block-toolbar button.btn-pick-move {
+                background: #f59e0b !important;
+                color: #0f172a !important;
+              }
+              .wysiwyg-block-toolbar button.btn-pick-move:hover {
+                background: #d97706 !important;
+                color: #ffffff !important;
               }
               hr { border: none; border-top: 2px solid #e2e8f0; margin: 1.5rem 0; }
               pre { background: #0f172a; color: #38bdf8; padding: 16px; border-radius: 14px; font-family: monospace; overflow-x: auto; }
@@ -412,22 +490,591 @@ export function useRichTextEditor({
                 onChange(cleanHtml);
             };
 
+            const updateMovingState = (movingEl: HTMLElement | null) => {
+                if (!doc || !doc.body) return;
+                if (movingEl) {
+                    doc.body.classList.add("wysiwyg-is-moving-mode");
+                } else {
+                    doc.body.classList.remove("wysiwyg-is-moving-mode");
+                    doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+                }
+            };
+
+            const isComponentContainer = (el: HTMLElement): boolean => {
+                if (!doc || !el || el === doc.body || el === doc.documentElement) return false;
+                if (
+                    el.classList.contains("wysiwyg-block-toolbar") ||
+                    el.classList.contains("wysiwyg-resize-handle") ||
+                    el.classList.contains("wysiwyg-drop-indicator")
+                ) return false;
+
+                const tag = el.tagName.toLowerCase();
+                if (
+                    tag === "section" ||
+                    tag === "table" ||
+                    tag === "figure" ||
+                    tag === "blockquote" ||
+                    tag === "h1" ||
+                    tag === "h2" ||
+                    tag === "h3" ||
+                    tag === "h4" ||
+                    tag === "h5" ||
+                    tag === "h6" ||
+                    tag === "p" ||
+                    tag === "hr" ||
+                    tag === "ul" ||
+                    tag === "ol" ||
+                    tag === "li" ||
+                    tag === "a" ||
+                    tag === "pre" ||
+                    tag === "code" ||
+                    tag === "iframe" ||
+                    tag === "img"
+                ) return true;
+
+                if (tag === "div") {
+                    const style = (el.getAttribute("style") || "").toLowerCase();
+                    const classNames = (el.className || "").toLowerCase();
+                    return (
+                        style.includes("border") ||
+                        style.includes("background") ||
+                        style.includes("display: flex") ||
+                        style.includes("display: grid") ||
+                        classNames.includes("card") ||
+                        classNames.includes("banner") ||
+                        el.children.length > 0 ||
+                        !!el.textContent?.trim()
+                    );
+                }
+                return false;
+            };
+
+            const getClosestDropTarget = (target: HTMLElement, clientY: number): { dropTarget: HTMLElement; insertBefore: boolean } | null => {
+                if (!doc || !doc.body) return null;
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+
+                let candidate: HTMLElement | null = target;
+                while (candidate && candidate.parentElement && candidate.parentElement !== doc.body && candidate.parentElement.tagName !== "BODY") {
+                    if (isComponentContainer(candidate) && candidate !== movingBlock && !movingBlock?.contains(candidate)) {
+                        break;
+                    }
+                    candidate = candidate.parentElement;
+                }
+
+                if (!candidate || candidate === doc.body || candidate === doc.documentElement || candidate === movingBlock || movingBlock?.contains(candidate)) {
+                    const bodyChildren = Array.from(doc.body.children).filter(
+                        (child) =>
+                            child !== movingBlock &&
+                            !child.classList.contains("wysiwyg-block-toolbar") &&
+                            !child.classList.contains("wysiwyg-resize-handle") &&
+                            !child.classList.contains("wysiwyg-drop-indicator")
+                    ) as HTMLElement[];
+
+                    if (bodyChildren.length === 0) return null;
+
+                    let closestChild = bodyChildren[0];
+                    let minDistance = Math.abs(clientY - (closestChild.getBoundingClientRect().top + closestChild.getBoundingClientRect().height / 2));
+
+                    for (let i = 1; i < bodyChildren.length; i++) {
+                        const child = bodyChildren[i];
+                        const dist = Math.abs(clientY - (child.getBoundingClientRect().top + child.getBoundingClientRect().height / 2));
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            closestChild = child;
+                        }
+                    }
+                    candidate = closestChild;
+                }
+
+                if (candidate && candidate !== movingBlock && !movingBlock?.contains(candidate)) {
+                    const rect = candidate.getBoundingClientRect();
+                    const insertBefore = clientY < rect.top + rect.height / 2;
+                    return { dropTarget: candidate, insertBefore };
+                }
+                return null;
+            };
+
+            function bindBlockSelection(targetBlock: HTMLElement) {
+                if (!doc || !targetBlock) return;
+                doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+                doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+
+                targetBlock.classList.add("wysiwyg-selected-block");
+                setSelectedBlockEl(targetBlock);
+
+                if (targetBlock.tagName === "A") {
+                    const computedDisplay = doc.defaultView?.getComputedStyle(targetBlock).display;
+                    if (!computedDisplay || computedDisplay === "inline") {
+                        targetBlock.style.display = "inline-block";
+                    }
+                    if (!targetBlock.style.width) {
+                        targetBlock.style.width = "fit-content";
+                        targetBlock.style.maxWidth = "100%";
+                    }
+                    targetBlock.style.boxSizing = "border-box";
+                    targetBlock.style.cursor = "grab";
+                }
+
+                targetBlock.setAttribute("draggable", "true");
+                targetBlock.ondragstart = (dragEv: DragEvent) => {
+                    dragEv.stopPropagation();
+                    if (dragEv.dataTransfer) {
+                        dragEv.dataTransfer.setData("text/wysiwyg-block-drag", "1");
+                        dragEv.dataTransfer.effectAllowed = "move";
+                    }
+                    doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                    targetBlock.classList.add("wysiwyg-moving-block");
+                    targetBlock.style.opacity = "0.55";
+                    updateMovingState(targetBlock);
+                };
+                targetBlock.ondragend = () => {
+                    targetBlock.style.opacity = "";
+                    targetBlock.classList.remove("wysiwyg-moving-block");
+                    updateMovingState(null);
+                };
+                targetBlock.ondblclick = (dEv: MouseEvent) => {
+                    dEv.stopPropagation();
+                    dEv.preventDefault();
+                    if (targetBlock.classList.contains("wysiwyg-moving-block")) {
+                        targetBlock.classList.remove("wysiwyg-moving-block");
+                        updateMovingState(null);
+                    } else {
+                        doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                        targetBlock.classList.add("wysiwyg-moving-block");
+                        updateMovingState(targetBlock);
+                    }
+                };
+
+                const subInteractiveList = targetBlock.tagName === "IMG" || targetBlock.tagName === "A"
+                    ? [targetBlock]
+                    : Array.from(targetBlock.querySelectorAll<HTMLElement>("img, a"));
+
+                subInteractiveList.forEach((subEl) => {
+                    subEl.setAttribute("draggable", "true");
+                    subEl.ondragstart = (dragEv: DragEvent) => {
+                        dragEv.stopPropagation();
+                        if (dragEv.dataTransfer) {
+                            dragEv.dataTransfer.setData("text/wysiwyg-block-drag", "1");
+                            dragEv.dataTransfer.effectAllowed = "move";
+                        }
+                        doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                        subEl.classList.add("wysiwyg-moving-block");
+                        subEl.style.opacity = "0.55";
+                        updateMovingState(subEl);
+                    };
+                    subEl.ondragend = () => {
+                        subEl.style.opacity = "";
+                        subEl.classList.remove("wysiwyg-moving-block");
+                        updateMovingState(null);
+                    };
+                    subEl.ondblclick = (dEv: MouseEvent) => {
+                        dEv.stopPropagation();
+                        dEv.preventDefault();
+                        if (subEl.classList.contains("wysiwyg-moving-block")) {
+                            subEl.classList.remove("wysiwyg-moving-block");
+                            updateMovingState(null);
+                        } else {
+                            doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                            subEl.classList.add("wysiwyg-moving-block");
+                            updateMovingState(subEl);
+                            bindBlockSelection(subEl);
+                        }
+                    };
+                });
+
+                let parentBlock: HTMLElement | null = null;
+                let pCurr: HTMLElement | null = targetBlock.parentElement;
+                while (pCurr && pCurr !== doc.body && pCurr.tagName !== "BODY") {
+                    if (isComponentContainer(pCurr)) {
+                        parentBlock = pCurr;
+                        break;
+                    }
+                    pCurr = pCurr.parentElement;
+                }
+
+                const currentPos = doc.defaultView?.getComputedStyle(targetBlock).position;
+                if (!currentPos || currentPos === "static") {
+                    targetBlock.style.position = "relative";
+                }
+
+                const tb = doc.createElement("div");
+                tb.className = "wysiwyg-block-toolbar";
+                tb.contentEditable = "false";
+
+                let userMovedTb = false;
+                let isTbMinimized = false;
+
+                // Intelligent positioning: places toolbar where it NEVER covers text above, below, or the element itself.
+                // If user drags the toolbar manually, custom user position is strictly respected.
+                const updateTbPosition = () => {
+                    if (!doc || !tb.isConnected || !targetBlock.isConnected) return;
+                    if (userMovedTb) return;
+
+                    const blockRect = targetBlock.getBoundingClientRect();
+                    const scrollY = doc.defaultView?.scrollY || doc.documentElement.scrollTop || doc.body.scrollTop || 0;
+                    const scrollX = doc.defaultView?.scrollX || doc.documentElement.scrollLeft || doc.body.scrollLeft || 0;
+                    const tbHeight = tb.offsetHeight || 32;
+                    const tbWidth = tb.offsetWidth || 340;
+                    const viewportWidth = doc.documentElement.clientWidth || doc.body.clientWidth || 800;
+                    const viewportHeight = doc.documentElement.clientHeight || 600;
+
+                    let top = 0;
+                    let left = 0;
+
+                    const spaceRight = viewportWidth - blockRect.right;
+                    const spaceLeft = blockRect.left;
+                    const spaceAbove = blockRect.top;
+
+                    // If compact element (e.g. link, button, short box) and room on right,
+                    // place beside it on the RIGHT so text above (like preceding lines) and below are 100% visible!
+                    if (spaceRight >= tbWidth + 16) {
+                        left = blockRect.right + scrollX + 10;
+                        top = blockRect.top + scrollY + Math.max(0, (blockRect.height - tbHeight) / 2);
+                    } else if (spaceLeft >= tbWidth + 16) {
+                        // Otherwise if space to the left, place on the left
+                        left = blockRect.left + scrollX - tbWidth - 10;
+                        top = blockRect.top + scrollY + Math.max(0, (blockRect.height - tbHeight) / 2);
+                    } else {
+                        // Wide block: place above if space, else below
+                        if (spaceAbove >= tbHeight + 10) {
+                            top = blockRect.top + scrollY - tbHeight - 8;
+                        } else {
+                            top = blockRect.bottom + scrollY + 8;
+                        }
+                        left = blockRect.left + scrollX;
+                        const maxLeft = scrollX + viewportWidth - tbWidth - 12;
+                        if (left > maxLeft) {
+                            left = Math.max(scrollX + 8, maxLeft);
+                        }
+                        if (left < scrollX + 8) {
+                            left = scrollX + 8;
+                        }
+                    }
+
+                    // Clamp vertically so toolbar is never clipped outside the visible viewport
+                    const minTop = scrollY + 6;
+                    const maxTop = scrollY + viewportHeight - tbHeight - 6;
+                    top = Math.max(minTop, Math.min(top, maxTop));
+
+                    tb.style.setProperty("top", `${Math.round(top)}px`, "important");
+                    tb.style.setProperty("left", `${Math.round(left)}px`, "important");
+                    tb.style.setProperty("right", "auto", "important");
+                    tb.style.setProperty("bottom", "auto", "important");
+                };
+
+                const parentBtnHtml = parentBlock
+                    ? `<button type="button" class="btn-select-parent" title="Switch selection to Outer Parent Box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="m18 15-6-6-6 6"/></svg>Outer Box (&lt;${parentBlock.tagName.toLowerCase()}&gt;)</button>`
+                    : ``;
+
+                const targetImgEl = (targetBlock.tagName === "IMG" ? targetBlock : targetBlock.querySelector("img")) as HTMLImageElement | null;
+                const changeImgBtnHtml = targetImgEl
+                    ? `<button type="button" class="btn-change-image" title="Change / Replace Image from Media Gallery" style="background:#2563eb; color:#ffffff; padding:2px 8px; border-radius:4px; font-weight:700; font-size:11px; display:inline-flex; align-items:center; gap:4px; border:none; cursor:pointer;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:2px;"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>Change Image</button>`
+                    : ``;
+
+                tb.innerHTML = `
+                    <span class="tb-drag-handle" title="Drag to move toolbar anywhere" style="cursor:grab; display:inline-flex; align-items:center; padding:1px 4px; color:#94a3b8; font-size:12px; line-height:1; user-select:none;">&#8942;&#8942;</span>
+                    <span class="tb-tag-label" style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
+                    ${parentBtnHtml}
+                    ${changeImgBtnHtml}
+                    <button type="button" class="btn-fit-text" title="Fit Text / Link (cover only as much space as text)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M4 14h6m-6 0 3-3m-3 3 3 3"/><path d="M20 10h-6m6 0-3-3m3 3-3 3"/></svg>Fit Text</button>
+                    <label style="display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,0.18); padding:2px 6px; border-radius:4px; cursor:pointer;" title="Change Component Background Color">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.6 1.95-1.5.28-1.02-.32-2.12-1.35-2.42-.42-.12-.7-.47-.7-.91 0-.6.44-1.09 1.04-1.15.59-.06 1.13.34 1.25.93.38 1.83 1.94 3.05 3.81 3.05 2.21 0 4-1.79 4-4 0-4.42-3.58-8-8-8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/></svg>
+                        <span style="font-size:10px; font-weight:800;">BG</span>
+                        <input type="color" class="btn-bg-picker" style="width:16px; height:16px; border:none; padding:0; background:none; cursor:pointer;" />
+                    </label>
+                    <button type="button" class="btn-pick-move" title="Double-Click or Click here to Move & Auto-Arrange object anywhere"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l3-3-3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>Move / Auto-Arrange</button>
+                    <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
+                    <button type="button" class="btn-move-up" title="Move Up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
+                    <button type="button" class="btn-move-down" title="Move Down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+                    <button type="button" class="btn-delete" title="Delete Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
+                    <button type="button" class="btn-tb-minimize" title="Minimize Toolbar" style="background:rgba(255,255,255,0.12); padding:1px 6px; font-size:11px; margin-left:2px;">&minus;</button>
+                `;
+
+                // Drag handle for toolbar itself
+                const dragHandle = tb.querySelector(".tb-drag-handle") as HTMLElement;
+                if (dragHandle) {
+                    dragHandle.addEventListener("mousedown", (dEv: MouseEvent) => {
+                        dEv.stopPropagation();
+                        dEv.preventDefault();
+                        userMovedTb = true;
+                        dragHandle.style.cursor = "grabbing";
+                        const startMouseX = dEv.clientX;
+                        const startMouseY = dEv.clientY;
+                        const startTbLeft = parseInt(tb.style.left || "0", 10) || tb.offsetLeft;
+                        const startTbTop = parseInt(tb.style.top || "0", 10) || tb.offsetTop;
+
+                        const onTbDrag = (mEv: MouseEvent) => {
+                            const dx = mEv.clientX - startMouseX;
+                            const dy = mEv.clientY - startMouseY;
+                            tb.style.setProperty("left", `${Math.round(startTbLeft + dx)}px`, "important");
+                            tb.style.setProperty("top", `${Math.round(startTbTop + dy)}px`, "important");
+                        };
+
+                        const onTbDragEnd = () => {
+                            dragHandle.style.cursor = "grab";
+                            doc.removeEventListener("mousemove", onTbDrag);
+                            doc.removeEventListener("mouseup", onTbDragEnd);
+                            window.removeEventListener("mousemove", onTbDrag);
+                            window.removeEventListener("mouseup", onTbDragEnd);
+                        };
+
+                        doc.addEventListener("mousemove", onTbDrag);
+                        doc.addEventListener("mouseup", onTbDragEnd);
+                        window.addEventListener("mousemove", onTbDrag);
+                        window.addEventListener("mouseup", onTbDragEnd);
+                    });
+                }
+
+                // Minimize / Expand toggle
+                const minBtn = tb.querySelector(".btn-tb-minimize") as HTMLElement;
+                if (minBtn) {
+                    minBtn.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        isTbMinimized = !isTbMinimized;
+                        tb.querySelectorAll<HTMLElement>("button:not(.btn-tb-minimize), label, span:not(.tb-tag-label):not(.tb-drag-handle)").forEach((el) => {
+                            el.style.display = isTbMinimized ? "none" : "";
+                        });
+                        minBtn.innerHTML = isTbMinimized ? "+" : "&minus;";
+                        minBtn.title = isTbMinimized ? "Expand Toolbar" : "Minimize Toolbar";
+                    });
+                }
+
+                // Fit Text / Auto-size button
+                tb.querySelector(".btn-fit-text")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    targetBlock.style.width = "fit-content";
+                    targetBlock.style.height = "auto";
+                    targetBlock.style.maxWidth = "100%";
+                    syncContent();
+                    updateTbPosition();
+                });
+
+                if (targetImgEl) {
+                    tb.querySelector(".btn-change-image")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        doc.querySelectorAll("img").forEach((i) => i.classList.remove("wysiwyg-selected-img"));
+                        targetImgEl.classList.add("wysiwyg-selected-img");
+                        setSelectedImageEl(targetImgEl);
+                        setIsGalleryOpen(true);
+                    });
+                }
+
+                tb.querySelector(".btn-pick-move")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (targetBlock.classList.contains("wysiwyg-moving-block")) {
+                        targetBlock.classList.remove("wysiwyg-moving-block");
+                        updateMovingState(null);
+                    } else {
+                        doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                        targetBlock.classList.add("wysiwyg-moving-block");
+                        updateMovingState(targetBlock);
+                    }
+                });
+
+                if (parentBlock) {
+                    tb.querySelector(".btn-select-parent")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        bindBlockSelection(parentBlock!);
+                    });
+                }
+
+                tb.querySelector(".btn-bg-picker")?.addEventListener("input", (evt: any) => {
+                    evt.stopPropagation();
+                    applyBgToElement(targetBlock, evt.target.value);
+                    syncContent();
+                });
+
+                tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    targetBlock.remove();
+                    setSelectedBlockEl(null);
+                    setSelectedImageEl(null);
+                    syncContent();
+                });
+
+                tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    const newP = doc.createElement("p");
+                    newP.innerHTML = "<br>";
+                    targetBlock.insertAdjacentElement("afterend", newP);
+
+                    const sel = doc.getSelection();
+                    if (sel) {
+                        const range = doc.createRange();
+                        range.setStart(newP, 0);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                    syncContent();
+                });
+
+                tb.querySelector(".btn-move-up")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (targetBlock.previousElementSibling) {
+                        targetBlock.parentNode?.insertBefore(targetBlock, targetBlock.previousElementSibling);
+                        syncContent();
+                    }
+                });
+
+                tb.querySelector(".btn-move-down")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (targetBlock.nextElementSibling) {
+                        targetBlock.parentNode?.insertBefore(targetBlock.nextElementSibling, targetBlock);
+                        syncContent();
+                    }
+                });
+
+                doc.body.appendChild(tb);
+                updateTbPosition();
+                requestAnimationFrame(updateTbPosition);
+
+                const onDocReposition = () => {
+                    if (tb.isConnected && targetBlock.isConnected) {
+                        updateTbPosition();
+                    }
+                };
+                doc.addEventListener("scroll", onDocReposition, { passive: true });
+                doc.defaultView?.addEventListener("resize", onDocReposition);
+
+                const handle = doc.createElement("div");
+                handle.className = "wysiwyg-resize-handle bottom-right";
+                handle.title = "Drag corner to extend or reduce size | Double-click to Fit Text/Link";
+                handle.contentEditable = "false";
+
+                let startX = 0;
+                let startY = 0;
+                let startW = 0;
+                let startH = 0;
+
+                const onMouseMove = (moveEv: MouseEvent) => {
+                    const dx = moveEv.clientX - startX;
+                    const dy = moveEv.clientY - startY;
+                    // Unrestricted minimum resizing: can shrink smoothly down to 20px, or expand as large as desired
+                    const newW = Math.max(20, startW + dx);
+                    targetBlock.style.width = newW + "px";
+                    targetBlock.style.maxWidth = "100%";
+                    if (Math.abs(dy) > 4) {
+                        const newH = Math.max(16, startH + dy);
+                        targetBlock.style.height = newH + "px";
+                    }
+                    updateTbPosition();
+                };
+
+                const onMouseUp = () => {
+                    doc.removeEventListener("mousemove", onMouseMove);
+                    doc.removeEventListener("mouseup", onMouseUp);
+                    window.removeEventListener("mousemove", onMouseMove);
+                    window.removeEventListener("mouseup", onMouseUp);
+                    syncContent();
+                    updateTbPosition();
+                };
+
+                handle.addEventListener("mousedown", (mEv: MouseEvent) => {
+                    mEv.stopPropagation();
+                    mEv.preventDefault();
+                    startX = mEv.clientX;
+                    startY = mEv.clientY;
+                    startW = targetBlock.offsetWidth;
+                    startH = targetBlock.offsetHeight;
+
+                    doc.addEventListener("mousemove", onMouseMove);
+                    doc.addEventListener("mouseup", onMouseUp);
+                    window.addEventListener("mousemove", onMouseMove);
+                    window.addEventListener("mouseup", onMouseUp);
+                });
+
+                // Double click resize handle resets to fit text/link content tightly
+                handle.addEventListener("dblclick", (dEv: MouseEvent) => {
+                    dEv.stopPropagation();
+                    dEv.preventDefault();
+                    targetBlock.style.width = "fit-content";
+                    targetBlock.style.height = "auto";
+                    targetBlock.style.maxWidth = "100%";
+                    syncContent();
+                    updateTbPosition();
+                });
+
+                if (targetBlock.tagName !== "SPAN") {
+                    targetBlock.appendChild(handle);
+                }
+            }
+
+            const handleDocMouseMove = (e: MouseEvent) => {
+                if (!doc) return;
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+                if (!movingBlock) return;
+
+                updateMovingState(movingBlock);
+
+                const result = getClosestDropTarget(e.target as HTMLElement, e.clientY);
+
+                doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+
+                if (result) {
+                    const indicator = doc.createElement("div");
+                    indicator.className = "wysiwyg-drop-indicator";
+                    indicator.contentEditable = "false";
+                    if (result.insertBefore) {
+                        result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget);
+                    } else {
+                        result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget.nextElementSibling);
+                    }
+                }
+            };
+
             const handleDocClick = (e: MouseEvent) => {
+                if (!doc) return;
                 const target = e.target as HTMLElement;
 
                 if (target?.closest?.(".wysiwyg-block-toolbar") || target?.closest?.(".wysiwyg-resize-handle")) {
                     return;
                 }
 
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+                if (movingBlock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const result = getClosestDropTarget(target, e.clientY);
+                    if (result) {
+                        if (result.insertBefore) {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget);
+                        } else {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget.nextElementSibling);
+                        }
+                    } else {
+                        doc.body.appendChild(movingBlock);
+                    }
+
+                    movingBlock.classList.remove("wysiwyg-moving-block");
+                    updateMovingState(null);
+                    bindBlockSelection(movingBlock);
+                    syncContent();
+                    return;
+                }
+
                 const imgEl = (target && target.tagName === "IMG" ? target : target?.closest?.("img")) as HTMLImageElement | null;
                 const anchorEl = (target && target.tagName === "A" ? target : target?.closest?.("a")) as HTMLAnchorElement | null;
-                const tableEl = (target && target.tagName === "TABLE" ? target : target?.closest?.("table")) as HTMLTableElement | null;
-                const cellEl = (target && (target.tagName === "TD" || target.tagName === "TH") ? target : target?.closest?.("td, th")) as HTMLTableCellElement | null;
-                const rowEl = (target && target.tagName === "TR" ? target : target?.closest?.("tr")) as HTMLTableRowElement | null;
 
                 if (imgEl) {
                     imgEl.classList.add("wysiwyg-selected-img");
                     setSelectedImageEl(imgEl);
+
+                    if (imgEl.closest("section, article")) {
+                        const parentComp = imgEl.closest("section, article") as HTMLElement;
+                        bindBlockSelection(parentComp);
+                        return;
+                    }
 
                     let container: HTMLElement;
                     if (imgEl.parentElement && imgEl.parentElement.classList.contains("wysiwyg-img-container")) {
@@ -444,129 +1091,17 @@ export function useRichTextEditor({
                         container.appendChild(imgEl);
                     }
 
-                    container.classList.add("wysiwyg-selected-block");
-                    setSelectedBlockEl(container);
-
-                    if (!container.querySelector(".wysiwyg-resize-handle")) {
-                        const tb = doc.createElement("div");
-                        tb.className = "wysiwyg-block-toolbar";
-                        tb.contentEditable = "false";
-
-                        const isImgNearTop = container.offsetTop < 42 || container.getBoundingClientRect().top < 42;
-                        if (isImgNearTop) {
-                            tb.style.setProperty("top", "6px", "important");
-                            tb.style.setProperty("right", "6px", "important");
-                        } else {
-                            tb.style.setProperty("top", "-38px", "important");
-                            tb.style.setProperty("right", "0px", "important");
-                        }
-
-                        tb.innerHTML = `
-                            <span style="opacity:0.8; font-family:monospace;">&lt;img&gt;</span>
-                            <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
-                            <button type="button" class="btn-delete" title="Delete Image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
-                        `;
-
-                        tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                            container.remove();
-                            setSelectedBlockEl(null);
-                            setSelectedImageEl(null);
-                            syncContent();
-                        });
-
-                        tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                            const newP = doc.createElement("p");
-                            newP.innerHTML = "<br>";
-                            container.insertAdjacentElement("afterend", newP);
-
-                            const sel = doc.getSelection();
-                            if (sel) {
-                                const range = doc.createRange();
-                                range.setStart(newP, 0);
-                                range.collapse(true);
-                                sel.removeAllRanges();
-                                sel.addRange(range);
-                            }
-                            syncContent();
-                        });
-
-                        container.appendChild(tb);
-
-                        const handle = doc.createElement("div");
-                        handle.className = "wysiwyg-resize-handle bottom-right";
-                        handle.title = "Drag corner to extend or reduce image size";
-                        handle.contentEditable = "false";
-
-                        let startX = 0;
-                        let startY = 0;
-                        let startW = 0;
-                        let startH = 0;
-
-                        const onMouseMove = (moveEv: MouseEvent) => {
-                            const dx = moveEv.clientX - startX;
-                            const dy = moveEv.clientY - startY;
-                            const newW = Math.max(60, startW + dx);
-                            imgEl.style.width = newW + "px";
-                            imgEl.style.maxWidth = "100%";
-                            container.style.width = newW + "px";
-                            container.style.maxWidth = "100%";
-                            if (Math.abs(dy) > 15) {
-                                const newH = Math.max(40, startH + dy);
-                                imgEl.style.height = newH + "px";
-                            } else {
-                                imgEl.style.height = "auto";
-                            }
-                        };
-
-                        const onMouseUp = () => {
-                            doc.removeEventListener("mousemove", onMouseMove);
-                            doc.removeEventListener("mouseup", onMouseUp);
-                            window.removeEventListener("mousemove", onMouseMove);
-                            window.removeEventListener("mouseup", onMouseUp);
-                            syncContent();
-                        };
-
-                        handle.addEventListener("mousedown", (mEv: MouseEvent) => {
-                            mEv.stopPropagation();
-                            mEv.preventDefault();
-                            startX = mEv.clientX;
-                            startY = mEv.clientY;
-                            startW = imgEl.offsetWidth || container.offsetWidth;
-                            startH = imgEl.offsetHeight || container.offsetHeight;
-
-                            doc.addEventListener("mousemove", onMouseMove);
-                            doc.addEventListener("mouseup", onMouseUp);
-                            window.addEventListener("mousemove", onMouseMove);
-                            window.addEventListener("mouseup", onMouseUp);
-                        });
-
-                        container.appendChild(handle);
-                    }
+                    bindBlockSelection(container);
                     return;
                 }
 
-                const isComponentContainer = (el: HTMLElement): boolean => {
-                    if (!el || el === doc.body || el === doc.documentElement) return false;
-                    const tag = el.tagName.toLowerCase();
-                    if (tag === "section" || tag === "table" || tag === "figure" || tag === "blockquote") return true;
-                    if (tag === "div") {
-                        const style = (el.getAttribute("style") || "").toLowerCase();
-                        const classNames = (el.className || "").toLowerCase();
-                        return (
-                            style.includes("border") ||
-                            style.includes("background") ||
-                            style.includes("display: flex") ||
-                            style.includes("display: grid") ||
-                            classNames.includes("card") ||
-                            classNames.includes("banner")
-                        );
-                    }
-                    return false;
-                };
+                if (anchorEl) {
+                    doc.querySelectorAll("a.wysiwyg-selected-link").forEach((el) => el.classList.remove("wysiwyg-selected-link"));
+                    anchorEl.classList.add("wysiwyg-selected-link");
+                    setSelectedAnchorEl(anchorEl);
+                    bindBlockSelection(anchorEl);
+                    return;
+                }
 
                 let topBlock: HTMLElement | null = null;
                 let curr: HTMLElement | null = target;
@@ -580,216 +1115,9 @@ export function useRichTextEditor({
                 if (!topBlock && curr && curr !== doc.body && isComponentContainer(curr)) {
                     topBlock = curr;
                 }
-
-                const targetForResizing = topBlock;
-
-                if (targetForResizing && targetForResizing.querySelector(".wysiwyg-resize-handle")) {
-                    return;
+                if (topBlock) {
+                    bindBlockSelection(topBlock);
                 }
-
-                doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
-                doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
-                doc.querySelectorAll("img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
-                doc.querySelectorAll("a").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
-
-                if (!targetForResizing) {
-                    if (!anchorEl && !tableEl) {
-                        setSelectedBlockEl(null);
-                        setSelectedImageEl(null);
-                        setSelectedAnchorEl(null);
-                        setSelectedTableEl(null);
-                        setSelectedTableCellEl(null);
-                        setSelectedTableRowEl(null);
-                    }
-                    if (anchorEl) {
-                        anchorEl.classList.add("wysiwyg-selected-link");
-                        setSelectedAnchorEl(anchorEl);
-                    }
-                    if (tableEl) {
-                        setSelectedTableEl(tableEl);
-                        setSelectedTableCellEl(cellEl);
-                        setSelectedTableRowEl(rowEl);
-                    }
-                    return;
-                }
-
-                if (anchorEl) {
-                    anchorEl.classList.add("wysiwyg-selected-link");
-                    setSelectedAnchorEl(anchorEl);
-                } else {
-                    setSelectedAnchorEl(null);
-                }
-
-                if (tableEl) {
-                    setSelectedTableEl(tableEl);
-                    setSelectedTableCellEl(cellEl);
-                    setSelectedTableRowEl(rowEl);
-                }
-
-                const bindBlockSelection = (targetBlock: HTMLElement) => {
-                    doc.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
-                    doc.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
-
-                    targetBlock.classList.add("wysiwyg-selected-block");
-                    setSelectedBlockEl(targetBlock);
-
-                    let parentBlock: HTMLElement | null = null;
-                    let pCurr: HTMLElement | null = targetBlock.parentElement;
-                    while (pCurr && pCurr !== doc.body && pCurr.tagName !== "BODY") {
-                        if (isComponentContainer(pCurr)) {
-                            parentBlock = pCurr;
-                            break;
-                        }
-                        pCurr = pCurr.parentElement;
-                    }
-
-                    const currentPos = doc.defaultView?.getComputedStyle(targetBlock).position;
-                    if (!currentPos || currentPos === "static") {
-                        targetBlock.style.position = "relative";
-                    }
-
-                    const tb = doc.createElement("div");
-                    tb.className = "wysiwyg-block-toolbar";
-                    tb.contentEditable = "false";
-
-                    const isNearTop = targetBlock.offsetTop < 45 || targetBlock.getBoundingClientRect().top < 45;
-                    const isOverflowHidden = doc.defaultView?.getComputedStyle(targetBlock).overflow !== "visible";
-
-                    if (isNearTop || isOverflowHidden) {
-                        tb.style.setProperty("top", "6px", "important");
-                        tb.style.setProperty("right", "6px", "important");
-                    } else {
-                        tb.style.setProperty("top", "-38px", "important");
-                        tb.style.setProperty("right", "0px", "important");
-                    }
-
-                    const parentBtnHtml = parentBlock
-                        ? `<button type="button" class="btn-select-parent" title="Switch selection to Outer Parent Box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="m18 15-6-6-6 6"/></svg>Outer Box (&lt;${parentBlock.tagName.toLowerCase()}&gt;)</button>`
-                        : ``;
-
-                    tb.innerHTML = `
-                        <span style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
-                        ${parentBtnHtml}
-                        <label style="display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,0.18); padding:2px 6px; border-radius:4px; cursor:pointer;" title="Change Component Background Color">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.6 1.95-1.5.28-1.02-.32-2.12-1.35-2.42-.42-.12-.7-.47-.7-.91 0-.6.44-1.09 1.04-1.15.59-.06 1.13.34 1.25.93.38 1.83 1.94 3.05 3.81 3.05 2.21 0 4-1.79 4-4 0-4.42-3.58-8-8-8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/></svg>
-                            <span style="font-size:10px; font-weight:800;">BG</span>
-                            <input type="color" class="btn-bg-picker" style="width:16px; height:16px; border:none; padding:0; background:none; cursor:pointer;" />
-                        </label>
-                        <button type="button" class="btn-add-line" title="Insert Plain Text Line Below Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Text Below</button>
-                        <button type="button" class="btn-move-up" title="Move Up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
-                        <button type="button" class="btn-move-down" title="Move Down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-                        <button type="button" class="btn-delete" title="Delete Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
-                    `;
-
-                    if (parentBlock) {
-                        tb.querySelector(".btn-select-parent")?.addEventListener("mousedown", (evt) => {
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                            bindBlockSelection(parentBlock!);
-                        });
-                    }
-
-                    tb.querySelector(".btn-bg-picker")?.addEventListener("input", (evt: any) => {
-                        evt.stopPropagation();
-                        applyBgToElement(targetBlock, evt.target.value);
-                        syncContent();
-                    });
-
-                    tb.querySelector(".btn-delete")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        targetBlock.remove();
-                        setSelectedBlockEl(null);
-                        setSelectedImageEl(null);
-                        syncContent();
-                    });
-
-                    tb.querySelector(".btn-add-line")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        const newP = doc.createElement("p");
-                        newP.innerHTML = "<br>";
-                        targetBlock.insertAdjacentElement("afterend", newP);
-
-                        const sel = doc.getSelection();
-                        if (sel) {
-                            const range = doc.createRange();
-                            range.setStart(newP, 0);
-                            range.collapse(true);
-                            sel.removeAllRanges();
-                            sel.addRange(range);
-                        }
-                        syncContent();
-                    });
-
-                    tb.querySelector(".btn-move-up")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        if (targetBlock.previousElementSibling) {
-                            targetBlock.parentNode?.insertBefore(targetBlock, targetBlock.previousElementSibling);
-                            syncContent();
-                        }
-                    });
-
-                    tb.querySelector(".btn-move-down")?.addEventListener("mousedown", (evt) => {
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        if (targetBlock.nextElementSibling) {
-                            targetBlock.parentNode?.insertBefore(targetBlock.nextElementSibling, targetBlock);
-                            syncContent();
-                        }
-                    });
-
-                    targetBlock.appendChild(tb);
-
-                    const handle = doc.createElement("div");
-                    handle.className = "wysiwyg-resize-handle bottom-right";
-                    handle.title = "Drag corner to extend or reduce size";
-                    handle.contentEditable = "false";
-
-                    let startX = 0;
-                    let startY = 0;
-                    let startW = 0;
-                    let startH = 0;
-
-                    const onMouseMove = (moveEv: MouseEvent) => {
-                        const dx = moveEv.clientX - startX;
-                        const dy = moveEv.clientY - startY;
-                        const newW = Math.max(120, startW + dx);
-                        targetBlock.style.width = newW + "px";
-                        targetBlock.style.maxWidth = "100%";
-                        if (Math.abs(dy) > 15) {
-                            const newH = Math.max(40, startH + dy);
-                            targetBlock.style.height = newH + "px";
-                        }
-                    };
-
-                    const onMouseUp = () => {
-                        doc.removeEventListener("mousemove", onMouseMove);
-                        doc.removeEventListener("mouseup", onMouseUp);
-                        window.removeEventListener("mousemove", onMouseMove);
-                        window.removeEventListener("mouseup", onMouseUp);
-                        syncContent();
-                    };
-
-                    handle.addEventListener("mousedown", (mEv: MouseEvent) => {
-                        mEv.stopPropagation();
-                        mEv.preventDefault();
-                        startX = mEv.clientX;
-                        startY = mEv.clientY;
-                        startW = targetBlock.offsetWidth;
-                        startH = targetBlock.offsetHeight;
-
-                        doc.addEventListener("mousemove", onMouseMove);
-                        doc.addEventListener("mouseup", onMouseUp);
-                        window.addEventListener("mousemove", onMouseMove);
-                        window.addEventListener("mouseup", onMouseUp);
-                    });
-
-                    targetBlock.appendChild(handle);
-                };
-
-                bindBlockSelection(targetForResizing);
             };
 
             const handleSelectionOrInput = () => {
@@ -849,13 +1177,52 @@ export function useRichTextEditor({
 
             const handleDragOver = (e: DragEvent) => {
                 e.preventDefault();
-                if (e.dataTransfer) {
+                if (!doc) return;
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+
+                if (movingBlock) {
+                    if (e.dataTransfer) {
+                        e.dataTransfer.dropEffect = "move";
+                    }
+                    const result = getClosestDropTarget(e.target as HTMLElement, e.clientY);
+
+                    if (result) {
+                        doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+                        const indicator = doc.createElement("div");
+                        indicator.className = "wysiwyg-drop-indicator";
+                        indicator.contentEditable = "false";
+
+                        if (result.insertBefore) {
+                            result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget);
+                        } else {
+                            result.dropTarget.parentNode?.insertBefore(indicator, result.dropTarget.nextElementSibling);
+                        }
+                    }
+                } else if (e.dataTransfer) {
                     e.dataTransfer.dropEffect = "copy";
                 }
             };
 
             const handleDrop = (e: DragEvent) => {
+                if (!doc) return;
                 e.preventDefault();
+
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+                const indicator = doc.querySelector(".wysiwyg-drop-indicator") as HTMLElement | null;
+
+                if (movingBlock && indicator && indicator.parentElement) {
+                    indicator.parentElement.insertBefore(movingBlock, indicator);
+                    indicator.remove();
+                    movingBlock.classList.remove("wysiwyg-moving-block");
+                    movingBlock.style.opacity = "";
+                    updateMovingState(null);
+                    bindBlockSelection(movingBlock);
+                    syncContent();
+                    return;
+                }
+
+                doc.querySelectorAll(".wysiwyg-drop-indicator").forEach((el) => el.remove());
+
                 const compId = e.dataTransfer?.getData("text/plain");
 
                 if (compId) {
@@ -898,9 +1265,65 @@ export function useRichTextEditor({
                 }
             };
 
+            const handleDocDblClick = (e: MouseEvent) => {
+                if (!doc) return;
+                const target = e.target as HTMLElement;
+                if (!target || target === doc.body || target === doc.documentElement) return;
+                if (target.closest(".wysiwyg-block-toolbar") || target.closest(".wysiwyg-resize-handle")) return;
+
+                const movingBlock = doc.querySelector(".wysiwyg-moving-block") as HTMLElement | null;
+
+                if (movingBlock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const result = getClosestDropTarget(target, e.clientY);
+                    if (result) {
+                        if (result.insertBefore) {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget);
+                        } else {
+                            result.dropTarget.parentNode?.insertBefore(movingBlock, result.dropTarget.nextElementSibling);
+                        }
+                    } else {
+                        doc.body.appendChild(movingBlock);
+                    }
+
+                    movingBlock.classList.remove("wysiwyg-moving-block");
+                    updateMovingState(null);
+                    bindBlockSelection(movingBlock);
+                    syncContent();
+                    return;
+                }
+
+                let targetBlock: HTMLElement | null = null;
+                let curr: HTMLElement | null = target;
+                while (curr && curr.parentElement && curr.parentElement !== doc.body && curr.parentElement.tagName !== "BODY") {
+                    if (isComponentContainer(curr)) {
+                        targetBlock = curr;
+                        break;
+                    }
+                    curr = curr.parentElement;
+                }
+                if (!targetBlock && curr && curr !== doc.body && isComponentContainer(curr)) {
+                    targetBlock = curr;
+                }
+
+                if (targetBlock) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    doc.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
+                    targetBlock.classList.add("wysiwyg-moving-block");
+                    updateMovingState(targetBlock);
+                    bindBlockSelection(targetBlock);
+                }
+            };
+
             doc.addEventListener("keyup", syncContent);
             doc.addEventListener("paste", () => setTimeout(syncContent, 50));
             doc.addEventListener("click", handleDocClick);
+            doc.addEventListener("mousemove", handleDocMouseMove);
+            doc.addEventListener("dblclick", handleDocDblClick);
             doc.addEventListener("selectionchange", handleSelectionOrInput);
             doc.addEventListener("input", handleSelectionOrInput);
             doc.addEventListener("keydown", handleKeyDown);
@@ -1030,9 +1453,45 @@ export function useRichTextEditor({
         }
     };
 
+    const updateCanvasMode = (mode: "desktop" | "tablet" | "mobile") => {
+        setCanvasMode(mode);
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        if (doc && doc.body) {
+            const widthMap = {
+                desktop: "100%",
+                tablet: "768px",
+                mobile: "375px",
+            };
+            doc.body.style.width = widthMap[mode];
+            doc.body.style.maxWidth = "100%";
+            doc.body.style.boxSizing = "border-box";
+            doc.body.style.transition = "all 0.35s ease";
+            if (mode === "desktop") {
+                doc.body.style.margin = "0 auto";
+                doc.body.style.borderRadius = "0";
+                doc.body.style.padding = "32px 36px";
+            } else {
+                doc.body.style.margin = "0 auto";
+                doc.body.style.borderRadius = "16px";
+                if (mode === "mobile") {
+                    doc.body.style.padding = "20px 16px";
+                } else {
+                    doc.body.style.padding = "28px 32px";
+                }
+            }
+            if (doc.documentElement) {
+                doc.documentElement.style.overflowX = "hidden";
+                doc.documentElement.style.margin = "0";
+                doc.documentElement.style.padding = mode === "desktop" ? "0" : "16px 0";
+            }
+            syncIframeToState();
+        }
+    };
+
     const getCleanHtmlFromDoc = (d: Document): string => {
         const clone = d.body.cloneNode(true) as HTMLElement;
-        clone.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar").forEach((el) => el.remove());
+        clone.querySelectorAll(".wysiwyg-resize-handle, .wysiwyg-block-toolbar, .wysiwyg-drop-indicator").forEach((el) => el.remove());
         clone.querySelectorAll("figure.wysiwyg-img-container").forEach((fig) => {
             const img = fig.querySelector("img");
             if (img) {
@@ -1041,22 +1500,28 @@ export function useRichTextEditor({
             fig.remove();
         });
         clone.querySelectorAll(".wysiwyg-selected-block").forEach((el) => el.classList.remove("wysiwyg-selected-block"));
+        clone.querySelectorAll(".wysiwyg-moving-block").forEach((el) => el.classList.remove("wysiwyg-moving-block"));
         clone.querySelectorAll("img.wysiwyg-selected-img").forEach((img) => img.classList.remove("wysiwyg-selected-img"));
         clone.querySelectorAll("a.wysiwyg-selected-link").forEach((a) => a.classList.remove("wysiwyg-selected-link"));
         const html = clone.innerHTML;
         if (html === "<br>") return "";
 
-        const bodyBg = d.body.style.backgroundColor;
-        if (bodyBg && bodyBg !== "transparent" && bodyBg !== "rgba(0, 0, 0, 0)") {
-            const firstChild = clone.firstElementChild;
-            if (clone.children.length === 1 && firstChild && firstChild.classList.contains("wysiwyg-page-wrapper")) {
-                (firstChild as HTMLElement).style.backgroundColor = bodyBg;
-                return clone.innerHTML;
-            } else {
-                return `<div class="wysiwyg-page-wrapper" style="background-color: ${bodyBg}; padding: 24px; border-radius: 16px; min-height: 100%;">${html}</div>`;
-            }
+        const bodyBg = d.body.style.backgroundColor || pageBgColor;
+        const bodyColor = d.body.style.color;
+        const bodyWidth = d.body.style.maxWidth || "100%";
+
+        const firstChild = clone.firstElementChild;
+        if (clone.children.length === 1 && firstChild && firstChild.classList.contains("wysiwyg-page-wrapper")) {
+            if (bodyBg && bodyBg !== "transparent") (firstChild as HTMLElement).style.backgroundColor = bodyBg;
+            if (bodyColor) (firstChild as HTMLElement).style.color = bodyColor;
+            (firstChild as HTMLElement).setAttribute("data-canvas-mode", canvasMode);
+            return clone.innerHTML;
+        } else {
+            const bgStyle = bodyBg && bodyBg !== "transparent" ? `background-color: ${bodyBg};` : "";
+            const colorStyle = bodyColor ? `color: ${bodyColor};` : "";
+            const borderRadiusCss = canvasMode === "desktop" ? "0px" : "16px";
+            return `<div class="wysiwyg-page-wrapper" data-canvas-mode="${canvasMode}" style="${bgStyle} ${colorStyle} padding: 32px 24px; margin: 0 auto; width: 100%; max-width: ${bodyWidth}; border-radius: ${borderRadiusCss}; min-height: 100%; box-sizing: border-box; overflow-x: hidden; word-wrap: break-word; overflow-wrap: break-word;">${html}</div>`;
         }
-        return html;
     };
 
     const syncIframeToState = () => {
@@ -1630,6 +2095,12 @@ export function useRichTextEditor({
         setLinkStyle,
         editingAnchorEl,
         setEditingAnchorEl,
+        canvasMode,
+        setCanvasMode,
+        updateCanvasMode,
+        pageBgColor,
+        setPageBgColor,
+        updatePageBgColor,
         // Methods
         openPdfStudio,
         isFrameStudioOpen,
@@ -1661,7 +2132,6 @@ export function useRichTextEditor({
         applyBgToElement,
         updateBlockBgColor,
         selectParentBlock,
-        updatePageBgColor,
         openStudioForTargetImage,
         openStudioForSelectedImage,
         applyQuickImageResize,

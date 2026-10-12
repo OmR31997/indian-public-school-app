@@ -32,7 +32,7 @@ export interface CustomField {
 export interface ApplicationField {
   key: string;
   label: string;
-  type: "text" | "number" | "email" | "file" | "select" | "textarea";
+  type: "text" | "number" | "email" | "file" | "image" | "select" | "textarea";
   required: boolean;
   options?: string[];
 }
@@ -60,6 +60,13 @@ export function CareersView() {
   const [fullName, setFullName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [candidatePhoto, setCandidatePhoto] = useState<string>("");
+  const [uploadingPhoto, setUploadingPhoto] = useState<boolean>(false);
+  const [photoUploadStatus, setPhotoUploadStatus] = useState<FileUploadStatus>({
+    isUploading: false,
+    progress: 0,
+    step: "preparing",
+  });
   const [coverNote, setCoverNote] = useState<string>("");
   const [resumeUrl, setResumeUrl] = useState<string>("");
   const [uploadingResume, setUploadingResume] = useState<boolean>(false);
@@ -68,6 +75,7 @@ export function CareersView() {
     progress: 0,
     step: "preparing",
   });
+  const [uploadingDynamicKey, setUploadingDynamicKey] = useState<string | null>(null);
   const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -122,6 +130,8 @@ export function CareersView() {
     setFullName("");
     setEmail("");
     setPhone("");
+    setCandidatePhoto("");
+    setPhotoUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
     setCoverNote("");
     setResumeUrl("");
     setCustomAnswers({});
@@ -147,7 +157,7 @@ export function CareersView() {
       previewUrl,
       progress: 5,
       step: "preparing",
-      stageMessage: "Step 1/3: Reading resume payload & initializing server upload…",
+      stageMessage: "Preparing resume…",
     });
 
     try {
@@ -160,7 +170,7 @@ export function CareersView() {
         ...prev,
         progress: 15,
         step: "uploading",
-        stageMessage: "Step 2/3: Transmitting resume document to Cloudinary CDN…",
+        stageMessage: "Uploading resume…",
       }));
 
       const res = await axios.post(`${API_URL}/uploads/public`, formData, {
@@ -172,10 +182,7 @@ export function CareersView() {
               ...prev,
               progress: Math.min(pct, 95),
               step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95
-                  ? "Step 3/3: Processing document & generating CDN link…"
-                  : `Step 2/3: Transmitting resume (${pct}%)…`,
+              stageMessage: pct >= 95 ? "Processing resume…" : `Uploading resume (${pct}%)…`,
             }));
           }
         },
@@ -185,7 +192,7 @@ export function CareersView() {
         ...prev,
         progress: 98,
         step: "processing",
-        stageMessage: "Step 3/3: Generating secure document link…",
+        stageMessage: "Processing resume…",
       }));
 
       const body = res.data;
@@ -201,9 +208,9 @@ export function CareersView() {
           ...prev,
           progress: 100,
           step: "done",
-          stageMessage: "Upload complete! Resume attached.",
+          stageMessage: "Resume uploaded successfully!",
         }));
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 800));
       } else {
         throw new Error("Upload response did not return a valid URL.");
       }
@@ -217,10 +224,130 @@ export function CareersView() {
         errorMessage: errMsg,
         stageMessage: "Resume upload failed.",
       }));
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     } finally {
       setUploadingResume(false);
       setResumeUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
+    }
+  };
+
+  // Candidate Photo Upload to API
+  const handleCandidatePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    setErrorMsg("");
+
+    const previewUrl = URL.createObjectURL(file);
+    const formattedSize = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+
+    setPhotoUploadStatus({
+      isUploading: true,
+      fileName: file.name,
+      fileSize: formattedSize,
+      fileType: file.type,
+      previewUrl,
+      progress: 10,
+      step: "preparing",
+      stageMessage: "Preparing photo…",
+    });
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("album", "CandidatePhotos");
+      formData.append("folder", "indian-public-school/assets/CareerApplications");
+
+      setPhotoUploadStatus((prev) => ({
+        ...prev,
+        progress: 25,
+        step: "uploading",
+        stageMessage: "Uploading photo…",
+      }));
+
+      const res = await axios.post(`${API_URL}/uploads/public`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setPhotoUploadStatus((prev) => ({
+              ...prev,
+              progress: Math.min(pct, 95),
+              step: pct >= 95 ? "processing" : "uploading",
+              stageMessage: pct >= 95 ? "Processing photo…" : `Uploading photo (${pct}%)…`,
+            }));
+          }
+        },
+      });
+
+      const body = res.data;
+      const uploadedUrl =
+        body?.data?.url ||
+        body?.data?.fileUrl?.[0] ||
+        body?.url ||
+        (Array.isArray(body?.fileUrl) ? body.fileUrl[0] : null);
+
+      if (uploadedUrl) {
+        setCandidatePhoto(uploadedUrl);
+        setPhotoUploadStatus((prev) => ({
+          ...prev,
+          progress: 100,
+          step: "done",
+          stageMessage: "Photo uploaded successfully!",
+        }));
+        await new Promise((resolve) => setTimeout(resolve, 800));
+      } else {
+        throw new Error("Upload did not return a valid photo URL.");
+      }
+    } catch (err: any) {
+      console.error("Candidate photo upload failed:", err);
+      const msg = "Failed to upload photo. You can paste a direct photo URL.";
+      setErrorMsg(msg);
+      setPhotoUploadStatus((prev) => ({
+        ...prev,
+        step: "error",
+        errorMessage: msg,
+      }));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } finally {
+      setUploadingPhoto(false);
+      setPhotoUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
+    }
+  };
+
+  // Dynamic Question File / Image Upload
+  const handleDynamicFileUpload = async (key: string, file: File) => {
+    setUploadingDynamicKey(key);
+    setErrorMsg("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("album", "CareerApplications");
+      formData.append("folder", "indian-public-school/assets/CareerApplications");
+
+      const res = await axios.post(`${API_URL}/uploads/public`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const body = res.data;
+      const uploadedUrl =
+        body?.data?.url ||
+        body?.data?.fileUrl?.[0] ||
+        body?.url ||
+        (Array.isArray(body?.fileUrl) ? body.fileUrl[0] : null);
+
+      if (uploadedUrl) {
+        setCustomAnswers((prev) => ({ ...prev, [key]: uploadedUrl }));
+      } else {
+        throw new Error("Failed to receive uploaded file link");
+      }
+    } catch (err: any) {
+      console.error("Dynamic file upload failed:", err);
+      setErrorMsg(`Failed to upload file for question. Please try again or paste a link.`);
+    } finally {
+      setUploadingDynamicKey(null);
     }
   };
 
@@ -257,7 +384,11 @@ export function CareersView() {
         phone: phone.trim(),
         coverNote: coverNote.trim(),
         resumeUrl: resumeUrl.trim(),
-        customAnswers,
+        photoUrl: candidatePhoto.trim(),
+        customAnswers: {
+          ...customAnswers,
+          ...(candidatePhoto ? { applicant_photo: candidatePhoto.trim() } : {}),
+        },
       };
 
       const res = await axios.post(`${API_URL}/careers/apply`, payload);
@@ -321,9 +452,19 @@ export function CareersView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search openings by post name, qualification, or department..."
-                className="w-full pl-12 pr-4 py-3.5 bg-white text-slate-900 shadow-xl border border-white/40 focus:outline-none focus:ring-4 focus:ring-[var(--gold)]/50 text-sm placeholder:text-slate-400 transition-all"
+                className="w-full pl-12 pr-10 py-3.5 bg-white text-slate-900 shadow-xl border border-white/40 focus:outline-none focus:ring-4 focus:ring-[var(--gold)]/50 text-sm placeholder:text-slate-400 transition-all"
                 style={{ borderRadius: "var(--btn-radius, 1rem)" }}
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                  title="Clear search"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -515,6 +656,21 @@ export function CareersView() {
             )}
 
             <form onSubmit={handleSubmitApplication} className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
+              {/* Applying for Position (Readonly / Disabled Input Field) */}
+              <div>
+                <label className="block font-semibold text-[var(--navy)] dark:text-slate-200 mb-1">
+                  Applying for Position
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  readOnly
+                  value={selectedPost.title}
+                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold cursor-not-allowed outline-none select-all shadow-2xs"
+                  style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Full Name */}
                 <div>
@@ -565,6 +721,76 @@ export function CareersView() {
                 />
               </div>
 
+              {/* Candidate Photograph / Passport Image Field */}
+              <div
+                className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2"
+                style={{ borderRadius: "var(--card-radius, 1rem)" }}
+              >
+                <label className="block font-semibold text-[var(--navy)] dark:text-slate-200">
+                  Candidate Photograph / Passport Photo (Optional)
+                </label>
+
+                {candidatePhoto ? (
+                  <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <img
+                      src={candidatePhoto}
+                      alt="Candidate Photo Preview"
+                      className="w-14 h-14 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Photo Attached Successfully</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 truncate mt-0.5 font-mono">{candidatePhoto}</p>
+                      <button
+                        type="button"
+                        onClick={() => setCandidatePhoto("")}
+                        className="text-[11px] text-red-500 hover:text-red-700 font-bold underline mt-1 cursor-pointer"
+                      >
+                        Remove & Re-upload
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <label
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 border border-dashed border-[var(--primary)] bg-white dark:bg-slate-900 text-[var(--primary)] font-semibold cursor-pointer hover:bg-[var(--primary)]/10 transition-colors"
+                      style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
+                    >
+                      {uploadingPhoto ? (
+                        <LoaderCircle className="w-4 h-4 animate-spin text-[var(--primary)]" />
+                      ) : (
+                        <Upload className="w-4 h-4" />
+                      )}
+                      <span>{uploadingPhoto ? "Uploading Photo..." : "Upload Photo (JPG/PNG)"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleCandidatePhotoUpload}
+                        className="hidden"
+                      />
+                    </label>
+
+                    <input
+                      type="text"
+                      disabled
+                      readOnly
+                      value={candidatePhoto}
+                      placeholder="No photo attached (upload photo using button)"
+                      className="flex-1 px-3.5 py-2 border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs cursor-not-allowed outline-none select-all"
+                      style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
+                    />
+                  </div>
+                )}
+
+                {photoUploadStatus.isUploading && (
+                  <div className="pt-2">
+                    <FileUploadProgressLoader status={photoUploadStatus} />
+                  </div>
+                )}
+              </div>
+
               {/* Cover Note */}
               <div>
                 <label className="block font-semibold text-[var(--navy)] dark:text-slate-200 mb-1">Cover Note / Brief Intro</label>
@@ -594,7 +820,84 @@ export function CareersView() {
                           {q.label} {q.required && <span className="text-red-500">*</span>}
                         </label>
 
-                        {q.type === "textarea" ? (
+                        {q.type === "image" || q.type === "file" ? (
+                          <div className="space-y-2">
+                            {customAnswers[q.key] ? (
+                              <div className="flex items-center gap-3 p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                                {q.type === "image" ||
+                                customAnswers[q.key].match(/\.(jpeg|jpg|gif|png|webp|svg|avif)($|\?)/i) ? (
+                                  <img
+                                    src={customAnswers[q.key]}
+                                    alt={q.label}
+                                    className="w-12 h-12 rounded-lg object-cover border border-slate-200 shadow-2xs shrink-0"
+                                  />
+                                ) : (
+                                  <FileText className="w-8 h-8 text-[#1a5d9c] shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    <span>File Uploaded</span>
+                                  </div>
+                                  <span className="text-[11px] text-slate-500 truncate block font-mono">
+                                    {customAnswers[q.key]}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setCustomAnswers((prev) => {
+                                        const next = { ...prev };
+                                        delete next[q.key];
+                                        return next;
+                                      })
+                                    }
+                                    className="text-[11px] text-red-500 hover:text-red-700 underline font-semibold mt-0.5 cursor-pointer"
+                                  >
+                                    Remove & Replace
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <label
+                                  className="flex items-center justify-center gap-2 px-3.5 py-2 border border-dashed border-[var(--primary)] bg-white dark:bg-slate-900 text-[var(--primary)] font-semibold cursor-pointer hover:bg-[var(--primary)]/10 transition-colors"
+                                  style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
+                                >
+                                  {uploadingDynamicKey === q.key ? (
+                                    <LoaderCircle className="w-4 h-4 animate-spin text-[var(--primary)]" />
+                                  ) : (
+                                    <Upload className="w-4 h-4" />
+                                  )}
+                                  <span>
+                                    {uploadingDynamicKey === q.key
+                                      ? "Uploading..."
+                                      : q.type === "image"
+                                      ? `Upload ${q.label} Image`
+                                      : `Upload ${q.label} Document`}
+                                  </span>
+                                  <input
+                                    type="file"
+                                    accept={q.type === "image" ? "image/*" : ".pdf,.doc,.docx,image/*"}
+                                    onChange={(e) => {
+                                      const f = e.target.files?.[0];
+                                      if (f) void handleDynamicFileUpload(q.key, f);
+                                    }}
+                                    className="hidden"
+                                  />
+                                </label>
+                                <input
+                                  type="text"
+                                  disabled
+                                  readOnly
+                                  value={customAnswers[q.key] || ""}
+                                  placeholder="No file attached (upload using button)"
+                                  className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs cursor-not-allowed outline-none select-all"
+                                  style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ) : q.type === "textarea" ? (
                           <textarea
                             rows={2}
                             required={q.required}
@@ -669,13 +972,24 @@ export function CareersView() {
                   </label>
 
                   <input
-                    type="url"
+                    type="text"
+                    disabled
+                    readOnly
                     value={resumeUrl}
-                    onChange={(e) => setResumeUrl(e.target.value)}
-                    placeholder="Or paste Google Drive / Cloudinary resume URL"
-                    className="flex-1 px-3.5 py-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none"
+                    placeholder="No resume file attached (upload using button)"
+                    className="flex-1 px-3.5 py-2 border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs cursor-not-allowed outline-none select-all"
                     style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                   />
+                  {resumeUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setResumeUrl("")}
+                      className="px-3 py-2 text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-950/30 rounded-xl font-bold cursor-pointer text-xs shrink-0"
+                      title="Remove attached resume"
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
 
                 {(resumeUploadStatus.isUploading || resumeUploadStatus.step === "done" || resumeUploadStatus.step === "error") && (

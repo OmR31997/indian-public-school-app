@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import axios from "axios";
 import {
   SlidersHorizontal,
@@ -18,6 +18,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   LoaderCircle,
   UploadCloud,
   Check,
@@ -32,7 +33,7 @@ import {
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
 import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types/admin.types";
-import { API_URL } from "../config/admin.config";
+import { API_URL, resourcePath } from "../config/admin.config";
 import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
 import { MediaDetailDialog } from "../modals/MediaDetailDialog";
 import { HomePreviewModal } from "../modals/HomePreviewModal";
@@ -40,18 +41,41 @@ import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
 import { toCleanRelativeAssetPath } from "@/lib/utils";
 
-function Empty({ text }: { text: string }) {
-  return <div className="px-5 py-12 text-center text-sm text-slate-400">{text}</div>;
+function Empty({
+  text,
+  actionLabel,
+  onAction,
+}: {
+  text: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className="px-5 py-14 text-center">
+      <p className="text-sm font-medium text-slate-500">{text}</p>
+      {actionLabel && onAction && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function MenuHierarchyFlow({
   items,
   onEdit,
   onDelete,
+  deletingId,
 }: {
   items: RecordItem[];
   onEdit: (item: RecordItem) => void;
   onDelete: (item: RecordItem) => void;
+  deletingId?: string | null;
 }) {
   const itemMap = new Map<string, RecordItem & { children: any[] }>();
 
@@ -117,11 +141,16 @@ export function MenuHierarchyFlow({
                 </button>
                 <button
                   type="button"
+                  disabled={Boolean(deletingId)}
                   onClick={() => onDelete(root)}
-                  className="rounded-lg p-1.5 text-red-300 hover:bg-white/10 hover:text-red-200"
-                  title="Delete Root Item"
+                  className="rounded-lg p-1.5 text-red-300 hover:bg-white/10 hover:text-red-200 disabled:opacity-50 cursor-pointer"
+                  title={deletingId === itemId(root) ? "Deleting..." : "Delete Root Item"}
                 >
-                  <Trash2 size={15} />
+                  {deletingId === itemId(root) ? (
+                    <LoaderCircle size={15} className="animate-spin text-red-300" />
+                  ) : (
+                    <Trash2 size={15} />
+                  )}
                 </button>
               </div>
             </div>
@@ -156,11 +185,16 @@ export function MenuHierarchyFlow({
                         </button>
                         <button
                           type="button"
+                          disabled={Boolean(deletingId)}
                           onClick={() => onDelete(sub)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                          title="Delete Sub Item"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 cursor-pointer"
+                          title={deletingId === itemId(sub) ? "Deleting..." : "Delete Sub Item"}
                         >
-                          <Trash2 size={14} />
+                          {deletingId === itemId(sub) ? (
+                            <LoaderCircle size={14} className="animate-spin text-red-600" />
+                          ) : (
+                            <Trash2 size={14} />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -190,11 +224,16 @@ export function MenuHierarchyFlow({
                                 </button>
                                 <button
                                   type="button"
+                                  disabled={Boolean(deletingId)}
                                   onClick={() => onDelete(subSub)}
-                                  className="rounded-lg p-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                                  title="Delete Sub-item"
+                                  className="rounded-lg p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 cursor-pointer"
+                                  title={deletingId === itemId(subSub) ? "Deleting..." : "Delete Sub-item"}
                                 >
-                                  <Trash2 size={13} />
+                                  {deletingId === itemId(subSub) ? (
+                                    <LoaderCircle size={13} className="animate-spin text-red-600" />
+                                  ) : (
+                                    <Trash2 size={13} />
+                                  )}
                                 </button>
                               </div>
                             </div>
@@ -318,7 +357,7 @@ export function HeaderFooterSettingsCard({
       previewUrl,
       progress: 5,
       step: "preparing",
-      stageMessage: "Step 1/3: Reading logo binary buffer & initializing payload…",
+      stageMessage: "Preparing upload…",
     });
 
     try {
@@ -331,7 +370,7 @@ export function HeaderFooterSettingsCard({
         ...prev,
         progress: 15,
         step: "uploading",
-        stageMessage: "Step 2/3: Transmitting logo asset to server & Cloudinary CDN…",
+        stageMessage: "Uploading logo…",
       }));
 
       const res = await axios.post(`${API_URL}/uploads`, formData, {
@@ -346,10 +385,7 @@ export function HeaderFooterSettingsCard({
               ...prev,
               progress: Math.min(pct, 95),
               step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95
-                  ? "Step 3/3: Optimizing logo asset & generating CDN response URL…"
-                  : `Step 2/3: Transmitting logo to CDN (${pct}%)…`,
+              stageMessage: pct >= 95 ? "Processing logo…" : `Uploading logo (${pct}%)…`,
             }));
           }
         },
@@ -359,7 +395,7 @@ export function HeaderFooterSettingsCard({
         ...prev,
         progress: 98,
         step: "processing",
-        stageMessage: "Step 3/3: Processing logo & generating clean asset path…",
+        stageMessage: "Processing logo…",
       }));
 
       const data = res.data?.data ?? res.data;
@@ -378,10 +414,10 @@ export function HeaderFooterSettingsCard({
         ...prev,
         progress: 100,
         step: "done",
-        stageMessage: "Upload complete! Setting logo updated.",
+        stageMessage: "Upload complete!",
       }));
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 800));
     } catch (err: any) {
       console.error("Setting logo upload failed:", err);
       const errMsg = axios.isAxiosError(err)
@@ -392,9 +428,9 @@ export function HeaderFooterSettingsCard({
         ...prev,
         step: "error",
         errorMessage: errMsg,
-        stageMessage: "Upload encountered an error.",
+        stageMessage: "Upload failed.",
       }));
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     } finally {
       setUploadingSetting(null);
       setUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
@@ -1083,6 +1119,8 @@ export function ResourceView({
   resource,
   items,
   loading,
+  isSearching: isSearchingProp,
+  deletingId,
   query,
   meta,
   onQueryChange,
@@ -1092,20 +1130,24 @@ export function ResourceView({
   canCreate: canCreateProp = true,
   canEdit: canEditProp = true,
   canDelete: canDeleteProp = true,
+  allMenuItems,
   token,
 }: {
   resource: Resource;
   items: RecordItem[];
   loading: boolean;
+  isSearching?: boolean;
+  deletingId?: string | null;
   query: QueryParamsState;
   meta: PaginationMeta | undefined;
-  onQueryChange: (params: Partial<QueryParamsState>) => void;
+  onQueryChange: (params: Partial<QueryParamsState>) => Promise<void> | void;
   onCreate: () => void;
   onEdit: (item: RecordItem) => void;
   onDelete: (item: RecordItem) => void;
   canCreate?: boolean;
   canEdit?: boolean;
   canDelete?: boolean;
+  allMenuItems?: RecordItem[];
   token?: string;
 }) {
   const isMediaResource = resource.key === "gallery";
@@ -1115,9 +1157,25 @@ export function ResourceView({
   const [activeAlbum, setActiveAlbum] = useState<string>("All");
   const [detailItem, setDetailItem] = useState<RecordItem | null>(null);
   const [localSearch, setLocalSearch] = useState(query.search || "");
+  const [internalSearching, setInternalSearching] = useState(false);
+  const isSearching = Boolean(isSearchingProp || internalSearching);
 
   useEffect(() => {
+    if (detailItem && !items.some((i) => itemId(i) === itemId(detailItem))) {
+      setDetailItem(null);
+    }
+  }, [items, detailItem]);
+
+  // Sync localSearch when switching between different resources
+  useEffect(() => {
     setLocalSearch(query.search || "");
+  }, [resource.key]);
+
+  // Sync when search is cleared externally
+  useEffect(() => {
+    if (!query.search && localSearch !== "") {
+      setLocalSearch("");
+    }
   }, [query.search]);
 
   const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0;
@@ -1155,9 +1213,41 @@ export function ResourceView({
     return imageUrl(raw);
   };
 
-  const handleSearchSubmit = () => {
-    onQueryChange({ search: localSearch.trim(), page: 1 });
-  };
+  const handleSearchSubmit = useCallback(async (customValue?: string) => {
+    const val = typeof customValue === "string" ? customValue : localSearch;
+    setInternalSearching(true);
+    try {
+      await onQueryChange({ search: val.trim(), page: 1 });
+    } finally {
+      setInternalSearching(false);
+    }
+  }, [localSearch, onQueryChange]);
+
+  const handleClearSearch = useCallback(async () => {
+    setLocalSearch("");
+    setInternalSearching(true);
+    try {
+      await onQueryChange({ search: "", page: 1 });
+    } finally {
+      setInternalSearching(false);
+    }
+  }, [onQueryChange]);
+
+  // Debounced live search: auto-searches after 450ms of user typing without breaking input flow
+  useEffect(() => {
+    const activeSearch = (query.search || "").trim();
+    const currentInput = localSearch.trim();
+
+    if (currentInput === activeSearch) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      void handleSearchSubmit(localSearch);
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [localSearch, query.search, handleSearchSubmit]);
 
   return (
     <div>
@@ -1192,7 +1282,9 @@ export function ResourceView({
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs shrink-0">
               <span className="flex h-2 w-2 rounded-full bg-[#1a5d9c]"></span>
               <span>{totalItems}</span>
-              <span className="capitalize font-medium text-slate-600">{resource.label.toLowerCase()}</span>
+              <span className="capitalize font-medium text-slate-600">
+                {query.search ? `found for "${query.search}"` : resource.label.toLowerCase()}
+              </span>
             </div>
 
             {filtersConfig.map((filter) => {
@@ -1235,19 +1327,28 @@ export function ResourceView({
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearchSubmit();
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void handleSearchSubmit();
+                  }
                 }}
                 placeholder={`Search ${resource.label.toLowerCase()}...`}
-                className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-1.5 text-xs outline-none focus:border-[#1a5d9c] shadow-2xs"
+                className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-1.5 text-xs outline-none shadow-2xs transition-all focus:border-[#1a5d9c] focus:ring-1 focus:ring-[#1a5d9c]/30"
               />
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <button
+                type="button"
+                onClick={() => handleSearchSubmit()}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#1a5d9c] transition cursor-pointer"
+                title="Search"
+              >
+                <Search size={14} />
+              </button>
               {localSearch && (
                 <button
-                  onClick={() => {
-                    setLocalSearch("");
-                    onQueryChange({ search: "", page: 1 });
-                  }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition cursor-pointer"
+                  title="Clear search"
                 >
                   <X size={13} />
                 </button>
@@ -1297,9 +1398,14 @@ export function ResourceView({
         {/* Content View */}
         {viewMode === "grid" && isMediaResource ? (
           <div className="p-6">
-            {loading ? (
-              <div className="py-16 text-center">
-                <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" />
+            {(loading || isSearching) ? (
+              <div className="py-16 text-center flex flex-col items-center justify-center gap-2.5">
+                <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" size={26} />
+                <span className="text-xs font-semibold text-slate-500">
+                  {localSearch.trim() || query.search
+                    ? `Searching ${resource.label.toLowerCase()}…`
+                    : `Loading ${resource.label.toLowerCase()}…`}
+                </span>
               </div>
             ) : items.length > 0 ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -1308,7 +1414,9 @@ export function ResourceView({
                   return (
                     <div
                       key={itemId(item)}
-                      className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition hover:border-slate-300 hover:shadow-md"
+                      className={`group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition hover:border-slate-300 hover:shadow-md ${
+                        deletingId === itemId(item) ? "opacity-50 pointer-events-none ring-2 ring-red-300" : ""
+                      }`}
                     >
                       <div className="relative aspect-video w-full overflow-hidden bg-slate-100 flex items-center justify-center">
                         <SmartFileThumbnail
@@ -1319,15 +1427,16 @@ export function ResourceView({
                         <div className="absolute inset-0 bg-slate-950/40 opacity-0 transition group-hover:opacity-100 flex items-center justify-center gap-2">
                           <button
                             onClick={() => setDetailItem(item)}
-                            className="rounded-xl bg-white/90 p-2 text-slate-800 shadow-md hover:bg-white hover:scale-105 transition"
+                            className="rounded-xl bg-white/90 p-2 text-slate-800 shadow-md hover:bg-white hover:scale-105 transition cursor-pointer"
                             title="Inspect item"
                           >
                             <Eye size={16} />
                           </button>
                           {canEdit && (
                             <button
+                              disabled={Boolean(deletingId)}
                               onClick={() => onEdit(item)}
-                              className="rounded-xl bg-white/90 p-2 text-[#1a5d9c] shadow-md hover:bg-white hover:scale-105 transition"
+                              className="rounded-xl bg-white/90 p-2 text-[#1a5d9c] shadow-md hover:bg-white hover:scale-105 transition disabled:opacity-40 cursor-pointer"
                               title="Edit item"
                             >
                               <Pencil size={16} />
@@ -1335,11 +1444,20 @@ export function ResourceView({
                           )}
                           {canDelete && (
                             <button
+                              disabled={Boolean(deletingId)}
                               onClick={() => onDelete(item)}
-                              className="rounded-xl bg-white/90 p-2 text-red-600 shadow-md hover:bg-white hover:scale-105 transition"
-                              title="Delete item"
+                              className={`rounded-xl bg-white/90 p-2 shadow-md transition ${
+                                deletingId === itemId(item)
+                                  ? "text-red-600 cursor-wait ring-1 ring-red-300"
+                                  : "text-red-600 hover:bg-white hover:scale-105 disabled:opacity-40 cursor-pointer"
+                              }`}
+                              title={deletingId === itemId(item) ? "Deleting item..." : "Delete item"}
                             >
-                              <Trash2 size={16} />
+                              {deletingId === itemId(item) ? (
+                                <LoaderCircle size={16} className="animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 size={16} />
+                              )}
                             </button>
                           )}
                         </div>
@@ -1358,18 +1476,38 @@ export function ResourceView({
                 })}
               </div>
             ) : (
-              <Empty text={`No ${resource.label.toLowerCase()} found`} />
+              <Empty
+                text={
+                  query.search
+                    ? `No ${resource.label.toLowerCase()} found matching "${query.search}"`
+                    : `No ${resource.label.toLowerCase()} found`
+                }
+                actionLabel={query.search ? "Clear search" : undefined}
+                onAction={query.search ? handleClearSearch : undefined}
+              />
             )}
           </div>
         ) : isMenuResource && menuViewMode === "flow" ? (
-          <MenuHierarchyFlow items={items} onEdit={onEdit} onDelete={onDelete} />
+          (loading || isSearching) ? (
+            <div className="py-16 text-center flex flex-col items-center justify-center gap-2.5">
+              <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" size={26} />
+              <span className="text-xs font-semibold text-slate-500">
+                Searching navigation menu…
+              </span>
+            </div>
+          ) : (
+            <MenuHierarchyFlow items={allMenuItems && allMenuItems.length > 0 ? allMenuItems : items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
+          )
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-500">
                   {resource.fields.map((field) => (
-                    <th key={field} className="whitespace-nowrap px-5 py-3.5">
+                    <th
+                      key={field}
+                      className={`whitespace-nowrap px-5 py-3.5 ${field === "status" ? "text-center" : ""}`}
+                    >
                       {field}
                     </th>
                   ))}
@@ -1379,10 +1517,17 @@ export function ResourceView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {loading ? (
+                {(loading || isSearching) ? (
                   <tr>
                     <td colSpan={resource.fields.length + 1} className="py-16 text-center">
-                      <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" />
+                      <div className="flex flex-col items-center justify-center gap-2.5">
+                        <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" size={26} />
+                        <span className="text-xs font-semibold text-slate-500">
+                          {localSearch.trim() || query.search
+                            ? `Searching ${resource.label.toLowerCase()}…`
+                            : `Loading ${resource.label.toLowerCase()}…`}
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 ) : items.length > 0 ? (
@@ -1390,7 +1535,12 @@ export function ResourceView({
                     const isSuperUser = resource.key === "users" && isSuperAdminRole(item.role);
                     const rowPreviewUrl = getPreviewUrl(item);
                     return (
-                      <tr key={itemId(item)} className="transition hover:bg-slate-50/80">
+                      <tr
+                        key={itemId(item)}
+                        className={`transition ${
+                          deletingId === itemId(item) ? "bg-red-50/40 opacity-50 pointer-events-none" : "hover:bg-slate-50/80"
+                        }`}
+                      >
                         {resource.fields.map((field) => {
                           const formatted = formatValue(field, item[field], item, items);
                           if (field === "role") {
@@ -1399,6 +1549,130 @@ export function ResourceView({
                                 <span className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-bold text-[#1a5d9c]">
                                   {formatted}
                                 </span>
+                              </td>
+                            );
+                          }
+
+                          if (field === "name") {
+                            const avatarUrl = item.avatar || item.profileImageUrl || item.photo;
+                            return (
+                              <td key={field} className="max-w-[240px] px-5 py-4 text-sm text-slate-900 font-bold">
+                                <div className="flex items-center gap-2.5">
+                                  {avatarUrl ? (
+                                    <img
+                                      src={imageUrl(String(avatarUrl))}
+                                      alt={String(item.name || "Avatar")}
+                                      className="h-8 w-8 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                    />
+                                  ) : resource.key === "students" || resource.key === "staff" ? (
+                                    <div className="h-8 w-8 rounded-full bg-[#102a4c] text-[#f4bd4f] font-bold text-[11px] flex items-center justify-center shrink-0 border border-white/10">
+                                      {String(item.name || "").substring(0, 2).toUpperCase() || "?"}
+                                    </div>
+                                  ) : null}
+                                  <span className="truncate">{formatted}</span>
+                                </div>
+                              </td>
+                            );
+                          }
+
+                          if (field === "status") {
+                            const statusStr = String(item[field] || "Active");
+                            const sLower = statusStr.toLowerCase();
+                            const isAct = sLower === "active" || sLower === "published" || sLower === "approved";
+                            const isMid = sLower === "on leave" || sLower === "in progress" || sLower === "pending";
+                            const isOff = sLower === "inactive" || sLower === "draft" || sLower === "closed" || sLower === "rejected";
+
+                            const statusOptions = resource.options?.status || (
+                              resource.key === "students"
+                                ? ["Active", "Inactive"]
+                                : resource.key === "staff"
+                                ? ["Active", "On Leave", "Inactive"]
+                                : []
+                            );
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit && statusOptions.length > 0 ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={statusStr}
+                                      onChange={async (e) => {
+                                        const newStatus = e.target.value;
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { status: newStatus },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update status", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isAct
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : isMid
+                                          ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100/80"
+                                          : isOff
+                                          ? "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
+                                          : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                      title="Click to change status"
+                                    >
+                                      {statusOptions.map((opt) => (
+                                        <option key={opt} value={opt} className="text-slate-900 bg-white font-semibold">
+                                          {opt}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : isMid
+                                          ? "bg-amber-500 shadow-xs shadow-amber-400"
+                                          : isOff
+                                          ? "bg-rose-500 shadow-xs shadow-rose-400"
+                                          : "bg-slate-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isAct ? "text-emerald-600" : isMid ? "text-amber-600" : isOff ? "text-rose-600" : "text-slate-500"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isAct
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : isMid
+                                        ? "border-amber-200 bg-amber-50 text-amber-800"
+                                        : isOff
+                                        ? "border-rose-200 bg-rose-50 text-rose-800"
+                                        : "border-slate-200 bg-slate-50 text-slate-700"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : isMid
+                                          ? "bg-amber-500 shadow-xs shadow-amber-400"
+                                          : isOff
+                                          ? "bg-rose-500 shadow-xs shadow-rose-400"
+                                          : "bg-slate-400"
+                                      }`}
+                                    />
+                                    <span>{statusStr}</span>
+                                  </span>
+                                )}
                               </td>
                             );
                           }
@@ -1423,9 +1697,14 @@ export function ResourceView({
                             </td>
                           );
                         })}
-                        {(canEdit || canDelete || isMediaResource || rowPreviewUrl) && (
-                          <td className="whitespace-nowrap px-5 py-4">
-                            <div className="flex items-center justify-end gap-1">
+                        {(() => {
+                          if (!canEdit && !canDelete && !isMediaResource && !rowPreviewUrl) {
+                            return null;
+                          }
+
+                          return (
+                            <td className="whitespace-nowrap px-5 py-4">
+                              <div className="flex items-center justify-end gap-1">
                               {rowPreviewUrl && item.key !== "site_logo" && (
                                 <a
                                   href={rowPreviewUrl}
@@ -1440,7 +1719,7 @@ export function ResourceView({
                               {item.key !== "site_logo" && (
                                 <button
                                   onClick={() => setDetailItem(item)}
-                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
+                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
                                   title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
                                 >
                                   <Eye size={16} />
@@ -1448,8 +1727,9 @@ export function ResourceView({
                               )}
                               {canEdit && item.key !== "site_logo" && (
                                 <button
+                                  disabled={Boolean(deletingId)}
                                   onClick={() => onEdit(item)}
-                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c]"
+                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] disabled:opacity-40 cursor-pointer"
                                   title="Edit record"
                                 >
                                   <Pencil size={16} />
@@ -1466,24 +1746,42 @@ export function ResourceView({
                                   </button>
                                 ) : (
                                   <button
+                                    disabled={Boolean(deletingId)}
                                     onClick={() => onDelete(item)}
-                                    className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                                    title="Delete record"
+                                    className={`rounded-lg p-2 transition ${
+                                      deletingId === itemId(item)
+                                        ? "bg-red-50 text-red-600 cursor-wait ring-1 ring-red-300"
+                                        : "text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-40 cursor-pointer"
+                                    }`}
+                                    title={deletingId === itemId(item) ? "Deleting record..." : "Delete record"}
                                   >
-                                    <Trash2 size={16} />
+                                    {deletingId === itemId(item) ? (
+                                      <LoaderCircle size={16} className="animate-spin text-red-600" />
+                                    ) : (
+                                      <Trash2 size={16} />
+                                    )}
                                   </button>
                                 )
                               )}
                             </div>
                           </td>
-                        )}
+                        );
+                      })()}
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
                     <td colSpan={resource.fields.length + 1}>
-                      <Empty text={`No ${resource.label.toLowerCase()} found`} />
+                      <Empty
+                        text={
+                          query.search
+                            ? `No ${resource.label.toLowerCase()} found matching "${query.search}"`
+                            : `No ${resource.label.toLowerCase()} found`
+                        }
+                        actionLabel={query.search ? "Clear search" : undefined}
+                        onAction={query.search ? handleClearSearch : undefined}
+                      />
                     </td>
                   </tr>
                 )}
@@ -1547,6 +1845,7 @@ export function ResourceView({
           <MediaDetailDialog
             item={detailItem}
             resource={resource}
+            isDeleting={Boolean(deletingId && detailItem && deletingId === itemId(detailItem))}
             onClose={() => setDetailItem(null)}
             onEdit={canEdit ? () => onEdit(detailItem) : undefined}
             onDelete={canDelete && !(resource.key === "users" && isSuperAdminRole(detailItem.role)) ? () => onDelete(detailItem) : undefined}
