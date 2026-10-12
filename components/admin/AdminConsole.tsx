@@ -125,6 +125,10 @@ export function AdminConsole() {
   }, [queryParams]);
 
   const [loading, setLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const isRefreshingRef = useRef(false);
+  const fetchSequenceRef = useRef<Record<string, number>>({});
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [token, setToken] = useState("");
@@ -163,6 +167,18 @@ export function AdminConsole() {
 
 
   const fetchResource = useCallback(async (key: ResourceKey, overrideQuery?: Partial<QueryParamsState>) => {
+    const isSearchAction = overrideQuery?.search !== undefined;
+    const isCurrent = active === key;
+    const seq = (fetchSequenceRef.current[key] || 0) + 1;
+    fetchSequenceRef.current[key] = seq;
+
+    if (!isRefreshingRef.current && isCurrent) {
+      setTableLoading(true);
+      if (isSearchAction) {
+        setIsSearching(true);
+      }
+    }
+
     try {
       const defaultLimit = key === "gallery" ? 100 : DEFAULT_QUERY.limit;
       const currentQuery = {
@@ -197,6 +213,10 @@ export function AdminConsole() {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
+      if (fetchSequenceRef.current[key] !== seq) {
+        return;
+      }
+
       const parsed = asPaginatedPayload(response.data, key);
       setData((previous) => ({ ...previous, [key]: parsed.items }));
       setMetaData((previous) => ({ ...previous, [key]: parsed.meta }));
@@ -208,8 +228,13 @@ export function AdminConsole() {
         document.cookie = "ips_admin_session=; Path=/; Max-Age=0; SameSite=Lax";
       }
       throw err;
+    } finally {
+      if (fetchSequenceRef.current[key] === seq && isCurrent) {
+        setTableLoading(false);
+        setIsSearching(false);
+      }
     }
-  }, [token]);
+  }, [token, active]);
 
   const fetchPublishedPages = useCallback(() => {
     axios
@@ -222,6 +247,7 @@ export function AdminConsole() {
   }, []);
 
   const refresh = useCallback(async () => {
+    isRefreshingRef.current = true;
     setLoading(true); setError("");
     fetchPublishedPages();
     const readable = resources.filter((resource) => (resource.key !== "users" || token) && canAccessResource(resource.key));
@@ -233,6 +259,7 @@ export function AdminConsole() {
       setError("Cannot connect to backend API server. Check that the API is running on http://localhost:5000.");
     }
     setLoading(false);
+    isRefreshingRef.current = false;
   }, [fetchResource, token, canAccessResource, fetchPublishedPages]);
 
   // Notification Hook (SOLID Architecture & Smart Load Optimization)
@@ -699,7 +726,7 @@ export function AdminConsole() {
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
             title="Refresh Console Data"
           >
-            <RefreshCw size={18} className="text-[#102a4c]" />
+            <RefreshCw size={18} className={`text-[#102a4c] ${loading ? "animate-spin" : ""}`} />
           </button>
           {token && (
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 pr-3 shadow-xs">
@@ -731,11 +758,12 @@ export function AdminConsole() {
           <ResourceView
             resource={current}
             items={currentItems}
-            loading={loading}
+            loading={loading || tableLoading}
+            isSearching={isSearching}
             deletingId={deletingId}
             query={queryParams[current.key] || DEFAULT_QUERY}
             meta={metaData[current.key]}
-            onQueryChange={(newQuery) => void fetchResource(current.key, newQuery)}
+            onQueryChange={(newQuery) => fetchResource(current.key, newQuery)}
             onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }}
             onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }}
             onDelete={remove}

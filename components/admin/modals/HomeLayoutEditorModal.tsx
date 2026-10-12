@@ -302,7 +302,7 @@ export function HomeLayoutEditorModal({
       previewUrl,
       progress: 5,
       step: "preparing",
-      stageMessage: "Step 1/3: Reading binary buffer & initializing Cloudinary payload…",
+      stageMessage: "Preparing upload…",
     });
 
     try {
@@ -317,7 +317,7 @@ export function HomeLayoutEditorModal({
         ...prev,
         progress: 15,
         step: "uploading",
-        stageMessage: "Step 2/3: Transmitting asset to server & Cloudinary CDN…",
+        stageMessage: "Uploading file…",
       }));
 
       const res = await axios.post(`${API_URL}/uploads`, formData, {
@@ -332,10 +332,7 @@ export function HomeLayoutEditorModal({
               ...prev,
               progress: Math.min(pct, 95),
               step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95
-                  ? "Step 3/3: Optimizing asset & generating Cloudinary CDN links…"
-                  : `Step 2/3: Transmitting asset to CDN server (${pct}%)…`,
+              stageMessage: pct >= 95 ? "Processing file…" : `Uploading file (${pct}%)…`,
             }));
           }
         },
@@ -345,7 +342,7 @@ export function HomeLayoutEditorModal({
         ...prev,
         progress: 98,
         step: "processing",
-        stageMessage: "Step 3/3: Processing asset & generating Cloudinary response URL…",
+        stageMessage: "Processing file…",
       }));
 
       const data = res.data?.data ?? res.data;
@@ -356,10 +353,10 @@ export function HomeLayoutEditorModal({
         ...prev,
         progress: 100,
         step: "done",
-        stageMessage: "Upload complete! Asset added to editor.",
+        stageMessage: "Upload complete!",
       }));
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 800));
       return url;
     } catch (err) {
       const errMsg = axios.isAxiosError(err) ? String(err.response?.data?.message || err.message) : "Upload failed.";
@@ -368,9 +365,9 @@ export function HomeLayoutEditorModal({
         ...prev,
         step: "error",
         errorMessage: errMsg,
-        stageMessage: "Upload encountered an error.",
+        stageMessage: "Upload failed.",
       }));
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       return "";
     } finally {
       setUploading(false);

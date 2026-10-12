@@ -157,7 +157,7 @@ export function CareersView() {
       previewUrl,
       progress: 5,
       step: "preparing",
-      stageMessage: "Step 1/3: Reading resume payload & initializing server upload…",
+      stageMessage: "Preparing resume…",
     });
 
     try {
@@ -170,7 +170,7 @@ export function CareersView() {
         ...prev,
         progress: 15,
         step: "uploading",
-        stageMessage: "Step 2/3: Transmitting resume document to Cloudinary CDN…",
+        stageMessage: "Uploading resume…",
       }));
 
       const res = await axios.post(`${API_URL}/uploads/public`, formData, {
@@ -182,10 +182,7 @@ export function CareersView() {
               ...prev,
               progress: Math.min(pct, 95),
               step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95
-                  ? "Step 3/3: Processing document & generating CDN link…"
-                  : `Step 2/3: Transmitting resume (${pct}%)…`,
+              stageMessage: pct >= 95 ? "Processing resume…" : `Uploading resume (${pct}%)…`,
             }));
           }
         },
@@ -195,7 +192,7 @@ export function CareersView() {
         ...prev,
         progress: 98,
         step: "processing",
-        stageMessage: "Step 3/3: Generating secure document link…",
+        stageMessage: "Processing resume…",
       }));
 
       const body = res.data;
@@ -211,9 +208,9 @@ export function CareersView() {
           ...prev,
           progress: 100,
           step: "done",
-          stageMessage: "Upload complete! Resume attached.",
+          stageMessage: "Resume uploaded successfully!",
         }));
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 800));
       } else {
         throw new Error("Upload response did not return a valid URL.");
       }
@@ -227,7 +224,7 @@ export function CareersView() {
         errorMessage: errMsg,
         stageMessage: "Resume upload failed.",
       }));
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     } finally {
       setUploadingResume(false);
       setResumeUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
@@ -253,7 +250,7 @@ export function CareersView() {
       previewUrl,
       progress: 10,
       step: "preparing",
-      stageMessage: "Step 1/3: Reading photo & preparing upload…",
+      stageMessage: "Preparing photo…",
     });
 
     try {
@@ -266,7 +263,7 @@ export function CareersView() {
         ...prev,
         progress: 25,
         step: "uploading",
-        stageMessage: "Step 2/3: Uploading photo to Cloud CDN…",
+        stageMessage: "Uploading photo…",
       }));
 
       const res = await axios.post(`${API_URL}/uploads/public`, formData, {
@@ -278,8 +275,7 @@ export function CareersView() {
               ...prev,
               progress: Math.min(pct, 95),
               step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95 ? "Step 3/3: Optimizing photo link…" : `Step 2/3: Uploading photo (${pct}%)…`,
+              stageMessage: pct >= 95 ? "Processing photo…" : `Uploading photo (${pct}%)…`,
             }));
           }
         },
@@ -298,7 +294,7 @@ export function CareersView() {
           ...prev,
           progress: 100,
           step: "done",
-          stageMessage: "Candidate photo attached!",
+          stageMessage: "Photo uploaded successfully!",
         }));
         await new Promise((resolve) => setTimeout(resolve, 800));
       } else {
@@ -456,9 +452,19 @@ export function CareersView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search openings by post name, qualification, or department..."
-                className="w-full pl-12 pr-4 py-3.5 bg-white text-slate-900 shadow-xl border border-white/40 focus:outline-none focus:ring-4 focus:ring-[var(--gold)]/50 text-sm placeholder:text-slate-400 transition-all"
+                className="w-full pl-12 pr-10 py-3.5 bg-white text-slate-900 shadow-xl border border-white/40 focus:outline-none focus:ring-4 focus:ring-[var(--gold)]/50 text-sm placeholder:text-slate-400 transition-all"
                 style={{ borderRadius: "var(--btn-radius, 1rem)" }}
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                  title="Clear search"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
             </div>
           </div>
         </div>

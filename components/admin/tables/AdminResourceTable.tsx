@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import axios from "axios";
 import {
   SlidersHorizontal,
@@ -41,8 +41,29 @@ import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
 import { toCleanRelativeAssetPath } from "@/lib/utils";
 
-function Empty({ text }: { text: string }) {
-  return <div className="px-5 py-12 text-center text-sm text-slate-400">{text}</div>;
+function Empty({
+  text,
+  actionLabel,
+  onAction,
+}: {
+  text: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className="px-5 py-14 text-center">
+      <p className="text-sm font-medium text-slate-500">{text}</p>
+      {actionLabel && onAction && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function MenuHierarchyFlow({
@@ -336,7 +357,7 @@ export function HeaderFooterSettingsCard({
       previewUrl,
       progress: 5,
       step: "preparing",
-      stageMessage: "Step 1/3: Reading logo binary buffer & initializing payload…",
+      stageMessage: "Preparing upload…",
     });
 
     try {
@@ -349,7 +370,7 @@ export function HeaderFooterSettingsCard({
         ...prev,
         progress: 15,
         step: "uploading",
-        stageMessage: "Step 2/3: Transmitting logo asset to server & Cloudinary CDN…",
+        stageMessage: "Uploading logo…",
       }));
 
       const res = await axios.post(`${API_URL}/uploads`, formData, {
@@ -364,10 +385,7 @@ export function HeaderFooterSettingsCard({
               ...prev,
               progress: Math.min(pct, 95),
               step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95
-                  ? "Step 3/3: Optimizing logo asset & generating CDN response URL…"
-                  : `Step 2/3: Transmitting logo to CDN (${pct}%)…`,
+              stageMessage: pct >= 95 ? "Processing logo…" : `Uploading logo (${pct}%)…`,
             }));
           }
         },
@@ -377,7 +395,7 @@ export function HeaderFooterSettingsCard({
         ...prev,
         progress: 98,
         step: "processing",
-        stageMessage: "Step 3/3: Processing logo & generating clean asset path…",
+        stageMessage: "Processing logo…",
       }));
 
       const data = res.data?.data ?? res.data;
@@ -396,10 +414,10 @@ export function HeaderFooterSettingsCard({
         ...prev,
         progress: 100,
         step: "done",
-        stageMessage: "Upload complete! Setting logo updated.",
+        stageMessage: "Upload complete!",
       }));
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 800));
     } catch (err: any) {
       console.error("Setting logo upload failed:", err);
       const errMsg = axios.isAxiosError(err)
@@ -410,9 +428,9 @@ export function HeaderFooterSettingsCard({
         ...prev,
         step: "error",
         errorMessage: errMsg,
-        stageMessage: "Upload encountered an error.",
+        stageMessage: "Upload failed.",
       }));
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     } finally {
       setUploadingSetting(null);
       setUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
@@ -1101,6 +1119,7 @@ export function ResourceView({
   resource,
   items,
   loading,
+  isSearching: isSearchingProp,
   deletingId,
   query,
   meta,
@@ -1116,10 +1135,11 @@ export function ResourceView({
   resource: Resource;
   items: RecordItem[];
   loading: boolean;
+  isSearching?: boolean;
   deletingId?: string | null;
   query: QueryParamsState;
   meta: PaginationMeta | undefined;
-  onQueryChange: (params: Partial<QueryParamsState>) => void;
+  onQueryChange: (params: Partial<QueryParamsState>) => Promise<void> | void;
   onCreate: () => void;
   onEdit: (item: RecordItem) => void;
   onDelete: (item: RecordItem) => void;
@@ -1135,6 +1155,8 @@ export function ResourceView({
   const [activeAlbum, setActiveAlbum] = useState<string>("All");
   const [detailItem, setDetailItem] = useState<RecordItem | null>(null);
   const [localSearch, setLocalSearch] = useState(query.search || "");
+  const [internalSearching, setInternalSearching] = useState(false);
+  const isSearching = Boolean(isSearchingProp || internalSearching);
 
   useEffect(() => {
     if (detailItem && !items.some((i) => itemId(i) === itemId(detailItem))) {
@@ -1142,8 +1164,16 @@ export function ResourceView({
     }
   }, [items, detailItem]);
 
+  // Sync localSearch when switching between different resources
   useEffect(() => {
     setLocalSearch(query.search || "");
+  }, [resource.key]);
+
+  // Sync when search is cleared externally
+  useEffect(() => {
+    if (!query.search && localSearch !== "") {
+      setLocalSearch("");
+    }
   }, [query.search]);
 
   const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0;
@@ -1181,9 +1211,41 @@ export function ResourceView({
     return imageUrl(raw);
   };
 
-  const handleSearchSubmit = () => {
-    onQueryChange({ search: localSearch.trim(), page: 1 });
-  };
+  const handleSearchSubmit = useCallback(async (customValue?: string) => {
+    const val = typeof customValue === "string" ? customValue : localSearch;
+    setInternalSearching(true);
+    try {
+      await onQueryChange({ search: val.trim(), page: 1 });
+    } finally {
+      setInternalSearching(false);
+    }
+  }, [localSearch, onQueryChange]);
+
+  const handleClearSearch = useCallback(async () => {
+    setLocalSearch("");
+    setInternalSearching(true);
+    try {
+      await onQueryChange({ search: "", page: 1 });
+    } finally {
+      setInternalSearching(false);
+    }
+  }, [onQueryChange]);
+
+  // Debounced live search: auto-searches after 450ms of user typing without breaking input flow
+  useEffect(() => {
+    const activeSearch = (query.search || "").trim();
+    const currentInput = localSearch.trim();
+
+    if (currentInput === activeSearch) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      void handleSearchSubmit(localSearch);
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [localSearch, query.search, handleSearchSubmit]);
 
   return (
     <div>
@@ -1218,7 +1280,9 @@ export function ResourceView({
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs shrink-0">
               <span className="flex h-2 w-2 rounded-full bg-[#1a5d9c]"></span>
               <span>{totalItems}</span>
-              <span className="capitalize font-medium text-slate-600">{resource.label.toLowerCase()}</span>
+              <span className="capitalize font-medium text-slate-600">
+                {query.search ? `found for "${query.search}"` : resource.label.toLowerCase()}
+              </span>
             </div>
 
             {filtersConfig.map((filter) => {
@@ -1261,19 +1325,28 @@ export function ResourceView({
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearchSubmit();
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void handleSearchSubmit();
+                  }
                 }}
                 placeholder={`Search ${resource.label.toLowerCase()}...`}
-                className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-1.5 text-xs outline-none focus:border-[#1a5d9c] shadow-2xs"
+                className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-1.5 text-xs outline-none shadow-2xs transition-all focus:border-[#1a5d9c] focus:ring-1 focus:ring-[#1a5d9c]/30"
               />
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <button
+                type="button"
+                onClick={() => handleSearchSubmit()}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#1a5d9c] transition cursor-pointer"
+                title="Search"
+              >
+                <Search size={14} />
+              </button>
               {localSearch && (
                 <button
-                  onClick={() => {
-                    setLocalSearch("");
-                    onQueryChange({ search: "", page: 1 });
-                  }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition cursor-pointer"
+                  title="Clear search"
                 >
                   <X size={13} />
                 </button>
@@ -1323,9 +1396,14 @@ export function ResourceView({
         {/* Content View */}
         {viewMode === "grid" && isMediaResource ? (
           <div className="p-6">
-            {loading ? (
-              <div className="py-16 text-center">
-                <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" />
+            {(loading || isSearching) ? (
+              <div className="py-16 text-center flex flex-col items-center justify-center gap-2.5">
+                <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" size={26} />
+                <span className="text-xs font-semibold text-slate-500">
+                  {localSearch.trim() || query.search
+                    ? `Searching ${resource.label.toLowerCase()}…`
+                    : `Loading ${resource.label.toLowerCase()}…`}
+                </span>
               </div>
             ) : items.length > 0 ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -1396,11 +1474,28 @@ export function ResourceView({
                 })}
               </div>
             ) : (
-              <Empty text={`No ${resource.label.toLowerCase()} found`} />
+              <Empty
+                text={
+                  query.search
+                    ? `No ${resource.label.toLowerCase()} found matching "${query.search}"`
+                    : `No ${resource.label.toLowerCase()} found`
+                }
+                actionLabel={query.search ? "Clear search" : undefined}
+                onAction={query.search ? handleClearSearch : undefined}
+              />
             )}
           </div>
         ) : isMenuResource && menuViewMode === "flow" ? (
-          <MenuHierarchyFlow items={items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
+          (loading || isSearching) ? (
+            <div className="py-16 text-center flex flex-col items-center justify-center gap-2.5">
+              <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" size={26} />
+              <span className="text-xs font-semibold text-slate-500">
+                Searching navigation menu…
+              </span>
+            </div>
+          ) : (
+            <MenuHierarchyFlow items={items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
+          )
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -1420,10 +1515,17 @@ export function ResourceView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {loading ? (
+                {(loading || isSearching) ? (
                   <tr>
                     <td colSpan={resource.fields.length + 1} className="py-16 text-center">
-                      <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" />
+                      <div className="flex flex-col items-center justify-center gap-2.5">
+                        <LoaderCircle className="mx-auto animate-spin text-[#1a5d9c]" size={26} />
+                        <span className="text-xs font-semibold text-slate-500">
+                          {localSearch.trim() || query.search
+                            ? `Searching ${resource.label.toLowerCase()}…`
+                            : `Loading ${resource.label.toLowerCase()}…`}
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 ) : items.length > 0 ? (
@@ -1669,7 +1771,15 @@ export function ResourceView({
                 ) : (
                   <tr>
                     <td colSpan={resource.fields.length + 1}>
-                      <Empty text={`No ${resource.label.toLowerCase()} found`} />
+                      <Empty
+                        text={
+                          query.search
+                            ? `No ${resource.label.toLowerCase()} found matching "${query.search}"`
+                            : `No ${resource.label.toLowerCase()} found`
+                        }
+                        actionLabel={query.search ? "Clear search" : undefined}
+                        onAction={query.search ? handleClearSearch : undefined}
+                      />
                     </td>
                   </tr>
                 )}

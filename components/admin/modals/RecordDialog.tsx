@@ -166,7 +166,7 @@ export function RecordDialog({
         previewUrl,
         progress: 10,
         step: "preparing",
-        stageMessage: `${fileNum}Step 1/3: Reading binary buffer & initializing Cloudinary payload…`,
+        stageMessage: files.length > 1 ? `Preparing ${fileNum}upload…` : "Preparing upload…",
       });
 
       try {
@@ -209,8 +209,8 @@ export function RecordDialog({
                 step: pct >= 95 ? "processing" : "uploading",
                 stageMessage:
                   pct >= 95
-                    ? `${fileNum}Step 3/3: Optimizing asset & generating Cloudinary CDN links…`
-                    : `${fileNum}Step 2/3: Transmitting asset to CDN server (${pct}%)…`,
+                    ? (files.length > 1 ? `Processing file ${fileNum}…` : "Processing file…")
+                    : (files.length > 1 ? `Uploading ${fileNum}(${pct}%)…` : `Uploading file (${pct}%)…`),
               }));
             }
           },
@@ -227,13 +227,13 @@ export function RecordDialog({
       } catch (err) {
         const errMsg = axios.isAxiosError(err)
           ? String(err.response?.data?.message || err.message)
-          : `Failed to upload ${file.name} to Cloudinary.`;
+          : `Failed to upload ${file.name}.`;
         setUploadError(errMsg);
         setUploadStatus((prev) => ({
           ...prev,
           step: "error",
           errorMessage: errMsg,
-          stageMessage: `Upload of ${file.name} encountered an error.`,
+          stageMessage: `Upload failed.`,
         }));
         await new Promise((resolve) => setTimeout(resolve, 1500));
         break;
@@ -264,7 +264,7 @@ export function RecordDialog({
         ...prev,
         progress: 100,
         step: "done",
-        stageMessage: `Upload complete! ${uploadedUrls.length} Cloudinary asset(s) synced.`,
+        stageMessage: files.length > 1 ? `${uploadedUrls.length} files uploaded!` : "Upload complete!",
       }));
       await new Promise((resolve) => setTimeout(resolve, 800));
     }

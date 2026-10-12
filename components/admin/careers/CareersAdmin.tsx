@@ -464,6 +464,16 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                   className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-1.5 text-xs outline-none focus:border-[#1a5d9c] shadow-2xs"
                 />
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                {postSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setPostSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition cursor-pointer"
+                    title="Clear search"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
               </div>
 
               <button
@@ -491,8 +501,20 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
           ) : filteredPosts.length === 0 ? (
             <div className="p-16 text-center text-slate-500">
               <Briefcase className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-              <p className="font-semibold text-slate-700">No career openings found</p>
-              <p className="text-xs text-slate-400 mt-0.5">Click &quot;Add Career Opening&quot; to create your first dynamic job post.</p>
+              <p className="font-semibold text-slate-700">
+                {postSearch ? `No career openings found matching "${postSearch}"` : "No career openings found"}
+              </p>
+              {postSearch ? (
+                <button
+                  type="button"
+                  onClick={() => setPostSearch("")}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Clear search
+                </button>
+              ) : (
+                <p className="text-xs text-slate-400 mt-0.5">Click &quot;Add Career Opening&quot; to create your first dynamic job post.</p>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -684,9 +706,19 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                   value={appSearch}
                   onChange={(e) => setAppSearch(e.target.value)}
                   placeholder="Search candidates..."
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-1.5 text-xs outline-none focus:border-[#1a5d9c] shadow-2xs"
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-1.5 text-xs outline-none focus:border-[#1a5d9c] shadow-2xs"
                 />
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                {appSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setAppSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition cursor-pointer"
+                    title="Clear search"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
               </div>
 
               <button
@@ -708,7 +740,20 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
           ) : filteredApps.length === 0 ? (
             <div className="p-16 text-center text-slate-500">
               <FileText className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-              <p className="font-semibold text-slate-700">No applications received matching filters</p>
+              <p className="font-semibold text-slate-700">
+                {appSearch
+                  ? `No applications received matching "${appSearch}"`
+                  : "No applications received matching filters"}
+              </p>
+              {appSearch && (
+                <button
+                  type="button"
+                  onClick={() => setAppSearch("")}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Clear search
+                </button>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
