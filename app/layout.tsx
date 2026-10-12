@@ -13,6 +13,17 @@ export const metadata: Metadata = {
     default: seoData.pages.home.title,
     template: `%s | ${seoData.name}`,
   },
+  icons: {
+    icon: [
+      { url: "/assets/Settings/Logos/IPSStandardLogo.png" },
+      { url: "/assets/Settings/Logos/IPSStandardLogo.png", sizes: "32x32", type: "image/png" },
+      { url: "/assets/Settings/Logos/IPSStandardLogo.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "/assets/Settings/Logos/IPSStandardLogo.png",
+    apple: [
+      { url: "/assets/Settings/Logos/IPSStandardLogo.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   description: seoData.pages.home.description,
   keywords: seoData.pages.home.keywords,
   creator: seoData.name,
@@ -77,6 +88,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="h-full antialiased" data-scroll-behavior="smooth">
       <head>
+        <link rel="icon" href="/assets/Settings/Logos/IPSStandardLogo.png" type="image/png" />
+        <link rel="shortcut icon" href="/assets/Settings/Logos/IPSStandardLogo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/assets/Settings/Logos/IPSStandardLogo.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

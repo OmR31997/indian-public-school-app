@@ -18,27 +18,42 @@ export async function GET(request: NextRequest) {
     targetUrl = `${origin}${targetUrl.startsWith("/") ? "" : "/"}${targetUrl}`;
   }
 
-  // Build list of candidate URLs to handle Cloudinary raw vs image path variations
-  const candidates: string[] = [targetUrl];
+  // Build list of candidate URLs to handle Cloudinary raw vs image path variations and double-extension fallbacks
+  const candidatesSet = new Set<string>();
+  candidatesSet.add(targetUrl);
 
   if (targetUrl.includes("res.cloudinary.com")) {
-    if (targetUrl.includes("/image/upload/")) {
-      candidates.push(targetUrl.replace("/image/upload/", "/raw/upload/"));
-    } else if (targetUrl.includes("/raw/upload/")) {
-      candidates.push(targetUrl.replace("/raw/upload/", "/image/upload/"));
+    const rawToImage = targetUrl.includes("/raw/upload/")
+      ? targetUrl.replace("/raw/upload/", "/image/upload/")
+      : targetUrl.replace("/image/upload/", "/raw/upload/");
+    candidatesSet.add(rawToImage);
+
+    // Handle double-extension or missing extension variants
+    if (targetUrl.includes(".pdf.pdf")) {
+      const single = targetUrl.replace(/\.pdf\.pdf/g, ".pdf");
+      candidatesSet.add(single);
+      candidatesSet.add(single.includes("/raw/upload/") ? single.replace("/raw/upload/", "/image/upload/") : single.replace("/image/upload/", "/raw/upload/"));
+    } else if (/\.pdf($|\?|#)/i.test(targetUrl)) {
+      const double = targetUrl.replace(/\.pdf(?=($|\?|#))/i, ".pdf.pdf");
+      candidatesSet.add(double);
+      candidatesSet.add(double.includes("/raw/upload/") ? double.replace("/raw/upload/", "/image/upload/") : double.replace("/image/upload/", "/raw/upload/"));
     }
 
     const cleanTarget = targetUrl.split("?")[0].split("#")[0];
     const extMatch = cleanTarget.match(/\.([a-z0-9]+)$/i);
     if (!extMatch) {
       ["pdf", "xlsx", "xls", "csv", "docx", "doc"].forEach((ext) => {
-        candidates.push(`${targetUrl}.${ext}`);
+        candidatesSet.add(`${targetUrl}.${ext}`);
         if (targetUrl.includes("/image/upload/")) {
-          candidates.push(targetUrl.replace("/image/upload/", "/raw/upload/") + `.${ext}`);
+          candidatesSet.add(targetUrl.replace("/image/upload/", "/raw/upload/") + `.${ext}`);
+        } else if (targetUrl.includes("/raw/upload/")) {
+          candidatesSet.add(targetUrl.replace("/raw/upload/", "/image/upload/") + `.${ext}`);
         }
       });
     }
   }
+
+  const candidates = Array.from(candidatesSet);
 
   try {
     let res: Response | null = null;
