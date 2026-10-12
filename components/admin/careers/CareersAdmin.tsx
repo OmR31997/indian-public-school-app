@@ -21,6 +21,7 @@ import {
   Clock,
   Award,
   ChevronRight,
+  ChevronDown,
   X,
   UploadCloud,
   ListPlus,
@@ -37,7 +38,7 @@ export interface CustomField {
 export interface ApplicationField {
   key: string;
   label: string;
-  type: "text" | "number" | "email" | "file" | "select" | "textarea";
+  type: "text" | "number" | "email" | "file" | "image" | "select" | "textarea";
   required: boolean;
   options?: string[];
 }
@@ -67,6 +68,7 @@ export interface CareerApplicationRecord {
   phone: string;
   coverNote?: string;
   resumeUrl?: string;
+  photoUrl?: string;
   customAnswers?: Record<string, string>;
   isRead?: boolean;
   status: "PENDING" | "SHORTLISTED" | "REJECTED" | "HIRED";
@@ -98,6 +100,9 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
   const [formCustomFields, setFormCustomFields] = useState<CustomField[]>([]);
   const [formAppFields, setFormAppFields] = useState<ApplicationField[]>([]);
   const [savingPost, setSavingPost] = useState<boolean>(false);
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const [deletingAppId, setDeletingAppId] = useState<string | null>(null);
+  const [updatingAppStatusId, setUpdatingAppStatusId] = useState<string | null>(null);
 
   // Gallery Modal for Image selection
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
@@ -295,11 +300,14 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
   // Delete Post
   const handleDeletePost = async (id: string) => {
     if (!confirm("Are you sure you want to delete this career post?")) return;
+    setDeletingPostId(id);
     try {
       await axios.delete(`${apiUrl}/careers/${id}`, { headers: getHeaders() });
       fetchPosts();
     } catch (err: any) {
       alert(`Failed to delete post: ${err?.response?.data?.message || err.message}`);
+    } finally {
+      setDeletingPostId(null);
     }
   };
 
@@ -324,6 +332,7 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
     id: string,
     newStatus: "PENDING" | "SHORTLISTED" | "REJECTED" | "HIRED"
   ) => {
+    setUpdatingAppStatusId(id);
     try {
       await axios.patch(
         `${apiUrl}/careers/applications/${id}/status`,
@@ -337,12 +346,15 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
       if (onRefreshNotifications) onRefreshNotifications();
     } catch (err: any) {
       alert(`Failed to update application status: ${err?.response?.data?.message || err.message}`);
+    } finally {
+      setUpdatingAppStatusId(null);
     }
   };
 
   // Delete Application
   const handleDeleteApp = async (id: string) => {
     if (!confirm("Are you sure you want to delete this application record?")) return;
+    setDeletingAppId(id);
     try {
       await axios.delete(`${apiUrl}/careers/applications/${id}`, {
         headers: getHeaders(),
@@ -354,6 +366,8 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
       if (onRefreshNotifications) onRefreshNotifications();
     } catch (err: any) {
       alert(`Failed to delete application: ${err?.response?.data?.message || err.message}`);
+    } finally {
+      setDeletingAppId(null);
     }
   };
 
@@ -429,152 +443,184 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
       {/* TAB 1: JOB OPENINGS LIST */}
       {/* ========================================================= */}
       {activeTab === "posts" && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-              <input
-                type="text"
-                value={postSearch}
-                onChange={(e) => setPostSearch(e.target.value)}
-                placeholder="Search job title or qualification..."
-                className="w-full pl-9 pr-4 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1a5d9c]/40"
-              />
+        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+          {/* Header Controls */}
+          <div className="flex flex-col gap-3 border-b border-slate-200/80 bg-slate-50/70 p-3.5 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs shrink-0">
+                <span className="flex h-2 w-2 rounded-full bg-[#1a5d9c]"></span>
+                <span>{filteredPosts.length}</span>
+                <span className="capitalize font-medium text-slate-600">Openings</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5 shrink-0 self-stretch sm:self-auto justify-between sm:justify-end">
+              <div className="relative flex-1 sm:w-64 sm:flex-initial">
+                <input
+                  type="text"
+                  value={postSearch}
+                  onChange={(e) => setPostSearch(e.target.value)}
+                  placeholder="Search openings..."
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 py-1.5 text-xs outline-none focus:border-[#1a5d9c] shadow-2xs"
+                />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              </div>
+
               <button
                 onClick={fetchPosts}
-                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer"
                 title="Refresh Openings"
               >
-                <RefreshCw className={`w-4 h-4 ${loadingPosts ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingPosts ? "animate-spin" : ""}`} />
               </button>
               <button
                 onClick={() => handleOpenPostModal()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#102a4c] hover:bg-[#1a5d9c] text-[#f4bd4f] font-bold text-xs shadow-md transition-all"
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#1a5d9c] px-3.5 py-1.5 text-xs font-bold text-white shadow-md transition hover:bg-[#124c81] cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
-                Add Career Opening
+                <Plus size={15} /> Add Career Opening
               </button>
             </div>
           </div>
 
           {/* Posts Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-            {loadingPosts ? (
-              <div className="p-12 text-center text-slate-500 flex items-center justify-center gap-3">
-                <LoaderCircle className="w-5 h-5 animate-spin text-[#1a5d9c]" />
-                <span>Loading career openings...</span>
-              </div>
-            ) : filteredPosts.length === 0 ? (
-              <div className="p-12 text-center text-slate-500">
-                <Briefcase className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 mb-2" />
-                <p className="font-medium text-slate-700 dark:text-slate-300">
-                  No career openings found
-                </p>
-                <p className="text-xs text-slate-400">
-                  Click "Add Career Opening" to create your first dynamic job post.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                  <thead className="bg-[#102a4c] text-white font-bold text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                      <th className="py-3.5 px-4 w-12 text-center border-r border-white/10">S.No</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Image</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Name of Post</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Qualification</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Dynamic Fields</th>
-                      <th className="py-3.5 px-4 text-center border-r border-white/10">Status</th>
-                      <th className="py-3.5 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {filteredPosts.map((post, idx) => {
-                      const id = post._id || post.id || String(idx);
-                      return (
-                        <tr
-                          key={id}
-                          className="hover:bg-[#edf5fc] dark:hover:bg-slate-800/40 transition-colors"
-                        >
-                          <td className="py-3 px-4 font-mono text-center text-slate-400 font-bold">
-                            {idx + 1}
-                          </td>
-                          <td className="py-3 px-4">
-                            {post.image ? (
-                              <img
-                                src={post.image}
-                                alt={post.title}
-                                className="w-10 h-10 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shadow-2xs"
-                              />
+          {loadingPosts ? (
+            <div className="p-16 text-center text-slate-500 flex items-center justify-center gap-3">
+              <LoaderCircle className="w-5 h-5 animate-spin text-[#1a5d9c]" />
+              <span className="text-sm font-medium">Loading career openings...</span>
+            </div>
+          ) : filteredPosts.length === 0 ? (
+            <div className="p-16 text-center text-slate-500">
+              <Briefcase className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+              <p className="font-semibold text-slate-700">No career openings found</p>
+              <p className="text-xs text-slate-400 mt-0.5">Click &quot;Add Career Opening&quot; to create your first dynamic job post.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <th className="whitespace-nowrap px-5 py-3.5 w-12 text-center">S.No</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Image</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Name of Post</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Qualification</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Dynamic Fields</th>
+                    <th className="whitespace-nowrap px-5 py-3.5 text-center">Status</th>
+                    <th className="whitespace-nowrap px-5 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredPosts.map((post, idx) => {
+                    const id = post._id || post.id || String(idx);
+                    return (
+                      <tr
+                        key={id}
+                        className="hover:bg-slate-50/80 transition"
+                      >
+                        <td className="whitespace-nowrap px-5 py-4 font-mono text-center text-slate-400 font-bold text-xs">
+                          {idx + 1}
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4">
+                          {post.image ? (
+                            <img
+                              src={post.image}
+                              alt={post.title}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-2xs"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl bg-[#102a4c] border border-white/10 text-[#f4bd4f] flex items-center justify-center font-bold text-xs shadow-2xs">
+                              {post.title.substring(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 font-bold text-[#102a4c] text-sm">
+                          {post.title}
+                        </td>
+                        <td className="max-w-xs truncate px-5 py-4 text-xs font-medium text-slate-600">
+                          {post.qualification}
+                        </td>
+                        <td className="max-w-xs px-5 py-4">
+                          <div className="flex flex-wrap gap-1">
+                            {post.customFields && post.customFields.length > 0 ? (
+                              post.customFields.map((cf, i) => (
+                                <span
+                                  key={i}
+                                  className="px-2 py-0.5 rounded-full bg-[#fdf3da] text-[#b7790a] text-[10px] font-bold border border-amber-200/60"
+                                >
+                                  {cf.label}: {cf.value}
+                                </span>
+                              ))
                             ) : (
-                              <div className="w-10 h-10 rounded-lg bg-[#102a4c] border border-white/10 text-[#f4bd4f] flex items-center justify-center font-bold text-xs">
-                                {post.title.substring(0, 2).toUpperCase()}
-                              </div>
+                              <span className="text-slate-400 text-[11px]">Standard</span>
                             )}
-                          </td>
-                          <td className="py-3 px-4 font-bold text-[#102a4c] dark:text-white">
-                            {post.title}
-                          </td>
-                          <td className="py-3 px-4 max-w-xs truncate text-slate-600 dark:text-slate-300">
-                            {post.qualification}
-                          </td>
-                          <td className="py-3 px-4 max-w-xs">
-                            <div className="flex flex-wrap gap-1">
-                              {post.customFields && post.customFields.length > 0 ? (
-                                post.customFields.map((cf, i) => (
-                                  <span
-                                    key={i}
-                                    className="px-2 py-0.5 rounded-full bg-[#fdf3da] text-[#b7790a] dark:bg-slate-800 dark:text-amber-300 text-[10px] font-bold border border-amber-200/60 dark:border-amber-900/40"
-                                  >
-                                    {cf.label}: {cf.value}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-slate-400 text-[11px]">Standard</span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => handleTogglePostStatus(post)}
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-center">
+                          <div className="relative inline-flex items-center">
+                            <select
+                              value={post.isActive ? "Active" : "Closed"}
+                              onChange={async (e) => {
+                                const shouldBeActive = e.target.value === "Active";
+                                if (shouldBeActive !== post.isActive) {
+                                  await handleTogglePostStatus(post);
+                                }
+                              }}
+                              className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
                                 post.isActive
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                                  : "bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700"
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                  : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
                               }`}
+                              title="Click to change status"
                             >
-                              {post.isActive ? "ACTIVE / OPEN" : "CLOSED"}
+                              <option value="Active" className="text-slate-900 bg-white font-semibold">
+                                Active
+                              </option>
+                              <option value="Closed" className="text-slate-900 bg-white font-semibold">
+                                Closed
+                              </option>
+                            </select>
+                            <span
+                              className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                post.isActive
+                                  ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                  : "bg-rose-500 shadow-xs shadow-rose-400"
+                              }`}
+                            />
+                            <ChevronDown
+                              size={12}
+                              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-60 text-current"
+                            />
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleOpenPostModal(post)}
+                              className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
+                              title="Edit Opening"
+                            >
+                              <Pencil size={16} />
                             </button>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                onClick={() => handleOpenPostModal(post)}
-                                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                title="Edit Opening"
-                              >
-                                <Pencil className="w-4 h-4 text-[#1a5d9c]" />
-                              </button>
-                              <button
-                                onClick={() => handleDeletePost(id)}
-                                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
-                                title="Delete Opening"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                            <button
+                              disabled={deletingPostId === id}
+                              onClick={() => handleDeletePost(id)}
+                              className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-40 cursor-pointer"
+                              title={deletingPostId === id ? "Deleting..." : "Delete Opening"}
+                            >
+                              {deletingPostId === id ? (
+                                <LoaderCircle size={16} className="animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 size={16} />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -582,161 +628,220 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
       {/* TAB 2: APPLICATIONS HUB */}
       {/* ========================================================= */}
       {activeTab === "applications" && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-              <input
-                type="text"
-                value={appSearch}
-                onChange={(e) => setAppSearch(e.target.value)}
-                placeholder="Search candidate name, email, phone or APP ID..."
-                className="w-full pl-9 pr-4 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1a5d9c]/40"
-              />
+        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+          {/* Header Controls */}
+          <div className="flex flex-col gap-3 border-b border-slate-200/80 bg-slate-50/70 p-3.5 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-3 py-1.5 text-xs font-bold text-[#1a5d9c] shadow-2xs shrink-0">
+                <span className="flex h-2 w-2 rounded-full bg-[#1a5d9c]"></span>
+                <span>{filteredApps.length}</span>
+                <span className="capitalize font-medium text-slate-600">Applications</span>
+              </div>
+
+              {/* Position Filter Dropdown */}
+              <div className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs shadow-2xs shrink-0">
+                <SlidersHorizontal size={13} className="text-[#1a5d9c] shrink-0" />
+                <span className="font-semibold text-slate-500 shrink-0">Position:</span>
+                <select
+                  value={appPostFilter}
+                  onChange={(e) => setAppPostFilter(e.target.value)}
+                  className="bg-transparent font-bold text-[#102a4c] outline-none cursor-pointer pr-1"
+                >
+                  <option value="ALL">All Positions</option>
+                  {posts.map((p) => {
+                    const pid = p._id || p.id;
+                    return (
+                      <option key={pid} value={pid}>
+                        {p.title}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Status Filter Dropdown */}
+              <div className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs shadow-2xs shrink-0">
+                <SlidersHorizontal size={13} className="text-[#1a5d9c] shrink-0" />
+                <span className="font-semibold text-slate-500 shrink-0">Status:</span>
+                <select
+                  value={appStatusFilter}
+                  onChange={(e) => setAppStatusFilter(e.target.value)}
+                  className="bg-transparent font-bold text-[#102a4c] outline-none cursor-pointer pr-1"
+                >
+                  <option value="ALL">All</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="SHORTLISTED">Shortlisted</option>
+                  <option value="REJECTED">Rejected</option>
+                  <option value="HIRED">Hired</option>
+                </select>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-              <select
-                value={appPostFilter}
-                onChange={(e) => setAppPostFilter(e.target.value)}
-                className="px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none font-medium"
-              >
-                <option value="ALL">All Job Positions</option>
-                {posts.map((p) => {
-                  const pid = p._id || p.id;
-                  return (
-                    <option key={pid} value={pid}>
-                      {p.title}
-                    </option>
-                  );
-                })}
-              </select>
-
-              <select
-                value={appStatusFilter}
-                onChange={(e) => setAppStatusFilter(e.target.value)}
-                className="px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none font-medium"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="PENDING">PENDING</option>
-                <option value="SHORTLISTED">SHORTLISTED</option>
-                <option value="REJECTED">REJECTED</option>
-                <option value="HIRED">HIRED</option>
-              </select>
+            <div className="flex items-center gap-2.5 shrink-0 self-stretch sm:self-auto justify-between sm:justify-end">
+              <div className="relative flex-1 sm:w-64 sm:flex-initial">
+                <input
+                  type="text"
+                  value={appSearch}
+                  onChange={(e) => setAppSearch(e.target.value)}
+                  placeholder="Search candidates..."
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-1.5 text-xs outline-none focus:border-[#1a5d9c] shadow-2xs"
+                />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              </div>
 
               <button
                 onClick={fetchApplications}
-                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer"
                 title="Refresh Applications"
               >
-                <RefreshCw className={`w-4 h-4 ${loadingApps ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingApps ? "animate-spin" : ""}`} />
               </button>
             </div>
           </div>
 
           {/* Applications Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-            {loadingApps ? (
-              <div className="p-12 text-center text-slate-500 flex items-center justify-center gap-3">
-                <LoaderCircle className="w-5 h-5 animate-spin text-[#1a5d9c]" />
-                <span>Loading applications...</span>
-              </div>
-            ) : filteredApps.length === 0 ? (
-              <div className="p-12 text-center text-slate-500">
-                <FileText className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 mb-2" />
-                <p className="font-medium text-slate-700 dark:text-slate-300">
-                  No applications received matching filters
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                  <thead className="bg-[#102a4c] text-white font-bold text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                      <th className="py-3.5 px-4 border-r border-white/10">Ref No</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Candidate</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Job Position</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Contact</th>
-                      <th className="py-3.5 px-4 border-r border-white/10">Applied Date</th>
-                      <th className="py-3.5 px-4 text-center border-r border-white/10">Status</th>
-                      <th className="py-3.5 px-4 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {filteredApps.map((app) => {
-                      const id = app._id || app.id || "";
-                      return (
-                        <tr
-                          key={id}
-                          className="hover:bg-[#edf5fc] dark:hover:bg-slate-800/40 transition-colors"
-                        >
-                          <td className="py-3 px-4 font-mono font-bold text-[#1a5d9c]">
-                            {app.applicationNo}
-                          </td>
-                          <td className="py-3 px-4 font-bold text-[#102a4c] dark:text-white">
+          {loadingApps ? (
+            <div className="p-16 text-center text-slate-500 flex items-center justify-center gap-3">
+              <LoaderCircle className="w-5 h-5 animate-spin text-[#1a5d9c]" />
+              <span className="text-sm font-medium">Loading applications...</span>
+            </div>
+          ) : filteredApps.length === 0 ? (
+            <div className="p-16 text-center text-slate-500">
+              <FileText className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+              <p className="font-semibold text-slate-700">No applications received matching filters</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <th className="whitespace-nowrap px-5 py-3.5">Ref No</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Candidate</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Job Position</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Contact</th>
+                    <th className="whitespace-nowrap px-5 py-3.5">Applied Date</th>
+                    <th className="whitespace-nowrap px-5 py-3.5 text-center">Status</th>
+                    <th className="whitespace-nowrap px-5 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredApps.map((app) => {
+                    const id = app._id || app.id || "";
+                    return (
+                      <tr
+                        key={id}
+                        className="hover:bg-slate-50/80 transition"
+                      >
+                        <td className="whitespace-nowrap px-5 py-4 font-mono font-bold text-xs text-[#1a5d9c]">
+                          {app.applicationNo}
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 font-bold text-[#102a4c] text-sm">
+                          <div className="flex items-center gap-2.5">
+                            {app.photoUrl ? (
+                              <img
+                                src={app.photoUrl}
+                                alt={app.fullName}
+                                className="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-[#102a4c] text-[#f4bd4f] font-bold text-[11px] flex items-center justify-center shrink-0 border border-white/10">
+                                {app.fullName.substring(0, 2).toUpperCase()}
+                              </div>
+                            )}
                             <span>{app.fullName}</span>
-                          </td>
-                          <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">
-                            {app.postTitle}
-                          </td>
-                          <td className="py-3 px-4">
-                            <div>{app.email}</div>
-                            <div className="text-[11px] text-slate-400">{app.phone}</div>
-                          </td>
-                          <td className="py-3 px-4 text-slate-400 text-[11px]">
-                            {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "N/A"}
-                          </td>
-                          <td className="py-3 px-4 text-center">
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-xs font-medium text-slate-700">
+                          {app.postTitle}
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-xs">
+                          <div className="font-medium text-slate-700">{app.email}</div>
+                          <div className="text-[11px] text-slate-400">{app.phone}</div>
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-slate-400 text-xs">
+                          {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-center">
+                          <div className="relative inline-flex items-center">
                             <select
                               value={app.status}
+                              disabled={updatingAppStatusId === id}
                               onChange={(e) =>
                                 handleUpdateAppStatus(
                                   id,
                                   e.target.value as "PENDING" | "SHORTLISTED" | "REJECTED" | "HIRED"
                                 )
                               }
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${
+                              className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none disabled:opacity-50 ${
                                 app.status === "HIRED"
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
                                   : app.status === "SHORTLISTED"
-                                  ? "bg-blue-50 text-blue-700 border-blue-300"
+                                  ? "border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100/80"
                                   : app.status === "REJECTED"
-                                  ? "bg-red-50 text-red-700 border-red-300"
-                                  : "bg-[#fdf3da] text-[#b7790a] border-amber-300"
+                                  ? "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
+                                  : "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100/80"
                               }`}
+                              title="Click to update application status"
                             >
-                              <option value="PENDING">PENDING</option>
-                              <option value="SHORTLISTED">SHORTLISTED</option>
-                              <option value="REJECTED">REJECTED</option>
-                              <option value="HIRED">HIRED</option>
+                              <option value="PENDING" className="text-slate-900 bg-white font-semibold">Pending</option>
+                              <option value="SHORTLISTED" className="text-slate-900 bg-white font-semibold">Shortlisted</option>
+                              <option value="REJECTED" className="text-slate-900 bg-white font-semibold">Rejected</option>
+                              <option value="HIRED" className="text-slate-900 bg-white font-semibold">Hired</option>
                             </select>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                onClick={() => setSelectedApp(app)}
-                                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                title="View Details"
-                              >
-                                <Eye className="w-4 h-4 text-[#1a5d9c]" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteApp(id)}
-                                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
-                                title="Delete Record"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                            <span
+                              className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                app.status === "HIRED"
+                                  ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                  : app.status === "SHORTLISTED"
+                                  ? "bg-blue-500 shadow-xs shadow-blue-400"
+                                  : app.status === "REJECTED"
+                                  ? "bg-rose-500 shadow-xs shadow-rose-400"
+                                  : "bg-amber-500 shadow-xs shadow-amber-400"
+                              }`}
+                            />
+                            {updatingAppStatusId === id ? (
+                              <LoaderCircle
+                                size={12}
+                                className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 animate-spin text-current"
+                              />
+                            ) : (
+                              <ChevronDown
+                                size={12}
+                                className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-60 text-current"
+                              />
+                            )}
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => setSelectedApp(app)}
+                              className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
+                              title="View Details"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <button
+                              disabled={deletingAppId === id}
+                              onClick={() => handleDeleteApp(id)}
+                              className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-40 cursor-pointer"
+                              title="Delete Record"
+                            >
+                              {deletingAppId === id ? (
+                                <LoaderCircle size={16} className="animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 size={16} />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -791,20 +896,45 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                 <div className="flex gap-2">
                   <input
                     type="text"
+                    disabled
+                    readOnly
                     value={formImage}
                     onChange={(e) => setFormImage(e.target.value)}
-                    placeholder="Image URL or choose from gallery"
-                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#1a5d9c]/40 outline-none"
+                    placeholder="Select media from gallery"
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed outline-none select-all font-mono text-[11px]"
                   />
                   <button
                     type="button"
                     onClick={() => setIsGalleryOpen(true)}
-                    className="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-200 flex items-center gap-1.5"
+                    className="px-3.5 py-2.5 bg-[#102a4c] text-[#f4bd4f] hover:bg-[#1a5d9c] hover:text-white transition-colors border border-slate-200 dark:border-slate-700 rounded-xl flex items-center gap-1.5 cursor-pointer font-bold shrink-0 shadow-xs"
                   >
-                    <UploadCloud className="w-4 h-4 text-[#1a5d9c]" />
+                    <UploadCloud className="w-4 h-4" />
                     <span>Select Media</span>
                   </button>
+                  {formImage && (
+                    <button
+                      type="button"
+                      onClick={() => setFormImage("")}
+                      className="px-2.5 py-2 text-slate-400 hover:text-red-500 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer shrink-0"
+                      title="Clear image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
+                {formImage && (
+                  <div className="mt-2.5 flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <img
+                      src={formImage}
+                      alt="Category Preview"
+                      className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Image Attached</p>
+                      <p className="text-[10px] text-slate-400 truncate font-mono">{formImage}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -921,6 +1051,8 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                           <option value="number">Number</option>
                           <option value="email">Email</option>
                           <option value="textarea">Textarea</option>
+                          <option value="file">File / Document (PDF/Doc)</option>
+                          <option value="image">Image / Photo Upload</option>
                         </select>
                         <label className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 font-medium">
                           <input
@@ -946,17 +1078,29 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
 
               {/* Active Toggle */}
               <div className="flex items-center justify-between pt-2">
-                <span className="font-semibold text-[#102a4c] dark:text-slate-200">Position Status</span>
+                <div>
+                  <span className="block text-xs font-bold text-slate-700">Position Status</span>
+                  <p className="text-[11px] text-slate-500">
+                    {formIsActive ? "Active (Accepting applications on portal)" : "Closed (Applications closed)"}
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={() => setFormIsActive(!formIsActive)}
-                  className={`px-4 py-1.5 rounded-full font-bold text-[11px] transition-all ${
+                  className={`relative inline-flex items-center rounded-full pl-6 pr-4 py-1.5 text-xs font-bold border shadow-2xs transition-all cursor-pointer ${
                     formIsActive
-                      ? "bg-[#102a4c] text-[#f4bd4f] shadow-xs"
-                      : "bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                      : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
                   }`}
                 >
-                  {formIsActive ? "ACTIVE / OPEN FOR APPLICATION" : "CLOSED"}
+                  <span
+                    className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                      formIsActive
+                        ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                        : "bg-rose-500 shadow-xs shadow-rose-400"
+                    }`}
+                  />
+                  <span>{formIsActive ? "Active" : "Closed"}</span>
                 </button>
               </div>
             </div>
@@ -975,8 +1119,8 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                 disabled={savingPost}
                 className="px-5 py-2 rounded-xl text-xs font-bold bg-[#102a4c] hover:bg-[#1a5d9c] text-white shadow-md flex items-center gap-2"
               >
-                {savingPost ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Briefcase className="w-4 h-4 text-[#f4bd4f]" />}
-                <span>{editingPost ? "Update Opening" : "Create Opening"}</span>
+                {savingPost ? <LoaderCircle className="w-4 h-4 animate-spin text-white" /> : <Briefcase className="w-4 h-4 text-[#f4bd4f]" />}
+                <span>{savingPost ? (editingPost ? "Updating Opening..." : "Creating Opening...") : (editingPost ? "Update Opening" : "Create Opening")}</span>
               </button>
             </div>
           </div>
@@ -1036,6 +1180,29 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                 </div>
               </div>
 
+              {/* Candidate Photograph Preview if uploaded */}
+              {selectedApp.photoUrl && (
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                  <img
+                    src={selectedApp.photoUrl}
+                    alt={selectedApp.fullName}
+                    className="w-16 h-16 rounded-xl object-cover border border-slate-300 dark:border-slate-600 shadow-sm shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h5 className="font-bold text-[#102a4c] dark:text-white text-xs">Candidate Photograph</h5>
+                    <a
+                      href={selectedApp.photoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-[#1a5d9c] hover:underline flex items-center gap-1 mt-0.5"
+                    >
+                      <span>View Full Image</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {/* Cover Note */}
               {selectedApp.coverNote && (
                 <div>
@@ -1056,17 +1223,56 @@ export function CareersAdmin({ apiUrl, token, onRefreshNotifications }: CareersA
                       Dynamic Form Answers
                     </h4>
                     <div className="space-y-2">
-                      {Object.entries(selectedApp.customAnswers).map(([k, v]) => (
-                        <div
-                          key={k}
-                          className="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
-                        >
-                          <span className="font-semibold capitalize text-slate-600 dark:text-slate-400">
-                            {k.replace(/_/g, " ")}:
-                          </span>
-                          <span className="font-bold text-[#102a4c] dark:text-white">{v}</span>
-                        </div>
-                      ))}
+                      {Object.entries(selectedApp.customAnswers).map(([k, v]) => {
+                        const isImageUrl =
+                          typeof v === "string" &&
+                          (v.match(/\.(jpeg|jpg|gif|png|webp|svg|avif)($|\?)/i) ||
+                            (v.startsWith("http") && v.includes("res.cloudinary.com")));
+                        const isDocUrl =
+                          typeof v === "string" &&
+                          (v.match(/\.(pdf|doc|docx)($|\?)/i) || (v.startsWith("http") && !isImageUrl));
+
+                        return (
+                          <div
+                            key={k}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 gap-2"
+                          >
+                            <span className="font-semibold capitalize text-slate-600 dark:text-slate-400">
+                              {k.replace(/_/g, " ")}:
+                            </span>
+                            {isImageUrl ? (
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={v}
+                                  alt={k}
+                                  className="w-10 h-10 rounded-lg object-cover border border-slate-300 dark:border-slate-600 shadow-2xs"
+                                />
+                                <a
+                                  href={v}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[11px] text-[#1a5d9c] hover:underline flex items-center gap-1 font-bold"
+                                >
+                                  <span>View Image</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              </div>
+                            ) : isDocUrl ? (
+                              <a
+                                href={v}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] text-[#1a5d9c] hover:underline flex items-center gap-1 font-bold"
+                              >
+                                <span>Open Document Link</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            ) : (
+                              <span className="font-bold text-[#102a4c] dark:text-white break-all">{v}</span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

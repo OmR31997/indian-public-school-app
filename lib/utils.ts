@@ -48,6 +48,7 @@ export function toCleanRelativeAssetPath(url?: any): string {
   if (clean.toLowerCase().startsWith('assets/')) {
     clean = clean.slice('assets/'.length);
   }
+  clean = clean.replace(/\.pdf\.pdf(?=($|\?|#))/gi, '.pdf');
   return `/${clean}`;
 }
 
@@ -84,13 +85,14 @@ export function getAssetUrl(url?: any): string {
 
       if (!fixedUrl.includes('/upload/')) {
         const isVideo = fixedUrl.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(fixedUrl);
-        const isRaw = /\.(doc|docx|xls|xlsx|zip|txt|pdf)$/i.test(fixedUrl);
+        const isRaw = /\.(doc|docx|xls|xlsx|zip|txt|csv)$/i.test(fixedUrl);
         const typePrefix = isVideo ? 'video/upload' : isRaw ? 'raw/upload' : 'image/upload';
         const rootFolder = getCloudinaryRootFolder();
         if (rootFolder && fixedUrl.includes(`/${rootFolder}/`)) {
           fixedUrl = fixedUrl.replace(`/${rootFolder}/`, `/${typePrefix}/${rootFolder}/`);
         }
       }
+      fixedUrl = fixedUrl.replace(/\.pdf\.pdf(?=($|\?|#))/gi, '.pdf');
       return fixedUrl;
     }
     return trimmed;
@@ -144,10 +146,14 @@ export function getAssetUrl(url?: any): string {
   ) {
     resourcePrefix = 'video/upload';
   } else if (
-    /\.(doc|docx|xls|xlsx|zip|txt|pdf)$/i.test(lowerPath)
+    /\.(doc|docx|xls|xlsx|zip|txt|csv)$/i.test(lowerPath)
   ) {
     resourcePrefix = 'raw/upload';
+  } else if (/\.pdf$/i.test(lowerPath)) {
+    resourcePrefix = 'image/upload';
   }
+
+  cleanPath = cleanPath.replace(/\.pdf\.pdf(?=($|\?|#))/gi, '.pdf');
 
   let finalCloudPath = cleanPath;
   if (rootFolder && !cleanPath.startsWith(`${rootFolder}/`)) {

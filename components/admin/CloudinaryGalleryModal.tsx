@@ -106,7 +106,20 @@ export function CloudinaryGalleryModal({
       setLoading(true);
       try {
         const galleryRes = await getOptionalApi<any>("/gallery?limit=1000");
-        const dbItems = unwrapCollection<any>(galleryRes);
+        let dbItems = unwrapCollection<any>(galleryRes);
+
+        // Fallback to offline collections if API fails, times out, or returns empty
+        if (!dbItems || dbItems.length === 0) {
+          try {
+            const fallbackRes = await fetch("/collections/galleries.json");
+            if (fallbackRes.ok) {
+              const fallbackJson = await fallbackRes.json();
+              if (Array.isArray(fallbackJson) && fallbackJson.length > 0) {
+                dbItems = fallbackJson;
+              }
+            }
+          } catch {}
+        }
 
         const fetchedMedia: MediaItem[] = (Array.isArray(dbItems) ? dbItems : []).flatMap(
           (item: any, idx: number): MediaItem[] => {
@@ -296,6 +309,8 @@ export function CloudinaryGalleryModal({
     categoryMap.set("settings", "Settings");
     categoryMap.set("icons", "Icons");
     categoryMap.set("logos", "Logos");
+    categoryMap.set("student", "Student");
+    categoryMap.set("staff", "Staff");
     categoryMap.set("admissiondocuments", "AdmissionDocuments");
 
     mediaList.forEach((m) => {
@@ -333,6 +348,22 @@ export function CloudinaryGalleryModal({
       if (activeCategory === "Images") return fType === "image";
 
       const activeNorm = normalizeCategoryKey(activeCategory).toLowerCase();
+
+      if (activeNorm === "student") {
+        return (
+          m.category.toLowerCase().includes("student") ||
+          (m.directory && m.directory.toLowerCase().includes("student")) ||
+          m.url.toLowerCase().includes("student")
+        );
+      }
+
+      if (activeNorm === "staff") {
+        return (
+          m.category.toLowerCase().includes("staff") ||
+          (m.directory && m.directory.toLowerCase().includes("staff")) ||
+          m.url.toLowerCase().includes("staff")
+        );
+      }
 
       if (activeNorm === "admissiondocuments") {
         return (

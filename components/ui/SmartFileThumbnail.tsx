@@ -163,6 +163,16 @@ export function SmartFileThumbnail({
       alt={alt}
       loading="lazy"
       onError={() => {
+        // 1. If Cloudinary image failed, fallback to local /assets/ copy
+        if (currentSrc.includes("cloudinary.com") || currentSrc.includes("res.cloudinary.com")) {
+          const match = currentSrc.match(/(?:ips-education\/assets\/|assets\/)(.*)$/i);
+          if (match && match[1]) {
+            setCurrentSrc(`/assets/${match[1]}`);
+            return;
+          }
+        }
+
+        // 2. If already tried fallback or has cleanUrl, fallback to cleanUrl
         if (currentSrc !== cleanUrl && cleanUrl) {
           setCurrentSrc(cleanUrl);
         } else if (

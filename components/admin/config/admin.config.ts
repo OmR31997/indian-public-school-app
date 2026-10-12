@@ -38,8 +38,8 @@ export const resources: Resource[] = [
     description: "Admissions and student records",
     icon: GraduationCap,
     protected: true,
-    fields: ["name", "grade", "section", "parentName", "parentEmail", "status", "createdAt", "updatedAt"],
-    inputs: { name: "text", grade: "text", section: "text", dob: "date", gender: "select", parentName: "text", parentPhone: "text", parentEmail: "text", address: "textarea", status: "select", avatar: "file" },
+    fields: ["name", "grade", "section", "parentName", "parentEmail", "createdAt", "updatedAt", "status"],
+    inputs: { name: "text", grade: "text", section: "text", dob: "date", gender: "select", parentName: "text", parentPhone: "text", parentEmail: "text", address: "textarea", avatar: "file", document: "file" },
     options: { gender: ["Male", "Female", "Other"], status: ["Active", "Inactive"] },
   },
   {
@@ -48,8 +48,8 @@ export const resources: Resource[] = [
     description: "Faculty and employee directory",
     icon: Users,
     protected: true,
-    fields: ["name", "designation", "department", "email", "status", "createdAt", "updatedAt"],
-    inputs: { name: "text", email: "text", phone: "text", department: "text", staffType: "select", designation: "text", qualification: "text", joinDate: "date", status: "select", avatar: "file" },
+    fields: ["name", "designation", "department", "email", "createdAt", "updatedAt", "status"],
+    inputs: { name: "text", email: "text", phone: "text", department: "text", staffType: "select", designation: "text", qualification: "text", joinDate: "date", avatar: "file", resume: "file", document: "file" },
     options: { staffType: ["Teaching", "Non-Teaching", "Administrative", "Support Staff", "Management"], status: ["Active", "On Leave", "Inactive"] },
   },
   {
@@ -58,7 +58,7 @@ export const resources: Resource[] = [
     description: "Admission and contact leads",
     icon: ClipboardList,
     protected: true,
-    fields: ["name", "inquiryType", "email", "contact", "status", "createdAt", "updatedAt"],
+    fields: ["name", "inquiryType", "email", "contact", "createdAt", "updatedAt", "status"],
     inputs: {
       name: "text",
       contact: "text",
@@ -174,7 +174,7 @@ export const resources: Resource[] = [
     description: "Authorised user accounts",
     icon: ShieldCheck,
     protected: true,
-    fields: ["name", "email", "role", "status", "createdAt", "updatedAt"],
+    fields: ["name", "email", "role", "createdAt", "updatedAt", "status"],
     inputs: { name: "text", email: "text", password: "text", role: "text", status: "select" },
     options: { status: ["ACTIVE", "INACTIVE", "SUSPENDED"] },
   },
@@ -200,6 +200,8 @@ export const resources: Resource[] = [
 
 export const OPTIONAL_FIELDS = new Set([
   "avatar",
+  "resume",
+  "document",
   "attachmentUrl",
   "fileUrl",
   "file",

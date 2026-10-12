@@ -335,39 +335,52 @@ export function useRichTextEditor({
               }
               .wysiwyg-block-toolbar {
                 position: absolute !important;
-                top: -38px !important;
-                display: flex !important;
-                flex-wrap: wrap !important;
+                display: inline-flex !important;
+                flex-wrap: nowrap !important;
+                white-space: nowrap !important;
                 align-items: center !important;
                 gap: 4px !important;
-                max-width: calc(100vw - 32px) !important;
+                width: max-content !important;
+                max-width: calc(100vw - 24px) !important;
                 background: #0f172a !important;
                 color: #ffffff !important;
-                padding: 4px 8px !important;
-                border-radius: 8px !important;
+                padding: 3.5px 8px !important;
+                border-radius: 9999px !important;
                 font-size: 11px !important;
                 font-weight: 700 !important;
-                font-family: system-ui, sans-serif !important;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.4) !important;
-                border: 1px solid rgba(255,255,255,0.2) !important;
-                z-index: 999999 !important;
+                font-family: system-ui, -apple-system, sans-serif !important;
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.2) !important;
+                z-index: 9999999 !important;
                 user-select: none !important;
+                pointer-events: auto !important;
+                transition: opacity 0.15s ease, box-shadow 0.15s ease !important;
+              }
+              .wysiwyg-block-toolbar:hover {
+                box-shadow: 0 12px 30px -4px rgba(0,0,0,0.65), 0 0 0 1.5px rgba(255,255,255,0.3) !important;
               }
               .wysiwyg-block-toolbar button {
                 background: rgba(255,255,255,0.18) !important;
                 color: #ffffff !important;
                 border: none !important;
-                border-radius: 4px !important;
-                padding: 3px 7px !important;
+                border-radius: 9999px !important;
+                padding: 2.5px 7px !important;
                 font-size: 11px !important;
                 font-weight: 700 !important;
                 cursor: pointer !important;
                 display: inline-flex !important;
                 align-items: center !important;
-                gap: 4px !important;
+                gap: 3px !important;
+                white-space: nowrap !important;
+                line-height: 1.3 !important;
               }
               .wysiwyg-block-toolbar button:hover {
                 background: rgba(255,255,255,0.35) !important;
+              }
+              .wysiwyg-block-toolbar button.btn-fit-text {
+                background: #6366f1 !important;
+              }
+              .wysiwyg-block-toolbar button.btn-fit-text:hover {
+                background: #4f46e5 !important;
               }
               .wysiwyg-block-toolbar button.btn-delete {
                 background: #ef4444 !important;
@@ -594,6 +607,11 @@ export function useRichTextEditor({
                     if (!computedDisplay || computedDisplay === "inline") {
                         targetBlock.style.display = "inline-block";
                     }
+                    if (!targetBlock.style.width) {
+                        targetBlock.style.width = "fit-content";
+                        targetBlock.style.maxWidth = "100%";
+                    }
+                    targetBlock.style.boxSizing = "border-box";
                     targetBlock.style.cursor = "grab";
                 }
 
@@ -683,32 +701,82 @@ export function useRichTextEditor({
                 tb.className = "wysiwyg-block-toolbar";
                 tb.contentEditable = "false";
 
-                const blockRect = targetBlock.getBoundingClientRect();
-                const isNearTop = targetBlock.offsetTop < 45 || blockRect.top < 45;
-                const isNearLeft = blockRect.left < 180 || targetBlock.offsetLeft < 180;
-                const isOverflowHidden = doc.defaultView?.getComputedStyle(targetBlock).overflow !== "visible";
+                let userMovedTb = false;
+                let isTbMinimized = false;
 
-                if (isNearTop || isOverflowHidden) {
-                    tb.style.setProperty("top", "6px", "important");
-                } else {
-                    tb.style.setProperty("top", "-38px", "important");
-                }
+                // Intelligent positioning: places toolbar where it NEVER covers text above, below, or the element itself.
+                // If user drags the toolbar manually, custom user position is strictly respected.
+                const updateTbPosition = () => {
+                    if (!doc || !tb.isConnected || !targetBlock.isConnected) return;
+                    if (userMovedTb) return;
 
-                if (isNearLeft) {
-                    tb.style.setProperty("left", isNearTop || isOverflowHidden ? "6px" : "0px", "important");
+                    const blockRect = targetBlock.getBoundingClientRect();
+                    const scrollY = doc.defaultView?.scrollY || doc.documentElement.scrollTop || doc.body.scrollTop || 0;
+                    const scrollX = doc.defaultView?.scrollX || doc.documentElement.scrollLeft || doc.body.scrollLeft || 0;
+                    const tbHeight = tb.offsetHeight || 32;
+                    const tbWidth = tb.offsetWidth || 340;
+                    const viewportWidth = doc.documentElement.clientWidth || doc.body.clientWidth || 800;
+                    const viewportHeight = doc.documentElement.clientHeight || 600;
+
+                    let top = 0;
+                    let left = 0;
+
+                    const spaceRight = viewportWidth - blockRect.right;
+                    const spaceLeft = blockRect.left;
+                    const spaceAbove = blockRect.top;
+
+                    // If compact element (e.g. link, button, short box) and room on right,
+                    // place beside it on the RIGHT so text above (like preceding lines) and below are 100% visible!
+                    if (spaceRight >= tbWidth + 16) {
+                        left = blockRect.right + scrollX + 10;
+                        top = blockRect.top + scrollY + Math.max(0, (blockRect.height - tbHeight) / 2);
+                    } else if (spaceLeft >= tbWidth + 16) {
+                        // Otherwise if space to the left, place on the left
+                        left = blockRect.left + scrollX - tbWidth - 10;
+                        top = blockRect.top + scrollY + Math.max(0, (blockRect.height - tbHeight) / 2);
+                    } else {
+                        // Wide block: place above if space, else below
+                        if (spaceAbove >= tbHeight + 10) {
+                            top = blockRect.top + scrollY - tbHeight - 8;
+                        } else {
+                            top = blockRect.bottom + scrollY + 8;
+                        }
+                        left = blockRect.left + scrollX;
+                        const maxLeft = scrollX + viewportWidth - tbWidth - 12;
+                        if (left > maxLeft) {
+                            left = Math.max(scrollX + 8, maxLeft);
+                        }
+                        if (left < scrollX + 8) {
+                            left = scrollX + 8;
+                        }
+                    }
+
+                    // Clamp vertically so toolbar is never clipped outside the visible viewport
+                    const minTop = scrollY + 6;
+                    const maxTop = scrollY + viewportHeight - tbHeight - 6;
+                    top = Math.max(minTop, Math.min(top, maxTop));
+
+                    tb.style.setProperty("top", `${Math.round(top)}px`, "important");
+                    tb.style.setProperty("left", `${Math.round(left)}px`, "important");
                     tb.style.setProperty("right", "auto", "important");
-                } else {
-                    tb.style.setProperty("right", isNearTop || isOverflowHidden ? "6px" : "0px", "important");
-                    tb.style.setProperty("left", "auto", "important");
-                }
+                    tb.style.setProperty("bottom", "auto", "important");
+                };
 
                 const parentBtnHtml = parentBlock
                     ? `<button type="button" class="btn-select-parent" title="Switch selection to Outer Parent Box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="m18 15-6-6-6 6"/></svg>Outer Box (&lt;${parentBlock.tagName.toLowerCase()}&gt;)</button>`
                     : ``;
 
+                const targetImgEl = (targetBlock.tagName === "IMG" ? targetBlock : targetBlock.querySelector("img")) as HTMLImageElement | null;
+                const changeImgBtnHtml = targetImgEl
+                    ? `<button type="button" class="btn-change-image" title="Change / Replace Image from Media Gallery" style="background:#2563eb; color:#ffffff; padding:2px 8px; border-radius:4px; font-weight:700; font-size:11px; display:inline-flex; align-items:center; gap:4px; border:none; cursor:pointer;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:2px;"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>Change Image</button>`
+                    : ``;
+
                 tb.innerHTML = `
-                    <span style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
+                    <span class="tb-drag-handle" title="Drag to move toolbar anywhere" style="cursor:grab; display:inline-flex; align-items:center; padding:1px 4px; color:#94a3b8; font-size:12px; line-height:1; user-select:none;">&#8942;&#8942;</span>
+                    <span class="tb-tag-label" style="opacity:0.8; font-family:monospace;">&lt;${targetBlock.tagName.toLowerCase()}&gt;</span>
                     ${parentBtnHtml}
+                    ${changeImgBtnHtml}
+                    <button type="button" class="btn-fit-text" title="Fit Text / Link (cover only as much space as text)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M4 14h6m-6 0 3-3m-3 3 3 3"/><path d="M20 10h-6m6 0-3-3m3 3-3 3"/></svg>Fit Text</button>
                     <label style="display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,0.18); padding:2px 6px; border-radius:4px; cursor:pointer;" title="Change Component Background Color">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.6 1.95-1.5.28-1.02-.32-2.12-1.35-2.42-.42-.12-.7-.47-.7-.91 0-.6.44-1.09 1.04-1.15.59-.06 1.13.34 1.25.93.38 1.83 1.94 3.05 3.81 3.05 2.21 0 4-1.79 4-4 0-4.42-3.58-8-8-8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/></svg>
                         <span style="font-size:10px; font-weight:800;">BG</span>
@@ -719,7 +787,80 @@ export function useRichTextEditor({
                     <button type="button" class="btn-move-up" title="Move Up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
                     <button type="button" class="btn-move-down" title="Move Down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
                     <button type="button" class="btn-delete" title="Delete Component"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Remove</button>
+                    <button type="button" class="btn-tb-minimize" title="Minimize Toolbar" style="background:rgba(255,255,255,0.12); padding:1px 6px; font-size:11px; margin-left:2px;">&minus;</button>
                 `;
+
+                // Drag handle for toolbar itself
+                const dragHandle = tb.querySelector(".tb-drag-handle") as HTMLElement;
+                if (dragHandle) {
+                    dragHandle.addEventListener("mousedown", (dEv: MouseEvent) => {
+                        dEv.stopPropagation();
+                        dEv.preventDefault();
+                        userMovedTb = true;
+                        dragHandle.style.cursor = "grabbing";
+                        const startMouseX = dEv.clientX;
+                        const startMouseY = dEv.clientY;
+                        const startTbLeft = parseInt(tb.style.left || "0", 10) || tb.offsetLeft;
+                        const startTbTop = parseInt(tb.style.top || "0", 10) || tb.offsetTop;
+
+                        const onTbDrag = (mEv: MouseEvent) => {
+                            const dx = mEv.clientX - startMouseX;
+                            const dy = mEv.clientY - startMouseY;
+                            tb.style.setProperty("left", `${Math.round(startTbLeft + dx)}px`, "important");
+                            tb.style.setProperty("top", `${Math.round(startTbTop + dy)}px`, "important");
+                        };
+
+                        const onTbDragEnd = () => {
+                            dragHandle.style.cursor = "grab";
+                            doc.removeEventListener("mousemove", onTbDrag);
+                            doc.removeEventListener("mouseup", onTbDragEnd);
+                            window.removeEventListener("mousemove", onTbDrag);
+                            window.removeEventListener("mouseup", onTbDragEnd);
+                        };
+
+                        doc.addEventListener("mousemove", onTbDrag);
+                        doc.addEventListener("mouseup", onTbDragEnd);
+                        window.addEventListener("mousemove", onTbDrag);
+                        window.addEventListener("mouseup", onTbDragEnd);
+                    });
+                }
+
+                // Minimize / Expand toggle
+                const minBtn = tb.querySelector(".btn-tb-minimize") as HTMLElement;
+                if (minBtn) {
+                    minBtn.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        isTbMinimized = !isTbMinimized;
+                        tb.querySelectorAll<HTMLElement>("button:not(.btn-tb-minimize), label, span:not(.tb-tag-label):not(.tb-drag-handle)").forEach((el) => {
+                            el.style.display = isTbMinimized ? "none" : "";
+                        });
+                        minBtn.innerHTML = isTbMinimized ? "+" : "&minus;";
+                        minBtn.title = isTbMinimized ? "Expand Toolbar" : "Minimize Toolbar";
+                    });
+                }
+
+                // Fit Text / Auto-size button
+                tb.querySelector(".btn-fit-text")?.addEventListener("mousedown", (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    targetBlock.style.width = "fit-content";
+                    targetBlock.style.height = "auto";
+                    targetBlock.style.maxWidth = "100%";
+                    syncContent();
+                    updateTbPosition();
+                });
+
+                if (targetImgEl) {
+                    tb.querySelector(".btn-change-image")?.addEventListener("mousedown", (evt) => {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        doc.querySelectorAll("img").forEach((i) => i.classList.remove("wysiwyg-selected-img"));
+                        targetImgEl.classList.add("wysiwyg-selected-img");
+                        setSelectedImageEl(targetImgEl);
+                        setIsGalleryOpen(true);
+                    });
+                }
 
                 tb.querySelector(".btn-pick-move")?.addEventListener("mousedown", (evt) => {
                     evt.stopPropagation();
@@ -793,11 +934,21 @@ export function useRichTextEditor({
                     }
                 });
 
-                targetBlock.appendChild(tb);
+                doc.body.appendChild(tb);
+                updateTbPosition();
+                requestAnimationFrame(updateTbPosition);
+
+                const onDocReposition = () => {
+                    if (tb.isConnected && targetBlock.isConnected) {
+                        updateTbPosition();
+                    }
+                };
+                doc.addEventListener("scroll", onDocReposition, { passive: true });
+                doc.defaultView?.addEventListener("resize", onDocReposition);
 
                 const handle = doc.createElement("div");
                 handle.className = "wysiwyg-resize-handle bottom-right";
-                handle.title = "Drag corner to extend or reduce size";
+                handle.title = "Drag corner to extend or reduce size | Double-click to Fit Text/Link";
                 handle.contentEditable = "false";
 
                 let startX = 0;
@@ -808,13 +959,15 @@ export function useRichTextEditor({
                 const onMouseMove = (moveEv: MouseEvent) => {
                     const dx = moveEv.clientX - startX;
                     const dy = moveEv.clientY - startY;
-                    const newW = Math.max(120, startW + dx);
+                    // Unrestricted minimum resizing: can shrink smoothly down to 20px, or expand as large as desired
+                    const newW = Math.max(20, startW + dx);
                     targetBlock.style.width = newW + "px";
                     targetBlock.style.maxWidth = "100%";
-                    if (Math.abs(dy) > 15) {
-                        const newH = Math.max(40, startH + dy);
+                    if (Math.abs(dy) > 4) {
+                        const newH = Math.max(16, startH + dy);
                         targetBlock.style.height = newH + "px";
                     }
+                    updateTbPosition();
                 };
 
                 const onMouseUp = () => {
@@ -823,6 +976,7 @@ export function useRichTextEditor({
                     window.removeEventListener("mousemove", onMouseMove);
                     window.removeEventListener("mouseup", onMouseUp);
                     syncContent();
+                    updateTbPosition();
                 };
 
                 handle.addEventListener("mousedown", (mEv: MouseEvent) => {
@@ -839,7 +993,20 @@ export function useRichTextEditor({
                     window.addEventListener("mouseup", onMouseUp);
                 });
 
-                targetBlock.appendChild(handle);
+                // Double click resize handle resets to fit text/link content tightly
+                handle.addEventListener("dblclick", (dEv: MouseEvent) => {
+                    dEv.stopPropagation();
+                    dEv.preventDefault();
+                    targetBlock.style.width = "fit-content";
+                    targetBlock.style.height = "auto";
+                    targetBlock.style.maxWidth = "100%";
+                    syncContent();
+                    updateTbPosition();
+                });
+
+                if (targetBlock.tagName !== "SPAN") {
+                    targetBlock.appendChild(handle);
+                }
             }
 
             const handleDocMouseMove = (e: MouseEvent) => {
@@ -902,6 +1069,12 @@ export function useRichTextEditor({
                 if (imgEl) {
                     imgEl.classList.add("wysiwyg-selected-img");
                     setSelectedImageEl(imgEl);
+
+                    if (imgEl.closest("section, article")) {
+                        const parentComp = imgEl.closest("section, article") as HTMLElement;
+                        bindBlockSelection(parentComp);
+                        return;
+                    }
 
                     let container: HTMLElement;
                     if (imgEl.parentElement && imgEl.parentElement.classList.contains("wysiwyg-img-container")) {

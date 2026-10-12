@@ -143,99 +143,119 @@ export function RecordDialog({
     setValues((previous) => ({ ...previous, [field]: value }));
   };
 
-  const handleFileUpload = async (field: string, file: File) => {
+  const handleFilesUpload = async (field: string, files: File[]) => {
+    if (!files || files.length === 0) return;
     setUploading(field);
     setUploadError("");
 
-    const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
-    const formattedSize = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+    const isMulti = field === "fileUrl" || field === "document" || Array.isArray(values[field]);
+    const uploadedUrls: string[] = [];
 
-    setUploadStatus({
-      isUploading: true,
-      field,
-      fileName: file.name,
-      fileSize: formattedSize,
-      fileType: file.type,
-      previewUrl,
-      progress: 5,
-      step: "preparing",
-      stageMessage: "Step 1/3: Reading binary buffer & initializing Cloudinary payload…",
-    });
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+      const formattedSize = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+      const fileNum = files.length > 1 ? `[${i + 1}/${files.length}] ` : "";
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      if ((resource.key as string) === "school-settings" || (resource.key as string) === "settings") {
-        formData.append("album", "Settings");
-        formData.append("folder", "Settings");
-      } else {
-        formData.append("album", resource.label);
-
-        const targetFolder =
-          (typeof values.directory === "string" && values.directory.trim()) ||
-          (typeof values.folder === "string" && values.folder.trim()) ||
-          (typeof values.cloudinaryFolder === "string" && values.cloudinaryFolder.trim()) ||
-          "";
-
-        if (targetFolder) {
-          formData.append("folder", targetFolder);
-        }
-      }
-
-      setUploadStatus((prev) => ({
-        ...prev,
-        progress: 15,
-        step: "uploading",
-        stageMessage: "Step 2/3: Transmitting asset to server & Cloudinary CDN…",
-      }));
-
-      const res = await axios.post(`${API_URL}/uploads`, formData, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setUploadStatus((prev) => ({
-              ...prev,
-              progress: Math.min(pct, 95),
-              step: pct >= 95 ? "processing" : "uploading",
-              stageMessage:
-                pct >= 95
-                  ? "Step 3/3: Optimizing asset & generating Cloudinary CDN links…"
-                  : `Step 2/3: Transmitting asset to CDN server (${pct}%)…`,
-            }));
-          }
-        },
+      setUploadStatus({
+        isUploading: true,
+        field,
+        fileName: file.name,
+        fileSize: formattedSize,
+        fileType: file.type,
+        previewUrl,
+        progress: 10,
+        step: "preparing",
+        stageMessage: `${fileNum}Step 1/3: Reading binary buffer & initializing Cloudinary payload…`,
       });
 
-      setUploadStatus((prev) => ({
-        ...prev,
-        progress: 98,
-        step: "processing",
-        stageMessage: "Step 3/3: Processing asset & generating Cloudinary response URL…",
-      }));
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        if ((resource.key as string) === "school-settings" || (resource.key as string) === "settings") {
+          formData.append("album", "Settings");
+          formData.append("folder", "Settings");
+        } else if (resource.key === "students") {
+          formData.append("album", "Student");
+          formData.append("folder", "Student");
+        } else if (resource.key === "staff") {
+          formData.append("album", "Staff");
+          formData.append("folder", "Staff");
+        } else {
+          formData.append("album", resource.label);
 
-      const data = res.data?.data ?? res.data;
-      const rawUrl = data?.url || (Array.isArray(data?.fileUrl) ? data.fileUrl[0] : data?.fileUrl);
+          const targetFolder =
+            (typeof values.directory === "string" && values.directory.trim()) ||
+            (typeof values.folder === "string" && values.folder.trim()) ||
+            (typeof values.cloudinaryFolder === "string" && values.cloudinaryFolder.trim()) ||
+            "";
 
-      if (!rawUrl) {
-        throw new Error("No URL returned from upload response.");
+          if (targetFolder) {
+            formData.append("folder", targetFolder);
+          }
+        }
+
+        const res = await axios.post(`${API_URL}/uploads`, formData, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadStatus((prev) => ({
+                ...prev,
+                progress: Math.min(pct, 95),
+                step: pct >= 95 ? "processing" : "uploading",
+                stageMessage:
+                  pct >= 95
+                    ? `${fileNum}Step 3/3: Optimizing asset & generating Cloudinary CDN links…`
+                    : `${fileNum}Step 2/3: Transmitting asset to CDN server (${pct}%)…`,
+              }));
+            }
+          },
+        });
+
+        const data = res.data?.data ?? res.data;
+        const rawUrl = data?.url || (Array.isArray(data?.fileUrl) ? data.fileUrl[0] : data?.fileUrl);
+
+        if (!rawUrl) {
+          throw new Error("No URL returned from upload response.");
+        }
+        const uploadedUrl = toCleanRelativeAssetPath(rawUrl);
+        uploadedUrls.push(uploadedUrl);
+      } catch (err) {
+        const errMsg = axios.isAxiosError(err)
+          ? String(err.response?.data?.message || err.message)
+          : `Failed to upload ${file.name} to Cloudinary.`;
+        setUploadError(errMsg);
+        setUploadStatus((prev) => ({
+          ...prev,
+          step: "error",
+          errorMessage: errMsg,
+          stageMessage: `Upload of ${file.name} encountered an error.`,
+        }));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        break;
       }
-      const uploadedUrl = toCleanRelativeAssetPath(rawUrl);
+    }
 
-      if (field === "fileUrl" || Array.isArray(values[field])) {
-        const existingList = Array.isArray(values[field]) ? (values[field] as string[]) : typeof values[field] === "string" && values[field] ? [values[field] as string] : [];
-        setValue(field, [...existingList, uploadedUrl]);
+    if (uploadedUrls.length > 0) {
+      if (isMulti) {
+        const existingList = Array.isArray(values[field])
+          ? (values[field] as string[])
+          : typeof values[field] === "string" && values[field]
+          ? [values[field] as string]
+          : [];
+        setValue(field, [...existingList, ...uploadedUrls]);
       } else {
-        setValue(field, uploadedUrl);
+        setValue(field, uploadedUrls[0]);
       }
 
       setValues((prev) => {
         const curRedirect = String(prev.redirectUrl || prev.targetUrl || "").trim();
         if (!curRedirect) {
-          return { ...prev, redirectUrl: uploadedUrl };
+          return { ...prev, redirectUrl: uploadedUrls[0] };
         }
         return prev;
       });
@@ -244,34 +264,32 @@ export function RecordDialog({
         ...prev,
         progress: 100,
         step: "done",
-        stageMessage: "Upload complete! Cloudinary asset synced.",
+        stageMessage: `Upload complete! ${uploadedUrls.length} Cloudinary asset(s) synced.`,
       }));
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (err) {
-      const errMsg = axios.isAxiosError(err)
-        ? String(err.response?.data?.message || err.message)
-        : "Failed to upload image to Cloudinary.";
-      setUploadError(errMsg);
-      setUploadStatus((prev) => ({
-        ...prev,
-        step: "error",
-        errorMessage: errMsg,
-        stageMessage: "Upload encountered an error.",
-      }));
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    } finally {
-      setUploading(null);
-      setUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
+      await new Promise((resolve) => setTimeout(resolve, 800));
     }
+
+    setUploading(null);
+    setUploadStatus({ isUploading: false, progress: 0, step: "preparing" });
   };
 
+  const handleFileUpload = (field: string, file: File) => handleFilesUpload(field, [file]);
+
   const removeImage = (field: string, urlToRemove?: string) => {
-    if (urlToRemove && Array.isArray(values[field])) {
-      const updated = (values[field] as string[]).filter((url) => url !== urlToRemove);
+    if (urlToRemove) {
+      const currentList = Array.isArray(values[field])
+        ? (values[field] as string[])
+        : typeof values[field] === "string" && values[field]
+        ? [values[field] as string]
+        : [];
+      const updated = currentList.filter((url) => url !== urlToRemove);
       setValue(field, updated);
     } else {
-      setValue(field, "");
+      if (field === "document" || field === "fileUrl" || Array.isArray(values[field])) {
+        setValue(field, []);
+      } else {
+        setValue(field, "");
+      }
     }
   };
 
@@ -305,12 +323,23 @@ export function RecordDialog({
             </h2>
             <p className="text-sm text-slate-500">Changes are sent to the school API and synced to Cloudinary.</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 cursor-pointer">
+          <button
+            type="button"
+            disabled={saving || Boolean(uploading)}
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
             <X size={19} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 grid gap-4 sm:grid-cols-2">
+        {saving && (
+          <div className="relative h-1 w-full overflow-hidden bg-blue-100 shrink-0">
+            <div className="h-full w-full bg-[#1a5d9c] animate-pulse" />
+          </div>
+        )}
+
+        <div className={`flex-1 overflow-y-auto p-6 grid gap-4 sm:grid-cols-2 ${saving ? "opacity-75 pointer-events-none" : ""}`}>
           {formError && (
             <div className="sm:col-span-2 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-900 shadow-2xs animate-in fade-in duration-150">
               <AlertCircle size={18} className="shrink-0 text-red-600 mt-0.5" />
@@ -330,7 +359,9 @@ export function RecordDialog({
               {uploadError}
             </div>
           )}
-          {Object.entries(resource.inputs).map(([field, type]) => {
+          {Object.entries(resource.inputs)
+            .filter(([field]) => field !== "status")
+            .map(([field, type]) => {
             const required = isRequiredField(field, resource.key, Boolean(record));
             return (
               <label key={field} className={type === "textarea" || type === "file" || type === "richtext" || field === "role" || field === "targetUrl" || field === "redirectUrl" || field === "linkUrl" ? "sm:col-span-2" : ""}>
@@ -339,128 +370,182 @@ export function RecordDialog({
                   {required && <span className="ml-1 font-bold text-red-500" title="Required field">*</span>}
                 </span>
                 {type === "file" ? (
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs sm:text-sm font-semibold text-[#1a5d9c] transition hover:bg-blue-50">
-                        {uploading === field ? <LoaderCircle size={18} className="animate-spin" /> : <UploadCloud size={18} />}
-                        <span>{uploading === field ? "Uploading to Cloudinary…" : "Upload file to Cloudinary"}</span>
-                        <input
-                          type="file"
-                          accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
-                          onChange={(event) => {
-                            const file = event.target.files?.[0];
-                            if (file) void handleFileUpload(field, file);
-                          }}
-                          className="hidden"
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setGalleryPickerField(field)}
-                        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
-                      >
-                        <ImageIcon size={18} className="text-amber-500" />
-                        <span>Pick from Cloudinary Gallery</span>
-                      </button>
-                    </div>
+                  (() => {
+                    const isMultiFile = field === "document" || field === "fileUrl" || Array.isArray(values[field]);
+                    const rawVal = values[field];
+                    const fileUrls: string[] = Array.isArray(rawVal)
+                      ? (rawVal as string[]).map(String).filter(Boolean)
+                      : typeof rawVal === "string" && rawVal.trim()
+                      ? [rawVal.trim()]
+                      : [];
 
-                    {uploadStatus.field === field && (uploadStatus.isUploading || uploadStatus.step === "done" || uploadStatus.step === "error") && (
-                      <FileUploadProgressLoader status={uploadStatus} />
-                    )}
+                    const displayVal =
+                      fileUrls.length > 0
+                        ? isMultiFile && fileUrls.length > 1
+                          ? `${fileUrls.length} files attached: ${fileUrls.join(", ")}`
+                          : fileUrls[0]
+                        : "";
 
-                    {(() => {
-                      const rawVal = values[field];
-                      const fileUrls: string[] = Array.isArray(rawVal)
-                        ? (rawVal as string[]).map(String).filter(Boolean)
-                        : typeof rawVal === "string" && rawVal.trim()
-                          ? [rawVal.trim()]
-                          : [];
+                    return (
+                      <div className="space-y-3">
+                        {/* Readonly / Disabled Path Input Displaying Current Asset URL with Icon-Only Controls */}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            disabled
+                            readOnly
+                            value={displayVal}
+                            placeholder={`No ${titleCase(field)} attached`}
+                            className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-slate-100/90 px-3.5 py-2.5 text-xs font-mono text-slate-600 outline-none cursor-not-allowed select-all shadow-2xs"
+                          />
 
-                      if (fileUrls.length === 0) return null;
+                          {/* Upload Button - Icon Only */}
+                          <label
+                            title={
+                              uploading === field
+                                ? "Uploading to Cloudinary…"
+                                : isMultiFile
+                                ? `Upload ${titleCase(field)} (Multiple Supported)`
+                                : `Upload ${titleCase(field)} to Cloudinary`
+                            }
+                            className="inline-flex h-9.5 w-9.5 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#1a5d9c] text-white hover:bg-[#102a4c] transition shadow-2xs"
+                          >
+                            {uploading === field ? (
+                              <LoaderCircle size={16} className="animate-spin" />
+                            ) : (
+                              <UploadCloud size={16} />
+                            )}
+                            <input
+                              type="file"
+                              multiple={isMultiFile}
+                              accept={
+                                field === "avatar"
+                                  ? "image/*"
+                                  : field === "resume"
+                                  ? ".pdf,.doc,.docx,application/pdf"
+                                  : "image/*,video/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
+                              }
+                              onChange={(event) => {
+                                const fileList = event.target.files;
+                                if (fileList && fileList.length > 0) {
+                                  void handleFilesUpload(field, Array.from(fileList));
+                                }
+                                event.target.value = "";
+                              }}
+                              className="hidden"
+                            />
+                          </label>
 
-                      return (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
-                          {fileUrls.map((url, idx) => {
-                            const fType = getFileType(url);
-                            const filename = url.split("/").pop() || "Media Asset";
-                            return (
-                              <div
-                                key={`${url}-${idx}`}
-                                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-2xs transition hover:shadow-md"
-                              >
-                                <div className="relative h-32 w-full overflow-hidden bg-slate-950 flex items-center justify-center">
-                                  {fType === "video" ? (
-                                    <div className="relative h-full w-full flex flex-col items-center justify-center text-white bg-slate-950">
-                                      <video src={getAssetUrl(url)} muted className="h-full w-full object-cover opacity-70" />
-                                      <Video size={28} className="absolute text-blue-400 drop-shadow-md" />
+                          {/* Gallery Picker Button - Icon Only */}
+                          <button
+                            type="button"
+                            onClick={() => setGalleryPickerField(field)}
+                            title="Pick from Cloudinary Gallery"
+                            className="inline-flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer"
+                          >
+                            <ImageIcon size={16} className="text-amber-500" />
+                          </button>
+
+                          {/* Clear Button - Icon Only */}
+                          {fileUrls.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => removeImage(field)}
+                              title={isMultiFile && fileUrls.length > 1 ? `Clear all ${fileUrls.length} assets` : "Clear attached asset"}
+                              className="inline-flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700 transition shadow-2xs cursor-pointer"
+                            >
+                              <X size={16} />
+                            </button>
+                          )}
+                        </div>
+
+                        {uploadStatus.field === field && (uploadStatus.isUploading || uploadStatus.step === "done" || uploadStatus.step === "error") && (
+                          <FileUploadProgressLoader status={uploadStatus} />
+                        )}
+
+                        {fileUrls.length > 0 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+                            {fileUrls.map((url, idx) => {
+                              const fType = getFileType(url);
+                              const filename = url.split("/").pop() || "Media Asset";
+                              return (
+                                <div
+                                  key={`${url}-${idx}`}
+                                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-2xs transition hover:shadow-md"
+                                >
+                                  <div className="relative h-32 w-full overflow-hidden bg-slate-950 flex items-center justify-center">
+                                    {fType === "video" ? (
+                                      <div className="relative h-full w-full flex flex-col items-center justify-center text-white bg-slate-950">
+                                        <video src={getAssetUrl(url)} muted className="h-full w-full object-cover opacity-70" />
+                                        <Video size={28} className="absolute text-blue-400 drop-shadow-md" />
+                                      </div>
+                                    ) : fType === "audio" ? (
+                                      <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-950 p-3 text-white text-center">
+                                        <Music size={32} className="text-purple-300 mb-1 animate-pulse" />
+                                        <span className="text-[11px] font-bold text-purple-200 truncate w-full px-2">{filename}</span>
+                                      </div>
+                                    ) : isPdfFile(url) ? (
+                                      <div className="relative h-full w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+                                        <PdfCanvasThumbnail url={url} alt={filename} className="h-full w-full" />
+                                        <span className="absolute bottom-1 right-1.5 rounded-md bg-red-950/90 border border-red-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-200 shadow-md pointer-events-none">
+                                          PDF
+                                        </span>
+                                      </div>
+                                    ) : fType === "document" ? (
+                                      <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-3 text-white text-center">
+                                        <FileText size={32} className="text-blue-400 mb-1" />
+                                        <span className="text-[11px] font-bold text-slate-300 truncate w-full px-2">{filename}</span>
+                                      </div>
+                                    ) : (
+                                      <img
+                                        src={getAssetUrl(url) || url}
+                                        alt={filename || "Image preview"}
+                                        className="h-full w-full object-cover transition group-hover:scale-105"
+                                        onError={(e) => {
+                                          const target = e.currentTarget;
+                                          const clean = url?.trim() || "";
+                                          if (clean && target.src !== clean && !target.dataset.triedOriginal) {
+                                            target.dataset.triedOriginal = "true";
+                                            target.src = clean;
+                                          } else if (clean && !clean.startsWith("http") && !clean.startsWith("/") && !target.dataset.triedUploads) {
+                                            target.dataset.triedUploads = "true";
+                                            target.src = `https://indianpublicschool.in/admin/uploads/images/${clean}`;
+                                          }
+                                        }}
+                                      />
+                                    )}
+                                    <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition">
+                                      <a
+                                        href={getCloudinaryInlineViewerUrl(url)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="rounded-full bg-slate-900/80 p-1.5 text-slate-200 hover:bg-blue-600 hover:text-white transition"
+                                        title="Open media in new tab"
+                                      >
+                                        <ExternalLink size={13} />
+                                      </a>
+                                      <button
+                                        type="button"
+                                        onClick={() => removeImage(field, url)}
+                                        className="rounded-full bg-slate-900/80 p-1.5 text-slate-200 hover:bg-red-600 hover:text-white transition cursor-pointer"
+                                        title="Remove asset"
+                                      >
+                                        <X size={13} />
+                                      </button>
                                     </div>
-                                  ) : fType === "audio" ? (
-                                    <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-950 p-3 text-white text-center">
-                                      <Music size={32} className="text-purple-300 mb-1 animate-pulse" />
-                                      <span className="text-[11px] font-bold text-purple-200 truncate w-full px-2">{filename}</span>
-                                    </div>
-                                  ) : isPdfFile(url) ? (
-                                    <div className="relative h-full w-full bg-slate-950 flex items-center justify-center overflow-hidden">
-                                      <PdfCanvasThumbnail url={url} alt={filename} className="h-full w-full" />
-                                      <span className="absolute bottom-1 right-1.5 rounded-md bg-red-950/90 border border-red-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-200 shadow-md pointer-events-none">
-                                        PDF
-                                      </span>
-                                    </div>
-                                  ) : fType === "document" ? (
-                                    <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-3 text-white text-center">
-                                      <FileText size={32} className="text-blue-400 mb-1" />
-                                      <span className="text-[11px] font-bold text-slate-300 truncate w-full px-2">{filename}</span>
-                                    </div>
-                                  ) : (
-                                    <img
-                                      src={getAssetUrl(url) || url}
-                                      alt={filename || "Image preview"}
-                                      className="h-full w-full object-cover transition group-hover:scale-105"
-                                      onError={(e) => {
-                                        const target = e.currentTarget;
-                                        const clean = url?.trim() || "";
-                                        if (clean && target.src !== clean && !target.dataset.triedOriginal) {
-                                          target.dataset.triedOriginal = "true";
-                                          target.src = clean;
-                                        } else if (clean && !clean.startsWith("http") && !clean.startsWith("/") && !target.dataset.triedUploads) {
-                                          target.dataset.triedUploads = "true";
-                                          target.src = `https://indianpublicschool.in/admin/uploads/images/${clean}`;
-                                        }
-                                      }}
-                                    />
-                                  )}
-                                  <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition">
-                                    <a
-                                      href={getCloudinaryInlineViewerUrl(url)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="rounded-full bg-slate-900/80 p-1.5 text-slate-200 hover:bg-blue-600 hover:text-white transition"
-                                      title="Open media in new tab"
-                                    >
-                                      <ExternalLink size={13} />
-                                    </a>
-                                    <button
-                                      type="button"
-                                      onClick={() => (Array.isArray(rawVal) ? removeImage(field, url) : removeImage(field))}
-                                      className="rounded-full bg-slate-900/80 p-1.5 text-slate-200 hover:bg-red-600 hover:text-white transition cursor-pointer"
-                                      title="Remove asset"
-                                    >
-                                      <X size={13} />
-                                    </button>
+                                  </div>
+                                  <div className="p-2.5 bg-white border-t border-slate-100 flex items-center justify-between gap-2">
+                                    <span className="text-[11px] font-bold text-slate-700 truncate">{filename}</span>
+                                    <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-500">{fType}</span>
                                   </div>
                                 </div>
-                                <div className="p-2.5 bg-white border-t border-slate-100 flex items-center justify-between gap-2">
-                                  <span className="text-[11px] font-bold text-slate-700 truncate">{filename}</span>
-                                  <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-500">{fType}</span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                ) : type === "boolean" ? (
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()) : type === "boolean" ? (
                   <button
                     type="button"
                     onClick={() => setValue(field, !values[field])}
@@ -846,9 +931,11 @@ export function RecordDialog({
                             onChange={(event) => setValue(field, event.target.value)}
                             className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium outline-none transition focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs"
                           />
-                          <label className="inline-flex cursor-pointer items-center gap-1.5 shrink-0 rounded-xl bg-[#1a5d9c] px-3.5 py-2.5 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
+                          <label
+                            title={uploading === field ? "Uploading to Cloudinary…" : "Upload to Cloudinary"}
+                            className="inline-flex h-9.5 w-9.5 cursor-pointer items-center justify-center shrink-0 rounded-xl bg-[#1a5d9c] text-white hover:bg-[#102a4c] transition shadow-xs"
+                          >
                             {uploading === field ? <LoaderCircle size={15} className="animate-spin" /> : <UploadCloud size={15} />}
-                            <span>{uploading === field ? "Uploading…" : "Upload"}</span>
                             <input
                               type="file"
                               accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx"
@@ -862,10 +949,10 @@ export function RecordDialog({
                           <button
                             type="button"
                             onClick={() => setGalleryPickerField(field)}
-                            className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                            title="Pick from Cloudinary Gallery"
+                            className="inline-flex h-9.5 w-9.5 items-center justify-center shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
                           >
                             <ImageIcon size={15} className="text-amber-500" />
-                            <span>Gallery</span>
                           </button>
                         </div>
 
@@ -890,15 +977,29 @@ export function RecordDialog({
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/80 px-6 py-4 shrink-0 rounded-b-3xl z-10">
-          <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">
+          <button
+            type="button"
+            disabled={saving || Boolean(uploading)}
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
             Cancel
           </button>
           <button
+            type="submit"
             disabled={saving || Boolean(uploading)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1a5d9c] px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition"
           >
-            {saving && <LoaderCircle size={16} className="animate-spin" />}
-            {saving ? "Saving…" : "Save changes"}
+            {saving && <LoaderCircle size={16} className="animate-spin text-white" />}
+            <span>
+              {saving
+                ? record
+                  ? "Updating record…"
+                  : "Adding record…"
+                : record
+                  ? `Update ${resource.label.endsWith("s") ? resource.label.slice(0, -1) : resource.label}`
+                  : `Add ${resource.label.endsWith("s") ? resource.label.slice(0, -1) : resource.label}`}
+            </span>
           </button>
         </div>
       </form>
@@ -908,8 +1009,17 @@ export function RecordDialog({
         onClose={() => setGalleryPickerField(null)}
         onSelectImage={(url) => {
           if (galleryPickerField) {
-            if (Array.isArray(values[galleryPickerField])) {
-              setValue(galleryPickerField, [...(values[galleryPickerField] as string[]), url]);
+            const isMulti =
+              galleryPickerField === "document" ||
+              galleryPickerField === "fileUrl" ||
+              Array.isArray(values[galleryPickerField]);
+            if (isMulti) {
+              const currentList = Array.isArray(values[galleryPickerField])
+                ? (values[galleryPickerField] as string[])
+                : typeof values[galleryPickerField] === "string" && values[galleryPickerField]
+                ? [values[galleryPickerField] as string]
+                : [];
+              setValue(galleryPickerField, [...currentList, url]);
             } else {
               setValue(galleryPickerField, url);
             }
