@@ -1130,6 +1130,7 @@ export function ResourceView({
   canCreate: canCreateProp = true,
   canEdit: canEditProp = true,
   canDelete: canDeleteProp = true,
+  allMenuItems,
   token,
 }: {
   resource: Resource;
@@ -1146,6 +1147,7 @@ export function ResourceView({
   canCreate?: boolean;
   canEdit?: boolean;
   canDelete?: boolean;
+  allMenuItems?: RecordItem[];
   token?: string;
 }) {
   const isMediaResource = resource.key === "gallery";
@@ -1494,7 +1496,7 @@ export function ResourceView({
               </span>
             </div>
           ) : (
-            <MenuHierarchyFlow items={items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
+            <MenuHierarchyFlow items={allMenuItems && allMenuItems.length > 0 ? allMenuItems : items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
           )
         ) : (
           <div className="overflow-x-auto">

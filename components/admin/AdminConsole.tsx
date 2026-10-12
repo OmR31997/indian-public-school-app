@@ -236,6 +236,9 @@ export function AdminConsole() {
     }
   }, [token, active]);
 
+  const [publishedPages, setPublishedPages] = useState<RecordItem[]>([]);
+  const [allMenuItems, setAllMenuItems] = useState<RecordItem[]>([]);
+
   const fetchPublishedPages = useCallback(() => {
     axios
       .get(`${API_URL}/pages/published`)
@@ -246,10 +249,24 @@ export function AdminConsole() {
       .catch(() => { });
   }, []);
 
+  const fetchAllMenuItems = useCallback(() => {
+    axios
+      .get(`${API_URL}/menu-items`, {
+        params: { flat: "true" },
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      })
+      .then((res) => {
+        const parsed = asPaginatedPayload(res.data, "menu-items");
+        setAllMenuItems(parsed.items);
+      })
+      .catch(() => { });
+  }, [token]);
+
   const refresh = useCallback(async () => {
     isRefreshingRef.current = true;
     setLoading(true); setError("");
     fetchPublishedPages();
+    fetchAllMenuItems();
     const readable = resources.filter((resource) => (resource.key !== "users" || token) && canAccessResource(resource.key));
     const results = await Promise.allSettled(readable.map((resource) => fetchResource(resource.key)));
     const networkFailures = results.filter(
@@ -260,7 +277,7 @@ export function AdminConsole() {
     }
     setLoading(false);
     isRefreshingRef.current = false;
-  }, [fetchResource, token, canAccessResource, fetchPublishedPages]);
+  }, [fetchResource, token, canAccessResource, fetchPublishedPages, fetchAllMenuItems]);
 
   // Notification Hook (SOLID Architecture & Smart Load Optimization)
   const {
@@ -285,11 +302,11 @@ export function AdminConsole() {
   const careerNotifications = useCareerNotifications(API_URL, token);
 
   const notificationRef = useRef<HTMLDivElement>(null);
-  const [publishedPages, setPublishedPages] = useState<RecordItem[]>([]);
 
   useEffect(() => {
     fetchPublishedPages();
-  }, [fetchPublishedPages]);
+    fetchAllMenuItems();
+  }, [fetchPublishedPages, fetchAllMenuItems]);
 
   const combinedPages = useMemo(() => {
     const pageMap = new Map<string, RecordItem>();
@@ -386,6 +403,9 @@ export function AdminConsole() {
       if (current.key === "pages") {
         fetchPublishedPages();
       }
+      if (current.key === "menu-items") {
+        fetchAllMenuItems();
+      }
       setActionFeedback({
         type: "success",
         message: isEditing ? "Record updated successfully." : "New record added successfully.",
@@ -427,6 +447,9 @@ export function AdminConsole() {
       await fetchResource(current.key);
       if (current.key === "pages") {
         fetchPublishedPages();
+      }
+      if (current.key === "menu-items") {
+        fetchAllMenuItems();
       }
       setActionFeedback({
         type: "success",
@@ -770,6 +793,7 @@ export function AdminConsole() {
             canCreate={canUpdateResource(current.key)}
             canEdit={canUpdateResource(current.key)}
             canDelete={canDeleteResource(current.key)}
+            allMenuItems={allMenuItems}
             token={token}
           />
         )}
@@ -806,7 +830,7 @@ export function AdminConsole() {
         saving={saving}
         formError={error}
         allSectionPages={combinedPages}
-        allMenuItems={data["menu-items"] || []}
+        allMenuItems={allMenuItems.length > 0 ? allMenuItems : (data["menu-items"] || [])}
         onClose={() => { setFormOpen(false); setEditing(null); setError(""); }}
         onClearError={() => setError("")}
         onSave={save}
