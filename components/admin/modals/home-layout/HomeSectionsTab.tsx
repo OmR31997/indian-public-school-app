@@ -12,6 +12,7 @@ import {
   X,
   Target,
   Compass,
+  Link as LinkIcon,
 } from "lucide-react";
 import { getAssetUrl } from "@/lib/utils";
 
@@ -314,6 +315,62 @@ export function HomeSectionsTab({
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Section 1 Action Button (Discover Our Story) */}
+            <div className="space-y-3 pt-2 border-t border-slate-200/80">
+              <div>
+                <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
+                  <LinkIcon size={14} className="text-[#1a5d9c]" /> Section Action Button ("Discover Our Story")
+                </label>
+                <p className="text-[11px] text-slate-500">
+                  Configure the call-to-action button displayed under About Our School.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1">Button Label</label>
+                  <input
+                    type="text"
+                    placeholder="Discover Our Story"
+                    value={homeObj["section-1"]?.[0]?.btnLinkText?.text ?? "Discover Our Story"}
+                    onChange={(e) => {
+                      const sec = [...(homeObj["section-1"] || [{}])];
+                      sec[0] = {
+                        ...sec[0],
+                        btnLinkText: {
+                          ...(sec[0].btnLinkText || {}),
+                          text: e.target.value,
+                        },
+                      };
+                      updateHome((prev) => ({ ...prev, "section-1": sec }));
+                    }}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1">Target URL / Route</label>
+                  <input
+                    type="text"
+                    placeholder="/about/school-establishment"
+                    value={homeObj["section-1"]?.[0]?.btnLinkText?.url ?? "/about/school-establishment"}
+                    onChange={(e) => {
+                      const sec = [...(homeObj["section-1"] || [{}])];
+                      sec[0] = {
+                        ...sec[0],
+                        btnLinkText: {
+                          ...(sec[0].btnLinkText || {}),
+                          url: e.target.value,
+                        },
+                      };
+                      updateHome((prev) => ({ ...prev, "section-1": sec }));
+                    }}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-[#1a5d9c]"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1210,6 +1267,33 @@ export function HomeSectionsTab({
 
               return (
                 <div className="space-y-5">
+                  {/* Video Main Title Settings */}
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                      <div className="grid size-8 place-items-center rounded-lg bg-[#1a5d9c]/10 text-[#1a5d9c]">
+                        <i className="bi bi-fonts text-base" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800">Main Title Above Video</h4>
+                        <p className="text-[11px] text-slate-500">Displayed prominently above the video player on the homepage</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                        <span>Video Main Title</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Displayed above video</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Experience Life at Indian Public School"
+                        value={secVid.title || secVid.heading || sec8.videoTitle || ""}
+                        onChange={(e) => updateVideoData({ title: e.target.value, heading: e.target.value, videoTitle: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#1a5d9c] focus:bg-white focus:ring-1 focus:ring-[#1a5d9c] transition shadow-2xs"
+                      />
+                    </div>
+                  </div>
+
                   {/* Video File Selection Box */}
                   <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                     <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -1309,88 +1393,6 @@ export function HomeSectionsTab({
                       </div>
                     </div>
                   )}
-
-                  {/* Collapsible Advanced Customizations */}
-                  <details className="group rounded-2xl border border-slate-200 bg-slate-50/50 transition">
-                    <summary className="flex items-center justify-between px-4 py-3 text-xs font-bold text-slate-600 cursor-pointer select-none">
-                      <span>Advanced Customizations (Titles, Eyebrow &amp; Player Controls)</span>
-                      <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div className="px-4 pb-4 pt-1 space-y-4 border-t border-slate-200/60">
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-slate-600">Eyebrow Tagline</label>
-                          <input
-                            type="text"
-                            value={eyebrowVal}
-                            onChange={(e) => updateVideoData({ eyebrow: e.target.value, videoEyebrow: e.target.value })}
-                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-slate-600">Main Title</label>
-                          <input
-                            type="text"
-                            value={titleVal}
-                            onChange={(e) => updateVideoData({ title: e.target.value, heading: e.target.value, videoTitle: e.target.value })}
-                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-bold text-slate-600">Description</label>
-                        <textarea
-                          rows={2}
-                          value={descVal}
-                          onChange={(e) => updateVideoData({ description: e.target.value, videoDescription: e.target.value })}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-                        />
-                      </div>
-
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={autoPlayVal}
-                            onChange={(e) => updateVideoData({ autoPlay: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>AutoPlay Video on Load</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={loopVal}
-                            onChange={(e) => updateVideoData({ loop: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>Loop Video Continuously</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={mutedVal}
-                            onChange={(e) => updateVideoData({ muted: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>Mute Audio by Default</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={controlsVal}
-                            onChange={(e) => updateVideoData({ controls: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>Show Player Controls</span>
-                        </label>
-                      </div>
-                    </div>
-                  </details>
                 </div>
               );
             })()}

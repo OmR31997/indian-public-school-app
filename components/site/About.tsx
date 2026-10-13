@@ -32,6 +32,11 @@ export function About() {
     : DEFAULT_INTRO_VIDEO;
   const videoSource = imageUrl(videoRaw);
 
+  const videoTitle = text(
+    secVid.title || secVid.heading || sec8.videoTitle,
+    "Experience Life at Indian Public School"
+  );
+
   const descriptions = textList(section.description);
   const cards = Array.isArray(section.cardItem)
     ? (section.cardItem as Record<string, unknown>[])
@@ -64,151 +69,150 @@ export function About() {
     ["-4%", reduced ? "-4%" : "4%"],
   );
 
-  return (
-    <section id="about" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50/50 to-white dark:from-slate-950 dark:to-slate-950 overflow-hidden">
-      <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14 items-center">
-        {/* Left Column: Video & Mission/Vision */}
-        <div ref={ref} className="lg:col-span-6 flex flex-col gap-4 sm:gap-5">
-          {/* Video Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="group relative overflow-hidden bg-slate-950 shadow-xl shadow-slate-900/10 dark:border-slate-800"
-            style={{ borderRadius: "var(--card-radius, 1.75rem)", border: "1px solid var(--border, rgba(226, 232, 240, 0.8))" }}
-          >
-            <UniversalMedia
-              src={videoSource}
-              type="video"
-              alt={text(secVid.title || section.heading || "IPS Intro Video")}
-              title={text(secVid.title || section.heading || "Experience life at Indian Public School")}
-              autoPlay={typeof secVid.autoPlay === "boolean" ? secVid.autoPlay : true}
-              muted={typeof secVid.muted === "boolean" ? secVid.muted : true}
-              loop={typeof secVid.loop === "boolean" ? secVid.loop : true}
-              controls={typeof secVid.controls === "boolean" ? secVid.controls : true}
-              aspectRatio="video"
-              objectFit="cover"
-              className="w-full h-full object-cover rounded-[inherit]"
-              containerClassName="w-full aspect-video overflow-hidden rounded-[inherit] border-0 shadow-none bg-black"
-            />
-          </motion.div>
+  const btnLinkObj = section.btnLinkText as Record<string, unknown> | undefined;
+  const storyBtnText = text(btnLinkObj?.text, "Discover Our Story");
+  const rawStoryUrl = text(btnLinkObj?.url);
+  const cleanStoryUrl = rawStoryUrl ? toCleanRelativeAssetPath(rawStoryUrl) : "/about/school-establishment";
+  const showStoryBtn = btnLinkObj?.show !== false && !!storyBtnText;
 
-          {/* Our Mission & Our Vision divided cards below video */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-          >
-            {missionVisionItems.map((item, i) => {
-              const IconComponent = item.icon;
-              const content = (
-                <div
-                  key={`${item.heading}-${i}`}
-                  className="group relative p-4 sm:p-5 rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 flex flex-col justify-between h-full"
-                  style={{
-                    borderRadius: "var(--card-radius, 1.25rem)",
-                    background: "var(--card, #ffffff)",
-                    border: "1px solid var(--border, rgba(226, 232, 240, 0.8))",
-                  }}
-                >
-                  <div>
-                    <div className="flex items-center gap-3 mb-2.5">
-                      <span
-                        className="grid size-10 place-items-center rounded-xl transition-all duration-300 group-hover:scale-105 shrink-0 overflow-hidden"
-                        style={{
-                          background: "var(--gold-soft, rgba(244, 189, 79, 0.15))",
-                          color: "var(--primary, #102a4c)",
-                        }}
+  return (
+    <section id="about" className="py-8 sm:py-10 lg:py-12 bg-background overflow-hidden">
+      <div className="container-page">
+        {/* Main 2-Column Row: Left Video Media & Right About Story with Mission/Vision (Fits on ONE single screen without scrolling!) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-center">
+          {/* Left Column: Picture / Video Showcase with Main Title Above Video */}
+          <div className="lg:col-span-6 flex flex-col justify-center">
+            <Reveal>
+              {/* Main Title Above Video */}
+              <div className="mb-3 sm:mb-3.5">
+                <h3 className="font-display font-bold text-foreground text-xl sm:text-2xl lg:text-[1.85rem] tracking-tight leading-[1.2]">
+                  {videoTitle}
+                </h3>
+
+                {/* Signature decorative accent line */}
+                <div className="mt-2.5 flex items-center gap-1.5" aria-hidden>
+                  <span className="h-1 w-10 rounded-full bg-primary" />
+                  <span className="h-1 w-2.5 rounded-full bg-gold" />
+                </div>
+              </div>
+            </Reveal>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-card shadow-lift"
+            >
+              <UniversalMedia
+                src={videoSource}
+                type="video"
+                alt={videoTitle}
+                title={videoTitle}
+                autoPlay={typeof secVid.autoPlay === "boolean" ? secVid.autoPlay : true}
+                muted={typeof secVid.muted === "boolean" ? secVid.muted : true}
+                loop={typeof secVid.loop === "boolean" ? secVid.loop : true}
+                controls={typeof secVid.controls === "boolean" ? secVid.controls : true}
+                aspectRatio="video"
+                objectFit="cover"
+                className="w-full h-full object-cover"
+                containerClassName="w-full aspect-video overflow-hidden border-0 shadow-none bg-black"
+              />
+            </motion.div>
+          </div>
+
+          {/* Right Column: About Heading, Story, Mission/Vision Cards & CTA Button */}
+          <div className="lg:col-span-6 flex flex-col justify-center">
+            <Reveal>
+              {/* Eyebrow Tagline - 100% Consistent with other site sections */}
+              <span className="eyebrow text-primary">
+                <span className="h-px w-8 bg-gold" aria-hidden />
+                {text(section.heading, "About Our School")}
+              </span>
+
+              {/* Main Heading - 100% Consistent font-display and text-foreground */}
+              <h2 className="mt-2 text-2xl sm:text-3xl lg:text-[1.85rem] font-display font-bold text-foreground tracking-tight leading-[1.2]">
+                {text(section.subHeading)}
+              </h2>
+
+              {/* Signature decorative accent line */}
+              <div className="mt-2.5 flex items-center gap-1.5" aria-hidden>
+                <span className="h-1 w-10 rounded-full bg-primary" />
+                <span className="h-1 w-2.5 rounded-full bg-gold" />
+              </div>
+
+              {/* Description Paragraph - 100% Consistent font-sans and text-muted-foreground */}
+              {descriptions[0] && (
+                <p className="mt-3 text-xs sm:text-sm font-sans font-normal leading-relaxed text-muted-foreground">
+                  {descriptions[0]}
+                </p>
+              )}
+            </Reveal>
+
+            {/* Mission & Vision Cards inside Right Column with Design System Tokens */}
+            <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {missionVisionItems.map((item, i) => {
+                const IconComponent = item.icon;
+                const isMission = i === 0;
+                return (
+                  <div
+                    key={`${item.heading}-${i}`}
+                    className="group relative overflow-hidden rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-soft hover:shadow-lift transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    {/* Subtle decorative corner accent using theme colors */}
+                    <div
+                      className={`absolute top-0 right-0 h-16 w-16 rounded-bl-full opacity-10 transition-transform duration-300 group-hover:scale-125 ${
+                        isMission ? "bg-gold" : "bg-primary"
+                      }`}
+                    />
+
+                    <div className="flex items-start gap-2.5 sm:gap-3">
+                      {/* Icon container matching WhyChoose card icon styles */}
+                      <div
+                        className={`grid size-9 sm:size-10 place-items-center rounded-xl shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-xs ${
+                          isMission
+                            ? "bg-gold/15 text-gold-foreground border border-gold/30 dark:bg-gold/20 dark:text-gold"
+                            : "bg-secondary text-primary border border-border group-hover:bg-primary group-hover:text-primary-foreground"
+                        }`}
                       >
                         {item.icoUrl ? (
-                          <img src={imageUrl(item.icoUrl)} alt="" className="size-6 object-contain" />
+                          <img src={imageUrl(item.icoUrl)} alt="" className="size-4.5 sm:size-5 object-contain" />
                         ) : (
-                          <IconComponent className="size-5" />
+                          <IconComponent className="size-4.5 sm:size-5" />
                         )}
-                      </span>
-                      <h3 className="text-base font-bold text-foreground dark:text-slate-100 font-[var(--font-display)]">
-                        {item.heading}
-                      </h3>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-display font-bold text-foreground text-sm sm:text-base leading-snug">
+                          {item.heading}
+                        </h3>
+                        <p className="mt-1 font-sans text-[11px] sm:text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                      {item.description}
-                    </p>
                   </div>
-                </div>
-              );
-
-              return (
-                <div key={i} className="h-full">
-                  {content}
-                </div>
-              );
-            })}
-          </motion.div>
-        </div>
-
-        {/* Right Column: About Content */}
-        <div className="lg:col-span-6 flex flex-col justify-center">
-          <Reveal>
-            <div
-              className="inline-flex items-center gap-2.5 px-3.5 py-1 text-xs font-extrabold tracking-wider uppercase backdrop-blur-md shadow-sm border text-[var(--navy)] dark:text-[var(--gold)]"
-              style={{
-                borderRadius: "var(--badge-radius, 9999px)",
-                background: "var(--gold-soft, rgba(244, 189, 79, 0.15))",
-                borderColor: "var(--gold, #f4bd4f)",
-              }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--gold, #f4bd4f)" }} />
-              {text(section.heading, "About Our School")}
+                );
+              })}
             </div>
 
-            <h2
-              className="mt-4 text-3xl font-extrabold leading-[1.15] text-foreground dark:text-slate-100 sm:text-4xl lg:text-5xl font-[var(--font-display)]"
-            >
-              {text(section.subHeading)}
-            </h2>
-
-            {descriptions[0] && (
-              <p className="mt-5 text-base font-normal leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
-                {descriptions[0]}
-              </p>
-            )}
-
-            {descriptions[1] && (
-              <p className="mt-4 text-base leading-relaxed text-slate-600 dark:text-slate-400">
-                {descriptions[1]}
-              </p>
-            )}
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            {(() => {
-              const rawStoryUrl = text((section.btnLinkText as Record<string, unknown> | undefined)?.url);
-              const cleanStoryUrl = rawStoryUrl ? toCleanRelativeAssetPath(rawStoryUrl) : "/about/school-establishment";
-              return (
+            {/* Discover Our Story Action Button with variant="navy" */}
+            {showStoryBtn && (
+              <div className="mt-3.5 flex items-center justify-start">
                 <Button
                   asChild
-                  size="lg"
-                  className="group mt-8 text-white px-7 shadow-lg transition-all duration-300 hover:opacity-90 hover:scale-[1.02] self-start"
-                  style={{
-                    borderRadius: "var(--btn-radius, 9999px)",
-                    background: "var(--gradient-navy, var(--navy, #102a4c))",
-                  }}
+                  variant="navy"
+                  size="default"
+                  className="group rounded-full shadow-soft hover:shadow-lift transition-all duration-300 text-xs font-bold px-5 py-2"
                 >
-                  <a href={cleanStoryUrl}>
-                    {text(
-                      (section.btnLinkText as Record<string, unknown> | undefined)
-                        ?.text,
-                      "Discover Our Story",
-                    )}
-                    <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
+                  <a href={cleanStoryUrl} className="flex items-center gap-2">
+                    <span>{storyBtnText}</span>
+                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                   </a>
                 </Button>
-              );
-            })()}
-          </Reveal>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </section>

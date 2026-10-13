@@ -21,6 +21,8 @@ export interface HeroSlide {
   showText?: boolean;
   overlayColor?: string;
   overlayOpacity?: number;
+  objectPosition?: string;
+  objectFit?: "cover" | "contain";
 }
 
 const TITLE_SIZE_CLASSES: Record<string, string> = {
@@ -137,14 +139,28 @@ export function Hero() {
           transition={{ duration: 0.7 }}
           className="absolute inset-0 -z-20"
         >
+          {/* Ambient blurred backdrop when objectFit is 'contain' so full-height/vertical posters don't show blank black voids */}
+          {currentSlide.objectFit === "contain" && (
+            <div
+              className="absolute inset-0 -z-10 scale-125 blur-3xl opacity-50 bg-center bg-cover pointer-events-none"
+              style={{
+                backgroundImage: `url(${imageUrl(currentSlide.bannerUrl) || currentSlide.bannerUrl})`,
+              }}
+              aria-hidden
+            />
+          )}
+
           <SmartImage
             src={currentSlide.bannerUrl}
             fallbackSrc={jsonHeroImage || DEFAULT_HERO_IMAGE}
             alt={rawH1 || rawTitle || "Indian Public School Campus Banner"}
             width={1920}
             height={1080}
-            containerClassName="size-full"
-            className="size-full object-cover object-center"
+            containerClassName="size-full flex items-center justify-center"
+            className={`size-full ${currentSlide.objectFit === "contain" ? "object-contain" : "object-cover"}`}
+            style={{
+              objectPosition: currentSlide.objectPosition || "center center",
+            }}
           />
         </motion.div>
       </AnimatePresence>
@@ -300,6 +316,8 @@ function useMemoSlides(
       showText: item.showText ?? hero.showText ?? true,
       overlayColor: item.overlayColor || hero.overlayColor || "#0a192f",
       overlayOpacity: item.overlayOpacity ?? hero.overlayOpacity ?? 0.6,
+      objectPosition: item.objectPosition || (hero.objectPosition as string) || "center center",
+      objectFit: (item.objectFit as "cover" | "contain") || (hero.objectFit as "cover" | "contain") || "cover",
     }));
   }
 
@@ -322,5 +340,7 @@ function useMemoSlides(
     showText: (content.showText ?? hero.showText) !== false,
     overlayColor: content.overlayColor || hero.overlayColor || "#0a192f",
     overlayOpacity: content.overlayOpacity ?? hero.overlayOpacity ?? 0.6,
+    objectPosition: (hero.objectPosition as string) || "center center",
+    objectFit: (hero.objectFit as "cover" | "contain") || "cover",
   }));
 }
