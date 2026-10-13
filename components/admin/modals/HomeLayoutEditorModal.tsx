@@ -80,6 +80,7 @@ export function HomeLayoutEditorModal({
     | "sec8"
     | "sec9"
   >("header");
+  const [, startTabTransition] = React.useTransition();
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadingCard, setUploadingCard] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string>("");
@@ -760,7 +761,12 @@ export function HomeLayoutEditorModal({
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => {
+                if (activeTab === tab.id) return;
+                startTabTransition(() => {
+                  setActiveTab(tab.id as any);
+                });
+              }}
               className={`flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition border whitespace-nowrap cursor-pointer ${activeTab === tab.id
                 ? "border-[#1a5d9c] bg-[#1a5d9c] text-white shadow-xs"
                 : "border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 hover:border-slate-300"
@@ -1004,15 +1010,8 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. © 2026 Indian Public School. All Rights Reserved."
-                      value={datasource?.footer?.copyright || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, copyright: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.copyright ?? datasource?.footer?.copyright ?? ""}
+                      onChange={(e) => updateFooterField("copyright", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1022,15 +1021,8 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="e.g. Affiliated to CBSE, New Delhi"
-                      value={datasource?.footer?.affiliation || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, affiliation: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.affiliation ?? datasource?.footer?.affiliation ?? ""}
+                      onChange={(e) => updateFooterField("affiliation", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1040,15 +1032,8 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="https://facebook.com/..."
-                      value={datasource?.footer?.facebook || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, facebook: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.facebook ?? datasource?.footer?.facebook ?? datasource?.["contact-us"]?.["social-media"]?.facebook ?? ""}
+                      onChange={(e) => updateFooterField("facebook", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1058,15 +1043,8 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="https://instagram.com/..."
-                      value={datasource?.footer?.instagram || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, instagram: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.instagram ?? datasource?.footer?.instagram ?? datasource?.["contact-us"]?.["social-media"]?.instagram ?? ""}
+                      onChange={(e) => updateFooterField("instagram", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1076,15 +1054,8 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="https://youtube.com/..."
-                      value={datasource?.footer?.youtube || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, youtube: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.youtube ?? datasource?.footer?.youtube ?? datasource?.["contact-us"]?.["social-media"]?.youtube ?? ""}
+                      onChange={(e) => updateFooterField("youtube", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1094,15 +1065,8 @@ export function HomeLayoutEditorModal({
                     <input
                       type="text"
                       placeholder="https://linkedin.com/..."
-                      value={datasource?.footer?.linkedin || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setDatasource((prev: any) => {
-                          const next = { ...prev, footer: { ...prev?.footer, twitter: val } };
-                          setJsonText(JSON.stringify(next, null, 2));
-                          return next;
-                        });
-                      }}
+                      value={datasource?.home?.[0]?.identity?.footer?.linkedin ?? datasource?.footer?.linkedin ?? datasource?.["contact-us"]?.["social-media"]?.linkedin ?? datasource?.["contact-us"]?.["social-media"]?.linkdin ?? ""}
+                      onChange={(e) => updateFooterField("linkedin", e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>

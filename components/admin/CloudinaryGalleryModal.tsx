@@ -1,7 +1,21 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { X, Search, UploadCloud, Check, Image as ImageIcon, LoaderCircle, ExternalLink, Filter, Scissors, Video, Music, FileText, File, Eye, FileSpreadsheet } from "lucide-react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, useTransition, useDeferredValue } from "react";
+import {
+  X,
+  Search,
+  UploadCloud,
+  Check,
+  Image as ImageIcon,
+  LoaderCircle,
+  Filter,
+  Scissors,
+  Video,
+  Music,
+  FileText,
+  Eye,
+  FileSpreadsheet,
+} from "lucide-react";
 import axios from "axios";
 import { getOptionalApi, unwrapCollection, API_URL } from "@/lib/api-client";
 import { getAssetUrl } from "@/lib/utils";
@@ -10,22 +24,39 @@ import { FileViewerModal } from "@/components/ui/FileViewerModal";
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
 import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
-import { getCloudinaryPdfThumbnailUrl, isPdfFile, isDocumentFile, isWordFile, isExcelFile, isGoogleDocUrl, isGoogleSheetUrl } from "@/lib/file-preview";
+import {
+  getCloudinaryPdfThumbnailUrl,
+  isPdfFile,
+  isDocumentFile,
+  isWordFile,
+  isExcelFile,
+  isGoogleDocUrl,
+  isGoogleSheetUrl,
+} from "@/lib/file-preview";
 
-interface CloudinaryGalleryModalProps {
+export interface CloudinaryGalleryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectImage: (url: string) => void;
   title?: string;
 }
 
-interface MediaItem {
+export interface MediaItem {
   id: string;
   url: string;
   title: string;
   category: string;
   directory?: string;
   source: "database" | "cloudinary";
+  fileType: "image" | "video" | "audio" | "document";
+  isPdf: boolean;
+  isExcel: boolean;
+  isWord: boolean;
+  isGoogleSheet: boolean;
+  isGoogleDoc: boolean;
+  normalizedCategory: string;
+  normalizedDirectory: string;
+  displayCategory: string;
 }
 
 export function getFileType(url: string): "image" | "video" | "audio" | "document" {
@@ -77,6 +108,155 @@ export function formatCategoryDisplay(cat: string): string {
     .trim();
 }
 
+export function createMediaItem(raw: {
+  id: string;
+  url: string;
+  title: string;
+  category: string;
+  directory?: string;
+  source: "database" | "cloudinary";
+}): MediaItem {
+  const fileType = getFileType(raw.url);
+  const isPdf = isPdfFile(raw.url);
+  const isExcel = isExcelFile(raw.url);
+  const isWord = isWordFile(raw.url);
+  const isGoogleSheet = isGoogleSheetUrl(raw.url);
+  const isGoogleDoc = isGoogleDocUrl(raw.url);
+  const normalizedCategory = normalizeCategoryKey(raw.category);
+  const normalizedDirectory = normalizeCategoryKey(raw.directory);
+  const displayCategory = formatCategoryDisplay(normalizedCategory || normalizedDirectory || "General");
+
+  return {
+    ...raw,
+    fileType,
+    isPdf,
+    isExcel,
+    isWord,
+    isGoogleSheet,
+    isGoogleDoc,
+    normalizedCategory,
+    normalizedDirectory,
+    displayCategory,
+  };
+}
+
+interface MediaCardItemProps {
+  item: MediaItem;
+  isSelected: boolean;
+  onSelect: (url: string) => void;
+  onPreview: (url: string) => void;
+}
+
+const MediaCardItem = React.memo(function MediaCardItem({
+  item,
+  isSelected,
+  onSelect,
+  onPreview,
+}: MediaCardItemProps) {
+  const { fileType, isPdf, isExcel, isWord, isGoogleSheet, isGoogleDoc, title, url, displayCategory } = item;
+
+  return (
+    <div
+      onClick={() => onSelect(url)}
+      className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 transition-all shadow-2xs ${
+        isSelected
+          ? "border-[#1a5d9c] ring-4 ring-blue-100 bg-blue-50/20"
+          : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md"
+      }`}
+    >
+      <div className="aspect-video w-full overflow-hidden bg-slate-900 flex items-center justify-center relative">
+        {fileType === "video" ? (
+          <div className="relative h-full w-full flex flex-col items-center justify-center bg-slate-950 text-white">
+            <video src={url} muted preload="none" className="h-full w-full object-cover opacity-60" />
+            <div className="absolute grid h-10 w-10 place-items-center rounded-full bg-blue-600/80 text-white shadow-md">
+              <Video size={20} />
+            </div>
+            <span className="absolute bottom-1 right-1.5 rounded-md bg-slate-900/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-200">
+              VIDEO
+            </span>
+          </div>
+        ) : fileType === "audio" ? (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-950 p-2 text-center text-white">
+            <Music size={30} className="text-purple-300 mb-1" />
+            <p className="line-clamp-1 text-[10px] font-semibold text-purple-100">{title}</p>
+            <span className="mt-1 rounded-md bg-purple-500/30 px-1.5 py-0.5 text-[9px] font-bold uppercase text-purple-200">
+              AUDIO
+            </span>
+          </div>
+        ) : isPdf ? (
+          <div className="relative h-full w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+            <PdfCanvasThumbnail url={url} alt={title} className="h-full w-full" />
+            <span className="absolute bottom-1 right-1.5 rounded-md bg-red-950/90 border border-red-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-200 shadow-md pointer-events-none">
+              PDF PREVIEW
+            </span>
+          </div>
+        ) : isExcel ? (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 p-2 text-center text-white">
+            <FileSpreadsheet size={32} className="text-emerald-400 mb-1" />
+            <p className="line-clamp-1 text-[10px] font-bold text-slate-200">{title}</p>
+            <span className="mt-1 rounded-md bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-300">
+              {isGoogleSheet ? "GOOGLE SHEET" : url.toLowerCase().endsWith(".csv") ? "CSV SPREADSHEET" : "EXCEL (.XLSX)"}
+            </span>
+          </div>
+        ) : isWord ? (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 p-2 text-center text-white">
+            <FileText size={32} className="text-blue-400 mb-1" />
+            <p className="line-clamp-1 text-[10px] font-bold text-slate-200">{title}</p>
+            <span className="mt-1 rounded-md bg-blue-500/20 border border-blue-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-blue-300">
+              {isGoogleDoc ? "GOOGLE DOC" : "WORD (.DOCX)"}
+            </span>
+          </div>
+        ) : fileType === "document" ? (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-2 text-center text-white">
+            <FileText size={32} className="text-blue-400 mb-1" />
+            <p className="line-clamp-1 text-[10px] font-semibold text-slate-200">{title}</p>
+            <span className="mt-1 rounded-md bg-blue-500/30 px-1.5 py-0.5 text-[9px] font-bold uppercase text-blue-200">
+              DOCUMENT
+            </span>
+          </div>
+        ) : (
+          <SmartFileThumbnail
+            url={url}
+            alt={title}
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          />
+        )}
+
+        {/* Quick File Viewer Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onPreview(url);
+          }}
+          className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition rounded-lg bg-slate-900/80 p-1.5 text-white hover:bg-blue-600 shadow-md"
+          title="Preview File Full Screen"
+        >
+          <Eye size={13} />
+        </button>
+      </div>
+
+      {/* Checkmark overlay for selection */}
+      {isSelected && (
+        <div className="absolute top-2 right-2 rounded-full bg-[#1a5d9c] p-1 text-white shadow-md">
+          <Check size={14} />
+        </div>
+      )}
+
+      <div className="p-2.5">
+        <p className="text-xs font-bold text-[#102a4c] truncate">{title}</p>
+        <div className="mt-1 flex items-center justify-between gap-1.5">
+          <span className="inline-block text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md truncate max-w-full">
+            {displayCategory}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const PAGE_SIZE = 36;
+
 export function CloudinaryGalleryModal({
   isOpen,
   onClose,
@@ -97,6 +277,12 @@ export function CloudinaryGalleryModal({
   });
   const [isStudioOpen, setIsStudioOpen] = useState<boolean>(false);
   const [previewFileUrl, setPreviewFileUrl] = useState<string | null>(null);
+
+  // Performance: Pagination & Non-blocking transitions
+  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE);
+  const [, startCategoryTransition] = useTransition();
+  const deferredSearch = useDeferredValue(searchQuery);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch live unified gallery media from school backend /gallery
   useEffect(() => {
@@ -133,20 +319,27 @@ export function CloudinaryGalleryModal({
               const url = getAssetUrl(rawUrl);
               const dir = item.directory || item.folder || item.eventType || item.album || item.category || "General";
               const lowerDir = String(dir).toLowerCase();
-              const isSettingsAsset = url.toLowerCase().includes("/settings/") || lowerDir.includes("settings") || item.eventType === "Settings";
+              const isSettingsAsset =
+                url.toLowerCase().includes("/settings/") || lowerDir.includes("settings") || item.eventType === "Settings";
 
-              return {
+              const category = lowerDir.includes("admission")
+                ? "AdmissionDocuments"
+                : isSettingsAsset || lowerDir.includes("settings")
+                  ? "Settings"
+                  : item.eventType || item.category || dir || "General";
+
+              return createMediaItem({
                 id: item._id || item.id ? `${item._id || item.id}-${uIdx}` : `media-${idx}-${uIdx}`,
                 url,
-                title: item.eventName || item.title || item.album || `Gallery Media #${idx + 1}${urls.length > 1 ? ` (${uIdx + 1})` : ""}`,
-                category: lowerDir.includes("admission")
-                  ? "AdmissionDocuments"
-                  : isSettingsAsset || lowerDir.includes("settings")
-                  ? "Settings"
-                  : (item.eventType || item.category || dir || "General"),
+                title:
+                  item.eventName ||
+                  item.title ||
+                  item.album ||
+                  `Gallery Media #${idx + 1}${urls.length > 1 ? ` (${uIdx + 1})` : ""}`,
+                category,
                 directory: dir,
                 source: item.isCdnResource ? "cloudinary" : "database",
-              };
+              });
             });
           }
         );
@@ -197,8 +390,16 @@ export function CloudinaryGalleryModal({
       formData.append("file", file);
       const isIconsCategory = activeCategory === "Icons" || activeCategory === "Settings/Icons";
       const isLogosCategory = activeCategory === "Logos" || activeCategory === "Settings/Logos";
-      const isSettingsCategory = activeCategory && (activeCategory.toLowerCase().includes("setting") || activeCategory === "Settings");
-      formData.append("album", isIconsCategory || isLogosCategory || isSettingsCategory ? "Settings" : activeCategory === "AdmissionDocuments" ? "Admission" : "Visual Editor Picked");
+      const isSettingsCategory =
+        activeCategory && (activeCategory.toLowerCase().includes("setting") || activeCategory === "Settings");
+      formData.append(
+        "album",
+        isIconsCategory || isLogosCategory || isSettingsCategory
+          ? "Settings"
+          : activeCategory === "AdmissionDocuments"
+            ? "Admission"
+            : "Visual Editor Picked"
+      );
       if (activeCategory && activeCategory !== "All") {
         formData.append(
           "folder",
@@ -217,9 +418,9 @@ export function CloudinaryGalleryModal({
       const token =
         typeof window !== "undefined"
           ? localStorage.getItem("ips_admin_token") ||
-          localStorage.getItem("admin_token") ||
-          localStorage.getItem("token") ||
-          ""
+            localStorage.getItem("admin_token") ||
+            localStorage.getItem("token") ||
+            ""
           : "";
 
       const headers: Record<string, string> = {
@@ -262,14 +463,14 @@ export function CloudinaryGalleryModal({
       const url = data?.url || data?.fileUrl || (Array.isArray(data?.fileUrl) ? data.fileUrl[0] : "");
       if (!url) throw new Error("No URL returned from server upload.");
 
-      const newItem: MediaItem = {
+      const newItem = createMediaItem({
         id: `upload-${Date.now()}`,
         url,
         title: file.name.replace(/\.[^/.]+$/, ""),
         category: activeCategory !== "All" ? activeCategory : "New Uploads",
         directory: activeCategory === "AdmissionDocuments" ? "Documents/Admission" : activeCategory,
         source: "database",
-      };
+      });
 
       setMediaList((prev) => [newItem, ...prev]);
       setSelectedUrl(url);
@@ -327,22 +528,26 @@ export function CloudinaryGalleryModal({
     return Array.from(categoryMap.values());
   }, [mediaList]);
 
+  // Fast filtering using pre-computed properties and deferred search
   const filteredMedia = useMemo(() => {
-    return mediaList.filter((m) => {
-      const matchesSearch =
-        m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.directory && m.directory.toLowerCase().includes(searchQuery.toLowerCase()));
+    const query = deferredSearch.trim().toLowerCase();
 
-      if (!matchesSearch) return false;
+    return mediaList.filter((m) => {
+      if (query) {
+        const matchesSearch =
+          m.title.toLowerCase().includes(query) ||
+          m.url.toLowerCase().includes(query) ||
+          (m.directory && m.directory.toLowerCase().includes(query));
+
+        if (!matchesSearch) return false;
+      }
 
       if (activeCategory === "All") return true;
 
-      const fType = getFileType(m.url);
-      if (activeCategory === "Videos") return fType === "video";
-      if (activeCategory === "Documents") return fType === "document";
-      if (activeCategory === "Audio") return fType === "audio";
-      if (activeCategory === "Images") return fType === "image";
+      if (activeCategory === "Videos") return m.fileType === "video";
+      if (activeCategory === "Documents") return m.fileType === "document";
+      if (activeCategory === "Audio") return m.fileType === "audio";
+      if (activeCategory === "Images") return m.fileType === "image";
 
       const activeNorm = normalizeCategoryKey(activeCategory).toLowerCase();
 
@@ -370,8 +575,8 @@ export function CloudinaryGalleryModal({
         );
       }
 
-      const catNorm = normalizeCategoryKey(m.category).toLowerCase();
-      const dirNorm = normalizeCategoryKey(m.directory).toLowerCase();
+      const catNorm = m.normalizedCategory.toLowerCase();
+      const dirNorm = m.normalizedDirectory.toLowerCase();
 
       return (
         catNorm === activeNorm ||
@@ -381,7 +586,65 @@ export function CloudinaryGalleryModal({
         m.url.toLowerCase().includes(activeNorm)
       );
     });
-  }, [mediaList, searchQuery, activeCategory]);
+  }, [mediaList, deferredSearch, activeCategory]);
+
+  // Reset pagination count on search or category changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [activeCategory, deferredSearch]);
+
+  // Windowed visible slice to eliminate UI thread blocking
+  const visibleItems = useMemo(() => {
+    return filteredMedia.slice(0, visibleCount);
+  }, [filteredMedia, visibleCount]);
+
+  // Infinite scroll intersection observer
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredMedia.length));
+        }
+      },
+      { threshold: 0.1, rootMargin: "300px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [filteredMedia.length, visibleCount]);
+
+  // Infinite scroll on-scroll fallback
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+      if (scrollHeight - (scrollTop + clientHeight) < 400) {
+        if (visibleCount < filteredMedia.length) {
+          setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredMedia.length));
+        }
+      }
+    },
+    [visibleCount, filteredMedia.length]
+  );
+
+  // Stable callbacks to avoid re-rendering memoized cards
+  const handleSelectCard = useCallback((url: string) => {
+    setSelectedUrl(url);
+  }, []);
+
+  const handlePreviewCard = useCallback((url: string) => {
+    setPreviewFileUrl(url);
+  }, []);
+
+  const handleCategorySelect = (cat: string) => {
+    if (activeCategory.toLowerCase() === cat.toLowerCase()) return;
+    startCategoryTransition(() => {
+      setActiveCategory(cat);
+      setVisibleCount(PAGE_SIZE);
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -467,16 +730,25 @@ export function CloudinaryGalleryModal({
               <button
                 key={cat}
                 type="button"
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition whitespace-nowrap shrink-0 cursor-pointer ${isSelected
+                onClick={() => handleCategorySelect(cat)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition whitespace-nowrap shrink-0 cursor-pointer ${
+                  isSelected
                     ? "bg-[#1a5d9c] text-white shadow-xs"
                     : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
-                  }`}
+                }`}
               >
                 {displayLabel}
               </button>
             );
           })}
+
+          {filteredMedia.length > 0 && (
+            <span className="text-[11px] font-medium text-slate-400 ml-auto shrink-0 hidden sm:inline-block">
+              {visibleItems.length < filteredMedia.length
+                ? `Showing ${visibleItems.length} of ${filteredMedia.length}`
+                : `${filteredMedia.length} items`}
+            </span>
+          )}
         </div>
 
         {/* Upload Error Banner */}
@@ -490,7 +762,7 @@ export function CloudinaryGalleryModal({
         )}
 
         {/* Media Grid Gallery */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6" onScroll={handleScroll}>
           {loading ? (
             <div className="py-16 text-center">
               <LoaderCircle size={32} className="mx-auto animate-spin text-[#1a5d9c]" />
@@ -503,113 +775,35 @@ export function CloudinaryGalleryModal({
               <p className="text-xs text-slate-400 mt-1">Try a different search query or upload a new file above.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {filteredMedia.map((item) => {
-                const isSelected = selectedUrl === item.url;
-                const fileType = getFileType(item.url);
-                const isPdf = isPdfFile(item.url);
-                const pdfThumbnail = isPdf ? getCloudinaryPdfThumbnailUrl(item.url, 1, 600) : item.url;
-
-                return (
-                  <div
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {visibleItems.map((item) => (
+                  <MediaCardItem
                     key={item.id}
-                    onClick={() => setSelectedUrl(item.url)}
-                    className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 transition-all shadow-2xs ${isSelected
-                        ? "border-[#1a5d9c] ring-4 ring-blue-100 bg-blue-50/20"
-                        : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md"
-                      }`}
+                    item={item}
+                    isSelected={selectedUrl === item.url}
+                    onSelect={handleSelectCard}
+                    onPreview={handlePreviewCard}
+                  />
+                ))}
+              </div>
+
+              {/* Infinite scroll sentinel */}
+              <div ref={sentinelRef} className="h-4 w-full" />
+
+              {/* Load more button if there are more items */}
+              {visibleCount < filteredMedia.length && (
+                <div className="py-4 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredMedia.length))}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:border-slate-300 shadow-xs transition cursor-pointer"
                   >
-                    <div className="aspect-video w-full overflow-hidden bg-slate-900 flex items-center justify-center relative">
-                      {fileType === "video" ? (
-                        <div className="relative h-full w-full flex flex-col items-center justify-center bg-slate-950 text-white">
-                          <video src={item.url} muted preload="metadata" className="h-full w-full object-cover opacity-60" />
-                          <div className="absolute grid h-10 w-10 place-items-center rounded-full bg-blue-600/80 text-white shadow-md">
-                            <Video size={20} />
-                          </div>
-                          <span className="absolute bottom-1 right-1.5 rounded-md bg-slate-900/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-200">
-                            VIDEO
-                          </span>
-                        </div>
-                      ) : fileType === "audio" ? (
-                        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-950 p-2 text-center text-white">
-                          <Music size={30} className="text-purple-300 mb-1" />
-                          <p className="line-clamp-1 text-[10px] font-semibold text-purple-100">{item.title}</p>
-                          <span className="mt-1 rounded-md bg-purple-500/30 px-1.5 py-0.5 text-[9px] font-bold uppercase text-purple-200">
-                            AUDIO
-                          </span>
-                        </div>
-                      ) : isPdf ? (
-                        <div className="relative h-full w-full bg-slate-950 flex items-center justify-center overflow-hidden">
-                          <PdfCanvasThumbnail url={item.url} alt={item.title} className="h-full w-full" />
-                          <span className="absolute bottom-1 right-1.5 rounded-md bg-red-950/90 border border-red-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-200 shadow-md pointer-events-none">
-                            PDF PREVIEW
-                          </span>
-                        </div>
-                      ) : isExcelFile(item.url) ? (
-                        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 p-2 text-center text-white">
-                          <FileSpreadsheet size={32} className="text-emerald-400 mb-1" />
-                          <p className="line-clamp-1 text-[10px] font-bold text-slate-200">{item.title}</p>
-                          <span className="mt-1 rounded-md bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-300">
-                            {isGoogleSheetUrl(item.url) ? "GOOGLE SHEET" : item.url.toLowerCase().endsWith(".csv") ? "CSV SPREADSHEET" : "EXCEL (.XLSX)"}
-                          </span>
-                        </div>
-                      ) : isWordFile(item.url) ? (
-                        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 p-2 text-center text-white">
-                          <FileText size={32} className="text-blue-400 mb-1" />
-                          <p className="line-clamp-1 text-[10px] font-bold text-slate-200">{item.title}</p>
-                          <span className="mt-1 rounded-md bg-blue-500/20 border border-blue-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-blue-300">
-                            {isGoogleDocUrl(item.url) ? "GOOGLE DOC" : "WORD (.DOCX)"}
-                          </span>
-                        </div>
-                      ) : fileType === "document" ? (
-                        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 p-2 text-center text-white">
-                          <FileText size={32} className="text-blue-400 mb-1" />
-                          <p className="line-clamp-1 text-[10px] font-semibold text-slate-200">{item.title}</p>
-                          <span className="mt-1 rounded-md bg-blue-500/30 px-1.5 py-0.5 text-[9px] font-bold uppercase text-blue-200">
-                            DOCUMENT
-                          </span>
-                        </div>
-                      ) : (
-                        <SmartFileThumbnail
-                          url={item.url}
-                          alt={item.title}
-                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                        />
-                      )}
-
-                      {/* Quick File Viewer Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPreviewFileUrl(item.url);
-                        }}
-                        className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition rounded-lg bg-slate-900/80 p-1.5 text-white hover:bg-blue-600 shadow-md"
-                        title="Preview File Full Screen"
-                      >
-                        <Eye size={13} />
-                      </button>
-                    </div>
-
-                    {/* Checkmark overlay for selection */}
-                    {isSelected && (
-                      <div className="absolute top-2 right-2 rounded-full bg-[#1a5d9c] p-1 text-white shadow-md">
-                        <Check size={14} />
-                      </div>
-                    )}
-
-                    <div className="p-2.5">
-                      <p className="text-xs font-bold text-[#102a4c] truncate">{item.title}</p>
-                      <div className="mt-1 flex items-center justify-between gap-1.5">
-                        <span className="inline-block text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md truncate max-w-full">
-                          {formatCategoryDisplay(normalizeCategoryKey(item.category || item.directory || "General"))}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    Load More ({filteredMedia.length - visibleCount} more)
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

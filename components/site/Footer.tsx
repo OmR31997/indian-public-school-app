@@ -165,7 +165,7 @@ export function Footer() {
     { icon: Facebook, label: "Facebook", href: text(footerConfig.facebook) || text(socialsObj.facebook, "https://facebook.com") },
     { icon: Instagram, label: "Instagram", href: text(footerConfig.instagram) || text(socialsObj.instagram, "https://instagram.com") },
     { icon: Youtube, label: "YouTube", href: text(footerConfig.youtube) || text(socialsObj.youtube, "https://youtube.com") },
-    { icon: Linkedin, label: "LinkedIn", href: text(footerConfig.linkedin) || text(socialsObj.linkedin, "https://linkedin.com") },
+    { icon: Linkedin, label: "LinkedIn", href: text(footerConfig.linkedin) || text(socialsObj.linkedin) || text(socialsObj.linkdin, "https://linkedin.com") },
   ];
 
   const headerConfig = (homeIdentity.header as Record<string, any>) || (siteData?.header as Record<string, any>) || {};
