@@ -28,11 +28,14 @@ export const API_URL = (
   "http://localhost:5000/api/v1"
 ).replace(/\/$/, "");
 
-const baseURL = API_URL;
+// On server-side (Node.js SSR), resolve localhost to 127.0.0.1 to avoid Windows IPv6 (::1) lookup timeouts
+const baseURL = typeof window === "undefined"
+  ? API_URL.replace("://localhost:5000", "://127.0.0.1:5000")
+  : API_URL;
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: 30000,
   headers: { Accept: "application/json" },
 });
 
@@ -76,7 +79,8 @@ export async function getOptionalApi<T>(
 ): Promise<ApiEnvelope<T> | null> {
   try {
     return await getApi<T>(path, params);
-  } catch {
+  } catch (err: any) {
+    console.warn(`[getOptionalApi] Warning for ${path}:`, err?.message || err);
     return null;
   }
 }

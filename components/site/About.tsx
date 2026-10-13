@@ -37,28 +37,20 @@ export function About() {
     ? (section.cardItem as Record<string, unknown>[])
     : [];
 
-  const missionVisionItems = [
-    {
-      heading: text(cards[0]?.heading, "Our Mission"),
-      description: text(
-        cards[0]?.description,
-        "To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child."
-      ),
-      redirectUrl: text(cards[0]?.redirectUrl),
-      icoUrl: text(cards[0]?.icoUrl || cards[0]?.imageUrl || cards[0]?.icon || cards[0]?.fileUrl),
-      icon: Target,
-    },
-    {
-      heading: text(cards[1]?.heading, "Our Vision"),
-      description: text(
-        cards[1]?.description,
-        "To be a school where academic excellence, character and creativity grow together — preparing students for a changing world."
-      ),
-      redirectUrl: text(cards[1]?.redirectUrl),
-      icoUrl: text(cards[1]?.icoUrl || cards[1]?.imageUrl || cards[1]?.icon || cards[1]?.fileUrl),
-      icon: Compass,
-    },
-  ];
+  const missionVisionItems = (cards.length > 0 ? cards : [{}, {}]).map((card, i) => ({
+    heading: text(card?.heading, i === 0 ? "Our Mission" : i === 1 ? "Our Vision" : `Card #${i + 1}`),
+    description: text(
+      card?.description,
+      i === 0
+        ? "To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child."
+        : i === 1
+        ? "To be a school where academic excellence, character and creativity grow together — preparing students for a changing world."
+        : ""
+    ),
+    redirectUrl: text(card?.redirectUrl),
+    icoUrl: text(card?.icoUrl || card?.imageUrl || card?.icon || card?.fileUrl),
+    icon: i === 0 ? Target : Compass,
+  }));
 
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -148,11 +140,7 @@ export function About() {
                 </div>
               );
 
-              return item.redirectUrl ? (
-                <a key={i} href={item.redirectUrl} className="block h-full">
-                  {content}
-                </a>
-              ) : (
+              return (
                 <div key={i} className="h-full">
                   {content}
                 </div>

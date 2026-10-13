@@ -177,7 +177,34 @@
               "/assets/Home/Banner_8.jpg"
             ]
           },
-          "section-1": [],
+          "section-1": [
+            {
+              "heading": "About Our School",
+              "subHeading": "A Legacy of Academic Excellence & Holistic Growth",
+              "description": [
+                "Established with a vision to empower young minds, Indian Public School provides an inspiring, safe, and nurturing environment where students excel academically, morally, and socially.",
+                "Our world-class CBSE curriculum combines rigorous scholarship with character building, sports, and modern digital innovation."
+              ],
+              "cardItem": [
+                {
+                  "heading": "Our Mission",
+                  "description": "To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child.",
+                  "icoUrl": "",
+                  "redirectUrl": ""
+                },
+                {
+                  "heading": "Our Vision",
+                  "description": "To be a school where academic excellence, character and creativity grow together — preparing students for a changing world.",
+                  "icoUrl": "",
+                  "redirectUrl": ""
+                }
+              ],
+              "btnLinkText": {
+                "text": "Discover Our Story",
+                "url": "/about/school-establishment"
+              }
+            }
+          ],
           "section-2": [
             {
               "count": "1000+",
