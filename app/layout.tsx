@@ -96,53 +96,64 @@ export default function RootLayout({
             __html: `
               try {
                 var isAdmin = window.location.pathname.indexOf('/admin') === 0;
-                var cached = localStorage.getItem(isAdmin ? 'ips_active_theme_admin' : 'ips_active_theme_web');
-                if (cached) {
-                  var theme = JSON.parse(cached);
-                  var root = document.documentElement;
-                  if (theme.colors) {
-                    if (theme.colors.primary) root.style.setProperty('--primary', theme.colors.primary);
-                    var pFg = theme.colors.primaryForeground;
-                    var isDarkTheme = (theme.slug || '').indexOf('dark') !== -1 || (theme.name || '').indexOf('dark') !== -1 || (theme.colors.background || '').indexOf('oklch(0.1') !== -1 || (theme.colors.background || '').indexOf('oklch(0.2') !== -1;
-                    if (isDarkTheme && pFg && (pFg.indexOf('0.1') !== -1 || pFg.indexOf('0.2') !== -1)) {
-                      pFg = 'oklch(0.985 0.005 250)';
+                if (isAdmin) {
+                  document.documentElement.classList.remove('dark');
+                  localStorage.removeItem('ips_active_theme_admin');
+                } else {
+                  var cached = localStorage.getItem('ips_active_theme_web');
+                  if (cached) {
+                    var theme = JSON.parse(cached);
+                    var root = document.documentElement;
+                    if (theme.colors) {
+                      var isDarkTheme = (theme.slug || '').indexOf('dark') !== -1 || (theme.name || '').indexOf('dark') !== -1 || (theme.colors.background || '').indexOf('oklch(0.1') !== -1 || (theme.colors.background || '').indexOf('oklch(0.2') !== -1 || (theme.colors.background || '').indexOf('oklch(0.3') !== -1 || /^#(0|1|2|3)[0-9a-f]{5}$/i.test(theme.colors.background || '');
+                      if (isDarkTheme) {
+                        root.classList.add('dark');
+                      } else {
+                        root.classList.remove('dark');
+                      }
+                      if (theme.colors.primary) root.style.setProperty('--primary', theme.colors.primary);
+                      var pFg = theme.colors.primaryForeground;
+                      if (isDarkTheme && pFg && (pFg.indexOf('0.1') !== -1 || pFg.indexOf('0.2') !== -1)) {
+                        pFg = 'oklch(0.985 0.005 250)';
+                      }
+                      if (pFg) root.style.setProperty('--primary-foreground', pFg);
+                      if (theme.colors.secondary) root.style.setProperty('--secondary', theme.colors.secondary);
+                      if (theme.colors.secondaryForeground) root.style.setProperty('--secondary-foreground', theme.colors.secondaryForeground);
+                      if (theme.colors.accent) root.style.setProperty('--accent', theme.colors.accent);
+                      if (theme.colors.accentForeground) root.style.setProperty('--accent-foreground', theme.colors.accentForeground);
+                      if (theme.colors.gold) root.style.setProperty('--gold', theme.colors.gold);
+                      if (theme.colors.goldSoft) root.style.setProperty('--gold-soft', theme.colors.goldSoft);
+                      if (theme.colors.navy) root.style.setProperty('--navy', theme.colors.navy);
+                      if (theme.colors.navyDeep) root.style.setProperty('--navy-deep', theme.colors.navyDeep);
+                      if (theme.colors.background) root.style.setProperty('--background', theme.colors.background);
+                      if (theme.colors.foreground) root.style.setProperty('--foreground', theme.colors.foreground);
+                      if (theme.colors.card) root.style.setProperty('--card', theme.colors.card);
+                      if (theme.colors.cardForeground) root.style.setProperty('--card-foreground', theme.colors.cardForeground || (isDarkTheme ? 'oklch(0.985 0.005 250)' : 'oklch(0.21 0.045 264)'));
+                      if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
+                      if (theme.colors.input) root.style.setProperty('--input', theme.colors.input);
+                      if (theme.colors.ring) root.style.setProperty('--ring', theme.colors.ring);
+                      if (theme.colors.gradientNavy) root.style.setProperty('--gradient-navy', theme.colors.gradientNavy);
                     }
-                    if (pFg) root.style.setProperty('--primary-foreground', pFg);
-                    if (theme.colors.secondary) root.style.setProperty('--secondary', theme.colors.secondary);
-                    if (theme.colors.secondaryForeground) root.style.setProperty('--secondary-foreground', theme.colors.secondaryForeground);
-                    if (theme.colors.accent) root.style.setProperty('--accent', theme.colors.accent);
-                    if (theme.colors.accentForeground) root.style.setProperty('--accent-foreground', theme.colors.accentForeground);
-                    if (theme.colors.gold) root.style.setProperty('--gold', theme.colors.gold);
-                    if (theme.colors.goldSoft) root.style.setProperty('--gold-soft', theme.colors.goldSoft);
-                    if (theme.colors.navy) root.style.setProperty('--navy', theme.colors.navy);
-                    if (theme.colors.navyDeep) root.style.setProperty('--navy-deep', theme.colors.navyDeep);
-                    if (theme.colors.background) root.style.setProperty('--background', theme.colors.background);
-                    if (theme.colors.foreground) root.style.setProperty('--foreground', theme.colors.foreground);
-                    if (theme.colors.card) root.style.setProperty('--card', theme.colors.card);
-                    if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
-                    if (theme.colors.input) root.style.setProperty('--input', theme.colors.input);
-                    if (theme.colors.ring) root.style.setProperty('--ring', theme.colors.ring);
-                    if (theme.colors.gradientNavy) root.style.setProperty('--gradient-navy', theme.colors.gradientNavy);
-                  }
-                  if (theme.layout) {
-                    if (theme.layout.radius) root.style.setProperty('--radius', theme.layout.radius);
-                    var btnRad = theme.layout.btnRadius || (theme.layout.btnShape === 'pill' ? '9999px' : theme.layout.btnShape === 'rounded' ? '0.75rem' : theme.layout.btnShape === 'soft' ? '0.375rem' : theme.layout.btnShape === 'sharp' ? '0px' : '9999px');
-                    var cardRad = theme.layout.cardRadius || (theme.layout.cardShape === 'extra-rounded' ? '1.5rem' : theme.layout.cardShape === 'rounded' ? '1rem' : theme.layout.cardShape === 'soft' ? '0.5rem' : theme.layout.cardShape === 'sharp' ? '0px' : '1rem');
-                    var logoRad = theme.layout.logoRadius || (theme.layout.logoShape === 'circle' ? '50%' : theme.layout.logoShape === 'rounded' ? '0.75rem' : theme.layout.logoShape === 'square' ? '0px' : theme.layout.logoShape === 'leaf' ? '9999px 0px 9999px 0px' : '50%');
-                    var badgeRad = theme.layout.badgeRadius || (theme.layout.badgeShape === 'pill' ? '9999px' : theme.layout.badgeShape === 'soft' ? '0.375rem' : theme.layout.badgeShape === 'sharp' ? '0px' : '9999px');
-                    root.style.setProperty('--btn-radius', btnRad);
-                    root.style.setProperty('--card-radius', cardRad);
-                    root.style.setProperty('--logo-radius', logoRad);
-                    root.style.setProperty('--badge-radius', badgeRad);
-                  }
-                  if (theme.typography) {
-                    var dFont = theme.typography.fontDisplay || '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
-                    if (dFont.indexOf('Fraunces') !== -1 || dFont.indexOf('Georgia') !== -1 || dFont.indexOf('ui-serif') !== -1) {
-                      dFont = '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+                    if (theme.layout) {
+                      if (theme.layout.radius) root.style.setProperty('--radius', theme.layout.radius);
+                      var btnRad = theme.layout.btnRadius || (theme.layout.btnShape === 'pill' ? '9999px' : theme.layout.btnShape === 'rounded' ? '0.75rem' : theme.layout.btnShape === 'soft' ? '0.375rem' : theme.layout.btnShape === 'sharp' ? '0px' : '9999px');
+                      var cardRad = theme.layout.cardRadius || (theme.layout.cardShape === 'extra-rounded' ? '1.5rem' : theme.layout.cardShape === 'rounded' ? '1rem' : theme.layout.cardShape === 'soft' ? '0.5rem' : theme.layout.cardShape === 'sharp' ? '0px' : '1rem');
+                      var logoRad = theme.layout.logoRadius || (theme.layout.logoShape === 'circle' ? '50%' : theme.layout.logoShape === 'rounded' ? '0.75rem' : theme.layout.logoShape === 'square' ? '0px' : theme.layout.logoShape === 'leaf' ? '9999px 0px 9999px 0px' : '50%');
+                      var badgeRad = theme.layout.badgeRadius || (theme.layout.badgeShape === 'pill' ? '9999px' : theme.layout.badgeShape === 'soft' ? '0.375rem' : theme.layout.badgeShape === 'sharp' ? '0px' : '9999px');
+                      root.style.setProperty('--btn-radius', btnRad);
+                      root.style.setProperty('--card-radius', cardRad);
+                      root.style.setProperty('--logo-radius', logoRad);
+                      root.style.setProperty('--badge-radius', badgeRad);
                     }
-                    var sFont = theme.typography.fontSans || '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
-                    root.style.setProperty('--font-display', dFont);
-                    root.style.setProperty('--font-sans', sFont);
+                    if (theme.typography) {
+                      var dFont = theme.typography.fontDisplay || '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+                      if (dFont.indexOf('Fraunces') !== -1 || dFont.indexOf('Georgia') !== -1 || dFont.indexOf('ui-serif') !== -1) {
+                        dFont = '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+                      }
+                      var sFont = theme.typography.fontSans || '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
+                      root.style.setProperty('--font-display', dFont);
+                      root.style.setProperty('--font-sans', sFont);
+                    }
                   }
                 }
               } catch(e){}

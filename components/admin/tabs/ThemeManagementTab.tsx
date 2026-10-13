@@ -310,7 +310,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
       {/* Feedback Notifications */}
       {error && (
-        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 flex items-center justify-between gap-3 text-sm">
+        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-700 flex items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-2">
             <i className="bi bi-exclamation-triangle-fill text-red-500"></i>
             <span>{error}</span>
@@ -320,14 +320,14 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
       )}
 
       {successMessage && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 flex items-center gap-3 text-sm">
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 flex items-center gap-3 text-sm">
           <i className="bi bi-check-circle-fill text-emerald-500"></i>
           <span>{successMessage}</span>
         </div>
       )}
 
       {/* Controller Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-1 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-1 overflow-x-auto">
         <button
           onClick={() => {
             setActiveTab("gallery");
@@ -335,7 +335,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
           }}
           className={`flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all whitespace-nowrap shrink-0 ${activeTab === "gallery"
             ? "bg-[#102a4c] text-white shadow-md"
-            : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            : "text-slate-600 hover:bg-slate-100"
             }`}
         >
           <i className="bi bi-grid-fill"></i>
@@ -346,7 +346,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
           onClick={() => setActiveTab("customizer")}
           className={`flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all whitespace-nowrap shrink-0 ${activeTab === "customizer"
             ? "bg-[#102a4c] text-white shadow-md"
-            : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            : "text-slate-600 hover:bg-slate-100"
             }`}
         >
           <i className="bi bi-sliders"></i>
@@ -371,11 +371,11 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                 return (
                   <div
                     key={theme._id || theme.slug}
-                    className={`group relative flex flex-col justify-between rounded-3xl border transition-all duration-300 bg-white dark:bg-slate-900 overflow-hidden shadow-sm hover:shadow-xl ${isActive
+                    className={`group relative flex flex-col justify-between rounded-3xl border transition-all duration-300 bg-white overflow-hidden shadow-sm hover:shadow-xl ${isActive
                       ? "ring-2 ring-emerald-500 border-emerald-500/50"
                       : isCurrentPreview
                         ? "ring-2 ring-amber-500 border-amber-500/50"
-                        : "border-slate-200 dark:border-slate-800 hover:border-[#102a4c]/40"
+                        : "border-slate-200 hover:border-[#102a4c]/40"
                       }`}
                   >
                     {/* Theme Card Banner */}
@@ -412,7 +412,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                     <div className="p-5 space-y-4">
                       <div className="space-y-1.5">
                         <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400">Palette Swatches</span>
-                        <div className="grid grid-cols-5 gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                        <div className="grid grid-cols-5 gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
                           <div className="space-y-1 text-center">
                             <div className="h-8 rounded-lg border border-black/10 shadow-inner" style={{ background: theme.colors?.primary }} title={`Primary: ${theme.colors?.primary}`} />
                             <span className="text-[9px] font-bold text-slate-500">Primary</span>
@@ -437,22 +437,22 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       </div>
 
                       {/* Technical Meta Details & Target Portal Badge */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
                         <div className="flex items-center gap-1.5">
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[11px]">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 font-mono text-[11px]">
                             Radius: {theme.layout?.radius || "0.9rem"}
                           </span>
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px]">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px]">
                             Font: {(theme.typography?.fontDisplay || "Display").split(",")[0].replace(/"/g, "")}
                           </span>
                         </div>
 
                         {/* Portal Badge */}
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 ${theme.portal === "admin"
-                          ? "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-300 dark:border-purple-800"
+                          ? "bg-purple-100 text-purple-800 border border-purple-300"
                           : theme.portal === "both"
-                            ? "bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-300 dark:border-teal-800"
-                            : "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-300 dark:border-blue-800"
+                            ? "bg-teal-100 text-teal-800 border border-teal-300"
+                            : "bg-blue-100 text-blue-800 border border-blue-300"
                           }`}>
                           <i className={`bi bi-${theme.portal === "admin" ? "sliders" : theme.portal === "both" ? "layers-fill" : "globe"}`}></i>
                           <span>{theme.portal === "admin" ? "Admin Console" : theme.portal === "both" ? "Web & Admin" : "Public Web"}</span>
@@ -461,7 +461,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                     </div>
 
                     {/* Controller Action Footer */}
-                    <div className="p-3.5 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                    <div className="p-3.5 bg-slate-50 border-t border-slate-100 space-y-2.5">
                       {/* Row 1: Target Portal Choice & Live Activation Button */}
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-1.5 shrink-0 min-w-0">
@@ -479,7 +479,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                                 }
                               }
                             }}
-                            className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:ring-2 focus:ring-[#102a4c] shrink-0"
+                            className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white border border-slate-200 text-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-[#102a4c] shrink-0"
                             title="Choose Target Portal before applying"
                           >
                             <option value="web">Web Only</option>
@@ -498,20 +498,20 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                             <span>Apply Live</span>
                           </button>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1 shrink-0 whitespace-nowrap">
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1 shrink-0 whitespace-nowrap">
                             <i className="bi bi-check-circle-fill text-emerald-500"></i> Active Live
                           </span>
                         )}
                       </div>
 
                       {/* Row 2: Secondary Tool Actions (Preview, Modify, Delete) */}
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60 dark:border-slate-800">
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60">
                         <div className="flex items-center gap-1.5">
                           <a
                             href={theme._id ? `/?preview_theme_id=${theme._id}` : "/"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1 cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-all flex items-center gap-1 cursor-pointer"
                             title="Redirect to Public Web Portal to preview theme"
                           >
                             <i className="bi bi-box-arrow-up-right"></i>
@@ -520,7 +520,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
                           <button
                             onClick={() => handleStartCustomizing(theme)}
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1"
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-all flex items-center gap-1"
                             title="Modify Theme Settings"
                           >
                             <i className="bi bi-pencil-square"></i>
@@ -532,7 +532,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                           <button
                             onClick={() => handleDeleteTheme(theme)}
                             disabled={isActive || saving || Boolean(deletingThemeId)}
-                            className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all disabled:opacity-40 cursor-pointer"
+                            className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white text-red-600 border border-slate-200 hover:bg-red-50 transition-all disabled:opacity-40 cursor-pointer"
                             title={deletingThemeId === theme._id ? "Deleting Theme..." : "Delete Theme"}
                           >
                             {deletingThemeId === theme._id ? (
@@ -557,11 +557,11 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT: Technical Customization Controls (7 Columns) */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-6">
               {/* Clean Single-Line Header Bar */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                 <div className="space-y-0.5">
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
                     <i className="bi bi-palette-fill text-[#102a4c]"></i>
                     <span>{customizerMode === "edit" ? `Modifying "${editingTheme.name}"` : "Create & Pick Theme Colors"}</span>
                   </h2>
@@ -572,9 +572,9 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                   <button
                     onClick={() => handleStartCustomizing()}
                     disabled={saving}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shadow-sm whitespace-nowrap shrink-0 border border-slate-200 dark:border-slate-700"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all shadow-sm whitespace-nowrap shrink-0 border border-slate-200"
                   >
-                    <i className="bi bi-plus-circle-fill text-[#102a4c] dark:text-amber-400"></i>
+                    <i className="bi bi-plus-circle-fill text-[#102a4c]"></i>
                     <span>New Theme</span>
                   </button>
 
@@ -604,21 +604,21 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
               {/* Theme Identification & Portal Scope */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Theme Title</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Theme Title</label>
                   <input
                     type="text"
                     value={editingTheme.name}
                     onChange={(e) => setEditingTheme({ ...editingTheme, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-[#102a4c] outline-none font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#102a4c] outline-none font-semibold"
                     placeholder="e.g. Royal Sapphire"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Target Portal</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Target Portal</label>
                   <select
                     value={editingTheme.portal || "web"}
                     onChange={(e) => setEditingTheme({ ...editingTheme, portal: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold"
                   >
                     <option value="web">Public Website Only (web)</option>
                     <option value="admin">Admin Console Only (admin)</option>
@@ -626,12 +626,12 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
                   <input
                     type="text"
                     value={editingTheme.description || ""}
                     onChange={(e) => setEditingTheme({ ...editingTheme, description: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-[#102a4c] outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#102a4c] outline-none"
                     placeholder="Theme description"
                   />
                 </div>
@@ -639,15 +639,15 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
               {/* COLOR PICKERS & SWATCHES */}
               <div className="space-y-4 pt-2">
-                <h3 className="text-xs font-extrabold text-[#102a4c] dark:text-[#f4bd4f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                <h3 className="text-xs font-extrabold text-[#102a4c] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                   <i className="bi bi-paint-bucket"></i> Pick Swatch & Brand Variables
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Primary Color Picker */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Primary Color</span>
+                      <span className="text-xs font-bold text-slate-800 truncate">Primary Color</span>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="h-6 w-8 rounded-md border border-slate-300 shadow-inner" style={{ background: editingTheme.colors.primary }} />
                         <input
@@ -663,14 +663,14 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       type="text"
                       value={editingTheme.colors.primary}
                       onChange={(e) => handleColorChange("primary", e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono font-semibold"
                     />
                   </div>
 
                   {/* Gold Color Picker */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Gold / Accent Color</span>
+                      <span className="text-xs font-bold text-slate-800 truncate">Gold / Accent Color</span>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="h-6 w-8 rounded-md border border-slate-300 shadow-inner" style={{ background: editingTheme.colors.gold }} />
                         <input
@@ -686,14 +686,14 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       type="text"
                       value={editingTheme.colors.gold}
                       onChange={(e) => handleColorChange("gold", e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono font-semibold"
                     />
                   </div>
 
                   {/* Navy Color Picker */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Navy / Brand Deep</span>
+                      <span className="text-xs font-bold text-slate-800 truncate">Navy / Brand Deep</span>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="h-6 w-8 rounded-md border border-slate-300 shadow-inner" style={{ background: editingTheme.colors.navy }} />
                         <input
@@ -709,14 +709,14 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       type="text"
                       value={editingTheme.colors.navy}
                       onChange={(e) => handleColorChange("navy", e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono font-semibold"
                     />
                   </div>
 
                   {/* Page Background Picker */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Page Background</span>
+                      <span className="text-xs font-bold text-slate-800 truncate">Page Background</span>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="h-6 w-8 rounded-md border border-slate-300 shadow-inner" style={{ background: editingTheme.colors.background }} />
                         <input
@@ -732,14 +732,14 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       type="text"
                       value={editingTheme.colors.background}
                       onChange={(e) => handleColorChange("background", e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono font-semibold"
                     />
                   </div>
 
                   {/* Card Surface Picker */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Card Surface</span>
+                      <span className="text-xs font-bold text-slate-800 truncate">Card Surface</span>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="h-6 w-8 rounded-md border border-slate-300 shadow-inner" style={{ background: editingTheme.colors.card }} />
                         <input
@@ -755,21 +755,21 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                       type="text"
                       value={editingTheme.colors.card}
                       onChange={(e) => handleColorChange("card", e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono font-semibold"
                     />
                   </div>
 
                   {/* Gradient Navy */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5 sm:col-span-2">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 sm:col-span-2">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Hero Gradient CSS</span>
+                      <span className="text-xs font-bold text-slate-800 truncate">Hero Gradient CSS</span>
                       <span className="h-6 w-12 rounded-md border border-slate-300 shadow-inner shrink-0" style={{ background: editingTheme.colors.gradientNavy }} />
                     </div>
                     <input
                       type="text"
                       value={editingTheme.colors.gradientNavy}
                       onChange={(e) => handleColorChange("gradientNavy", e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono font-semibold"
                       placeholder="linear-gradient(140deg, ...)"
                     />
                   </div>
@@ -778,14 +778,14 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
               {/* ELEMENT SHAPE CONTROLLERS */}
               <div className="space-y-4 pt-2">
-                <h3 className="text-xs font-extrabold text-[#102a4c] dark:text-[#f4bd4f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
-                  <i className="bi bi-[#102a4c] bi-aspect-ratio-fill"></i> Element Shapes & Geometry
+                <h3 className="text-xs font-extrabold text-[#102a4c] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <i className="bi bi-aspect-ratio-fill"></i> Element Shapes & Geometry
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Logo Shape */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
-                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <label className="block text-xs font-bold text-slate-800">
                       <i className="bi bi-shield-square me-1"></i> Logo Shape
                     </label>
                     <select
@@ -800,7 +800,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                         setEditingTheme(updated);
                         setPreviewTheme(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold"
                     >
                       <option value="circle">Circle Badge (50%)</option>
                       <option value="rounded">Rounded Box (12px)</option>
@@ -810,8 +810,8 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                   </div>
 
                   {/* Button Shape */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
-                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <label className="block text-xs font-bold text-slate-800">
                       <i className="bi bi-menu-button-wide me-1"></i> Button Shape
                     </label>
                     <select
@@ -826,7 +826,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                         setEditingTheme(updated);
                         setPreviewTheme(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold"
                     >
                       <option value="pill">Full Capsule / Pill (9999px)</option>
                       <option value="rounded">Modern Rounded (12px)</option>
@@ -836,8 +836,8 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                   </div>
 
                   {/* Card Shape */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
-                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <label className="block text-xs font-bold text-slate-800">
                       <i className="bi bi-card-heading me-1"></i> Card & Container Shape
                     </label>
                     <select
@@ -852,7 +852,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                         setEditingTheme(updated);
                         setPreviewTheme(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold"
                     >
                       <option value="extra-rounded">Extra Rounded (24px)</option>
                       <option value="rounded">Standard Rounded (16px)</option>
@@ -862,8 +862,8 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                   </div>
 
                   {/* Badge Shape */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
-                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <label className="block text-xs font-bold text-slate-800">
                       <i className="bi bi-tag me-1"></i> Badge & Tag Shape
                     </label>
                     <select
@@ -878,7 +878,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                         setEditingTheme(updated);
                         setPreviewTheme(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold"
                     >
                       <option value="pill">Pill Capsule (9999px)</option>
                       <option value="soft">Soft Badge (6px)</option>
@@ -890,18 +890,18 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
               {/* TYPOGRAPHY & LAYOUT RADIUS MODIFICATION */}
               <div className="space-y-4 pt-2">
-                <h3 className="text-xs font-extrabold text-[#102a4c] dark:text-[#f4bd4f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                <h3 className="text-xs font-extrabold text-[#102a4c] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                   <i className="bi bi-fonts"></i> Typography Settings
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Heading Font */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Display Heading Font</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Display Heading Font</label>
                     <select
                       value={editingTheme.typography.fontDisplay}
                       onChange={(e) => handleTypographyChange("fontDisplay", e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold"
                     >
                       <option value='"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif'>Plus Jakarta Sans (Clean & Pretty - Recommended)</option>
                       <option value='"Outfit", sans-serif'>Outfit Sans (Modern Bold)</option>
@@ -914,11 +914,11 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
                   {/* Body Font */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Body Text Font</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Body Text Font</label>
                     <select
                       value={editingTheme.typography.fontSans}
                       onChange={(e) => handleTypographyChange("fontSans", e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold"
                     >
                       <option value='"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif'>Plus Jakarta Sans (Clean & Pretty - Recommended)</option>
                       <option value='"Inter", sans-serif'>Inter (Minimalist Standard)</option>
@@ -935,9 +935,9 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
           {/* RIGHT: REAL-TIME PUBLIC WEB UI LIVE PREVIEW MOCKUP (5 Columns, Sticky) */}
           <div className="lg:col-span-5 sticky top-6 space-y-4">
-            <div className="flex flex-col gap-2.5 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex flex-col gap-2.5 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-xs font-extrabold text-[#102a4c] dark:text-white">
+                <div className="flex items-center gap-2 text-xs font-extrabold text-[#102a4c]">
                   <i className="bi bi-display"></i> Preview
                 </div>
 
@@ -949,14 +949,14 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#f4bd4f] text-[#102a4c] hover:bg-[#e2a838] transition-all whitespace-nowrap shadow-2xs"
                     title="Open live website in a new tab"
                   >
-                    <i className="bi bi-[#102a4c] bi-box-arrow-up-right"></i>
+                    <i className="bi bi-box-arrow-up-right"></i>
                     <span>Open Live Site</span>
                   </a>
 
-                  <div className="flex items-center gap-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg border border-slate-200">
                     <button
                       onClick={() => setPreviewDevice("desktop")}
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1 whitespace-nowrap ${previewDevice === "desktop" ? "bg-[#102a4c] text-white shadow-2xs" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60"
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1 whitespace-nowrap ${previewDevice === "desktop" ? "bg-[#102a4c] text-white shadow-2xs" : "text-slate-600 hover:bg-slate-200/60"
                         }`}
                       title="Desktop View"
                     >
@@ -965,7 +965,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
                     </button>
                     <button
                       onClick={() => setPreviewDevice("mobile")}
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1 whitespace-nowrap ${previewDevice === "mobile" ? "bg-[#102a4c] text-white shadow-2xs" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60"
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1 whitespace-nowrap ${previewDevice === "mobile" ? "bg-[#102a4c] text-white shadow-2xs" : "text-slate-600 hover:bg-slate-200/60"
                         }`}
                       title="Mobile View"
                     >
@@ -979,7 +979,7 @@ export function ThemeManagementTab({ token }: ThemeManagementTabProps) {
 
             {/* Simulated Live Public Website Frame */}
             <div
-              className={`mx-auto rounded-3xl border border-slate-300 dark:border-slate-700 shadow-2xl overflow-hidden transition-all duration-300 max-h-[750px] overflow-y-auto ${previewDevice === "mobile" ? "max-w-[340px]" : "w-full"
+              className={`mx-auto rounded-3xl border border-slate-300 shadow-2xl overflow-hidden transition-all duration-300 max-h-[750px] overflow-y-auto ${previewDevice === "mobile" ? "max-w-[340px]" : "w-full"
                 }`}
               style={{
                 background: editingTheme.colors.background || "#f8fafc",

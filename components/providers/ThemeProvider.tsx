@@ -135,6 +135,39 @@ export function applyCssVars(theme: ThemeConfig, persist: boolean = true) {
   if (typeof document === "undefined") return;
 
   const root = document.documentElement;
+  const isAdminPage = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
+  // The Admin Panel maintains a consistent, clean light dashboard workspace.
+  // Dark mode and customized theme styling are strictly scoped to the public web portal.
+  if (isAdminPage) {
+    root.classList.remove("dark");
+    root.style.setProperty("--primary", DEFAULT_THEME.colors.primary);
+    root.style.setProperty("--primary-foreground", DEFAULT_THEME.colors.primaryForeground);
+    root.style.setProperty("--secondary", DEFAULT_THEME.colors.secondary);
+    root.style.setProperty("--secondary-foreground", DEFAULT_THEME.colors.secondaryForeground);
+    root.style.setProperty("--background", DEFAULT_THEME.colors.background);
+    root.style.setProperty("--foreground", DEFAULT_THEME.colors.foreground);
+    root.style.setProperty("--card", DEFAULT_THEME.colors.card);
+    root.style.setProperty("--card-foreground", DEFAULT_THEME.colors.cardForeground);
+    root.style.setProperty("--border", DEFAULT_THEME.colors.border);
+    root.style.setProperty("--input", DEFAULT_THEME.colors.input);
+    root.style.setProperty("--ring", DEFAULT_THEME.colors.ring);
+    root.style.setProperty("--radius", DEFAULT_THEME.layout.radius);
+
+    const styleTag = document.getElementById("theme-custom-css") as HTMLStyleElement | null;
+    if (styleTag) {
+      styleTag.textContent = "";
+    }
+
+    if (persist && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("ips_active_theme_web", JSON.stringify(theme));
+        localStorage.removeItem("ips_active_theme_admin");
+      } catch {}
+    }
+    return;
+  }
+
   const colors = theme.colors || DEFAULT_THEME.colors;
   const layout = theme.layout || DEFAULT_THEME.layout;
   const typo = theme.typography || DEFAULT_THEME.typography;
@@ -217,9 +250,8 @@ export function applyCssVars(theme: ThemeConfig, persist: boolean = true) {
 
   if (persist && typeof window !== "undefined") {
     try {
-      const isAdminPage = window.location.pathname.startsWith("/admin");
-      const key = isAdminPage ? "ips_active_theme_admin" : "ips_active_theme_web";
-      localStorage.setItem(key, JSON.stringify(theme));
+      localStorage.setItem("ips_active_theme_web", JSON.stringify(theme));
+      localStorage.removeItem("ips_active_theme_admin");
     } catch {}
   }
 }
@@ -229,11 +261,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       try {
         const isAdminPage = window.location.pathname.startsWith("/admin");
-        const key = isAdminPage ? "ips_active_theme_admin" : "ips_active_theme_web";
-        const cached = localStorage.getItem(key);
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (parsed && parsed.colors) return parsed;
+        if (!isAdminPage) {
+          const cached = localStorage.getItem("ips_active_theme_web");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.colors) return parsed;
+          }
         }
       } catch {}
     }
@@ -262,8 +295,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!themeData) {
-        const portalParam = isAdminPage ? "admin" : "web";
-        const res = await axios.get(`${API_BASE}/theme/active?portal=${portalParam}`, { timeout: 4000 });
+        const res = await axios.get(`${API_BASE}/theme/active?portal=web`, { timeout: 4000 });
         if (res.data) {
           themeData = res.data.data || res.data;
         }
@@ -271,8 +303,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       if (themeData && themeData.colors) {
         setActiveTheme(themeData);
-        if (!previewTheme) {
+        if (!previewTheme && !isAdminPage) {
           applyCssVars(themeData);
+        } else if (isAdminPage) {
+          applyCssVars(DEFAULT_THEME, false);
         }
       }
     } catch {
@@ -289,17 +323,39 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     fetchActiveTheme();
   }, [fetchActiveTheme]);
 
+  // Keep admin console consistently clean when location changes
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkRoute = () => {
+      const isAdmin = window.location.pathname.startsWith("/admin");
+      if (isAdmin) {
+        applyCssVars(DEFAULT_THEME, false);
+      } else if (activeTheme) {
+        applyCssVars(activeTheme, false);
+      }
+    };
+    checkRoute();
+    window.addEventListener("popstate", checkRoute);
+    return () => window.removeEventListener("popstate", checkRoute);
+  }, [activeTheme]);
+
   const setPreviewTheme = (theme: ThemeConfig | null) => {
     setPreviewThemeState(theme);
-    if (theme) {
-      applyCssVars(theme);
-    } else {
-      applyCssVars(activeTheme);
+    const isAdminPage = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+    if (!isAdminPage) {
+      if (theme) {
+        applyCssVars(theme);
+      } else {
+        applyCssVars(activeTheme);
+      }
     }
   };
 
   const applyThemeToDocument = (theme: ThemeConfig) => {
-    applyCssVars(theme);
+    const isAdminPage = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+    if (!isAdminPage) {
+      applyCssVars(theme);
+    }
   };
 
   return (
