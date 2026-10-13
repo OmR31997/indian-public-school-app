@@ -16,9 +16,24 @@ import {
   Clock,
   Eye,
   EyeOff,
+  Scissors,
+  Loader2,
 } from "lucide-react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
+import { ImageStudioModal } from "@/components/admin/ImageStudioModal";
 import { imageUrl } from "@/lib/site-data";
+
+function dataURLtoFile(dataurl: string, filename: string): File {
+  const arr = dataurl.split(",");
+  const mime = arr[0].match(/:(.*?);/)?.[1] || "image/webp";
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+}
 
 interface HomeHeroTabProps {
   homeObj: any;
@@ -39,6 +54,14 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
   const [selectedSlideIdx, setSelectedSlideIdx] = useState<number>(0);
+  const [isStudioOpen, setIsStudioOpen] = useState<boolean>(false);
+  const [studioTarget, setStudioTarget] = useState<{
+    src: string;
+    isNewUpload?: boolean;
+    slideIndex?: number;
+    originalFile?: File;
+  } | null>(null);
+  const [isUploadingCropped, setIsUploadingCropped] = useState<boolean>(false);
 
   const heroObj = homeObj.hero || {};
   const content = heroObj.content?.[0] || {};
@@ -60,6 +83,8 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
       showText: (content.showText ?? heroObj.showText) !== false,
       overlayColor: content.overlayColor || heroObj.overlayColor || "#0a192f",
       overlayOpacity: content.overlayOpacity ?? heroObj.overlayOpacity ?? 0.6,
+      objectPosition: content.objectPosition || heroObj.objectPosition || "center center",
+      objectFit: content.objectFit || heroObj.objectFit || "cover",
     }));
 
   if (slides.length === 0) {
@@ -73,6 +98,8 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
       showText: true,
       overlayColor: "#0a192f",
       overlayOpacity: 0.6,
+      objectPosition: "center center",
+      objectFit: "cover",
     });
   }
 
@@ -100,6 +127,8 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
         showText: newSlides[0].showText,
         overlayColor: newSlides[0].overlayColor,
         overlayOpacity: newSlides[0].overlayOpacity,
+        objectPosition: newSlides[0].objectPosition || "center center",
+        objectFit: newSlides[0].objectFit || "cover",
       };
     }
 
@@ -115,6 +144,8 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
         fontSizeH1: newSlides[0]?.fontSizeH1,
         fontSizeH2: newSlides[0]?.fontSizeH2,
         fontSizeDescription: newSlides[0]?.fontSizeDescription,
+        objectPosition: newSlides[0]?.objectPosition || "center center",
+        objectFit: newSlides[0]?.objectFit || "cover",
         content: updatedContent,
       },
     }));
@@ -129,7 +160,7 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
     updateSlidesList(updated);
   };
 
-  const addNewSlide = (bannerUrl: string) => {
+  const addNewSlide = (bannerUrl: string, extraProps: Record<string, any> = {}) => {
     const newSlide = {
       bannerUrl,
       title: "",
@@ -140,10 +171,80 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
       showText: true,
       overlayColor: "#0a192f",
       overlayOpacity: 0.6,
+      objectPosition: "center center",
+      objectFit: "cover",
+      ...extraProps,
     };
     const updated = [...slides, newSlide];
     updateSlidesList(updated);
     setSelectedSlideIdx(updated.length - 1);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setStudioTarget({
+      src: previewUrl,
+      isNewUpload: true,
+      originalFile: file,
+    });
+    setIsStudioOpen(true);
+    e.target.value = "";
+  };
+
+  const openStudioForSlide = (idx: number) => {
+    const slide = slides[idx];
+    if (!slide) return;
+    const url = imageUrl(slide.bannerUrl) || slide.bannerUrl || "";
+    if (!url) return;
+    setStudioTarget({
+      src: url,
+      slideIndex: idx,
+      isNewUpload: false,
+    });
+    setIsStudioOpen(true);
+  };
+
+  const handleStudioApply = async ({ src }: { src: string }) => {
+    if (!studioTarget) return;
+
+    try {
+      setIsUploadingCropped(true);
+      let finalUrl = src;
+
+      if (src.startsWith("data:")) {
+        const fileName = studioTarget.originalFile
+          ? `${studioTarget.originalFile.name.replace(/\.[^/.]+$/, "")}-crop-${Date.now()}.webp`
+          : `hero-poster-crop-${Date.now()}.webp`;
+        const file = dataURLtoFile(src, fileName);
+        const uploaded = await uploadImage(file);
+        if (uploaded) finalUrl = uploaded;
+      } else if (studioTarget.isNewUpload && studioTarget.originalFile && !src.startsWith("http")) {
+        const uploaded = await uploadImage(studioTarget.originalFile);
+        if (uploaded) finalUrl = uploaded;
+      }
+
+      if (studioTarget.isNewUpload) {
+        addNewSlide(finalUrl);
+      } else if (typeof studioTarget.slideIndex === "number") {
+        const updated = [...slides];
+        updated[studioTarget.slideIndex] = {
+          ...updated[studioTarget.slideIndex],
+          bannerUrl: finalUrl,
+        };
+        updateSlidesList(updated);
+      }
+    } catch (err) {
+      console.error("Error saving cropped poster:", err);
+      if (studioTarget.isNewUpload) {
+        addNewSlide(src);
+      }
+    } finally {
+      setIsUploadingCropped(false);
+      setIsStudioOpen(false);
+      setStudioTarget(null);
+    }
   };
 
   const removeSlide = (indexToRemove: number) => {
@@ -225,6 +326,12 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
             </label>
 
             <div className="flex items-center gap-2">
+              {isUploadingCropped && (
+                <div className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-bold text-blue-700 animate-pulse">
+                  <Loader2 size={13} className="animate-spin" /> Uploading Slide Image…
+                </div>
+              )}
+
               <button
                 type="button"
                 onClick={() => setIsGalleryOpen(true)}
@@ -233,18 +340,12 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                 <Images size={15} className="text-[#1a5d9c]" /> Choose from Gallery
               </button>
 
-              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-[#102a4c] transition">
-                <UploadCloud size={14} /> Upload New Slide
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#1a5d9c] px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-[#102a4c] transition">
+                <UploadCloud size={14} /> Upload Slide Image
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = await uploadImage(file);
-                      if (url) addNewSlide(url);
-                    }
-                  }}
+                  onChange={handleFileUpload}
                   className="hidden"
                 />
               </label>
@@ -274,7 +375,11 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {slide.bannerUrl ? (
-                    <img src={imageUrl(slide.bannerUrl) || slide.bannerUrl} alt={`Slide ${idx + 1}`} className="size-full object-cover pointer-events-none" />
+                    <img
+                      src={imageUrl(slide.bannerUrl) || slide.bannerUrl}
+                      alt={`Slide ${idx + 1}`}
+                      className="size-full object-cover pointer-events-none"
+                    />
                   ) : (
                     <div className="size-full bg-slate-800 flex flex-col items-center justify-center gap-1 text-slate-400 p-2 text-center pointer-events-none">
                       <ImageIcon className="size-6 text-slate-500 opacity-60" />
@@ -290,7 +395,7 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                       <span>#{idx + 1}</span>
                     </div>
 
-                    {/* Right: Overlay Status & Delete Action Button Box */}
+                    {/* Right: Overlay Status & Actions Box */}
                     <div className="flex items-center gap-1 pointer-events-auto">
                       {slide.enableOverlay !== false ? (
                         <span className="rounded-md bg-[#1a5d9c]/90 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-xs shadow-xs">
@@ -301,6 +406,18 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                           Clean
                         </span>
                       )}
+
+                      <button
+                        type="button"
+                        title="Crop & Select Visible Portion"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openStudioForSlide(idx);
+                        }}
+                        className="flex items-center justify-center rounded-md bg-blue-600 text-white p-1 hover:bg-blue-700 shadow-md transition cursor-pointer"
+                      >
+                        <Scissors size={12} />
+                      </button>
 
                       <button
                         type="button"
@@ -676,12 +793,41 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
       <CloudinaryGalleryModal
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
-        onSelectImage={(url) => {
-          addNewSlide(url);
+        onSelectImage={async (url) => {
+          if (url.startsWith("data:")) {
+            try {
+              const file = dataURLtoFile(url, `hero-poster-gallery-crop-${Date.now()}.webp`);
+              const uploaded = await uploadImage(file);
+              addNewSlide(uploaded || url);
+            } catch {
+              addNewSlide(url);
+            }
+          } else {
+            addNewSlide(url);
+          }
           setIsGalleryOpen(false);
         }}
         title="Choose Hero Slide Image from Gallery"
       />
+
+      {/* Image Studio Modal for Poster Cropping & Portion Selection */}
+      {studioTarget && (
+        <ImageStudioModal
+          isOpen={isStudioOpen}
+          onClose={() => {
+            setIsStudioOpen(false);
+            setStudioTarget(null);
+          }}
+          initialData={studioTarget.src}
+          title={
+            studioTarget.isNewUpload
+              ? "Crop & Choose Hero Poster Portion"
+              : `Crop & Reframe Slide #${(studioTarget.slideIndex ?? 0) + 1} Poster`
+          }
+          initialAspectRatio={16 / 9}
+          onApply={handleStudioApply}
+        />
+      )}
     </div>
   );
 }

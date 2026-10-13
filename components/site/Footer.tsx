@@ -5,7 +5,7 @@ import axios from "axios";
 import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Sparkles, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
-import { cn } from "@/lib/utils";
+import { cn, ensureExternalUrl } from "@/lib/utils";
 import { buildMenuHierarchy, DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
@@ -162,10 +162,10 @@ export function Footer() {
   const footerColumns = configuredColumns;
 
   const socialLinks = [
-    { icon: Facebook, label: "Facebook", href: text(footerConfig.facebook) || text(socialsObj.facebook, "https://facebook.com") },
-    { icon: Instagram, label: "Instagram", href: text(footerConfig.instagram) || text(socialsObj.instagram, "https://instagram.com") },
-    { icon: Youtube, label: "YouTube", href: text(footerConfig.youtube) || text(socialsObj.youtube, "https://youtube.com") },
-    { icon: Linkedin, label: "LinkedIn", href: text(footerConfig.linkedin) || text(socialsObj.linkedin, "https://linkedin.com") },
+    { icon: Facebook, label: "Facebook", href: ensureExternalUrl(text(footerConfig.facebook) || text(socialsObj.facebook), "https://facebook.com") },
+    { icon: Instagram, label: "Instagram", href: ensureExternalUrl(text(footerConfig.instagram) || text(socialsObj.instagram), "https://instagram.com") },
+    { icon: Youtube, label: "YouTube", href: ensureExternalUrl(text(footerConfig.youtube) || text(socialsObj.youtube), "https://youtube.com") },
+    { icon: Linkedin, label: "LinkedIn", href: ensureExternalUrl(text(footerConfig.linkedin) || text(socialsObj.linkedin) || text(socialsObj.linkdin), "https://linkedin.com") },
   ];
 
   const headerConfig = (homeIdentity.header as Record<string, any>) || (siteData?.header as Record<string, any>) || {};
@@ -360,15 +360,15 @@ export function Footer() {
             <ul className="mt-6 flex gap-3">
               {socialLinks.map(({ icon: Icon, label, href }) => (
                 <li key={label}>
-                  <Link
+                  <a
                     href={href}
-                    target={href.startsWith("http") ? "_blank" : undefined}
-                    rel="noreferrer"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={label}
                     className="grid size-10 place-items-center rounded-full border border-navy-foreground/20 text-navy-foreground transition-all hover:-translate-y-1 hover:bg-gold hover:text-gold-foreground"
                   >
                     <Icon className="size-4" />
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

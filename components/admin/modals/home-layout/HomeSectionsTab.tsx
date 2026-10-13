@@ -1,7 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plus, ArrowUp, ArrowDown, Trash2, UploadCloud, Image as ImageIcon, Loader2, X } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+  Plus,
+  ArrowUp,
+  ArrowDown,
+  Trash2,
+  UploadCloud,
+  Image as ImageIcon,
+  Loader2,
+  X,
+  Target,
+  Compass,
+  Link as LinkIcon,
+} from "lucide-react";
 import { getAssetUrl } from "@/lib/utils";
 
 interface HomeSectionsTabProps {
@@ -34,6 +46,48 @@ export function HomeSectionsTab({
   onOpenGalleryPicker,
 }: HomeSectionsTabProps) {
   const [uploadingCard, setUploadingCard] = useState<string | null>(null);
+
+  const sec1Cards = React.useMemo(() => {
+    const sec = homeObj["section-1"];
+    const raw = Array.isArray(sec) && Array.isArray(sec[0]?.cardItem) ? sec[0].cardItem : [];
+    return [
+      {
+        heading: raw[0]?.heading ?? "Our Mission",
+        description: raw[0]?.description ?? "",
+        icoUrl: raw[0]?.icoUrl ?? raw[0]?.imageUrl ?? raw[0]?.fileUrl ?? raw[0]?.icon ?? "",
+        redirectUrl: raw[0]?.redirectUrl ?? "",
+      },
+      {
+        heading: raw[1]?.heading ?? "Our Vision",
+        description: raw[1]?.description ?? "",
+        icoUrl: raw[1]?.icoUrl ?? raw[1]?.imageUrl ?? raw[1]?.fileUrl ?? raw[1]?.icon ?? "",
+        redirectUrl: raw[1]?.redirectUrl ?? "",
+      },
+    ];
+  }, [homeObj]);
+
+  const updateSec1Card = (idx: number, patch: Record<string, any>) => {
+    const sec = [...(homeObj["section-1"] || [{}])];
+    const raw = Array.isArray(sec[0]?.cardItem) ? sec[0].cardItem : [];
+    const currentCards = [
+      {
+        heading: raw[0]?.heading ?? "Our Mission",
+        description: raw[0]?.description ?? "",
+        icoUrl: raw[0]?.icoUrl ?? raw[0]?.imageUrl ?? raw[0]?.fileUrl ?? raw[0]?.icon ?? "",
+        redirectUrl: raw[0]?.redirectUrl ?? "",
+      },
+      {
+        heading: raw[1]?.heading ?? "Our Vision",
+        description: raw[1]?.description ?? "",
+        icoUrl: raw[1]?.icoUrl ?? raw[1]?.imageUrl ?? raw[1]?.fileUrl ?? raw[1]?.icon ?? "",
+        redirectUrl: raw[1]?.redirectUrl ?? "",
+      },
+    ];
+    currentCards[idx] = { ...currentCards[idx], ...patch };
+    sec[0] = { ...sec[0], cardItem: currentCards };
+    updateHome((prev) => ({ ...prev, "section-1": sec }));
+  };
+
   return (
     <>
       {/* TAB: Section 1 */}
@@ -106,105 +160,217 @@ export function HomeSectionsTab({
             </div>
 
             {/* Mission & Vision Cards */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-slate-500">Mission & Vision Cards</label>
+            <div className="space-y-3 pt-2 border-t border-slate-200/80">
+              <div>
+                <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
+                  <Target size={14} className="text-[#1a5d9c]" /> Mission &amp; Vision Cards (2)
+                </label>
+                <p className="text-[11px] text-slate-500">
+                  Configure Our Mission (Card #1) and Our Vision (Card #2) with titles, descriptions, and consistent icon upload/gallery selection.
+                </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(Array.isArray(homeObj["section-1"]?.[0]?.cardItem) ? homeObj["section-1"][0].cardItem : []).map((card: any, idx: number) => (
-                  <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-slate-400">{idx === 0 ? "Our Mission (Card #1)" : idx === 1 ? "Our Vision (Card #2)" : `Card #${idx + 1}`}</span>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Title (e.g. Our Mission)"
-                      value={card.heading || ""}
-                      onChange={(e) => {
-                        const sec = [...(homeObj["section-1"] || [{}])];
-                        const cards = [...(sec[0].cardItem || [])];
-                        cards[idx] = { ...cards[idx], heading: e.target.value };
-                        sec[0] = { ...sec[0], cardItem: cards };
-                        updateHome((prev) => ({ ...prev, "section-1": sec }));
-                      }}
-                      className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-bold outline-none"
-                    />
-                    <textarea
-                      rows={2}
-                      placeholder="Description"
-                      value={card.description || ""}
-                      onChange={(e) => {
-                        const sec = [...(homeObj["section-1"] || [{}])];
-                        const cards = [...(sec[0].cardItem || [])];
-                        cards[idx] = { ...cards[idx], description: e.target.value };
-                        sec[0] = { ...sec[0], cardItem: cards };
-                        updateHome((prev) => ({ ...prev, "section-1": sec }));
-                      }}
-                      className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-xs outline-none"
-                    />
 
-                    {/* Icon / Image Upload Controls (Gallery & Cloudinary) */}
-                    <div className="flex items-center gap-1.5 pt-1">
-                      <input
-                        type="text"
-                        readOnly
-                        placeholder="Icon/Image URL (pick via Gallery or Upload)"
-                        value={card.icoUrl || card.imageUrl || card.fileUrl || card.icon || ""}
-                        className="flex-1 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs text-slate-500 outline-none cursor-not-allowed"
-                      />
-                      {onOpenGalleryPicker && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onOpenGalleryPicker((url) => {
-                              const sec = [...(homeObj["section-1"] || [{}])];
-                              const cards = [...(sec[0].cardItem || [])];
-                              cards[idx] = { ...cards[idx], icoUrl: url, imageUrl: url, fileUrl: url, icon: url };
-                              sec[0] = { ...sec[0], cardItem: cards };
-                              updateHome((prev) => ({ ...prev, "section-1": sec }));
-                            }, "Choose Icon from Gallery");
-                          }}
-                          className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
-                          title="Pick icon from Cloudinary Gallery"
-                        >
-                          <ImageIcon size={13} className="text-amber-600" />
-                          <span>Gallery</span>
-                        </button>
-                      )}
-                      <label className="flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs">
-                        <UploadCloud size={13} className="text-[#1a5d9c]" />
-                        <span>{uploadingCard === `sec1-${idx}` ? "Uploading..." : "Upload"}</span>
+              <div className="grid gap-3.5 sm:grid-cols-2">
+                {sec1Cards.map((card: any, idx: number) => {
+                  const iconUrl = card.icoUrl || card.imageUrl || card.fileUrl || card.icon || "";
+                  const isUploading = uploadingCard === `sec1-${idx}`;
+
+                  return (
+                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2.5 shadow-2xs">
+                      {/* Card header */}
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                        <span className="text-[11px] font-bold text-[#1a5d9c] flex items-center gap-1.5">
+                          <span className="flex size-4 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-[#1a5d9c]">
+                            {idx + 1}
+                          </span>
+                          {idx === 0 ? "Our Mission (Card #1)" : "Our Vision (Card #2)"}
+                        </span>
+                      </div>
+
+                      {/* Card Title */}
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Title / Heading</label>
                         <input
-                          type="file"
-                          accept="image/*"
-                          disabled={uploadingCard === `sec1-${idx}`}
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setUploadingCard(`sec1-${idx}`);
-                              try {
-                                const url = await uploadImage(file);
-                                if (url) {
-                                  const sec = [...(homeObj["section-1"] || [{}])];
-                                  const cards = [...(sec[0].cardItem || [])];
-                                  cards[idx] = { ...cards[idx], icoUrl: url, imageUrl: url, fileUrl: url, icon: url };
-                                  sec[0] = { ...sec[0], cardItem: cards };
-                                  updateHome((prev) => ({ ...prev, "section-1": sec }));
-                                }
-                              } catch (err) {
-                                console.error("Failed to upload icon:", err);
-                              } finally {
-                                setUploadingCard(null);
-                                e.target.value = "";
-                              }
-                            }
-                          }}
-                          className="hidden"
+                          type="text"
+                          placeholder="Title (e.g. Our Mission)"
+                          value={card.heading || ""}
+                          onChange={(e) => updateSec1Card(idx, { heading: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-[#1a5d9c]"
                         />
-                      </label>
+                      </div>
+
+                      {/* Card Description */}
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Description</label>
+                        <textarea
+                          rows={3}
+                          placeholder="Description"
+                          value={card.description || ""}
+                          onChange={(e) => updateSec1Card(idx, { description: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-700 leading-relaxed outline-none focus:border-[#1a5d9c]"
+                        />
+                      </div>
+
+                      {/* Icon / Media Upload Consistent Form */}
+                      <div className="space-y-1.5 pt-1 border-t border-slate-100">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                            <ImageIcon size={12} className="text-[#1a5d9c]" /> Card Icon / Image
+                          </label>
+                          {iconUrl && (
+                            <button
+                              type="button"
+                              onClick={() => updateSec1Card(idx, { icoUrl: "", imageUrl: "", fileUrl: "", icon: "" })}
+                              className="text-[10px] text-red-500 hover:text-red-700 flex items-center gap-0.5 font-medium"
+                            >
+                              <X size={11} /> Clear Icon
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {/* Preview thumbnail */}
+                          <div
+                            className="size-10 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-amber-50/70 grid place-items-center shadow-2xs"
+                            title={iconUrl ? "Custom Icon" : idx === 0 ? "Default Target Icon" : "Default Compass Icon"}
+                          >
+                            {iconUrl ? (
+                              <img
+                                src={getAssetUrl(iconUrl)}
+                                alt="Icon"
+                                className="size-6 object-contain"
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = "none";
+                                }}
+                              />
+                            ) : idx === 0 ? (
+                              <Target size={18} className="text-amber-700" />
+                            ) : idx === 1 ? (
+                              <Compass size={18} className="text-amber-700" />
+                            ) : (
+                              <ImageIcon size={18} className="text-slate-400" />
+                            )}
+                          </div>
+
+                          {/* URL input */}
+                          <input
+                            type="text"
+                            readOnly
+                            placeholder="Pick via Gallery or Upload"
+                            value={iconUrl}
+                            className="flex-1 min-w-0 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1.5 text-xs text-slate-500 outline-none cursor-not-allowed select-all font-mono truncate"
+                          />
+
+                          {/* Consistent Upload Button */}
+                          <label className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#1a5d9c] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#102a4c] transition cursor-pointer shrink-0 shadow-2xs">
+                            {isUploading ? (
+                              <Loader2 size={13} className="animate-spin" />
+                            ) : (
+                              <UploadCloud size={13} />
+                            )}
+                            <span>{isUploading ? "Uploading…" : "Upload"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={isUploading}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadingCard(`sec1-${idx}`);
+                                  try {
+                                    const url = await uploadImage(file);
+                                    if (url) {
+                                      updateSec1Card(idx, { icoUrl: url, imageUrl: url, fileUrl: url, icon: url });
+                                    }
+                                  } catch (err) {
+                                    console.error("Failed to upload icon:", err);
+                                  } finally {
+                                    setUploadingCard(null);
+                                    e.target.value = "";
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+
+                          {/* Consistent Gallery Button */}
+                          {onOpenGalleryPicker && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onOpenGalleryPicker((url) => {
+                                  updateSec1Card(idx, { icoUrl: url, imageUrl: url, fileUrl: url, icon: url });
+                                }, `Choose Icon for ${card.heading || "Card"}`);
+                              }}
+                              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shrink-0 shadow-2xs"
+                              title="Pick icon from Cloudinary Gallery"
+                            >
+                              <ImageIcon size={13} className="text-amber-500" />
+                              <span>Gallery</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section 1 Action Button (Discover Our Story) */}
+            <div className="space-y-3 pt-2 border-t border-slate-200/80">
+              <div>
+                <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
+                  <LinkIcon size={14} className="text-[#1a5d9c]" /> Section Action Button ("Discover Our Story")
+                </label>
+                <p className="text-[11px] text-slate-500">
+                  Configure the call-to-action button displayed under About Our School.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1">Button Label</label>
+                  <input
+                    type="text"
+                    placeholder="Discover Our Story"
+                    value={homeObj["section-1"]?.[0]?.btnLinkText?.text ?? "Discover Our Story"}
+                    onChange={(e) => {
+                      const sec = [...(homeObj["section-1"] || [{}])];
+                      sec[0] = {
+                        ...sec[0],
+                        btnLinkText: {
+                          ...(sec[0].btnLinkText || {}),
+                          text: e.target.value,
+                        },
+                      };
+                      updateHome((prev) => ({ ...prev, "section-1": sec }));
+                    }}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1">Target URL / Route</label>
+                  <input
+                    type="text"
+                    placeholder="/about/school-establishment"
+                    value={homeObj["section-1"]?.[0]?.btnLinkText?.url ?? "/about/school-establishment"}
+                    onChange={(e) => {
+                      const sec = [...(homeObj["section-1"] || [{}])];
+                      sec[0] = {
+                        ...sec[0],
+                        btnLinkText: {
+                          ...(sec[0].btnLinkText || {}),
+                          url: e.target.value,
+                        },
+                      };
+                      updateHome((prev) => ({ ...prev, "section-1": sec }));
+                    }}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-[#1a5d9c]"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1101,6 +1267,33 @@ export function HomeSectionsTab({
 
               return (
                 <div className="space-y-5">
+                  {/* Video Main Title Settings */}
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                      <div className="grid size-8 place-items-center rounded-lg bg-[#1a5d9c]/10 text-[#1a5d9c]">
+                        <i className="bi bi-fonts text-base" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800">Main Title Above Video</h4>
+                        <p className="text-[11px] text-slate-500">Displayed prominently above the video player on the homepage</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                        <span>Video Main Title</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Displayed above video</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Experience Life at Indian Public School"
+                        value={secVid.title || secVid.heading || sec8.videoTitle || ""}
+                        onChange={(e) => updateVideoData({ title: e.target.value, heading: e.target.value, videoTitle: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#1a5d9c] focus:bg-white focus:ring-1 focus:ring-[#1a5d9c] transition shadow-2xs"
+                      />
+                    </div>
+                  </div>
+
                   {/* Video File Selection Box */}
                   <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                     <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -1200,88 +1393,6 @@ export function HomeSectionsTab({
                       </div>
                     </div>
                   )}
-
-                  {/* Collapsible Advanced Customizations */}
-                  <details className="group rounded-2xl border border-slate-200 bg-slate-50/50 transition">
-                    <summary className="flex items-center justify-between px-4 py-3 text-xs font-bold text-slate-600 cursor-pointer select-none">
-                      <span>Advanced Customizations (Titles, Eyebrow &amp; Player Controls)</span>
-                      <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div className="px-4 pb-4 pt-1 space-y-4 border-t border-slate-200/60">
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-slate-600">Eyebrow Tagline</label>
-                          <input
-                            type="text"
-                            value={eyebrowVal}
-                            onChange={(e) => updateVideoData({ eyebrow: e.target.value, videoEyebrow: e.target.value })}
-                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-slate-600">Main Title</label>
-                          <input
-                            type="text"
-                            value={titleVal}
-                            onChange={(e) => updateVideoData({ title: e.target.value, heading: e.target.value, videoTitle: e.target.value })}
-                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-bold text-slate-600">Description</label>
-                        <textarea
-                          rows={2}
-                          value={descVal}
-                          onChange={(e) => updateVideoData({ description: e.target.value, videoDescription: e.target.value })}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-                        />
-                      </div>
-
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={autoPlayVal}
-                            onChange={(e) => updateVideoData({ autoPlay: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>AutoPlay Video on Load</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={loopVal}
-                            onChange={(e) => updateVideoData({ loop: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>Loop Video Continuously</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={mutedVal}
-                            onChange={(e) => updateVideoData({ muted: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>Mute Audio by Default</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={controlsVal}
-                            onChange={(e) => updateVideoData({ controls: e.target.checked })}
-                            className="rounded text-[#1a5d9c] focus:ring-[#1a5d9c]"
-                          />
-                          <span>Show Player Controls</span>
-                        </label>
-                      </div>
-                    </div>
-                  </details>
                 </div>
               );
             })()}

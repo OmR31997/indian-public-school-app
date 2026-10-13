@@ -829,6 +829,12 @@ export function HeaderFooterSettingsCard({
                     src={imageUrl(siteLogo.logoUrl)}
                     alt="Primary Logo Preview"
                     className="h-10 max-h-12 w-auto object-contain"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.includes("IPSLogo.png")) {
+                        target.src = "https://res.cloudinary.com/dnw7mgysa/image/upload/ips-education/assets/Settings/Logos/IPSLogo.png";
+                      }
+                    }}
                   />
                 ) : (
                   <div className="font-bold text-sm text-[#102a4c]">
@@ -844,6 +850,12 @@ export function HeaderFooterSettingsCard({
                       src={imageUrl(siteLogo.secondaryLogoUrl)}
                       alt="Secondary Logo Preview"
                       className="h-8 max-h-10 w-auto object-contain"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        if (!target.src.includes("AakashFoundationLogo.png")) {
+                          target.src = "https://res.cloudinary.com/dnw7mgysa/image/upload/ips-education/assets/Settings/Logos/AakashFoundationLogo.png";
+                        }
+                      }}
                     />
                   </div>
                 )}

@@ -14,12 +14,6 @@ import {
   X,
   Lock,
   Unlock,
-  Type,
-  Link as LinkIcon,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Maximize,
   Zap,
   Info,
 } from "lucide-react";
@@ -48,14 +42,17 @@ interface ImageStudioModalProps {
     htmlSnippet: string;
     data: ImageStudioData;
   }) => void;
+  title?: string;
+  initialAspectRatio?: number;
 }
 
 const ASPECT_RATIOS = [
+  { label: "16:9 Banner", value: 16 / 9 },
+  { label: "21:9 Ultrawide", value: 21 / 9 },
   { label: "Freeform", value: 0 },
-  { label: "1:1 Square", value: 1 },
-  { label: "16:9 HD", value: 16 / 9 },
   { label: "4:3 Standard", value: 4 / 3 },
-  { label: "3:2 Banner", value: 3 / 2 },
+  { label: "3:2 Photo", value: 3 / 2 },
+  { label: "1:1 Square", value: 1 },
   { label: "9:16 Story", value: 9 / 16 },
 ];
 
@@ -64,6 +61,8 @@ export function ImageStudioModal({
   onClose,
   initialData,
   onApply,
+  title,
+  initialAspectRatio,
 }: ImageStudioModalProps) {
   // Parsing initial data
   const rawSrc =
@@ -72,7 +71,7 @@ export function ImageStudioModal({
       : initialData?.src || "https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80";
 
   const [activeTab, setActiveTab] = useState<
-    "crop" | "resize" | "compress" | "filters" | "style" | "seo"
+    "crop" | "resize" | "compress" | "filters" | "style"
   >("crop");
 
   // Original image natural dimensions
@@ -86,7 +85,7 @@ export function ImageStudioModal({
   const [flipV, setFlipV] = useState(false);
 
   // Crop State
-  const [aspectRatio, setAspectRatio] = useState<number>(0);
+  const [aspectRatio, setAspectRatio] = useState<number>(initialAspectRatio ?? 0);
   const [cropRect, setCropRect] = useState({ x: 0, y: 0, width: 100, height: 100 }); // percentages (0-100)
   const [isDraggingCrop, setIsDraggingCrop] = useState<string | null>(null);
   const cropContainerRef = useRef<HTMLDivElement>(null);
@@ -168,7 +167,7 @@ export function ImageStudioModal({
     setGrayscale(0);
     setSepia(0);
     setCropRect({ x: 0, y: 0, width: 100, height: 100 });
-    setAspectRatio(0);
+    setAspectRatio(initialAspectRatio ?? 0);
 
     let isMounted = true;
     const img = new Image();
@@ -513,22 +512,22 @@ export function ImageStudioModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-3 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+      <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 shadow-2xl">
         {/* Header Bar */}
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
+        <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 text-white">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
               <Sliders size={20} className="text-white" />
             </div>
             <div>
               <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                Image Studio Pro
+                {title || "Image Studio Pro"}
                 <span className="rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[10px] font-bold text-blue-300 border border-blue-400/30">
                   Crop • Resize • Compress
                 </span>
               </h3>
               <p className="text-xs text-slate-400 font-medium">
-                Professional image editing & optimization suite for page content
+                Professional image framing & optimization suite
               </p>
             </div>
           </div>
@@ -700,17 +699,12 @@ export function ImageStudioModal({
               )}
             </div>
 
-            {/* Bottom Status Indicator */}
-            <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-[11px] font-medium text-slate-400">
-              <span>Aspect Ratio: {aspectRatio === 0 ? "Freeform" : ASPECT_RATIOS.find((r) => r.value === aspectRatio)?.label}</span>
-              <span>Crop Area: {Math.round(cropRect.width)}% × {Math.round(cropRect.height)}%</span>
-            </div>
           </div>
 
           {/* Right Controls Sidebar */}
-          <div className="w-80 border-l border-slate-800 bg-slate-900 flex flex-col shrink-0">
+          <div className="w-96 border-l border-slate-800 bg-slate-900 flex flex-col shrink-0 min-h-0">
             {/* Tool Category Tabs */}
-            <div className="grid grid-cols-6 border-b border-slate-800 bg-slate-950 p-1">
+            <div className="grid grid-cols-5 border-b border-slate-800 bg-slate-950 p-1">
               <button
                 type="button"
                 onClick={() => setActiveTab("crop")}
@@ -775,19 +769,6 @@ export function ImageStudioModal({
               >
                 <Palette size={15} />
                 <span>Frame</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("seo")}
-                title="SEO & Alt Text"
-                className={`flex flex-col items-center gap-1 rounded-xl py-2 text-[10px] font-bold transition cursor-pointer ${
-                  activeTab === "seo"
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-400 hover:text-white hover:bg-slate-900"
-                }`}
-              >
-                <Type size={15} />
-                <span>SEO</span>
               </button>
             </div>
 
@@ -902,10 +883,10 @@ export function ImageStudioModal({
                       <button
                         type="button"
                         onClick={commitCrop}
-                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition cursor-pointer"
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition cursor-pointer whitespace-nowrap"
                       >
                         <Crop size={14} />
-                        <span>Apply Crop Selection Now</span>
+                        <span>Apply Crop Selection</span>
                       </button>
                       <button
                         type="button"
@@ -913,7 +894,7 @@ export function ImageStudioModal({
                           setCropRect({ x: 0, y: 0, width: 100, height: 100 });
                           setAspectRatio(0);
                         }}
-                        className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition"
+                        className="rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition whitespace-nowrap"
                       >
                         Reset
                       </button>
@@ -1240,105 +1221,70 @@ export function ImageStudioModal({
                 </div>
               )}
 
-              {/* SEO & ALT TEXT TAB */}
-              {activeTab === "seo" && (
-                <div className="space-y-4 animate-in fade-in duration-150">
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 block">
-                      Page Alignment
-                    </label>
-                    <div className="grid grid-cols-4 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                      {(
-                        [
-                          { id: "left", label: "Left Wrap", icon: AlignLeft },
-                          { id: "center", label: "Center", icon: AlignCenter },
-                          { id: "right", label: "Right Wrap", icon: AlignRight },
-                          { id: "full", label: "Full Width", icon: Maximize },
-                        ] as const
-                      ).map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => setAlignment(item.id)}
-                            title={item.label}
-                            className={`flex flex-col items-center justify-center p-2 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                              alignment === item.id
-                                ? "bg-blue-600 text-white"
-                                : "text-slate-400 hover:text-white"
-                            }`}
-                          >
-                            <Icon size={14} />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 block">
-                      Alt Text (SEO & Accessibility)
-                    </label>
-                    <input
-                      type="text"
-                      value={altText}
-                      onChange={(e) => setAltText(e.target.value)}
-                      placeholder="Descriptive alt text for screen readers..."
-                      className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 block">
-                      Visible Image Caption
-                    </label>
-                    <input
-                      type="text"
-                      value={captionText}
-                      onChange={(e) => setCaptionText(e.target.value)}
-                      placeholder="Optional caption beneath image..."
-                      className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 block">
-                      Click Target URL (Link)
-                    </label>
-                    <div className="flex items-center rounded-xl border border-slate-800 bg-slate-950 px-3 py-1.5">
-                      <LinkIcon size={14} className="text-slate-500 mr-2 shrink-0" />
-                      <input
-                        type="text"
-                        value={linkUrl}
-                        onChange={(e) => setLinkUrl(e.target.value)}
-                        placeholder="https://example.com or /admissions"
-                        className="w-full bg-transparent text-xs text-white outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
+          </div>
+        </div>
 
-            {/* Bottom Modal Actions */}
-            <div className="border-t border-slate-800 bg-slate-950 p-4 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleApply}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-lg hover:from-blue-500 hover:to-indigo-500 transition cursor-pointer"
-              >
-                <Check size={16} />
-                <span>Apply Studio Image</span>
-              </button>
-            </div>
+        {/* Bottom Full-Width Action Footer */}
+        <div className="flex items-center justify-between border-t border-slate-800 bg-slate-950 px-6 py-3.5 shrink-0 z-10">
+          {/* Left Status Indicators */}
+          <div className="hidden sm:flex items-center gap-3 text-xs font-medium text-slate-400">
+            <span className="flex items-center gap-1.5">
+              <span className="text-slate-500">Aspect Ratio:</span>
+              <span className="font-semibold text-slate-200">
+                {aspectRatio === 0
+                  ? "Freeform"
+                  : ASPECT_RATIOS.find((r) => r.value === aspectRatio)?.label}
+              </span>
+            </span>
+            <span className="text-slate-700">•</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-slate-500">Crop Area:</span>
+              <span className="font-semibold text-slate-200">
+                {Math.round(cropRect.width)}% × {Math.round(cropRect.height)}%
+              </span>
+            </span>
+            <span className="text-slate-700">•</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-slate-500">Output:</span>
+              <span className="font-bold text-emerald-400">
+                {targetWidth} × {targetHeight} px (~{compressedByteEstimate} KB)
+              </span>
+            </span>
+          </div>
+
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-3 shrink-0 ml-auto">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition cursor-pointer whitespace-nowrap"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onApply({
+                  src: rawSrc,
+                  htmlSnippet: `<img src="${rawSrc}" alt="${altText}" />`,
+                  data: { src: rawSrc },
+                });
+                onClose();
+              }}
+              className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-700 hover:text-white transition cursor-pointer whitespace-nowrap"
+              title="Use original image directly without applying crop"
+            >
+              Use Full Image (No Crop)
+            </button>
+            <button
+              type="button"
+              onClick={handleApply}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-lg hover:from-blue-500 hover:to-indigo-500 transition cursor-pointer whitespace-nowrap"
+            >
+              <Check size={16} />
+              <span>Apply Cropped Portion</span>
+            </button>
           </div>
         </div>
       </div>
