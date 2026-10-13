@@ -454,7 +454,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => openAdmissionModal()}
-            className="hidden sm:inline-flex items-center justify-center text-[var(--primary-foreground)] cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] px-4 py-2 text-xs font-bold transition-all hover:scale-105 shadow-xs"
+            className="hidden sm:inline-flex items-center justify-center text-[var(--primary-foreground)] cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] dark:bg-[#1a5d9c] dark:text-white dark:hover:bg-blue-600 dark:border dark:border-blue-400/30 px-4 py-2 text-xs font-bold transition-all hover:scale-105 shadow-xs"
             style={{ borderRadius: "var(--btn-radius, 9999px)" }}
           >
             <span>Enquiry</span>
@@ -677,7 +677,7 @@ export function Navbar() {
                     document.body.style.overflow = "";
                     openAdmissionModal();
                   }}
-                  className="flex w-full items-center justify-center cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] text-[var(--primary-foreground)] font-bold py-2.5 text-sm transition-all"
+                  className="flex w-full items-center justify-center cursor-pointer bg-[var(--primary)] hover:bg-[var(--navy)] text-[var(--primary-foreground)] dark:bg-[#1a5d9c] dark:text-white dark:hover:bg-blue-600 dark:border dark:border-blue-400/30 font-bold py-2.5 text-sm transition-all"
                   style={{ borderRadius: "var(--btn-radius, 9999px)" }}
                 >
                   Enquiry

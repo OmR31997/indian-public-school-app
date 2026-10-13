@@ -160,8 +160,13 @@ export function applyCssVars(theme: ThemeConfig, persist: boolean = true) {
     root.classList.remove("dark");
   }
 
+  let primaryFg = colors.primaryForeground;
+  if (isDarkTheme && primaryFg && (primaryFg.includes("0.1") || primaryFg.includes("0.2"))) {
+    primaryFg = "oklch(0.985 0.005 250)";
+  }
+
   if (colors.primary) root.style.setProperty("--primary", colors.primary);
-  if (colors.primaryForeground) root.style.setProperty("--primary-foreground", colors.primaryForeground);
+  if (primaryFg) root.style.setProperty("--primary-foreground", primaryFg);
   if (colors.secondary) root.style.setProperty("--secondary", colors.secondary);
   if (colors.secondaryForeground) root.style.setProperty("--secondary-foreground", colors.secondaryForeground);
   if (colors.accent) root.style.setProperty("--accent", colors.accent);

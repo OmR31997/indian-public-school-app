@@ -102,7 +102,12 @@ export default function RootLayout({
                   var root = document.documentElement;
                   if (theme.colors) {
                     if (theme.colors.primary) root.style.setProperty('--primary', theme.colors.primary);
-                    if (theme.colors.primaryForeground) root.style.setProperty('--primary-foreground', theme.colors.primaryForeground);
+                    var pFg = theme.colors.primaryForeground;
+                    var isDarkTheme = (theme.slug || '').indexOf('dark') !== -1 || (theme.name || '').indexOf('dark') !== -1 || (theme.colors.background || '').indexOf('oklch(0.1') !== -1 || (theme.colors.background || '').indexOf('oklch(0.2') !== -1;
+                    if (isDarkTheme && pFg && (pFg.indexOf('0.1') !== -1 || pFg.indexOf('0.2') !== -1)) {
+                      pFg = 'oklch(0.985 0.005 250)';
+                    }
+                    if (pFg) root.style.setProperty('--primary-foreground', pFg);
                     if (theme.colors.secondary) root.style.setProperty('--secondary', theme.colors.secondary);
                     if (theme.colors.secondaryForeground) root.style.setProperty('--secondary-foreground', theme.colors.secondaryForeground);
                     if (theme.colors.accent) root.style.setProperty('--accent', theme.colors.accent);

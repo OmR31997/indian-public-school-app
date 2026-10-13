@@ -311,7 +311,7 @@ export function AdmissionEnquiryForm({
                   disabled={submitting}
                   className={`mt-2 h-12 w-full cursor-pointer text-sm font-extrabold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${onClose
                     ? "bg-[#1a5d9c] hover:bg-blue-600 text-white border border-blue-400/30"
-                    : "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--navy)]"
+                    : "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--navy)] dark:bg-[#1a5d9c] dark:text-white dark:hover:bg-blue-600 dark:border dark:border-blue-400/30"
                     }`}
                   style={{
                     borderRadius: onClose
