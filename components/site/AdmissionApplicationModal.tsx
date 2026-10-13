@@ -48,6 +48,20 @@ export function AdmissionApplicationModal() {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -68,6 +82,7 @@ export function AdmissionApplicationModal() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.25, ease: EASE }}
+          onClick={(e) => e.stopPropagation()}
           className="relative z-10 w-full max-w-lg overflow-hidden border border-border bg-card text-card-foreground shadow-2xl my-auto flex flex-col"
           style={{ borderRadius: "var(--card-radius, 1.5rem)" }}
         >
@@ -95,18 +110,23 @@ export function AdmissionApplicationModal() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="grid size-8 place-items-center bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition cursor-pointer shrink-0 border border-white/20 font-bold text-sm"
-                style={{ borderRadius: "var(--btn-radius, 9999px)" }}
+                className="grid size-9 place-items-center rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all duration-200 active:scale-95 cursor-pointer shrink-0 border border-white/20 hover:border-white/40 shadow-sm backdrop-blur-sm"
                 title="Close Form"
+                aria-label="Close Form"
               >
-                ✕
+                <span className="text-sm font-bold leading-none select-none">✕</span>
               </button>
             </div>
           </div>
 
           {/* Form Body */}
           <div className="p-5 sm:p-6 overflow-y-auto custom-scrollbar flex-1 bg-card text-card-foreground">
-            <AdmissionEnquiryForm defaultGrade={defaultGrade} onClose={() => setIsOpen(false)} />
+            <AdmissionEnquiryForm
+              defaultGrade={defaultGrade}
+              onClose={() => setIsOpen(false)}
+              showCloseButton={false}
+              submitButtonText="ENQUIRE NOW"
+            />
           </div>
         </motion.div>
       </div>

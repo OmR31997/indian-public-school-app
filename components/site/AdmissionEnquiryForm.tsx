@@ -40,6 +40,8 @@ interface AdmissionEnquiryFormProps {
   defaultGrade?: string;
   onSuccess?: () => void;
   onClose?: () => void;
+  showCloseButton?: boolean;
+  submitButtonText?: string;
   className?: string;
 }
 
@@ -48,6 +50,8 @@ export function AdmissionEnquiryForm({
   defaultGrade,
   onSuccess,
   onClose,
+  showCloseButton = true,
+  submitButtonText,
   className = "",
 }: AdmissionEnquiryFormProps) {
   const [submitted, setSubmitted] = useState(false);
@@ -273,7 +277,7 @@ export function AdmissionEnquiryForm({
                 />
               </div>
 
-              {onClose ? (
+              {onClose && showCloseButton ? (
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <Button
                     type="submit"
@@ -282,7 +286,7 @@ export function AdmissionEnquiryForm({
                     style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                   >
                     <i className="bi bi-pencil-square text-xs" />
-                    <span>{submitting ? "Submitting..." : "ENQUIRE NOW"}</span>
+                    <span>{submitting ? "Submitting..." : (submitButtonText || "ENQUIRE NOW")}</span>
                   </Button>
                   <Button
                     type="button"
@@ -298,10 +302,23 @@ export function AdmissionEnquiryForm({
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="mt-2 h-12 w-full cursor-pointer bg-[var(--primary)] text-sm font-extrabold text-[var(--primary-foreground)] shadow-md transition-all hover:bg-[var(--navy)]"
-                  style={{ borderRadius: "var(--btn-radius, 1rem)" }}
+                  className={`mt-2 h-12 w-full cursor-pointer text-sm font-extrabold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                    onClose
+                      ? "bg-[#1a5d9c] hover:bg-blue-600 text-white border border-blue-400/30"
+                      : "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--navy)]"
+                  }`}
+                  style={{
+                    borderRadius: onClose
+                      ? "var(--btn-radius, 0.75rem)"
+                      : "var(--btn-radius, 1rem)",
+                  }}
                 >
-                  {submitting ? "Submitting..." : "Submit Admission Enquiry"}
+                  {onClose && <i className="bi bi-pencil-square text-sm" />}
+                  <span>
+                    {submitting
+                      ? "Submitting..."
+                      : submitButtonText || (onClose ? "ENQUIRE NOW" : "Submit Admission Enquiry")}
+                  </span>
                 </Button>
               )}
             </form>
