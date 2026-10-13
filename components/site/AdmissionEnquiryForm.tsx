@@ -118,26 +118,31 @@ export function AdmissionEnquiryForm({
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          className="py-8 text-center space-y-4"
+          className="py-6 sm:py-8 text-center space-y-4"
         >
-          <div className="space-y-2">
-            <h3 className="text-2xl font-extrabold text-white dark:text-white font-[var(--font-display)] drop-shadow-sm">
+          {/* Success Check Badge */}
+          <div className="mx-auto size-14 rounded-full bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20 shadow-xs">
+            <i className="bi bi-check-circle-fill text-2xl" />
+          </div>
+
+          <div className="space-y-1.5">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-foreground font-[var(--font-display)] tracking-tight">
               Enquiry Received Successfully
             </h3>
-            <p className="mx-auto max-w-md text-sm font-semibold leading-relaxed text-blue-100 dark:text-blue-100">
+            <p className="mx-auto max-w-md text-xs sm:text-sm font-medium leading-relaxed text-muted-foreground">
               Thank you! Your inquiry has been logged with our admissions desk. Our team will reach out to you shortly.
             </p>
           </div>
 
           {inquiryId && (
             <div
-              className="mx-auto max-w-xs border border-blue-400/40 bg-slate-900/90 p-4 space-y-1 shadow-2xl backdrop-blur-md"
+              className="mx-auto max-w-xs border border-border bg-secondary/60 dark:bg-card/80 p-4 space-y-1 shadow-xs"
               style={{ borderRadius: "var(--card-radius, 1rem)" }}
             >
-              <span className="block text-[11px] font-extrabold uppercase tracking-widest text-amber-300">
+              <span className="block text-[11px] font-extrabold uppercase tracking-widest text-[var(--primary)] dark:text-amber-400">
                 Reference ID
               </span>
-              <span className="font-mono text-lg font-black text-white tracking-wider block">
+              <span className="font-mono text-lg sm:text-xl font-black text-foreground tracking-wider block">
                 {inquiryId}
               </span>
             </div>
@@ -145,8 +150,9 @@ export function AdmissionEnquiryForm({
 
           <div className="pt-2 flex items-center justify-center gap-3">
             <Button
+              type="button"
               variant="outline"
-              className="border-slate-300 bg-white font-extrabold text-slate-900 hover:bg-slate-100 shadow-md cursor-pointer"
+              className="border-border bg-card text-foreground hover:bg-secondary font-bold shadow-xs cursor-pointer"
               style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
               onClick={() => {
                 form.reset();
@@ -157,8 +163,9 @@ export function AdmissionEnquiryForm({
             </Button>
             {onClose && (
               <Button
+                type="button"
                 onClick={onClose}
-                className="bg-[#1a5d9c] hover:bg-blue-600 px-6 font-extrabold text-white shadow-md cursor-pointer border border-blue-400/30"
+                className="bg-[#1a5d9c] hover:bg-blue-600 px-6 font-bold text-white shadow-md cursor-pointer border border-blue-400/30 transition-all active:scale-95"
                 style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
               >
                 Done
@@ -302,11 +309,10 @@ export function AdmissionEnquiryForm({
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className={`mt-2 h-12 w-full cursor-pointer text-sm font-extrabold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
-                    onClose
-                      ? "bg-[#1a5d9c] hover:bg-blue-600 text-white border border-blue-400/30"
-                      : "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--navy)]"
-                  }`}
+                  className={`mt-2 h-12 w-full cursor-pointer text-sm font-extrabold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${onClose
+                    ? "bg-[#1a5d9c] hover:bg-blue-600 text-white border border-blue-400/30"
+                    : "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--navy)]"
+                    }`}
                   style={{
                     borderRadius: onClose
                       ? "var(--btn-radius, 0.75rem)"
