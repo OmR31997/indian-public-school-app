@@ -26,7 +26,7 @@ import { AnimatePresence } from "motion/react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { AdmissionEnquiryForm } from "@/components/site/AdmissionEnquiryForm";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
-import { getAssetUrl } from "@/lib/utils";
+import { getAssetUrl, ensureExternalUrl } from "@/lib/utils";
 
 const EDITOR_TABS = [
   { id: "header", label: "Header Config", icon: "bi-card-heading" },
@@ -1034,6 +1034,12 @@ export function HomeLayoutEditorModal({
                       placeholder="https://facebook.com/..."
                       value={datasource?.home?.[0]?.identity?.footer?.facebook ?? datasource?.footer?.facebook ?? datasource?.["contact-us"]?.["social-media"]?.facebook ?? ""}
                       onChange={(e) => updateFooterField("facebook", e.target.value)}
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        if (val && !/^https?:\/\//i.test(val)) {
+                          updateFooterField("facebook", ensureExternalUrl(val));
+                        }
+                      }}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1045,6 +1051,12 @@ export function HomeLayoutEditorModal({
                       placeholder="https://instagram.com/..."
                       value={datasource?.home?.[0]?.identity?.footer?.instagram ?? datasource?.footer?.instagram ?? datasource?.["contact-us"]?.["social-media"]?.instagram ?? ""}
                       onChange={(e) => updateFooterField("instagram", e.target.value)}
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        if (val && !/^https?:\/\//i.test(val)) {
+                          updateFooterField("instagram", ensureExternalUrl(val));
+                        }
+                      }}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1056,6 +1068,12 @@ export function HomeLayoutEditorModal({
                       placeholder="https://youtube.com/..."
                       value={datasource?.home?.[0]?.identity?.footer?.youtube ?? datasource?.footer?.youtube ?? datasource?.["contact-us"]?.["social-media"]?.youtube ?? ""}
                       onChange={(e) => updateFooterField("youtube", e.target.value)}
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        if (val && !/^https?:\/\//i.test(val)) {
+                          updateFooterField("youtube", ensureExternalUrl(val));
+                        }
+                      }}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>
@@ -1067,6 +1085,12 @@ export function HomeLayoutEditorModal({
                       placeholder="https://linkedin.com/..."
                       value={datasource?.home?.[0]?.identity?.footer?.linkedin ?? datasource?.footer?.linkedin ?? datasource?.["contact-us"]?.["social-media"]?.linkedin ?? datasource?.["contact-us"]?.["social-media"]?.linkdin ?? ""}
                       onChange={(e) => updateFooterField("linkedin", e.target.value)}
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        if (val && !/^https?:\/\//i.test(val)) {
+                          updateFooterField("linkedin", ensureExternalUrl(val));
+                        }
+                      }}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold outline-none"
                     />
                   </div>

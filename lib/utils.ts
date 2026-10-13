@@ -162,3 +162,32 @@ export function getAssetUrl(url?: any): string {
 
   return cloudinaryBase ? `${cloudinaryBase}/${resourcePrefix}/${finalCloudPath}` : `/${resourcePrefix}/${finalCloudPath}`;
 }
+
+/**
+ * Ensures an external web link begins with https:// if a user omitted http:// or https://.
+ * Fixes issues where entering "www.facebook.com/xyz" or "/www.facebook.com/xyz" results in
+ * the browser navigating to relative paths on the current host domain.
+ */
+export function ensureExternalUrl(url?: any, fallback = ""): string {
+  if (!url) return fallback;
+  let trimmed = String(url).trim();
+  if (!trimmed) return fallback;
+
+  // Strip accidental leading slashes before domain or protocol
+  if (/^\/+(?:https?:|\/\/|www\.|\w+\.\w+)/i.test(trimmed)) {
+    trimmed = trimmed.replace(/^\/+/, "");
+  }
+
+  // Already an absolute URL or special protocol
+  if (/^(?:https?:|\/\/|mailto:|tel:|sms:)/i.test(trimmed)) {
+    return trimmed.startsWith("//") ? `https:${trimmed}` : trimmed;
+  }
+
+  // Relative internal path intentionally starting with / or # (without domain suffix)
+  if ((trimmed.startsWith("/") || trimmed.startsWith("#")) && !/^(\/|#)+(?:www\.|\w+\.(com|org|net|in|co|edu|gov))/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  return `https://${trimmed.replace(/^\/+/, "")}`;
+}
+

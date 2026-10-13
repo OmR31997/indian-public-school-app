@@ -1,10 +1,6 @@
-import { useRef } from "react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+"use client";
+
+import { motion } from "motion/react";
 import { ArrowRight, Compass, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/Reveal";
@@ -57,17 +53,6 @@ export function About() {
     icon: i === 0 ? Target : Compass,
   }));
 
-  const ref = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const y = useTransform(
-    scrollYProgress,
-    [0, 1],
-    ["-4%", reduced ? "-4%" : "4%"],
-  );
 
   const btnLinkObj = section.btnLinkText as Record<string, unknown> | undefined;
   const storyBtnText = text(btnLinkObj?.text, "Discover Our Story");
