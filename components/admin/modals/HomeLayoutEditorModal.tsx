@@ -1046,11 +1046,11 @@ export function HomeLayoutEditorModal({
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-bold text-slate-500">Twitter / X URL</label>
+                    <label className="text-[11px] font-bold text-slate-500">LinkedIn URL</label>
                     <input
                       type="text"
-                      placeholder="https://twitter.com/..."
-                      value={datasource?.footer?.twitter || ""}
+                      placeholder="https://linkedin.com/..."
+                      value={datasource?.footer?.linkedin || ""}
                       onChange={(e) => {
                         const val = e.target.value;
                         setDatasource((prev: any) => {
@@ -1252,7 +1252,7 @@ export function HomeLayoutEditorModal({
                                         className="w-full text-[11px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 pr-7 outline-none focus:border-[#1a5d9c] cursor-pointer appearance-none font-medium"
                                       >
                                         <option value="__custom__">Custom URL / Manual Input...</option>
-                                        
+
                                         <optgroup label="Main Website Sections">
                                           {defaultSitePages.map((page) => (
                                             <option key={page.url} value={page.url}>
@@ -1616,11 +1616,10 @@ export function HomeLayoutEditorModal({
                           key={styleOption.id}
                           type="button"
                           onClick={() => updatePopupBannerField("bannerStyle", styleOption.id)}
-                          className={`relative p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2.5 group ${
-                            isSelected
-                              ? "bg-white border-[#1a5d9c] ring-2 ring-[#1a5d9c]/30 shadow-md scale-[1.01]"
-                              : "bg-white/80 border-slate-200 hover:border-blue-300 hover:bg-white shadow-2xs"
-                          }`}
+                          className={`relative p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2.5 group ${isSelected
+                            ? "bg-white border-[#1a5d9c] ring-2 ring-[#1a5d9c]/30 shadow-md scale-[1.01]"
+                            : "bg-white/80 border-slate-200 hover:border-blue-300 hover:bg-white shadow-2xs"
+                            }`}
                         >
                           <div className="flex items-center justify-between w-full">
                             <span className="text-xs font-black text-[#102a4c] flex items-center gap-1.5">
@@ -3348,11 +3347,10 @@ export function HomeLayoutEditorModal({
               type="button"
               onClick={handleSave}
               disabled={saving || isSavingLocal || uploading}
-              className={`flex items-center gap-1.5 rounded-xl px-5 py-2 text-xs font-bold text-white shadow-md transition cursor-pointer ${
-                saveSuccess
-                  ? "bg-emerald-700 hover:bg-emerald-800"
-                  : "bg-emerald-600 hover:bg-emerald-700"
-              } disabled:opacity-50`}
+              className={`flex items-center gap-1.5 rounded-xl px-5 py-2 text-xs font-bold text-white shadow-md transition cursor-pointer ${saveSuccess
+                ? "bg-emerald-700 hover:bg-emerald-800"
+                : "bg-emerald-600 hover:bg-emerald-700"
+                } disabled:opacity-50`}
             >
               {saving || isSavingLocal ? <Loader2 size={14} className="animate-spin text-white" /> : null}
               <span>{saving || isSavingLocal ? "Saving & Publishing..." : saveSuccess ? "✓ Saved & Published" : "Save & Publish Layout"}</span>
@@ -3537,8 +3535,8 @@ export function HomeLayoutEditorModal({
           galleryPickerTarget === "introVideo"
             ? "Select Campus Intro Video from Gallery"
             : galleryPickerTarget === "videoPoster"
-            ? "Select Video Poster Thumbnail from Gallery"
-            : galleryTitle
+              ? "Select Video Poster Thumbnail from Gallery"
+              : galleryTitle
         }
       />
     </div>
