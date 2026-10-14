@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence, motion } from "motion/react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,7 +43,6 @@ interface AdmissionEnquiryFormProps {
   showCloseButton?: boolean;
   submitButtonText?: string;
   className?: string;
-  inverted?: boolean;
 }
 
 export function AdmissionEnquiryForm({
@@ -55,7 +53,6 @@ export function AdmissionEnquiryForm({
   showCloseButton = true,
   submitButtonText,
   className = "",
-  inverted = false,
 }: AdmissionEnquiryFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -124,68 +121,28 @@ export function AdmissionEnquiryForm({
           className="py-6 sm:py-8 text-center space-y-4"
         >
           {/* Success Check Badge */}
-          <div
-            className={cn(
-              "mx-auto size-14 rounded-full flex items-center justify-center border shadow-xs transition-colors",
-              inverted
-                ? "bg-emerald-500/20 text-emerald-400 border-emerald-400/40 shadow-[0_0_20px_rgba(52,211,153,0.3)]"
-                : "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-500/20"
-            )}
-          >
+          <div className="mx-auto size-14 rounded-full bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20 shadow-xs">
             <i className="bi bi-check-circle-fill text-2xl" />
           </div>
 
           <div className="space-y-1.5">
-            <h3
-              className={cn(
-                "text-xl sm:text-2xl font-extrabold font-[var(--font-display)] tracking-tight",
-                inverted
-                  ? "text-white drop-shadow-sm"
-                  : "text-foreground dark:text-white"
-              )}
-            >
+            <h3 className="text-xl sm:text-2xl font-extrabold text-foreground font-[var(--font-display)] tracking-tight">
               Enquiry Received Successfully
             </h3>
-            <p
-              className={cn(
-                "mx-auto max-w-md text-xs sm:text-sm font-medium leading-relaxed",
-                inverted
-                  ? "text-blue-100/90"
-                  : "text-muted-foreground dark:text-blue-100/80"
-              )}
-            >
+            <p className="mx-auto max-w-md text-xs sm:text-sm font-medium leading-relaxed text-muted-foreground">
               Thank you! Your inquiry has been logged with our admissions desk. Our team will reach out to you shortly.
             </p>
           </div>
 
           {inquiryId && (
             <div
-              className={cn(
-                "mx-auto max-w-xs border p-4 space-y-1 shadow-xs",
-                inverted
-                  ? "border-blue-400/30 bg-[#06142c] text-white shadow-lg"
-                  : "border-border bg-secondary/60 dark:bg-card/80 dark:border-white/10 text-foreground dark:text-white"
-              )}
+              className="mx-auto max-w-xs border border-border bg-secondary/60 dark:bg-card/80 p-4 space-y-1 shadow-xs"
               style={{ borderRadius: "var(--card-radius, 1rem)" }}
             >
-              <span
-                className={cn(
-                  "block text-[11px] font-extrabold uppercase tracking-widest",
-                  inverted
-                    ? "text-amber-400"
-                    : "text-[var(--primary)] dark:text-amber-400"
-                )}
-              >
+              <span className="block text-[11px] font-extrabold uppercase tracking-widest text-[var(--primary)] dark:text-amber-400">
                 Reference ID
               </span>
-              <span
-                className={cn(
-                  "font-mono text-lg sm:text-xl font-black tracking-wider block",
-                  inverted
-                    ? "text-white"
-                    : "text-foreground dark:text-white"
-                )}
-              >
+              <span className="font-mono text-lg sm:text-xl font-black text-foreground tracking-wider block">
                 {inquiryId}
               </span>
             </div>
@@ -195,12 +152,7 @@ export function AdmissionEnquiryForm({
             <Button
               type="button"
               variant="outline"
-              className={cn(
-                "font-bold shadow-xs cursor-pointer",
-                inverted
-                  ? "border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
-                  : "border-border bg-card text-foreground hover:bg-secondary dark:border-white/20 dark:bg-card dark:text-white dark:hover:bg-secondary"
-              )}
+              className="border-border bg-card text-foreground hover:bg-secondary font-bold shadow-xs cursor-pointer"
               style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
               onClick={() => {
                 form.reset();

@@ -3651,7 +3651,7 @@ export function HomeLayoutEditorModal({
 
               {/* Concept 2 */}
               {currentPopupBanner.bannerStyle === "concept2" && (
-                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#051326] text-white dark rounded-2xl sm:rounded-3xl border border-blue-400/30 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
+                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#051326] text-white rounded-2xl sm:rounded-3xl border border-blue-400/30 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
                   <div className="w-full md:w-1/2 h-[42vh] sm:h-[48vh] md:h-full bg-slate-950 flex items-center justify-center p-3 shrink-0 border-b md:border-b-0 md:border-r border-blue-900/50">
                     <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
                   </div>
@@ -3661,8 +3661,8 @@ export function HomeLayoutEditorModal({
                       <div className="w-12 h-1 bg-blue-500/80 rounded-full mx-auto my-1" />
                       {currentPopupBanner.subtitle && <p className="text-xs sm:text-sm text-blue-200/90 font-medium">{currentPopupBanner.subtitle}</p>}
                     </div>
-                    <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2.5 [&_form>div:first-child]:grid-cols-1 [&_form>div:first-child]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg [&_h3]:!text-white [&_p]:!text-blue-100/90">
-                      <AdmissionEnquiryForm inverted onClose={() => setShowLivePopUpPreview(false)} />
+                    <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2.5 [&_form>div:first-child]:grid-cols-1 [&_form>div:first-child]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg">
+                      <AdmissionEnquiryForm onClose={() => setShowLivePopUpPreview(false)} />
                       <p className="text-[11px] text-blue-200/70 text-center pt-1 font-medium">* Privacy: We respect your details & data privacy.</p>
                     </div>
                   </div>
@@ -3671,7 +3671,7 @@ export function HomeLayoutEditorModal({
 
               {/* Concept 3 */}
               {currentPopupBanner.bannerStyle === "concept3" && (
-                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[90vh] md:h-[80vh] max-h-[92vh] bg-[#06142a] text-white dark rounded-2xl sm:rounded-3xl border border-blue-400/40 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
+                <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[90vh] md:h-[80vh] max-h-[92vh] bg-[#06142a] text-white rounded-2xl sm:rounded-3xl border border-blue-400/40 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
                   <button onClick={() => setShowLivePopUpPreview(false)} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 size-8 sm:size-9 rounded-full bg-slate-900 text-white flex items-center justify-center border border-white/20"><i className="bi bi-x-lg text-xs" /></button>
                   <div className="w-full md:w-1/2 h-[32vh] sm:h-[40vh] md:h-full bg-slate-950 flex items-center justify-center p-2 overflow-hidden border-b md:border-b-0 md:border-r border-blue-900/50 shrink-0">
                     <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
@@ -3679,8 +3679,8 @@ export function HomeLayoutEditorModal({
                   <div className="w-full md:w-1/2 p-4 sm:p-6 md:p-8 bg-[#091b38] flex flex-col justify-start md:justify-center overflow-y-auto flex-1 h-auto md:h-full pb-6">
                     <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight">{currentPopupBanner.title || "Enquiry"}</h2>
                     <p className="text-[11px] sm:text-xs text-blue-200/90 pb-3">{currentPopupBanner.subtitle || "Indian Public School, Sambalpur"}</p>
-                    <div className="bg-[#0b1b36] p-4 sm:p-5 rounded-2xl border border-blue-400/30 shadow-2xl text-white space-y-2.5 sm:space-y-3 [&_label]:text-amber-300 [&_label]:font-extrabold [&_label]:text-xs [&_label]:tracking-wide [&_input]:bg-[#040b1a] [&_input]:border-blue-400/40 [&_input]:text-white [&_input]:placeholder:text-blue-300/40 [&_input]:rounded-xl [&_input]:focus:border-amber-400 [&_input]:focus:ring-2 [&_input]:focus:ring-amber-400/20 [&_textarea]:bg-[#040b1a] [&_textarea]:border-blue-400/40 [&_textarea]:text-white [&_textarea]:placeholder:text-blue-300/40 [&_textarea]:rounded-xl [&_button[role=combobox]]:bg-[#040b1a] [&_button[role=combobox]]:border-blue-400/40 [&_button[role=combobox]]:text-white [&_button[type=submit]]:bg-gradient-to-r [&_button[type=submit]]:from-amber-400 [&_button[type=submit]]:via-yellow-400 [&_button[type=submit]]:to-amber-500 [&_button[type=submit]]:text-slate-950 [&_button[type=submit]]:font-black [&_button[type=submit]]:shadow-lg [&_button[type=submit]]:shadow-amber-500/25 [&_button[type=submit]]:border-0 [&_button[type=submit]]:rounded-xl [&_h3]:!text-white [&_p]:!text-blue-100/90">
-                      <AdmissionEnquiryForm inverted onSuccess={() => setShowLivePopUpPreview(false)} onClose={() => setShowLivePopUpPreview(false)} />
+                    <div className="bg-[#0b1b36] p-4 sm:p-5 rounded-2xl border border-blue-400/30 shadow-2xl text-white space-y-2.5 sm:space-y-3 [&_label]:text-amber-300 [&_label]:font-extrabold [&_label]:text-xs [&_label]:tracking-wide [&_input]:bg-[#040b1a] [&_input]:border-blue-400/40 [&_input]:text-white [&_input]:placeholder:text-blue-300/40 [&_input]:rounded-xl [&_input]:focus:border-amber-400 [&_input]:focus:ring-2 [&_input]:focus:ring-amber-400/20 [&_textarea]:bg-[#040b1a] [&_textarea]:border-blue-400/40 [&_textarea]:text-white [&_textarea]:placeholder:text-blue-300/40 [&_textarea]:rounded-xl [&_button[role=combobox]]:bg-[#040b1a] [&_button[role=combobox]]:border-blue-400/40 [&_button[role=combobox]]:text-white [&_button[type=submit]]:bg-gradient-to-r [&_button[type=submit]]:from-amber-400 [&_button[type=submit]]:via-yellow-400 [&_button[type=submit]]:to-amber-500 [&_button[type=submit]]:text-slate-950 [&_button[type=submit]]:font-black [&_button[type=submit]]:shadow-lg [&_button[type=submit]]:shadow-amber-500/25 [&_button[type=submit]]:border-0 [&_button[type=submit]]:rounded-xl">
+                      <AdmissionEnquiryForm onSuccess={() => setShowLivePopUpPreview(false)} onClose={() => setShowLivePopUpPreview(false)} />
                     </div>
                   </div>
                 </div>

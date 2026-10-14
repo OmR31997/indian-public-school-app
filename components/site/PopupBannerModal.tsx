@@ -111,7 +111,7 @@ export function PopupBannerModal() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#070e24]/95 text-white dark rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border-2 border-blue-400/80 shadow-[0_0_45px_rgba(59,130,246,0.5),inset_0_0_20px_rgba(59,130,246,0.25)] backdrop-blur-xl my-auto flex flex-col md:flex-row items-stretch gap-4 sm:gap-6 overflow-y-auto md:overflow-hidden group"
+              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#070e24]/95 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border-2 border-blue-400/80 shadow-[0_0_45px_rgba(59,130,246,0.5),inset_0_0_20px_rgba(59,130,246,0.25)] backdrop-blur-xl my-auto flex flex-col md:flex-row items-stretch gap-4 sm:gap-6 overflow-y-auto md:overflow-hidden group"
               style={{
                 borderRadius: `${config.imageBorderRadius || 24}px`,
               }}
@@ -182,7 +182,7 @@ export function PopupBannerModal() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#051326] text-white dark rounded-2xl sm:rounded-3xl border border-blue-400/30 shadow-2xl my-auto flex flex-col md:flex-row items-stretch overflow-y-auto md:overflow-hidden group"
+              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#051326] text-white rounded-2xl sm:rounded-3xl border border-blue-400/30 shadow-2xl my-auto flex flex-col md:flex-row items-stretch overflow-y-auto md:overflow-hidden group"
               style={{
                 borderRadius: `${config.imageBorderRadius || 24}px`,
               }}
@@ -219,9 +219,8 @@ export function PopupBannerModal() {
                 </div>
 
                 {/* Quick Admission Form Container with Clean White Inputs Directly on Navy BG */}
-                <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2.5 [&_form>div:first-child]:grid-cols-1 [&_form>div:first-child]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg [&_h3]:!text-white [&_p]:!text-blue-100/90">
+                <div className="w-full max-w-sm sm:max-w-md mx-auto text-left space-y-2.5 [&_form>div:first-child]:grid-cols-1 [&_form>div:first-child]:gap-3 [&_label]:text-blue-100 [&_label]:font-bold [&_label]:text-xs [&_input]:bg-white [&_input]:border-slate-300 [&_input]:text-slate-900 [&_input]:placeholder:text-slate-400 [&_input]:rounded-lg [&_input]:font-medium [&_input]:h-10 [&_textarea]:bg-white [&_textarea]:border-slate-300 [&_textarea]:text-slate-900 [&_textarea]:rounded-lg [&_button[role=combobox]]:bg-white [&_button[role=combobox]]:text-slate-900 [&_button[role=combobox]]:h-10 [&_button[role=combobox]]:rounded-lg">
                   <AdmissionEnquiryForm
-                    inverted
                     onClose={() => handleClose()}
                   />
                   <p className="text-[11px] text-blue-200/70 text-center pt-1 font-medium">
@@ -239,7 +238,7 @@ export function PopupBannerModal() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[90vh] md:h-[80vh] max-h-[92vh] bg-[#06142a] text-white dark rounded-2xl sm:rounded-3xl border border-blue-400/40 shadow-2xl overflow-y-auto md:overflow-hidden my-auto flex flex-col md:flex-row items-stretch group"
+              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[90vh] md:h-[80vh] max-h-[92vh] bg-[#06142a] text-white rounded-2xl sm:rounded-3xl border border-blue-400/40 shadow-2xl overflow-y-auto md:overflow-hidden my-auto flex flex-col md:flex-row items-stretch group"
               style={{
                 borderRadius: `${config.imageBorderRadius || 24}px`,
               }}
@@ -281,9 +280,8 @@ export function PopupBannerModal() {
                   )}
                 </div>
 
-                <div className="bg-[#0b1b36] p-4 sm:p-5 rounded-2xl border border-blue-400/30 shadow-2xl text-white space-y-2.5 sm:space-y-3 [&_label]:text-amber-300 [&_label]:font-extrabold [&_label]:text-xs [&_label]:tracking-wide [&_input]:bg-[#040b1a] [&_input]:border-blue-400/40 [&_input]:text-white [&_input]:placeholder:text-blue-300/40 [&_input]:rounded-xl [&_input]:focus:border-amber-400 [&_input]:focus:ring-2 [&_input]:focus:ring-amber-400/20 [&_textarea]:bg-[#040b1a] [&_textarea]:border-blue-400/40 [&_textarea]:text-white [&_textarea]:placeholder:text-blue-300/40 [&_textarea]:rounded-xl [&_button[role=combobox]]:bg-[#040b1a] [&_button[role=combobox]]:border-blue-400/40 [&_button[role=combobox]]:text-white [&_button[type=submit]]:bg-gradient-to-r [&_button[type=submit]]:from-amber-400 [&_button[type=submit]]:via-yellow-400 [&_button[type=submit]]:to-amber-500 [&_button[type=submit]]:text-slate-950 [&_button[type=submit]]:font-black [&_button[type=submit]]:shadow-lg [&_button[type=submit]]:shadow-amber-500/25 [&_button[type=submit]]:border-0 [&_button[type=submit]]:rounded-xl [&_h3]:!text-white [&_p]:!text-blue-100/90">
+                <div className="bg-[#0b1b36] p-4 sm:p-5 rounded-2xl border border-blue-400/30 shadow-2xl text-white space-y-2.5 sm:space-y-3 [&_label]:text-amber-300 [&_label]:font-extrabold [&_label]:text-xs [&_label]:tracking-wide [&_input]:bg-[#040b1a] [&_input]:border-blue-400/40 [&_input]:text-white [&_input]:placeholder:text-blue-300/40 [&_input]:rounded-xl [&_input]:focus:border-amber-400 [&_input]:focus:ring-2 [&_input]:focus:ring-amber-400/20 [&_textarea]:bg-[#040b1a] [&_textarea]:border-blue-400/40 [&_textarea]:text-white [&_textarea]:placeholder:text-blue-300/40 [&_textarea]:rounded-xl [&_button[role=combobox]]:bg-[#040b1a] [&_button[role=combobox]]:border-blue-400/40 [&_button[role=combobox]]:text-white [&_button[type=submit]]:bg-gradient-to-r [&_button[type=submit]]:from-amber-400 [&_button[type=submit]]:via-yellow-400 [&_button[type=submit]]:to-amber-500 [&_button[type=submit]]:text-slate-950 [&_button[type=submit]]:font-black [&_button[type=submit]]:shadow-lg [&_button[type=submit]]:shadow-amber-500/25 [&_button[type=submit]]:border-0 [&_button[type=submit]]:rounded-xl">
                   <AdmissionEnquiryForm
-                    inverted
                     onSuccess={() => handleClose()}
                     onClose={() => handleClose()}
                   />
@@ -299,7 +297,7 @@ export function PopupBannerModal() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-gradient-to-br from-[#060c22] via-[#091536] to-[#040817] text-white dark rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-9 border-2 border-amber-400/80 shadow-[0_0_55px_rgba(251,191,36,0.4)] backdrop-blur-2xl my-auto flex flex-col md:flex-row items-stretch gap-4 sm:gap-8 overflow-y-auto md:overflow-hidden group"
+              className="relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-gradient-to-br from-[#060c22] via-[#091536] to-[#040817] text-white rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-9 border-2 border-amber-400/80 shadow-[0_0_55px_rgba(251,191,36,0.4)] backdrop-blur-2xl my-auto flex flex-col md:flex-row items-stretch gap-4 sm:gap-8 overflow-y-auto md:overflow-hidden group"
               style={{
                 borderRadius: `${config.imageBorderRadius || 32}px`,
               }}
@@ -366,7 +364,7 @@ export function PopupBannerModal() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className={`relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[90vh] overflow-hidden border border-white/20 bg-slate-950 text-white dark shadow-2xl my-auto flex flex-col justify-between transition-all group`}
+              className={`relative z-10 w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[90vh] overflow-hidden border border-white/20 bg-slate-950 text-white shadow-2xl my-auto flex flex-col justify-between transition-all group`}
               style={{
                 maxWidth: (config.modalWidth === "custom" || config.imageWidth) ? `${config.imageWidth}px` : undefined,
                 aspectRatio: (config.aspectRatio || "16/10").replace('/', ' / '),
