@@ -126,7 +126,7 @@ export function AdmissionEnquiryForm({
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="text-xl sm:text-2xl font-extrabold text-foreground font-[var(--font-display)] tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-current font-[var(--font-display)] tracking-tight">
               Enquiry Received Successfully
             </h3>
             <p className="mx-auto max-w-md text-xs sm:text-sm font-medium leading-relaxed text-muted-foreground">
