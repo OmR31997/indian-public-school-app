@@ -34,32 +34,42 @@ export function About() {
   );
 
   const descriptions = textList(section.description);
-  const cards = Array.isArray(section.cardItem)
+  const rawCards = Array.isArray(section.cardItem)
     ? (section.cardItem as Record<string, unknown>[])
     : [];
 
-  const missionVisionItems = (cards.length > 0 ? cards : [{}, {}]).map((card, i) => ({
-    heading: text(card?.heading, i === 0 ? "Our Mission" : i === 1 ? "Our Vision" : `Card #${i + 1}`),
-    description: text(
-      card?.description,
-      i === 0
-        ? "To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child."
-        : i === 1
-        ? "To be a school where academic excellence, character and creativity grow together — preparing students for a changing world."
-        : ""
-    ),
-    redirectUrl: text(card?.redirectUrl),
-    icoUrl: text(card?.icoUrl || card?.imageUrl || card?.icon || card?.fileUrl),
-    icon: i === 0 ? Target : Compass,
-  }));
-
+  const missionVisionItems = rawCards.length > 0
+    ? rawCards.map((card, i) => ({
+        heading: text(card?.heading, i === 0 ? "Our Mission" : i === 1 ? "Our Vision" : `Card #${i + 1}`),
+        description: text(card?.description, ""),
+        redirectUrl: text(card?.redirectUrl),
+        icoUrl: text(card?.icoUrl || card?.imageUrl || card?.icon || card?.fileUrl),
+        icon: i === 0 ? Target : Compass,
+      }))
+    : [
+        {
+          heading: "Our Mission",
+          description: "To nurture curious, compassionate learners through excellent teaching, strong values and real opportunity for every child.",
+          redirectUrl: "",
+          icoUrl: "",
+          icon: Target,
+        },
+        {
+          heading: "Our Vision",
+          description: "To be a school where academic excellence, character and creativity grow together — preparing students for a changing world.",
+          redirectUrl: "",
+          icoUrl: "",
+          icon: Compass,
+        },
+      ];
 
   const btnLinkObj = section.btnLinkText as Record<string, unknown> | undefined;
+  const isBtnEnabled = btnLinkObj ? btnLinkObj.show !== false : true;
   const storyBtnText = text(btnLinkObj?.text, "Discover Our Story");
   const rawStoryUrl = text(btnLinkObj?.url);
   const cleanStoryUrl = rawStoryUrl ? formatHref(rawStoryUrl, "/about/school-establishment") : "/about/school-establishment";
   const isStoryExternal = isExternalUrl(cleanStoryUrl);
-  const showStoryBtn = btnLinkObj?.show !== false && !!storyBtnText;
+  const showStoryBtn = isBtnEnabled && !!storyBtnText && storyBtnText.trim().length > 0;
 
   return (
     <section id="about" className="py-8 sm:py-10 lg:py-12 bg-background overflow-hidden">
@@ -127,10 +137,16 @@ export function About() {
                 <span className="h-1 w-2.5 rounded-full bg-gold" />
               </div>
 
-              {/* Description Paragraph - 100% Consistent font-sans and text-muted-foreground */}
-              {descriptions[0] && (
+              {/* Description Paragraphs - Render all paragraphs from DB */}
+              {descriptions.length > 0 ? (
+                descriptions.map((desc, dIdx) => (
+                  <p key={dIdx} className="mt-2.5 text-xs sm:text-sm font-sans font-normal leading-relaxed text-muted-foreground">
+                    {desc}
+                  </p>
+                ))
+              ) : (
                 <p className="mt-3 text-xs sm:text-sm font-sans font-normal leading-relaxed text-muted-foreground">
-                  {descriptions[0]}
+                  Indian Public School is a co-educational CBSE school where academic rigour meets genuine care. Our classrooms are designed for enquiry rather than repetition, and our teachers know every child by name, strength and ambition.
                 </p>
               )}
             </Reveal>
@@ -172,7 +188,7 @@ export function About() {
                         <h3 className="font-display font-bold text-foreground text-sm sm:text-base leading-snug">
                           {item.heading}
                         </h3>
-                        <p className="mt-1 font-sans text-[11px] sm:text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                        <p className="mt-1 font-sans text-[11px] sm:text-xs leading-relaxed text-muted-foreground">
                           {item.description}
                         </p>
                       </div>

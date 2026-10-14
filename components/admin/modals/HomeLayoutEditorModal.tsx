@@ -499,6 +499,20 @@ export function HomeLayoutEditorModal({
       trust_board: trustObj,
       academic_partner: partnerObj,
     };
+
+    const sec1 = firstHome["section-1"];
+    if (Array.isArray(sec1) && sec1[0]) {
+      sec1[0] = {
+        ...sec1[0],
+        btnLinkText: {
+          show: sec1[0].btnLinkText?.show !== false,
+          text: sec1[0].btnLinkText?.text ?? "Discover Our Story",
+          url: sec1[0].btnLinkText?.url ?? "/about/school-establishment",
+        },
+      };
+      firstHome["section-1"] = sec1;
+    }
+
     homeList[0] = firstHome;
 
     finalVal = {
@@ -2014,18 +2028,54 @@ export function HomeLayoutEditorModal({
 
                 {/* Section 1 Action Button (Discover Our Story) */}
                 <div className="space-y-3 pt-3 border-t border-slate-200/80">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                       <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
                         <LinkIcon size={14} className="text-[#1a5d9c]" /> Section Action Button ("Discover Our Story")
                       </label>
                       <p className="text-[11px] text-slate-500">
-                        Configure the call-to-action button displayed under About Our School. Choose destination directly from web menu items.
+                        Configure the call-to-action button displayed under About Our School. Choose destination directly from web menu items or toggle visibility.
                       </p>
                     </div>
-                    <span className="inline-flex items-center gap-1 self-start sm:self-auto rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-600 border border-slate-200">
-                      <Lock size={11} className="text-slate-400" /> Direct Path Locked
-                    </span>
+
+                    {/* Toggle Button Visibility */}
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <span className="text-[11px] font-bold text-slate-600">Button Status:</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentShow = homeObj["section-1"]?.[0]?.btnLinkText?.show !== false;
+                          const sec = [...(homeObj["section-1"] || [{}])];
+                          sec[0] = {
+                            ...sec[0],
+                            btnLinkText: {
+                              show: !currentShow,
+                              text: sec[0].btnLinkText?.text ?? "Discover Our Story",
+                              url: sec[0].btnLinkText?.url ?? "/about/school-establishment",
+                            },
+                          };
+                          updateHome((prev) => ({ ...prev, "section-1": sec }));
+                        }}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                          homeObj["section-1"]?.[0]?.btnLinkText?.show !== false ? "bg-[#1a5d9c]" : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            homeObj["section-1"]?.[0]?.btnLinkText?.show !== false ? "translate-x-4" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          homeObj["section-1"]?.[0]?.btnLinkText?.show !== false
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-slate-100 text-slate-500 border border-slate-200"
+                        }`}
+                      >
+                        {homeObj["section-1"]?.[0]?.btnLinkText?.show !== false ? "Enabled" : "Disabled"}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
@@ -2043,7 +2093,8 @@ export function HomeLayoutEditorModal({
                           sec[0] = {
                             ...sec[0],
                             btnLinkText: {
-                              ...(sec[0].btnLinkText || {}),
+                              show: sec[0].btnLinkText?.show !== false,
+                              url: sec[0].btnLinkText?.url ?? "/about/school-establishment",
                               text: e.target.value,
                             },
                           };
@@ -2073,7 +2124,8 @@ export function HomeLayoutEditorModal({
                             sec[0] = {
                               ...sec[0],
                               btnLinkText: {
-                                ...(sec[0].btnLinkText || {}),
+                                show: sec[0].btnLinkText?.show !== false,
+                                text: sec[0].btnLinkText?.text ?? "Discover Our Story",
                                 url: newUrl,
                               },
                             };
