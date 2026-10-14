@@ -5,7 +5,7 @@ import axios from "axios";
 import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Sparkles, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
-import { cn, ensureExternalUrl } from "@/lib/utils";
+import { cn, ensureExternalUrl, formatHref, isExternalUrl } from "@/lib/utils";
 import { buildMenuHierarchy, DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { API_URL } from "@/lib/api-client";
@@ -38,22 +38,7 @@ const KNOWN_SECTIONS = new Set([
 ]);
 
 function normalizeHref(rawUrl?: string): string {
-  const url = (rawUrl || "/").trim();
-  if (!url || url === "/") return "/";
-  if (
-    url.startsWith("http://") ||
-    url.startsWith("https://") ||
-    url.startsWith("mailto:") ||
-    url.startsWith("tel:")
-  ) {
-    return url;
-  }
-  if (url.startsWith("/")) return url;
-  if (url.startsWith("#")) return `/${url}`;
-  if (KNOWN_SECTIONS.has(url.toLowerCase())) {
-    return `/#${url.toLowerCase()}`;
-  }
-  return `/${url}`;
+  return formatHref(rawUrl, "/");
 }
 
 function getItemHref(item: ApiMenuItem): string {
@@ -225,11 +210,19 @@ export function Footer() {
                         {String(certifiedBoard.description)}
                       </p>
                     )}
-                    {Boolean(certifiedBoard.linkUrl) && (
-                      <Link href={String(certifiedBoard.linkUrl)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                        View Affiliation Details &rarr;
-                      </Link>
-                    )}
+                    {Boolean(certifiedBoard.linkUrl) && (() => {
+                      const href = formatHref(String(certifiedBoard.linkUrl));
+                      const isExt = isExternalUrl(href);
+                      return isExt ? (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                          View Affiliation Details &rarr;
+                        </a>
+                      ) : (
+                        <Link href={href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                          View Affiliation Details &rarr;
+                        </Link>
+                      );
+                    })()}
                   </div>
                 </div>
               </Reveal>
@@ -266,11 +259,19 @@ export function Footer() {
                         {String(trustBoard.description)}
                       </p>
                     )}
-                    {Boolean(trustBoard.linkUrl) && (
-                      <Link href={String(trustBoard.linkUrl) || "https://www.cbse.gov.in"} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                        Learn About Trust &rarr;
-                      </Link>
-                    )}
+                    {Boolean(trustBoard.linkUrl) && (() => {
+                      const href = formatHref(String(trustBoard.linkUrl) || "https://www.cbse.gov.in");
+                      const isExt = isExternalUrl(href);
+                      return isExt ? (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                          Learn About Trust &rarr;
+                        </a>
+                      ) : (
+                        <Link href={href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                          Learn About Trust &rarr;
+                        </Link>
+                      );
+                    })()}
                   </div>
                 </div>
               </Reveal>
@@ -304,11 +305,19 @@ export function Footer() {
                         {String(academicPartner.description)}
                       </p>
                     )}
-                    {Boolean(academicPartner.linkUrl) && (
-                      <Link href={String(academicPartner.linkUrl)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                        Explore Courses &rarr;
-                      </Link>
-                    )}
+                    {Boolean(academicPartner.linkUrl) && (() => {
+                      const href = formatHref(String(academicPartner.linkUrl));
+                      const isExt = isExternalUrl(href);
+                      return isExt ? (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                          Explore Courses &rarr;
+                        </a>
+                      ) : (
+                        <Link href={href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                          Explore Courses &rarr;
+                        </Link>
+                      );
+                    })()}
                   </div>
                 </div>
               </Reveal>
@@ -381,22 +390,37 @@ export function Footer() {
                   {col.title}
                 </h3>
                 <ul className="mt-4 space-y-2.5">
-                  {col.links.map((linkItem: any, idx: number) => (
-                    <li key={`${linkItem.title}-${idx}`}>
-                      <Link
-                        href={linkItem.href}
-                        onClick={(e) => {
-                          if (linkItem.href?.toLowerCase().includes("enquiry") || linkItem.title?.toLowerCase().includes("enquiry")) {
-                            e.preventDefault();
-                            openAdmissionModal();
-                          }
-                        }}
-                        className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground"
-                      >
-                        {linkItem.title}
-                      </Link>
-                    </li>
-                  ))}
+                  {col.links.map((linkItem: any, idx: number) => {
+                    const href = formatHref(linkItem.href);
+                    const isExt = isExternalUrl(href);
+                    return (
+                      <li key={`${linkItem.title}-${idx}`}>
+                        {isExt ? (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground"
+                          >
+                            {linkItem.title}
+                          </a>
+                        ) : (
+                          <Link
+                            href={href}
+                            onClick={(e) => {
+                              if (href.toLowerCase().includes("enquiry") || linkItem.title?.toLowerCase().includes("enquiry")) {
+                                e.preventDefault();
+                                openAdmissionModal();
+                              }
+                            }}
+                            className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground"
+                          >
+                            {linkItem.title}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </Reveal>
             ))}

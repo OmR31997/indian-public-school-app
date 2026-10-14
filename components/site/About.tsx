@@ -5,7 +5,7 @@ import { ArrowRight, Compass, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/Reveal";
 import { UniversalMedia } from "@/components/ui/UniversalMedia";
-import { getAssetUrl, toCleanRelativeAssetPath } from "@/lib/utils";
+import { getAssetUrl, toCleanRelativeAssetPath, formatHref, isExternalUrl } from "@/lib/utils";
 import {
   firstSection,
   homeData,
@@ -57,7 +57,8 @@ export function About() {
   const btnLinkObj = section.btnLinkText as Record<string, unknown> | undefined;
   const storyBtnText = text(btnLinkObj?.text, "Discover Our Story");
   const rawStoryUrl = text(btnLinkObj?.url);
-  const cleanStoryUrl = rawStoryUrl ? toCleanRelativeAssetPath(rawStoryUrl) : "/about/school-establishment";
+  const cleanStoryUrl = rawStoryUrl ? formatHref(rawStoryUrl, "/about/school-establishment") : "/about/school-establishment";
+  const isStoryExternal = isExternalUrl(cleanStoryUrl);
   const showStoryBtn = btnLinkObj?.show !== false && !!storyBtnText;
 
   return (
@@ -190,7 +191,12 @@ export function About() {
                   size="default"
                   className="group rounded-full shadow-soft hover:shadow-lift transition-all duration-300 text-xs font-bold px-5 py-2"
                 >
-                  <a href={cleanStoryUrl} className="flex items-center gap-2">
+                  <a
+                    href={cleanStoryUrl}
+                    target={isStoryExternal ? "_blank" : undefined}
+                    rel={isStoryExternal ? "noopener noreferrer" : undefined}
+                    className="flex items-center gap-2"
+                  >
                     <span>{storyBtnText}</span>
                     <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                   </a>

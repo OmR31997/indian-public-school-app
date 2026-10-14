@@ -17,7 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import fallbackMenuItemsList from "@/public/collections/menuitems.json";
-import { getAssetUrl } from "@/lib/utils";
+import { getAssetUrl, formatHref } from "@/lib/utils";
 
 interface HomeSectionsTabProps {
   activeTab: string;
@@ -94,9 +94,7 @@ export function HomeSectionsTab({
       if (!isPublished) return;
       const rawUrl = String(item.targetUrl || item.linkUrl || item.redirectUrl || item.href || (item.slug ? `/${item.slug}` : "")).trim();
       if (!rawUrl) return;
-      const url = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") || rawUrl.startsWith("#") || rawUrl.startsWith("/")
-        ? rawUrl
-        : `/${rawUrl}`;
+      const url = formatHref(rawUrl);
       const fullPath = getFullPath(item);
       const rootGroup = getRootGroupName(item);
       const title = String(item.title || "").trim() || fullPath;
@@ -113,9 +111,7 @@ export function HomeSectionsTab({
         if (!isPublished) return;
         const rawUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
         if (!rawUrl) return;
-        const url = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") || rawUrl.startsWith("#") || rawUrl.startsWith("/")
-          ? rawUrl
-          : `/${rawUrl}`;
+        const url = formatHref(rawUrl);
         const title = String(p.title || p.heading || "Page").trim();
         const fullPath = `Page: ${title}`;
         secPageList.push({ title, url, fullPath });

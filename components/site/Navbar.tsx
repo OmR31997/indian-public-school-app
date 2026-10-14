@@ -4,7 +4,7 @@ import { ArrowRight, ChevronDown, ChevronRight, ExternalLink, GraduationCap, Men
 import axios from "axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatHref, isExternalUrl } from "@/lib/utils";
 import { buildMenuHierarchy, DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, getWhatsAppConfig, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
@@ -166,22 +166,7 @@ export function Navbar() {
   ]);
 
   const normalizeHref = (rawUrl?: string): string => {
-    const url = (rawUrl || "/").trim();
-    if (!url || url === "/") return "/";
-    if (
-      url.startsWith("http://") ||
-      url.startsWith("https://") ||
-      url.startsWith("mailto:") ||
-      url.startsWith("tel:")
-    ) {
-      return url;
-    }
-    if (url.startsWith("/")) return url;
-    if (url.startsWith("#")) return `/${url}`;
-    if (KNOWN_SECTIONS.has(url.toLowerCase())) {
-      return `/#${url.toLowerCase()}`;
-    }
-    return `/${url}`;
+    return formatHref(rawUrl, "/");
   };
 
   const mapSubItem = (s: ApiSubMenuItem): NavSubItem => {
@@ -225,6 +210,10 @@ export function Navbar() {
   const handleNavClick = (href: string, e?: React.MouseEvent) => {
     setOpen(false);
     document.body.style.overflow = "";
+
+    if (isExternalUrl(href)) {
+      return;
+    }
 
     if (href.toLowerCase().includes("enquiry")) {
       if (e) e.preventDefault();

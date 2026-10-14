@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Award, BookOpen, ChevronRight, Download, ExternalLink, FileText, GraduationCap, Lock } from "lucide-react";
 import datasource from "@/public/cloud-datasource.json";
 import { DEFAULT_HERO_IMAGE, imageUrl, processHtmlAssetUrls } from "@/lib/site-data";
-import { getAssetUrl } from "@/lib/utils";
+import { getAssetUrl, formatHref, isExternalUrl } from "@/lib/utils";
 
 type Content = Record<string, unknown>;
 
@@ -311,9 +312,42 @@ async function fetchDbPage(slugArray: string[]): Promise<Content | null> {
 }
 
 async function resolvePage(slug: string[]): Promise<Content | null> {
+  if (detectExternalRedirect(slug)) return null;
   const dbPage = await fetchDbPage(slug);
   if (dbPage) return dbPage;
   return resolvePageFromDatasource(slug);
+}
+
+function detectExternalRedirect(slugArray: string[]): string | null {
+  if (!slugArray || slugArray.length === 0) return null;
+  const decoded = slugArray.map((s) => {
+    try {
+      return decodeURIComponent(s);
+    } catch {
+      return s;
+    }
+  });
+  const first = (decoded[0] || "").toLowerCase().trim();
+
+  // If slug starts with accidental protocol like /https:/maps.app.goo.gl/... or /http:/...
+  if (first === "http:" || first === "https:" || first === "http" || first === "https") {
+    const rest = decoded.slice(1).join("/");
+    const protocol = first.startsWith("http") && !first.startsWith("https") ? "http://" : "https://";
+    return `${protocol}${rest.replace(/^\/+/, "")}`;
+  }
+
+  // If first slug segment matches an external domain like maps.app.goo.gl or www.example.com
+  if (/^(?:www\.|maps\.app\.goo\.gl|[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|in|co|edu|gov|gl|io|app|dev|me|ai|info))$/i.test(first)) {
+    const full = decoded.join("/");
+    return `https://${full.replace(/^\/+/, "")}`;
+  }
+
+  const joined = decoded.join("/");
+  if (/^(?:https?:|\/\/|www\.|maps\.app\.goo\.gl)/i.test(joined)) {
+    return formatHref(joined);
+  }
+
+  return null;
 }
 
 export async function generateMetadata({
@@ -322,6 +356,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const externalRedirect = detectExternalRedirect(slug);
+  if (externalRedirect) {
+    return { title: "Redirecting..." };
+  }
   const page = await resolvePage(slug);
   const title =
     typeof page?.title === "string"
@@ -338,6 +376,32 @@ export default async function ContentPage({
   params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = await params;
+  const externalRedirect = detectExternalRedirect(slug);
+  if (externalRedirect) {
+    try {
+      redirect(externalRedirect);
+    } catch (e: any) {
+      if (e?.digest?.startsWith("NEXT_REDIRECT")) {
+        throw e;
+      }
+    }
+    return (
+      <main className="container-page py-24 min-h-[60vh] flex flex-col items-center justify-center text-center">
+        <h1 className="text-xl font-bold text-slate-800">Redirecting to external link...</h1>
+        <p className="mt-2 text-sm text-slate-500">
+          If you are not redirected automatically,{" "}
+          <a href={externalRedirect} className="text-[#1a5d9c] font-bold underline">
+            click here to continue
+          </a>.
+        </p>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.location.replace(${JSON.stringify(externalRedirect)});`,
+          }}
+        />
+      </main>
+    );
+  }
   const page = await resolvePage(slug);
 
   if (page && (page.isPublished === false || page.isPublished === "false")) {

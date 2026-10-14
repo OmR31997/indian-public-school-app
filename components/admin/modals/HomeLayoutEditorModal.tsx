@@ -28,7 +28,7 @@ import { AnimatePresence } from "motion/react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { AdmissionEnquiryForm } from "@/components/site/AdmissionEnquiryForm";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
-import { getAssetUrl, ensureExternalUrl } from "@/lib/utils";
+import { getAssetUrl, ensureExternalUrl, formatHref, isExternalUrl } from "@/lib/utils";
 
 const EDITOR_TABS = [
   { id: "header", label: "Header Config", icon: "bi-card-heading" },
@@ -283,9 +283,7 @@ export function HomeLayoutEditorModal({
       if (!isPublished) return;
       const rawUrl = String(item.targetUrl || item.linkUrl || item.redirectUrl || item.href || (item.slug ? `/${item.slug}` : "")).trim();
       if (!rawUrl) return;
-      const url = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") || rawUrl.startsWith("#") || rawUrl.startsWith("/")
-        ? rawUrl
-        : `/${rawUrl}`;
+      const url = formatHref(rawUrl);
       const fullPath = getFullPath(item);
       const rootGroup = getRootGroupName(item);
       const title = String(item.title || "").trim() || fullPath;
@@ -306,9 +304,7 @@ export function HomeLayoutEditorModal({
         if (!isPublished) return;
         const rawUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
         if (!rawUrl) return;
-        const url = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") || rawUrl.startsWith("#") || rawUrl.startsWith("/")
-          ? rawUrl
-          : `/${rawUrl}`;
+        const url = formatHref(rawUrl);
         const title = String(p.title || p.heading || "Page").trim();
         const fullPath = `Page: ${title}`;
         secPageList.push({ title, url, fullPath });

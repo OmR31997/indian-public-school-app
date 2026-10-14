@@ -49,6 +49,7 @@ import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { DEFAULT_HERO_IMAGE, getOfficeTimingsList, text, type OfficeTimingItem } from "@/lib/site-data";
+import { formatHref, isExternalUrl } from "@/lib/utils";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
@@ -312,7 +313,7 @@ export function ContactUsView() {
                 value: addressText,
                 subtitle: "Indian Public School",
                 actionText: "Get Directions",
-                actionHref: text(contact["google-map-link"], "#map"),
+                actionHref: formatHref(text(contact["google-map-link"]), "#map"),
               },
               {
                 icon: Phone,
@@ -340,6 +341,7 @@ export function ContactUsView() {
               },
             ].map((card, idx) => {
               const Icon = card.icon;
+              const isExternal = isExternalUrl(card.actionHref);
               return (
                 <motion.div
                   key={card.title}
@@ -372,6 +374,8 @@ export function ContactUsView() {
                   <div className="mt-5 pt-4 border-t border-border/60">
                     <a
                       href={card.actionHref}
+                      target={isExternal ? "_blank" : undefined}
+                      rel={isExternal ? "noopener noreferrer" : undefined}
                       className="inline-flex items-center text-xs font-semibold text-primary hover:text-gold transition-colors"
                     >
                       {card.actionText} &rarr;
