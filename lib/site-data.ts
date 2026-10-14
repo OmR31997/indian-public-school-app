@@ -227,7 +227,8 @@ export async function getSiteData(): Promise<SiteData> {
     ? dbLogoSetting
     : (siteData.site_logo || (siteData.home?.[0]?.identity as any)?.site_logo);
 
-  const homeList = Array.isArray(siteData.home) && siteData.home.length > 0 ? siteData.home : fallback.home;
+  const hasDbSiteData = !!(siteResponse && siteData && typeof siteData === "object" && Array.isArray(siteData.home) && siteData.home.length > 0);
+  const homeList = hasDbSiteData ? siteData.home : fallback.home;
   const updatedHome = homeList.map((item, idx) => {
     if (idx === 0 && siteLogoFromDb) {
       const currentIdentity = (item.identity as Record<string, unknown>) || {};
@@ -257,9 +258,9 @@ export async function getSiteData(): Promise<SiteData> {
   });
 
   return {
-    ...fallback,
+    ...(hasDbSiteData ? {} : fallback),
     ...siteData,
-    site_logo: siteLogoFromDb || fallback.site_logo,
+    site_logo: siteLogoFromDb || siteData.site_logo || fallback.site_logo,
     home: updatedHome,
     news: apiNews.length ? apiNews : fallback.news,
     galleryItems: apiGallery.length ? apiGallery : fallbackGallery,
