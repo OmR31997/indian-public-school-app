@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link as LinkIcon, X, CheckCircle2, Trash2, Check, Globe, Building2, ShieldCheck, AlertTriangle } from "lucide-react";
 import axios from "axios";
 import { API_URL } from "@/lib/api-client";
+import { formatHref } from "@/lib/utils";
 
 export interface LinkStudioModalProps {
     isOpen: boolean;
@@ -32,7 +33,8 @@ function parseMenuItemsRecursively(items: any[], parentTitle = ""): Array<{ titl
         const isPublished = item.isPublished !== false && String(item.isPublished) !== "false";
         if (!isPublished) return;
 
-        const url = String(item.targetUrl || item.linkUrl || item.url || item.href || (item.slug ? `/${item.slug}` : "")).trim();
+        const rawUrl = String(item.targetUrl || item.linkUrl || item.url || item.href || (item.slug ? `/${item.slug}` : "")).trim();
+        const url = formatHref(rawUrl);
         const rawTitle = String(item.title || "").trim();
         const displayTitle = parentTitle ? `${parentTitle} ➔ ${rawTitle}` : rawTitle;
 
@@ -132,6 +134,10 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
         let trimmed = raw.trim();
         if (!trimmed) return "";
 
+        // Strip accidental leading slashes before domain or protocol
+        trimmed = trimmed.replace(/^\/+(?=(?:https?:|\/\/|www\.|\w+\.\w+))/i, "");
+        trimmed = trimmed.replace(/^https?:\/+(?!\/)/i, (m) => (m.toLowerCase().startsWith("https") ? "https://" : "http://"));
+
         // Block dangerous script protocols
         const lower = trimmed.toLowerCase();
         if (lower.startsWith("javascript:") || lower.startsWith("data:") || lower.startsWith("vbscript:") || lower.startsWith("blob:")) {
@@ -148,7 +154,7 @@ export const LinkStudioModal: React.FC<LinkStudioModalProps> = ({
             !lower.startsWith("tel:") &&
             !lower.startsWith("#")
         ) {
-            trimmed = `https://${trimmed}`;
+            trimmed = `https://${trimmed.replace(/^\/+/, "")}`;
         }
 
         setSecurityNotice("");

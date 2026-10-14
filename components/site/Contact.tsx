@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
 import { getOfficeTimingsList, text } from "@/lib/site-data";
+import { formatHref, isExternalUrl } from "@/lib/utils";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 
 const DETAILS = [
@@ -125,11 +126,21 @@ export function Contact() {
                   <Mail className="mr-1 size-4" /> Email Us
                 </a>
               </Button>
-              <Button asChild variant="secondary" className="rounded-full">
-              <a href={text(contact["google-map-link"], "#enquiry")} target={text(contact["google-map-link"]) ? "_blank" : undefined} rel="noreferrer">
-                  <Navigation className="mr-1 size-4" /> Get Directions
-                </a>
-              </Button>
+              {(() => {
+                const mapLink = formatHref(text(contact["google-map-link"]), "#enquiry");
+                const isExternal = isExternalUrl(mapLink);
+                return (
+                  <Button asChild variant="secondary" className="rounded-full">
+                    <a
+                      href={mapLink}
+                      target={isExternal ? "_blank" : undefined}
+                      rel={isExternal ? "noopener noreferrer" : undefined}
+                    >
+                      <Navigation className="mr-1 size-4" /> Get Directions
+                    </a>
+                  </Button>
+                );
+              })()}
             </li>
           </motion.ul>
 

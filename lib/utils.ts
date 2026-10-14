@@ -23,6 +23,94 @@ function extractStringUrl(url: any): string | null {
 }
 
 /**
+ * Checks whether a given URL is external (another page/domain, external protocol, or social/maps link).
+ */
+export function isExternalUrl(url?: any): boolean {
+  if (!url) return false;
+  let trimmed = String(url).trim();
+  if (!trimmed) return false;
+
+  // Accidental leading slashes before external protocol/domain: e.g. /https:/, /http:/, /www.
+  trimmed = trimmed.replace(/^\/+(?=(?:https?:|\/\/|www\.|\w+\.\w+))/i, "");
+
+  if (/^(?:https?:|\/\/|mailto:|tel:|sms:)/i.test(trimmed)) {
+    return true;
+  }
+
+  // Domain-like patterns (e.g. maps.app.goo.gl/..., www.google.com, facebook.com/...)
+  if (/^(?:www\.|maps\.app\.goo\.gl|[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|in|co|edu|gov|gl|io|app|dev|me|ai|info)(?:\/|$|\?|#))/i.test(trimmed)) {
+    return true;
+  }
+
+  return false;
+}
+
+const KNOWN_SITE_SECTIONS = new Set([
+  "about",
+  "academics",
+  "admissions",
+  "admission",
+  "campus-life",
+  "infrastructure",
+  "gallery",
+  "student-life",
+  "enquiry",
+  "contact",
+  "home",
+]);
+
+/**
+ * Formats any URL safely:
+ * - If external (e.g., Google Maps, external website, mailto, tel), preserves it as an absolute URL and NEVER prepends `/` or current domain.
+ * - Fixes malformed protocols (e.g., https:/ -> https://, /https:// -> https://).
+ * - If relative internal path, ensures proper leading slash without duplicating.
+ * - If section anchor (e.g., #about or "about"), properly formats as /#about.
+ */
+export function formatHref(url?: any, fallback = "/"): string {
+  if (!url) return fallback;
+  let trimmed = String(url).trim();
+  if (!trimmed) return fallback;
+
+  // Clean accidental leading slashes before external protocol or domain
+  trimmed = trimmed.replace(/^\/+(?=(?:https?:|\/\/|www\.|\w+\.\w+))/i, "");
+
+  // Fix single slash after protocol (e.g. https:/maps.app.goo.gl -> https://maps.app.goo.gl)
+  trimmed = trimmed.replace(/^https?:\/+(?!\/)/i, (m) => (m.toLowerCase().startsWith("https") ? "https://" : "http://"));
+
+  // Protocol-relative URL //example.com -> https://example.com
+  if (trimmed.startsWith("//")) {
+    return `https:${trimmed}`;
+  }
+
+  // Absolute HTTP / HTTPS / Mailto / Tel
+  if (/^(?:https?:|mailto:|tel:|sms:)/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  // External domain without protocol (e.g. maps.app.goo.gl/..., www.facebook.com, example.com/page)
+  if (/^(?:www\.|maps\.app\.goo\.gl|[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|in|co|edu|gov|gl|io|app|dev|me|ai|info)(?:\/|$|\?|#))/i.test(trimmed)) {
+    return `https://${trimmed.replace(/^\/+/, "")}`;
+  }
+
+  // Internal hash/anchor: #about -> /#about
+  if (trimmed.startsWith("#")) {
+    return `/${trimmed}`;
+  }
+
+  // Known site section slug (e.g. "about" -> "/#about")
+  if (KNOWN_SITE_SECTIONS.has(trimmed.toLowerCase())) {
+    return `/#${trimmed.toLowerCase()}`;
+  }
+
+  // Internal path
+  if (trimmed.startsWith("/")) {
+    return trimmed;
+  }
+
+  return `/${trimmed}`;
+}
+
+/**
  * Normalizes full Cloudinary or local paths into clean relative paths like /Videos/IPSIntroVideo.mp4 or /Album/ClassRoom.webp
  */
 export function toCleanRelativeAssetPath(url?: any): string {
@@ -33,6 +121,11 @@ export function toCleanRelativeAssetPath(url?: any): string {
 
   if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
     return trimmed;
+  }
+
+  // If it is an external URL that is NOT Cloudinary, preserve it cleanly
+  if (isExternalUrl(trimmed) && !trimmed.includes('cloudinary.com')) {
+    return formatHref(trimmed);
   }
 
   // Extract relative path from Cloudinary full URL

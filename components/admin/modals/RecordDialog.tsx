@@ -27,7 +27,7 @@ import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
 import { isPdfFile, getCloudinaryInlineViewerUrl } from "@/lib/file-preview";
 import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
-import { toCleanRelativeAssetPath, getAssetUrl } from "@/lib/utils";
+import { toCleanRelativeAssetPath, getAssetUrl, formatHref } from "@/lib/utils";
 import { HomeLayoutEditorModal } from "./HomeLayoutEditorModal";
 import { Resource, RecordItem } from "../types/admin.types";
 import { API_URL, resources } from "../config/admin.config";
@@ -615,10 +615,8 @@ export function RecordDialog({
                     effectiveSectionPages.forEach((p) => {
                       const isPublished = p.isPublished !== false && p.isPublished !== "false";
                       if (!isPublished) return;
-                      let pageUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
-                      if (pageUrl && !pageUrl.startsWith("/") && !pageUrl.startsWith("http")) {
-                        pageUrl = `/${pageUrl}`;
-                      }
+                      const rawPageUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
+                      const pageUrl = formatHref(rawPageUrl);
                       if (pageUrl) {
                         pagesMap.set(pageUrl, String(p.title || pageUrl));
                       }

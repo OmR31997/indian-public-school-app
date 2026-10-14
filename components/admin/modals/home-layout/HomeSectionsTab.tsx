@@ -13,8 +13,11 @@ import {
   Target,
   Compass,
   Link as LinkIcon,
+  Lock,
+  ChevronDown,
 } from "lucide-react";
-import { getAssetUrl } from "@/lib/utils";
+import fallbackMenuItemsList from "@/public/collections/menuitems.json";
+import { getAssetUrl, formatHref } from "@/lib/utils";
 
 interface HomeSectionsTabProps {
   activeTab: string;
@@ -29,6 +32,8 @@ interface HomeSectionsTabProps {
   uploadImage: (file: File) => Promise<string>;
   onOpenGallery?: () => void;
   onOpenGalleryPicker?: (onSelect: (url: string) => void, title?: string) => void;
+  allMenuItems?: any[];
+  allSectionPages?: any[];
 }
 
 export function HomeSectionsTab({
@@ -44,8 +49,96 @@ export function HomeSectionsTab({
   uploadImage,
   onOpenGallery,
   onOpenGalleryPicker,
+  allMenuItems = [],
+  allSectionPages = [],
 }: HomeSectionsTabProps) {
   const [uploadingCard, setUploadingCard] = useState<string | null>(null);
+
+  const { webMenuGroups, allMenuUrls } = useMemo(() => {
+    const rawMenu = (allMenuItems && allMenuItems.length > 0 ? allMenuItems : (fallbackMenuItemsList as any[])) || [];
+
+    const itemMap = new Map<string, any>();
+    rawMenu.forEach((item) => {
+      if (item._id) itemMap.set(String(item._id), item);
+      if (item.menuId) itemMap.set(String(item.menuId), item);
+    });
+
+    const getFullPath = (item: any): string => {
+      const parts = [String(item.title || item.heading || item.name || "").trim()];
+      let curr = item;
+      let depth = 0;
+      while (curr.parentId && itemMap.has(String(curr.parentId)) && depth < 5) {
+        curr = itemMap.get(String(curr.parentId))!;
+        const parentTitle = String(curr.title || curr.heading || curr.name || "").trim();
+        if (parentTitle) parts.unshift(parentTitle);
+        depth++;
+      }
+      return parts.join(" → ");
+    };
+
+    const getRootGroupName = (item: any): string => {
+      let curr = item;
+      let depth = 0;
+      while (curr.parentId && itemMap.has(String(curr.parentId)) && depth < 5) {
+        curr = itemMap.get(String(curr.parentId))!;
+        depth++;
+      }
+      return String(curr.title || curr.category || "Main Navigation").trim();
+    };
+
+    const groups: Record<string, { title: string; url: string; fullPath: string }[]> = {};
+    const urlSet = new Set<string>();
+
+    rawMenu.forEach((item) => {
+      const isPublished = item.isPublished !== false && String(item.isPublished) !== "false";
+      if (!isPublished) return;
+      const rawUrl = String(item.targetUrl || item.linkUrl || item.redirectUrl || item.href || (item.slug ? `/${item.slug}` : "")).trim();
+      if (!rawUrl) return;
+      const url = formatHref(rawUrl);
+      const fullPath = getFullPath(item);
+      const rootGroup = getRootGroupName(item);
+      const title = String(item.title || "").trim() || fullPath;
+
+      if (!groups[rootGroup]) groups[rootGroup] = [];
+      groups[rootGroup].push({ title, url, fullPath });
+      urlSet.add(url);
+    });
+
+    if (allSectionPages && allSectionPages.length > 0) {
+      const secPageList: { title: string; url: string; fullPath: string }[] = [];
+      allSectionPages.forEach((p) => {
+        const isPublished = p.isPublished !== false && String(p.isPublished) !== "false";
+        if (!isPublished) return;
+        const rawUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
+        if (!rawUrl) return;
+        const url = formatHref(rawUrl);
+        const title = String(p.title || p.heading || "Page").trim();
+        const fullPath = `Page: ${title}`;
+        secPageList.push({ title, url, fullPath });
+        urlSet.add(url);
+      });
+      if (secPageList.length > 0) {
+        groups["Section Pages & Content"] = secPageList;
+      }
+    }
+
+    const inPageSections = [
+      { title: "Home Page (Top)", url: "/", fullPath: "Home Page (/)" },
+      { title: "About Us (Section)", url: "/#about", fullPath: "Section: About Us (/#about)" },
+      { title: "Academics (Section)", url: "/#academics", fullPath: "Section: Academics (/#academics)" },
+      { title: "Admissions (Section)", url: "/#admissions", fullPath: "Section: Admissions (/#admissions)" },
+      { title: "Campus Life (Section)", url: "/#campus-life", fullPath: "Section: Campus Life (/#campus-life)" },
+      { title: "Infrastructure (Section)", url: "/#infrastructure", fullPath: "Section: Infrastructure (/#infrastructure)" },
+      { title: "Gallery (Section)", url: "/#gallery", fullPath: "Section: Gallery (/#gallery)" },
+      { title: "Student Life (Section)", url: "/#student-life", fullPath: "Section: Student Life (/#student-life)" },
+      { title: "Enquiry (Section)", url: "/#enquiry", fullPath: "Section: Admission Enquiry (/#enquiry)" },
+      { title: "Contact Us (Section)", url: "/#contact", fullPath: "Section: Contact Us (/#contact)" },
+    ];
+    groups["Website Sections & In-Page Anchors"] = inPageSections;
+    inPageSections.forEach((s) => urlSet.add(s.url));
+
+    return { webMenuGroups: groups, allMenuUrls: urlSet };
+  }, [allMenuItems, allSectionPages]);
 
   const sec1Cards = React.useMemo(() => {
     const sec = homeObj["section-1"];
@@ -319,19 +412,27 @@ export function HomeSectionsTab({
             </div>
 
             {/* Section 1 Action Button (Discover Our Story) */}
-            <div className="space-y-3 pt-2 border-t border-slate-200/80">
-              <div>
-                <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
-                  <LinkIcon size={14} className="text-[#1a5d9c]" /> Section Action Button ("Discover Our Story")
-                </label>
-                <p className="text-[11px] text-slate-500">
-                  Configure the call-to-action button displayed under About Our School.
-                </p>
+            <div className="space-y-3 pt-3 border-t border-slate-200/80">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                <div>
+                  <label className="text-xs font-bold text-[#102a4c] flex items-center gap-1.5">
+                    <LinkIcon size={14} className="text-[#1a5d9c]" /> Section Action Button ("Discover Our Story")
+                  </label>
+                  <p className="text-[11px] text-slate-500">
+                    Configure the call-to-action button displayed under About Our School. Choose destination directly from web menu items.
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 self-start sm:self-auto rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-600 border border-slate-200">
+                  <Lock size={11} className="text-slate-400" /> Direct Path Locked
+                </span>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                {/* 1. Button Label */}
                 <div>
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">Button Label</label>
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1">
+                    Button Label
+                  </label>
                   <input
                     type="text"
                     placeholder="Discover Our Story"
@@ -347,29 +448,92 @@ export function HomeSectionsTab({
                       };
                       updateHome((prev) => ({ ...prev, "section-1": sec }));
                     }}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-[#1a5d9c]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1a5d9c] shadow-2xs hover:border-slate-300 transition"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Label displayed on the button (e.g. Discover Our Story)
+                  </p>
                 </div>
 
+                {/* 2. Web Menu Items Dropdown (No limitation to choose) */}
                 <div>
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">Target URL / Route</label>
-                  <input
-                    type="text"
-                    placeholder="/about/school-establishment"
-                    value={homeObj["section-1"]?.[0]?.btnLinkText?.url ?? "/about/school-establishment"}
-                    onChange={(e) => {
-                      const sec = [...(homeObj["section-1"] || [{}])];
-                      sec[0] = {
-                        ...sec[0],
-                        btnLinkText: {
-                          ...(sec[0].btnLinkText || {}),
-                          url: e.target.value,
-                        },
-                      };
-                      updateHome((prev) => ({ ...prev, "section-1": sec }));
-                    }}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-[#1a5d9c]"
-                  />
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1 flex items-center justify-between">
+                    <span>Web Menu Item Destination</span>
+                    <span className="text-[10px] font-bold text-[#1a5d9c]">
+                      Select from Web Menus
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={homeObj["section-1"]?.[0]?.btnLinkText?.url ?? "/about/school-establishment"}
+                      onChange={(e) => {
+                        const newUrl = e.target.value;
+                        const sec = [...(homeObj["section-1"] || [{}])];
+                        sec[0] = {
+                          ...sec[0],
+                          btnLinkText: {
+                            ...(sec[0].btnLinkText || {}),
+                            url: newUrl,
+                          },
+                        };
+                        updateHome((prev) => ({ ...prev, "section-1": sec }));
+                      }}
+                      className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 py-2 pr-8 text-xs font-semibold text-slate-800 outline-none focus:border-[#1a5d9c] cursor-pointer shadow-2xs hover:border-slate-300 transition"
+                    >
+                      <option value="">-- Choose Destination Menu Item --</option>
+                      {Object.entries(webMenuGroups).map(([groupName, items]) => (
+                        <optgroup key={groupName} label={groupName}>
+                          {items.map((opt, optIdx) => (
+                            <option key={`${groupName}-${opt.url}-${optIdx}`} value={opt.url}>
+                              {opt.fullPath} ({opt.url})
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                      {homeObj["section-1"]?.[0]?.btnLinkText?.url &&
+                        !allMenuUrls.has(homeObj["section-1"]?.[0]?.btnLinkText?.url) && (
+                          <optgroup label="Current Custom Path">
+                            <option value={homeObj["section-1"]?.[0]?.btnLinkText?.url}>
+                              Current: {homeObj["section-1"]?.[0]?.btnLinkText?.url}
+                            </option>
+                          </optgroup>
+                        )}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Select any web menu item, submenu, or section page
+                  </p>
+                </div>
+
+                {/* 3. Target URL / Route (Disabled input) */}
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1 flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-slate-500">
+                      <Lock size={12} className="text-slate-400" />
+                      <span>Target URL / Route</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded">
+                      Disabled
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      disabled
+                      readOnly
+                      placeholder="/about/school-establishment"
+                      value={homeObj["section-1"]?.[0]?.btnLinkText?.url ?? "/about/school-establishment"}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-100/90 px-3 py-2 pr-8 text-xs font-mono font-medium text-slate-600 outline-none cursor-not-allowed select-none"
+                      title="Direct path input is disabled. Select a menu item from the dropdown to update this path."
+                    />
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" title="Field is locked">
+                      <Lock size={13} />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Auto-assigned from menu dropdown above (read-only)
+                  </p>
                 </div>
               </div>
             </div>
