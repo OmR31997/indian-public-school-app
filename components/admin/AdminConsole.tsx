@@ -162,6 +162,7 @@ export function AdminConsole() {
   }, [isSuperAdmin, allowedModules]);
 
   const canDeleteResource = useCallback((resourceKey: ResourceKey): boolean => {
+    if (resourceKey === "school-settings") return false;
     return hasPermission(allowedModules, isSuperAdmin, resourceKey, "delete");
   }, [isSuperAdmin, allowedModules]);
 
@@ -433,6 +434,7 @@ export function AdminConsole() {
 
   const remove = async (item: RecordItem) => {
     if (!current) return;
+    if (current.key === "school-settings") return;
     if (current.key === "users" && isSuperAdminRole(item.role)) {
       alert("Super Admin accounts cannot be deleted directly from the console for safety.");
       return;

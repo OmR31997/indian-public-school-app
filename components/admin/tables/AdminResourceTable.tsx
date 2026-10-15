@@ -1185,7 +1185,7 @@ export function ResourceView({
 
   const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0;
   const canEdit = canEditProp && Object.keys(resource.inputs).length > 0;
-  const canDelete = canDeleteProp;
+  const canDelete = canDeleteProp && resource.key !== "school-settings";
 
   const filtersConfig = RESOURCE_FILTERS[resource.key] || [];
 
