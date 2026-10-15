@@ -438,7 +438,6 @@ export function HeaderFooterSettingsCard({
   };
 
   const siteDsItem = useMemo(() => items.find((i) => i.key === "site_datasource"), [items]);
-  const logoItem = useMemo(() => items.find((i) => i.key === "site_logo"), [items]);
   const certItem = useMemo(() => items.find((i) => i.key === "certified_board"), [items]);
   const trustItem = useMemo(() => items.find((i) => i.key === "trust_board"), [items]);
   const partnerItem = useMemo(() => items.find((i) => i.key === "academic_partner"), [items]);
@@ -517,10 +516,6 @@ export function HeaderFooterSettingsCard({
       const logoVal = homeIdentity.site_logo || dsVal.site_logo;
       if (logoVal && typeof logoVal === "object") {
         setSiteLogo((prev) => ({ ...prev, ...(logoVal as object) }));
-      } else if (logoItem?.value) {
-        let lVal = logoItem.value;
-        if (typeof lVal === "string") { try { lVal = JSON.parse(lVal); } catch { } }
-        if (lVal && typeof lVal === "object") setSiteLogo((prev) => ({ ...prev, ...(lVal as object) }));
       }
 
       const certVal = homeIdentity.certified_board || dsVal.certified_board;
@@ -553,7 +548,7 @@ export function HeaderFooterSettingsCard({
 
     loadFullSettings();
     return () => { isMounted = false; };
-  }, [siteDsItem, logoItem, certItem, trustItem, partnerItem]);
+  }, [siteDsItem, certItem, trustItem, partnerItem]);
 
   const saveSettings = async () => {
     if (!token) {
@@ -1715,7 +1710,7 @@ export function ResourceView({
                           return (
                             <td className="whitespace-nowrap px-5 py-4">
                               <div className="flex items-center justify-end gap-1">
-                              {rowPreviewUrl && item.key !== "site_logo" && (
+                              {rowPreviewUrl && (
                                 <a
                                   href={rowPreviewUrl}
                                   target="_blank"
@@ -1726,16 +1721,14 @@ export function ResourceView({
                                   <ExternalLink size={16} />
                                 </a>
                               )}
-                              {item.key !== "site_logo" && (
-                                <button
-                                  onClick={() => setDetailItem(item)}
-                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
-                                  title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
-                                >
-                                  <Eye size={16} />
-                                </button>
-                              )}
-                              {canEdit && item.key !== "site_logo" && (
+                              <button
+                                onClick={() => setDetailItem(item)}
+                                className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
+                                title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
+                              >
+                                <Eye size={16} />
+                              </button>
+                              {canEdit && (
                                 <button
                                   disabled={Boolean(deletingId)}
                                   onClick={() => onEdit(item)}
