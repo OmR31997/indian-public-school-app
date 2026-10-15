@@ -215,7 +215,6 @@ export const OPTIONAL_FIELDS = new Set([
   "targetUrl",
   "parentId",
   "textContent",
-  "isPublic",
   "isPublished",
   "isApproved",
 ]);

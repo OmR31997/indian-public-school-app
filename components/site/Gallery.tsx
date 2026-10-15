@@ -91,6 +91,10 @@ function isStaffStudentOrPressUrl(url: string): boolean {
     return true;
   }
 
+  if (lower.includes("/settings/icons") || lower.includes("settings/icons")) {
+    return true;
+  }
+
   const forbiddenSubstrings = [
     "/staff/",
     "/staffs/",

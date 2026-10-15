@@ -39,6 +39,41 @@ export const apiClient: AxiosInstance = axios.create({
   headers: { Accept: "application/json" },
 });
 
+let cachedHealth: { isHealthy: boolean; expiresAt: number } | null = null;
+
+export async function checkBackendHealth(timeoutMs = 3000, forceCheck = false): Promise<boolean> {
+  const now = Date.now();
+  if (!forceCheck && cachedHealth && cachedHealth.expiresAt > now) {
+    return cachedHealth.isHealthy;
+  }
+
+  let isHealthy = false;
+  try {
+    const res = await apiClient.get<{ success?: boolean; statusCode?: number; data?: unknown }>("/health", {
+      timeout: timeoutMs,
+    });
+    isHealthy = res.status >= 200 && res.status < 300 && (res.data?.success !== false);
+  } catch {
+    try {
+      const rootUrl = baseURL.replace(/\/v1\/?$/, "");
+      const res = await axios.get<{ success?: boolean; statusCode?: number; data?: unknown }>(`${rootUrl}/health`, {
+        timeout: timeoutMs,
+        headers: { Accept: "application/json" },
+      });
+      isHealthy = res.status >= 200 && res.status < 300 && (res.data?.success !== false);
+    } catch {
+      isHealthy = false;
+    }
+  }
+
+  cachedHealth = {
+    isHealthy,
+    expiresAt: now + (isHealthy ? 10000 : 3000),
+  };
+
+  return isHealthy;
+}
+
 export interface PaginationParams {
   page?: number;
   limit?: number;
@@ -80,6 +115,10 @@ export async function getOptionalApi<T>(
   try {
     return await getApi<T>(path, params);
   } catch (err: any) {
+    // Suppress noisy network error warnings when backend is intentionally offline/unattached
+    if (err?.code === "ERR_NETWORK" || err?.message?.includes("Network Error")) {
+      return null;
+    }
     console.warn(`[getOptionalApi] Warning for ${path}:`, err?.message || err);
     return null;
   }

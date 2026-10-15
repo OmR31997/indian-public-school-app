@@ -41,22 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 # generated pdf/html documents
-/documents/*.pdf
-/documents/*.html
-
-# Documents (To be uploaded in future)
-/public/assets/Documents
-
-# Documents
 documents/
 
-# Videos
-public/assets/Videos
-public/assets/AdmissionDocuments
-public/assets/CareerDocuments
-public/assets/PressRelease
-public/assets/Review
-public/assets/Album
-public/assets/Staff
-public/assets/Students
-public/assets/Testimonials
+# Local assets: only public/assets/Settings is retained; all other media is hosted on cloud
+/public/assets/*
+!/public/assets/Settings/
+!/public/assets/Settings/**

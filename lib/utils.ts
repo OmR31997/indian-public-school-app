@@ -173,7 +173,7 @@ export function getAssetUrl(url?: any): string {
         fixedUrl.toLowerCase().includes('aakashfoundationlogo') ||
         fixedUrl.toLowerCase().includes('file_xpnvia')
       ) {
-        fixedUrl = 'https://res.cloudinary.com/dnw7mgysa/image/upload/ips-education/assets/Settings/Logos/file_xpnvia.png';
+        fixedUrl = 'https://res.cloudinary.com/dnw7mgysa/image/upload/ips-education/assets/Settings/Logos/AakashFoundationLogo.png';
       }
 
       if (!fixedUrl.includes('/upload/')) {
@@ -214,6 +214,16 @@ export function getAssetUrl(url?: any): string {
     cleanPath.toLowerCase().includes('file_xpnvia')
   ) {
     cleanPath = 'Settings/Logos/AakashFoundationLogo.png';
+  }
+
+  // Settings assets are stored locally in public/assets/Settings, so serve them locally if not an absolute HTTP URL
+  if (
+    cleanPath.startsWith('Settings/') ||
+    cleanPath.startsWith('assets/Settings/') ||
+    trimmed.startsWith('/assets/Settings/') ||
+    trimmed.startsWith('/Settings/')
+  ) {
+    return `/assets/${cleanPath}`;
   }
 
   if (process.env.NEXT_PUBLIC_SERVE_LOCAL_ASSETS === 'true') {

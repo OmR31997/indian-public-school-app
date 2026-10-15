@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "_id": "6ad04c4f9745e6f2b89ca184",
+    "publicId": "NEW-MV8ZX0RC-8CX4R",
+    "title": "Admissions Open for Academic Session 2026–27",
+    "redirectUrl": "/admissions/policy",
+    "isPublished": true,
+    "createdAt": "2026-10-15T02:53:44.017Z"
+  },
+  {
+    "_id": "6ad04c4f9745e6f2b89ca185",
+    "publicId": "NEW-MV8ZX0RC-YM749-2",
+    "title": "Annual Sports Meet & Athletic Championship Concluded with Grandeur",
+    "redirectUrl": "/gallery-album",
+    "isPublished": true,
+    "createdAt": "2026-10-12T03:45:19.128Z"
+  },
+  {
+    "_id": "6ad04c4f9745e6f2b89ca186",
+    "publicId": "NEW-MV8ZX0RC-GXF5J-3",
+    "title": "Outstanding Performance by IPS Students in CBSE Board Examinations",
+    "redirectUrl": "/about",
+    "isPublished": true,
+    "createdAt": "2026-10-08T03:45:19.128Z"
+  },
+  {
+    "_id": "6ac4935a80a64fa19fd211ac",
+    "publicId": "NEWS-MUWAIVHT-VGCYN",
+    "attachmentUrl": "",
+    "createdAt": {},
+    "parentId": null,
+    "redirectUrl": "",
+    "title": "Timetable Coming Soon SEP 2026",
+    "updatedAt": {}
+  },
+  {
+    "_id": "6ac7d21c987cd93bdd7ebac3",
+    "publicId": "NEWS-MUZT57NA-VSJVE",
+    "attachmentUrl": "",
+    "createdAt": "2026-10-08T17:25:48.406Z",
+    "parentId": null,
+    "redirectUrl": "",
+    "title": "Something",
+    "updatedAt": "2026-10-08T17:25:48.406Z"
+  }
+]
