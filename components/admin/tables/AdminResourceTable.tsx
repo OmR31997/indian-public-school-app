@@ -612,7 +612,6 @@ export function HeaderFooterSettingsCard({
           category: "Content",
           description: "Full home page and website section layout configuration datasource",
           value: finalVal,
-          isPublic: true,
           status: "Active",
         },
         { headers }
@@ -626,7 +625,6 @@ export function HeaderFooterSettingsCard({
             category: "Branding",
             description: "School logo and header branding titles",
             value: siteLogo,
-            isPublic: true,
             status: "Active",
           },
           { headers }

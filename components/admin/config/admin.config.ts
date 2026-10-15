@@ -146,8 +146,8 @@ export const resources: Resource[] = [
     description: "School identity and configuration",
     icon: Settings,
     protected: true,
-    fields: ["key", "category", "value", "status", "isPublic", "createdAt", "updatedAt"],
-    inputs: { key: "text", category: "select", value: "textarea", description: "textarea", status: "select", isPublic: "boolean" },
+    fields: ["key", "category", "value", "status", "createdAt", "updatedAt"],
+    inputs: { key: "text", category: "select", value: "textarea", description: "textarea", status: "select" },
     options: { category: ["Content", "Header", "Footer", "General"], status: ["Active", "Inactive"] },
   },
   {

@@ -536,7 +536,6 @@ export function HomeLayoutEditorModal({
           description: record?.description || "Full home page layout configuration datasource",
           status: "Active",
           value: finalVal,
-          isPublic: true,
         },
         { keepOpen: true }
       );
