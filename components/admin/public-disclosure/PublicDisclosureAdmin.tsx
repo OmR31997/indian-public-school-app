@@ -565,7 +565,7 @@ export function PublicDisclosureAdmin({ apiUrl, token }: PublicDisclosureAdminPr
             onClick={() => setConfigModalOpen(true)}
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
           >
-            <ShieldCheck size={14} className="text-amber-500" />
+            <ShieldCheck size={14} className="text-[#1a5d9c]" />
             <span>Affiliation & Notice</span>
           </button>
 
@@ -573,9 +573,9 @@ export function PublicDisclosureAdmin({ apiUrl, token }: PublicDisclosureAdminPr
             <button
               onClick={handleSeedDefaults}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-900 hover:bg-amber-100 transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/80 px-3.5 py-2 text-xs font-bold text-blue-900 hover:bg-blue-100 transition-colors shadow-2xs"
             >
-              <Sparkles size={14} className="text-amber-600" />
+              <Sparkles size={14} className="text-[#1a5d9c]" />
               Seed CBSE Template
             </button>
           )}
@@ -616,15 +616,15 @@ export function PublicDisclosureAdmin({ apiUrl, token }: PublicDisclosureAdminPr
       )}
 
       {/* Statutory Affiliation & Compliance Notice Bar Summary */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200/90 bg-gradient-to-r from-blue-50/60 via-white to-amber-50/30 p-4 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-blue-200/80 bg-gradient-to-r from-blue-50/80 via-white to-sky-50/50 p-4 shadow-2xs">
         <div className="flex items-start sm:items-center gap-3 min-w-0">
-          <div className="grid size-8 place-items-center rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
+          <div className="grid size-8 place-items-center rounded-xl bg-blue-600/10 text-[#1a5d9c] shrink-0">
             <ShieldCheck className="size-4.5" />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-bold text-slate-800">
               <span>CBSE Affiliation: <span className="font-extrabold text-[#102a4c]">{configAffiliationNo || "330833"}</span></span>
-              <span className="text-amber-500 font-bold">·</span>
+              <span className="text-blue-500 font-bold">·</span>
               <span>School Code: <span className="font-extrabold text-[#102a4c]">{configSchoolCode || "65830"}</span></span>
               <span className={`inline-flex items-center ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                 configShowNotice ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
@@ -695,9 +695,9 @@ export function PublicDisclosureAdmin({ apiUrl, token }: PublicDisclosureAdminPr
           <div className="mt-5 flex gap-3">
             <button
               onClick={handleSeedDefaults}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-900 hover:bg-amber-100"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-bold text-blue-900 hover:bg-blue-100"
             >
-              <Sparkles size={14} className="text-amber-600" />
+              <Sparkles size={14} className="text-[#1a5d9c]" />
               Seed CBSE Template
             </button>
             <button
@@ -1267,7 +1267,7 @@ export function PublicDisclosureAdmin({ apiUrl, token }: PublicDisclosureAdminPr
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-200 my-8 animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="grid size-9 place-items-center rounded-xl bg-amber-500/10 text-amber-600">
+                <div className="grid size-9 place-items-center rounded-xl bg-blue-600/10 text-[#1a5d9c]">
                   <ShieldCheck className="size-5" />
                 </div>
                 <div>
@@ -1361,16 +1361,16 @@ export function PublicDisclosureAdmin({ apiUrl, token }: PublicDisclosureAdminPr
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Portal Live Preview
                 </span>
-                <div className="relative overflow-hidden rounded-xl border border-slate-200/90 border-l-4 border-l-amber-500 bg-gradient-to-r from-blue-50/70 via-slate-50/60 to-amber-50/30 p-3 shadow-2xs">
+                <div className="relative overflow-hidden rounded-xl border border-blue-200/90 border-l-4 border-l-[#1a5d9c] bg-gradient-to-r from-blue-50/80 via-slate-50/60 to-sky-50/50 p-3 shadow-2xs">
                   <div className="flex items-start gap-2.5">
-                    <div className="grid size-6 place-items-center rounded-md bg-amber-500/10 text-amber-600 shrink-0 mt-0.5">
+                    <div className="grid size-6 place-items-center rounded-md bg-blue-600/10 text-[#1a5d9c] shrink-0 mt-0.5">
                       <ShieldCheck className="size-3.5" />
                     </div>
                     <p className="text-[11px] leading-relaxed text-slate-700">
                       <span className="font-semibold text-slate-800">
                         CBSE Affiliation No. <span className="font-bold text-[#102a4c]">{configAffiliationNo || "—"}</span>
                       </span>
-                      <span className="text-amber-500 font-bold mx-1.5">·</span>
+                      <span className="text-blue-500 font-bold mx-1.5">·</span>
                       <span className="font-semibold text-slate-800">
                         School Code <span className="font-bold text-[#102a4c]">{configSchoolCode || "—"}</span>
                       </span>

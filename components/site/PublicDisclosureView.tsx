@@ -7,7 +7,6 @@ import {
   FileText,
   ExternalLink,
   Download,
-  Search,
   ChevronDown,
   ChevronRight,
   GraduationCap,
@@ -93,7 +92,6 @@ export function PublicDisclosureView({
   const showSec = siteLogo.showSecondaryLogo !== false && headerConfig.showSecondaryLogo !== false;
 
   const [sections] = useState<DisclosureSectionData[]>(initialSections);
-  const [search, setSearch] = useState("");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
     // Default all expanded
     const initial: Record<string, boolean> = {};
@@ -148,36 +146,10 @@ export function PublicDisclosureView({
     setExpandedSections(update);
   };
 
-  // Filter sections by search
+  // Filter published sections
   const filteredSections = useMemo(() => {
-    return sections
-      .filter((sec) => sec.isPublished !== false)
-      .filter((sec) => {
-        if (!search.trim()) return true;
-        const q = search.toLowerCase();
-        const titleMatch = sec.sectionTitle.toLowerCase().includes(q);
-        const rowMatch = sec.items.some(
-          (r) =>
-            r.title.toLowerCase().includes(q) ||
-            (r.detail && r.detail.toLowerCase().includes(q)) ||
-            (r.view && r.view.label && r.view.label.toLowerCase().includes(q)),
-        );
-        return titleMatch || rowMatch;
-      })
-      .map((sec) => {
-        if (!search.trim()) return sec;
-        const q = search.toLowerCase();
-        return {
-          ...sec,
-          items: sec.items.filter(
-            (r) =>
-              sec.sectionTitle.toLowerCase().includes(q) ||
-              r.title.toLowerCase().includes(q) ||
-              (r.detail && r.detail.toLowerCase().includes(q)),
-          ),
-        };
-      });
-  }, [sections, search]);
+    return sections.filter((sec) => sec.isPublished !== false);
+  }, [sections]);
 
 
   return (
@@ -232,31 +204,34 @@ export function PublicDisclosureView({
 
       {/* Main Content Area */}
       <section className="container-page py-10 lg:py-16 max-w-7xl space-y-8">
-        {/* Statutory Compliance Notice Bar (Indian Public School theme, responsive & dynamic) */}
+        {/* Statutory Compliance Notice Bar (Theme-managed, responsive & dynamic) */}
         {showNotice && (
-          <div className="relative overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800/90 border-l-4 border-l-amber-500 dark:border-l-amber-400 bg-gradient-to-r from-blue-50/70 via-slate-50/60 to-amber-50/30 dark:from-slate-900/95 dark:via-slate-900 dark:to-blue-950/25 p-3.5 sm:p-4 shadow-2xs">
+          <div
+            className="relative overflow-hidden border border-border border-l-4 border-l-primary bg-card text-card-foreground p-3.5 sm:p-4 shadow-2xs"
+            style={{ borderRadius: "var(--card-radius, 0.75rem)" }}
+          >
             <div className="flex items-start sm:items-center gap-3">
-              <div className="grid size-7 place-items-center rounded-lg bg-amber-500/10 dark:bg-amber-400/15 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 sm:mt-0">
+              <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0 mt-0.5 sm:mt-0">
                 <ShieldCheck className="size-4" />
               </div>
-              <p className="text-xs sm:text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+              <p className="text-xs sm:text-[13px] leading-relaxed text-muted-foreground">
+                <span className="font-semibold text-foreground">
                   CBSE Affiliation No.{" "}
-                  <span className="font-bold text-[#102a4c] dark:text-blue-300">
+                  <span className="font-bold text-primary">
                     {affiliationNo || "330833"}
                   </span>
                 </span>
-                <span className="text-amber-500 dark:text-amber-400 font-bold mx-2">·</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <span className="text-primary font-bold mx-2">·</span>
+                <span className="font-semibold text-foreground">
                   School Code{" "}
-                  <span className="font-bold text-[#102a4c] dark:text-blue-300">
+                  <span className="font-bold text-primary">
                     {schoolCode || "65830"}
                   </span>
                 </span>
                 {complianceNote && (
                   <>
-                    <span className="text-slate-400 dark:text-slate-600 mx-1.5 sm:mx-2">·</span>
-                    <span className="text-slate-600 dark:text-slate-400 font-normal">
+                    <span className="text-muted-foreground/60 mx-1.5 sm:mx-2">·</span>
+                    <span className="font-normal text-muted-foreground">
                       {complianceNote}
                     </span>
                   </>
@@ -265,39 +240,33 @@ export function PublicDisclosureView({
             </div>
           </div>
         )}
-        {/* Search & Actions Bar */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 sm:p-4 shadow-sm">
-          {/* Search box */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400 dark:text-slate-500" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search disclosures, certificates, safety documents, staff…"
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 py-2.5 pl-10 pr-9 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#1a5d9c] focus:outline-hidden focus:ring-2 focus:ring-[#1a5d9c]/10"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
-              >
-                <X size={14} />
-              </button>
-            )}
+
+        {/* Actions & Summary Toolbar Bar */}
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3.5 border border-border bg-card text-card-foreground p-4 shadow-xs print:hidden"
+          style={{ borderRadius: "var(--card-radius, 1rem)" }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0 border border-primary/20">
+              <FileCheck className="size-4.5" />
+            </div>
+            <div>
+              <h2 className="text-xs sm:text-sm font-bold text-foreground">
+                Official CBSE Mandatory Disclosures
+              </h2>
+            </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
             <button
               type="button"
               onClick={toggleAllSections}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs print:hidden cursor-pointer"
+              className="inline-flex items-center gap-1.5 border border-border bg-card text-card-foreground hover:bg-muted/70 px-3.5 py-2 text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+              style={{ borderRadius: "var(--btn-radius, 9999px)" }}
             >
               <ChevronDown
                 size={14}
-                className={`text-[#1a5d9c] dark:text-blue-400 transition-transform duration-200 ${
+                className={`text-primary transition-transform duration-200 ${
                   allExpanded ? "rotate-180" : ""
                 }`}
               />
@@ -307,10 +276,11 @@ export function PublicDisclosureView({
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs print:hidden cursor-pointer"
+              className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground hover:opacity-90 px-4 py-2 text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+              style={{ borderRadius: "var(--btn-radius, 9999px)" }}
               title="Open document preview to print or save as PDF (Ctrl + P)"
             >
-              <Printer size={14} className="text-[#1a5d9c] dark:text-blue-400" />
+              <Printer size={14} />
               <span>Print / PDF</span>
             </button>
           </div>
@@ -318,22 +288,15 @@ export function PublicDisclosureView({
 
         {/* Disclosure Sections Accordion / Cards */}
         {filteredSections.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center space-y-3">
+          <div
+            className="border border-dashed border-border bg-card text-card-foreground p-12 text-center space-y-3"
+            style={{ borderRadius: "var(--card-radius, 1rem)" }}
+          >
             <FileText className="mx-auto size-10 text-muted-foreground/60" />
             <h3 className="text-base font-bold text-foreground">No Disclosures Found</h3>
             <p className="text-xs text-muted-foreground">
-              {search
-                ? `No disclosure records match "${search}". Try clearing the search term.`
-                : "Public disclosure information will be updated shortly."}
+              Public disclosure information will be updated shortly.
             </p>
-            {search && (
-              <button
-                onClick={() => setSearch("")}
-                className="mt-2 text-xs font-bold text-primary hover:underline cursor-pointer"
-              >
-                Clear Search Filter
-              </button>
-            )}
           </div>
         ) : (
           <div className="space-y-6">
@@ -344,15 +307,20 @@ export function PublicDisclosureView({
                 <article
                   key={sec.sectionKey || secIdx}
                   id={sec.sectionKey}
-                  className="overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-300 ring-1 ring-black/[0.02]"
+                  className="overflow-hidden border border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300"
+                  style={{ borderRadius: "var(--card-radius, 1rem)" }}
                 >
                   {/* Section Title Header */}
                   <header
                     onClick={() => toggleSection(sec.sectionKey)}
-                    className="flex cursor-pointer items-center justify-between border-b border-navy-950/20 dark:border-slate-800 bg-gradient-to-r from-[#091b30] via-[#102a4c] to-[#16416f] p-4 sm:p-5 text-white select-none transition-all hover:brightness-105 shadow-xs"
+                    className="flex cursor-pointer items-center justify-between border-b border-border text-white select-none transition-all hover:brightness-105 shadow-xs p-4 sm:p-5"
+                    style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 text-slate-950 font-black font-mono text-sm shadow-md shadow-amber-500/20 ring-2 ring-white/20 shrink-0">
+                      <span
+                        className="grid size-10 place-items-center bg-white/15 text-white font-black font-mono text-sm shadow-md ring-2 ring-white/20 shrink-0"
+                        style={{ borderRadius: "var(--badge-radius, 0.75rem)" }}
+                      >
                         {getSectionBadge(sec.sectionTitle, secIdx)}
                       </span>
                       <div className="min-w-0">
@@ -364,9 +332,10 @@ export function PublicDisclosureView({
 
                     <div className="flex items-center gap-2 shrink-0">
                       <div
-                        className={`grid size-9 place-items-center rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-xs transition-all duration-300 shadow-2xs ${
+                        className={`grid size-9 place-items-center bg-white/10 hover:bg-white/20 text-white backdrop-blur-xs transition-all duration-300 shadow-2xs ${
                           isExpanded ? "rotate-180" : ""
                         }`}
+                        style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                       >
                         <ChevronDown size={18} />
                       </div>
@@ -375,9 +344,9 @@ export function PublicDisclosureView({
 
                   {/* Section Items */}
                   {isExpanded && (
-                    <div className="bg-white dark:bg-slate-900">
+                    <div className="bg-card text-card-foreground">
                       {/* Subtle accent rule below header */}
-                      <div className="h-0.5 bg-gradient-to-r from-amber-400 via-amber-300/40 to-transparent" />
+                      <div className="h-0.5 bg-gradient-to-r from-primary via-primary/40 to-transparent" />
 
                       {sec.items.length === 0 ? (
                         <div className="p-8 text-center text-xs text-muted-foreground">
@@ -387,14 +356,14 @@ export function PublicDisclosureView({
                         <div className="overflow-x-auto">
                           <table className="w-full text-left text-xs border-collapse">
                             <thead>
-                              <tr className="border-b-2 border-[#102a4c]/20 dark:border-amber-400/30 bg-[#f4f7fa] dark:bg-slate-900/90 text-[#102a4c] dark:text-amber-300 text-[11px] font-extrabold uppercase tracking-wider font-[var(--font-display)]">
-                                <th className="py-3.5 px-3 text-center w-16 sm:w-20 border-r border-slate-200/90 dark:border-slate-800">
+                              <tr className="border-b-2 border-border bg-muted/60 text-foreground text-[11px] font-extrabold uppercase tracking-wider font-[var(--font-display)]">
+                                <th className="py-3.5 px-3 text-center w-16 sm:w-20 border-r border-border">
                                   Sr.
                                 </th>
-                                <th className="py-3.5 px-4 sm:px-5 w-2/5 sm:w-1/3 min-w-[220px] border-r border-slate-200/90 dark:border-slate-800">
+                                <th className="py-3.5 px-4 sm:px-5 w-2/5 sm:w-1/3 min-w-[220px] border-r border-border">
                                   Information / Subject
                                 </th>
-                                <th className="py-3.5 px-4 sm:px-5 border-r border-slate-200/90 dark:border-slate-800">
+                                <th className="py-3.5 px-4 sm:px-5 border-r border-border">
                                   Details / Information
                                 </th>
                                 <th className="py-3.5 px-4 text-center w-36 sm:w-44 min-w-[140px]">
@@ -402,7 +371,7 @@ export function PublicDisclosureView({
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800 text-xs">
+                            <tbody className="divide-y divide-border text-xs">
                               {sec.items.map((row, rowIdx) => {
                                 const hasDetail = Boolean(row.detail && row.detail.trim());
                                 const hasDoc = Boolean(row.view && row.view.url);
@@ -417,30 +386,33 @@ export function PublicDisclosureView({
                                 return (
                                   <tr
                                     key={row.rowId || rowIdx}
-                                    className="even:bg-slate-50/70 dark:even:bg-slate-900/40 hover:bg-[#1a5d9c]/5 dark:hover:bg-slate-800/60 transition-colors"
+                                    className="even:bg-muted/30 hover:bg-muted/70 transition-colors"
                                   >
                                     {/* Serial Number */}
-                                    <td className="py-4 px-3 text-center border-r border-slate-200/80 dark:border-slate-800/80 align-middle">
-                                      <span className="inline-flex size-7 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 font-mono text-xs font-bold text-slate-800 dark:text-slate-200 border border-slate-200/90 dark:border-slate-700 shadow-2xs">
+                                    <td className="py-4 px-3 text-center border-r border-border align-middle">
+                                      <span
+                                        className="inline-flex size-7 items-center justify-center bg-secondary text-secondary-foreground font-mono text-xs font-bold border border-border shadow-2xs"
+                                        style={{ borderRadius: "var(--badge-radius, 0.5rem)" }}
+                                      >
                                         {row.srNo ?? rowIdx + 1}
                                       </span>
                                     </td>
 
                                     {/* Row Title */}
-                                    <td className="py-4 px-4 sm:px-5 border-r border-slate-200/80 dark:border-slate-800/80 align-middle">
-                                      <span className="font-semibold text-slate-900 dark:text-slate-100 text-xs sm:text-[13px] leading-snug">
+                                    <td className="py-4 px-4 sm:px-5 border-r border-border align-middle">
+                                      <span className="font-semibold text-foreground text-xs sm:text-[13px] leading-snug">
                                         {row.title}
                                       </span>
                                     </td>
 
                                     {/* Text Detail */}
-                                    <td className="py-4 px-4 sm:px-5 border-r border-slate-200/80 dark:border-slate-800/80 align-middle">
+                                    <td className="py-4 px-4 sm:px-5 border-r border-border align-middle">
                                       {hasDetail ? (
-                                        <p className="whitespace-pre-line text-slate-700 dark:text-slate-300 text-xs sm:text-[13px] font-sans leading-relaxed">
+                                        <p className="whitespace-pre-line text-muted-foreground text-xs sm:text-[13px] font-sans leading-relaxed">
                                           {row.detail}
                                         </p>
                                       ) : (
-                                        <span className="text-slate-300 dark:text-slate-600 font-mono text-sm select-none">—</span>
+                                        <span className="text-muted-foreground/40 font-mono text-sm select-none">—</span>
                                       )}
                                     </td>
 
@@ -453,11 +425,12 @@ export function PublicDisclosureView({
                                               href={resolvedUrl}
                                               target="_blank"
                                               rel="noopener noreferrer"
-                                              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#102a4c] to-[#1a5d9c] hover:from-[#1a5d9c] hover:to-[#226eb6] text-white px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] border border-amber-400/30 group cursor-pointer"
+                                              className="inline-flex items-center justify-center gap-1.5 bg-primary text-primary-foreground hover:opacity-90 px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] border border-primary/20 group cursor-pointer"
+                                              style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                                             >
-                                              <FileText size={13} className="text-amber-300 group-hover:scale-110 transition-transform" />
+                                              <FileText size={13} className="text-primary-foreground/90 group-hover:scale-110 transition-transform" />
                                               <span>{row.view?.label || "VIEW"}</span>
-                                              <ExternalLink size={11} className="text-white/60 group-hover:text-white group-hover:translate-x-0.5 transition-transform" />
+                                              <ExternalLink size={11} className="text-primary-foreground/70 group-hover:text-primary-foreground group-hover:translate-x-0.5 transition-transform" />
                                             </a>
                                           ) : (
                                             <button
@@ -466,16 +439,17 @@ export function PublicDisclosureView({
                                                 setPreviewUrl(resolvedUrl);
                                                 setPreviewTitle(row.title || "Mandatory Disclosure Document");
                                               }}
-                                              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#102a4c] to-[#1a5d9c] hover:from-[#1a5d9c] hover:to-[#226eb6] text-white px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] border border-amber-400/30 group cursor-pointer"
+                                              className="inline-flex items-center justify-center gap-1.5 bg-primary text-primary-foreground hover:opacity-90 px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] border border-primary/20 group cursor-pointer"
+                                              style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                                             >
-                                              <FileText size={13} className="text-amber-300 group-hover:scale-110 transition-transform" />
+                                              <FileText size={13} className="text-primary-foreground/90 group-hover:scale-110 transition-transform" />
                                               <span>{row.view?.label || "VIEW"}</span>
-                                              <Eye size={12} className="text-white/70 group-hover:text-white transition-colors" />
+                                              <Eye size={12} className="text-primary-foreground/80 group-hover:text-primary-foreground transition-colors" />
                                             </button>
                                           )}
                                         </div>
                                       ) : (
-                                        <span className="text-slate-300 dark:text-slate-600 font-mono text-sm select-none">—</span>
+                                        <span className="text-muted-foreground/40 font-mono text-sm select-none">—</span>
                                       )}
                                     </td>
                                   </tr>
