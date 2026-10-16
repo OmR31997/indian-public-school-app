@@ -296,6 +296,13 @@ export function RecordDialog({
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const payload = { ...values };
+    if (resource.key === "pages" || resource.key === "menu-items") {
+      if (record && record.isPublished !== undefined && payload.isPublished === undefined) {
+        payload.isPublished = record.isPublished;
+      } else if (!record && payload.isPublished === undefined) {
+        payload.isPublished = true;
+      }
+    }
     if (resource.key === "menu-items") {
       payload.category = record?.category || "Header";
     }

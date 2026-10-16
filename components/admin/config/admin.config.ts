@@ -158,7 +158,7 @@ export const resources: Resource[] = [
     description: "Navigation structure (up to 3 levels)",
     icon: Menu,
     fields: ["title", "level", "parentId", "category", "isPublished", "order", "createdAt", "updatedAt"],
-    inputs: { title: "text", parentId: "select", targetUrl: "text", order: "number", isPublished: "boolean" },
+    inputs: { title: "text", parentId: "select", targetUrl: "text", order: "number" },
     options: { category: ["Header", "Footer", "Quick Links", "Sidebar"] },
   },
   {
@@ -168,7 +168,7 @@ export const resources: Resource[] = [
     icon: FileText,
     protected: true,
     fields: ["title", "targetUrl", "isPublished", "createdAt", "updatedAt"],
-    inputs: { title: "text", targetUrl: "text", textContent: "richtext", isPublished: "boolean" },
+    inputs: { title: "text", targetUrl: "text", textContent: "richtext" },
   },
   {
     key: "users",

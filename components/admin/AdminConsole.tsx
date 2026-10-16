@@ -223,6 +223,9 @@ export function AdminConsole() {
       setData((previous) => ({ ...previous, [key]: parsed.items }));
       setMetaData((previous) => ({ ...previous, [key]: parsed.meta }));
       setQueryParams((previous) => ({ ...previous, [key]: currentQuery }));
+      if (key === "pages") {
+        fetchPublishedPages();
+      }
     } catch (err) {
       if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 404) && key === "users") {
         setToken("");
@@ -384,6 +387,9 @@ export function AdminConsole() {
             payload.menuId = slug;
           }
           if (!payload.menuId) delete payload.menuId;
+          if (!editing && payload.isPublished === undefined) {
+            payload.isPublished = true;
+          }
         }
         if (current.key === "pages") {
           const title = String(payload.title || "").trim();

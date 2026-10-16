@@ -71,11 +71,13 @@ export function MenuHierarchyFlow({
   onEdit,
   onDelete,
   deletingId,
+  onTogglePublished,
 }: {
   items: RecordItem[];
   onEdit: (item: RecordItem) => void;
   onDelete: (item: RecordItem) => void;
   deletingId?: string | null;
+  onTogglePublished?: (item: RecordItem, isPublished: boolean) => Promise<void> | void;
 }) {
   const itemMap = new Map<string, RecordItem & { children: any[] }>();
 
@@ -130,7 +132,27 @@ export function MenuHierarchyFlow({
                   <span className="text-[11px] text-slate-400 italic">(No sub-items)</span>
                 )}
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
+                {onTogglePublished && (
+                  <div className="relative inline-flex items-center">
+                    <select
+                      value={root.isPublished !== false && String(root.isPublished) !== "false" ? "Published" : "Draft"}
+                      onChange={(e) => onTogglePublished(root, e.target.value === "Published")}
+                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-5 pr-5 py-0.5 text-[10px] font-bold border shadow-2xs transition outline-none ${
+                        root.isPublished !== false && String(root.isPublished) !== "false"
+                          ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30"
+                          : "border-rose-400/50 bg-rose-500/20 text-rose-200 hover:bg-rose-500/30"
+                      }`}
+                      title="Click to change published status"
+                    >
+                      <option value="Published" className="text-slate-900 bg-white font-semibold">Published</option>
+                      <option value="Draft" className="text-slate-900 bg-white font-semibold">Draft</option>
+                    </select>
+                    <span className={`pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full ${
+                      root.isPublished !== false && String(root.isPublished) !== "false" ? "bg-emerald-400 animate-pulse" : "bg-rose-400"
+                    }`} />
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => onEdit(root)}
@@ -174,7 +196,27 @@ export function MenuHierarchyFlow({
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {onTogglePublished && (
+                          <div className="relative inline-flex items-center">
+                            <select
+                              value={sub.isPublished !== false && String(sub.isPublished) !== "false" ? "Published" : "Draft"}
+                              onChange={(e) => onTogglePublished(sub, e.target.value === "Published")}
+                              className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-5 pr-5 py-0.5 text-[10px] font-bold border shadow-2xs transition outline-none ${
+                                sub.isPublished !== false && String(sub.isPublished) !== "false"
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                                  : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100"
+                              }`}
+                              title="Click to change published status"
+                            >
+                              <option value="Published" className="text-slate-900 bg-white font-semibold">Published</option>
+                              <option value="Draft" className="text-slate-900 bg-white font-semibold">Draft</option>
+                            </select>
+                            <span className={`pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full ${
+                              sub.isPublished !== false && String(sub.isPublished) !== "false" ? "bg-emerald-500 animate-pulse" : "bg-rose-500"
+                            }`} />
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={() => onEdit(sub)}
@@ -213,7 +255,27 @@ export function MenuHierarchyFlow({
                                   Level 3 (Sub-item)
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1 shrink-0">
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {onTogglePublished && (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={subSub.isPublished !== false && String(subSub.isPublished) !== "false" ? "Published" : "Draft"}
+                                      onChange={(e) => onTogglePublished(subSub, e.target.value === "Published")}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-5 pr-5 py-0.5 text-[10px] font-bold border shadow-2xs transition outline-none ${
+                                        subSub.isPublished !== false && String(subSub.isPublished) !== "false"
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                                          : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100"
+                                      }`}
+                                      title="Click to change published status"
+                                    >
+                                      <option value="Published" className="text-slate-900 bg-white font-semibold">Published</option>
+                                      <option value="Draft" className="text-slate-900 bg-white font-semibold">Draft</option>
+                                    </select>
+                                    <span className={`pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full ${
+                                      subSub.isPublished !== false && String(subSub.isPublished) !== "false" ? "bg-emerald-500 animate-pulse" : "bg-rose-500"
+                                    }`} />
+                                  </div>
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => onEdit(subSub)}
@@ -1501,7 +1563,24 @@ export function ResourceView({
               </span>
             </div>
           ) : (
-            <MenuHierarchyFlow items={allMenuItems && allMenuItems.length > 0 ? allMenuItems : items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
+            <MenuHierarchyFlow
+              items={allMenuItems && allMenuItems.length > 0 ? allMenuItems : items}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              deletingId={deletingId}
+              onTogglePublished={canEdit ? async (item, isPub) => {
+                try {
+                  await axios.patch(
+                    `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                    { isPublished: isPub },
+                    { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                  );
+                  onQueryChange({});
+                } catch (err) {
+                  console.error("Failed to update isPublished", err);
+                }
+              } : undefined}
+            />
           )
         ) : (
           <div className="overflow-x-auto">
@@ -1511,9 +1590,11 @@ export function ResourceView({
                   {resource.fields.map((field) => (
                     <th
                       key={field}
-                      className={`whitespace-nowrap px-5 py-3.5 ${field === "status" ? "text-center" : ""}`}
+                      className={`whitespace-nowrap px-5 py-3.5 ${
+                        field === "status" || field === "isPublished" || field === "isActive" ? "text-center" : ""
+                      }`}
                     >
-                      {field}
+                      {field === "isPublished" ? "Published" : field === "isActive" ? "Status" : field}
                     </th>
                   ))}
                   {(canEdit || canDelete || isMediaResource) && (
@@ -1676,6 +1757,152 @@ export function ResourceView({
                                       }`}
                                     />
                                     <span>{statusStr}</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          }
+
+                          if (field === "isPublished") {
+                            const isPub = item[field] === true || String(item[field]) === "true";
+                            const pubStr = isPub ? "Published" : "Draft";
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={pubStr}
+                                      onChange={async (e) => {
+                                        const newPublished = e.target.value === "Published";
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { isPublished: newPublished },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update isPublished", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isPub
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
+                                      }`}
+                                      title="Click to change published status"
+                                    >
+                                      <option value="Published" className="text-slate-900 bg-white font-semibold">
+                                        Published
+                                      </option>
+                                      <option value="Draft" className="text-slate-900 bg-white font-semibold">
+                                        Draft
+                                      </option>
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isPub
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isPub ? "text-emerald-600" : "text-rose-600"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isPub
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : "border-rose-200 bg-rose-50 text-rose-800"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isPub
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <span>{pubStr}</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          }
+
+                          if (field === "isActive") {
+                            const isAct = item[field] === true || String(item[field]) === "true" || String(item[field]).toLowerCase() === "active";
+                            const actStr = isAct ? "Active" : "Inactive";
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={actStr}
+                                      onChange={async (e) => {
+                                        const newActive = e.target.value === "Active";
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { isActive: newActive },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update isActive", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isAct
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
+                                      }`}
+                                      title="Click to change status"
+                                    >
+                                      <option value="Active" className="text-slate-900 bg-white font-semibold">
+                                        Active
+                                      </option>
+                                      <option value="Inactive" className="text-slate-900 bg-white font-semibold">
+                                        Inactive
+                                      </option>
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isAct ? "text-emerald-600" : "text-rose-600"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isAct
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : "border-rose-200 bg-rose-50 text-rose-800"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <span>{actStr}</span>
                                   </span>
                                 )}
                               </td>
