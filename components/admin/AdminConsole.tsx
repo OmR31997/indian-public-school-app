@@ -801,7 +801,8 @@ export function AdminConsole() {
             onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }}
             onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }}
             onDelete={remove}
-            canCreate={canUpdateResource(current.key)}
+            /* Create new control commented out for reviews: reviews are submitted by parents/students publicly */
+            canCreate={current.key !== "reviews" && canUpdateResource(current.key)}
             canEdit={canUpdateResource(current.key)}
             canDelete={canDeleteResource(current.key)}
             allMenuItems={allMenuItems}

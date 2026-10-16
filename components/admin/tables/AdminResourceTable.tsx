@@ -1245,7 +1245,8 @@ export function ResourceView({
     }
   }, [query.search]);
 
-  const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0;
+  // Create new control is commented out for reviews as they are submitted publicly from the website
+  const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0 && resource.key !== "reviews";
   const canEdit = canEditProp && Object.keys(resource.inputs).length > 0;
   const canDelete = canDeleteProp && resource.key !== "school-settings";
 
@@ -1323,7 +1324,8 @@ export function ResourceView({
           <h2 className="font-display text-3xl font-bold text-[#102a4c]">{resource.label}</h2>
           <p className="mt-1 text-slate-500">{resource.description}</p>
         </div>
-        {canCreate && (
+        {/* Create new control - commented out for reviews page */}
+        {canCreate && resource.key !== "reviews" && (
           <button
             onClick={onCreate}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-900/15 transition hover:bg-[#124c81] cursor-pointer"
