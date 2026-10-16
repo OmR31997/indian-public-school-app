@@ -6,9 +6,9 @@ import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldC
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
 import { cn, ensureExternalUrl, formatHref, isExternalUrl } from "@/lib/utils";
-import { buildMenuHierarchy, DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, homeData, imageUrl, isBannerLogoUrl, text } from "@/lib/site-data";
+import { buildMenuHierarchy, DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, homeData, imageUrl, isBannerLogoUrl, text, type DeveloperSetting } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
-import { API_URL } from "@/lib/api-client";
+import { API_URL, checkBackendHealth } from "@/lib/api-client";
 import { openAdmissionModal } from "@/components/site/AdmissionApplicationModal";
 import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 
@@ -110,6 +110,36 @@ const getFooterGridClass = (count: number) => {
 
 export function Footer() {
   const siteData = useSiteData();
+  const developer: DeveloperSetting = (siteData?.developer as DeveloperSetting) || {
+    name: "EZ Softech",
+    url: "https://ezsoftapp.in",
+    label: "Crafted by",
+    showBackendStatus: true,
+  };
+
+  const [isBackendOnline, setIsBackendOnline] = useState<boolean>(() => Boolean(siteData?.backendConnected));
+
+  useEffect(() => {
+    let isMounted = true;
+    const verifyHealth = async () => {
+      const online = await checkBackendHealth(2500, true);
+      if (isMounted) {
+        setIsBackendOnline(online);
+      }
+    };
+
+    verifyHealth();
+
+    const interval = setInterval(verifyHealth, 15000);
+    window.addEventListener("focus", verifyHealth);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      window.removeEventListener("focus", verifyHealth);
+    };
+  }, []);
+
   const homeIdentity = (homeData(siteData).identity as Record<string, unknown>) || {};
   const footerConfig = (homeIdentity.footer as Record<string, unknown>) || (siteData.footer as Record<string, unknown>) || {};
   const contact = (siteData["contact-us"] as Record<string, unknown>) ?? {};
@@ -427,10 +457,47 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-navy-foreground/15 pt-6 text-center sm:flex-row sm:text-left">
-          <p className="text-xs text-navy-foreground/60">
-            {copyrightText}
-          </p>
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-navy-foreground/15 pt-6 text-center lg:flex-row lg:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs text-navy-foreground/60 lg:justify-start">
+            <span>{copyrightText}</span>
+            <span className="hidden sm:inline text-navy-foreground/30">•</span>
+            <span className="inline-flex items-center gap-2">
+              <span>{developer.label || "Crafted by"}</span>
+              <a
+                href={developer.url || "https://ezsoftapp.in"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-semibold text-gold transition-colors hover:text-gold-light hover:underline"
+              >
+                <i className="bi bi-code-slash text-xs text-gold" />
+                {developer.name || "EZ Softech"}
+              </a>
+
+              {developer.showBackendStatus !== false && (
+                <span
+                  title={
+                    isBackendOnline
+                      ? "Backend: Online & Connected"
+                      : "Backend: Offline (Serving Local Data)"
+                  }
+                  aria-label={isBackendOnline ? "Backend: Online" : "Backend: Offline"}
+                  className={cn(
+                    "inline-flex items-center justify-center w-5 h-5 rounded-full transition-all duration-300 cursor-help select-none",
+                    isBackendOnline
+                      ? "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 hover:scale-110 shadow-sm shadow-emerald-500/20"
+                      : "bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 hover:scale-110 shadow-sm shadow-amber-500/20"
+                  )}
+                >
+                  <i
+                    className={cn(
+                      "bi text-xs leading-none",
+                      isBackendOnline ? "bi-cloud-fill" : "bi-cloud-slash-fill"
+                    )}
+                  />
+                </span>
+              )}
+            </span>
+          </div>
           <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {[
               { title: "Privacy Policy", href: "/privacy-policy" },

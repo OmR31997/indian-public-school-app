@@ -71,11 +71,13 @@ export function MenuHierarchyFlow({
   onEdit,
   onDelete,
   deletingId,
+  onTogglePublished,
 }: {
   items: RecordItem[];
   onEdit: (item: RecordItem) => void;
   onDelete: (item: RecordItem) => void;
   deletingId?: string | null;
+  onTogglePublished?: (item: RecordItem, isPublished: boolean) => Promise<void> | void;
 }) {
   const itemMap = new Map<string, RecordItem & { children: any[] }>();
 
@@ -130,7 +132,27 @@ export function MenuHierarchyFlow({
                   <span className="text-[11px] text-slate-400 italic">(No sub-items)</span>
                 )}
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
+                {onTogglePublished && (
+                  <div className="relative inline-flex items-center">
+                    <select
+                      value={root.isPublished !== false && String(root.isPublished) !== "false" ? "Published" : "Draft"}
+                      onChange={(e) => onTogglePublished(root, e.target.value === "Published")}
+                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-5 pr-5 py-0.5 text-[10px] font-bold border shadow-2xs transition outline-none ${
+                        root.isPublished !== false && String(root.isPublished) !== "false"
+                          ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30"
+                          : "border-rose-400/50 bg-rose-500/20 text-rose-200 hover:bg-rose-500/30"
+                      }`}
+                      title="Click to change published status"
+                    >
+                      <option value="Published" className="text-slate-900 bg-white font-semibold">Published</option>
+                      <option value="Draft" className="text-slate-900 bg-white font-semibold">Draft</option>
+                    </select>
+                    <span className={`pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full ${
+                      root.isPublished !== false && String(root.isPublished) !== "false" ? "bg-emerald-400 animate-pulse" : "bg-rose-400"
+                    }`} />
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => onEdit(root)}
@@ -174,7 +196,27 @@ export function MenuHierarchyFlow({
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {onTogglePublished && (
+                          <div className="relative inline-flex items-center">
+                            <select
+                              value={sub.isPublished !== false && String(sub.isPublished) !== "false" ? "Published" : "Draft"}
+                              onChange={(e) => onTogglePublished(sub, e.target.value === "Published")}
+                              className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-5 pr-5 py-0.5 text-[10px] font-bold border shadow-2xs transition outline-none ${
+                                sub.isPublished !== false && String(sub.isPublished) !== "false"
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                                  : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100"
+                              }`}
+                              title="Click to change published status"
+                            >
+                              <option value="Published" className="text-slate-900 bg-white font-semibold">Published</option>
+                              <option value="Draft" className="text-slate-900 bg-white font-semibold">Draft</option>
+                            </select>
+                            <span className={`pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full ${
+                              sub.isPublished !== false && String(sub.isPublished) !== "false" ? "bg-emerald-500 animate-pulse" : "bg-rose-500"
+                            }`} />
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={() => onEdit(sub)}
@@ -213,7 +255,27 @@ export function MenuHierarchyFlow({
                                   Level 3 (Sub-item)
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1 shrink-0">
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {onTogglePublished && (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={subSub.isPublished !== false && String(subSub.isPublished) !== "false" ? "Published" : "Draft"}
+                                      onChange={(e) => onTogglePublished(subSub, e.target.value === "Published")}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-5 pr-5 py-0.5 text-[10px] font-bold border shadow-2xs transition outline-none ${
+                                        subSub.isPublished !== false && String(subSub.isPublished) !== "false"
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                                          : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100"
+                                      }`}
+                                      title="Click to change published status"
+                                    >
+                                      <option value="Published" className="text-slate-900 bg-white font-semibold">Published</option>
+                                      <option value="Draft" className="text-slate-900 bg-white font-semibold">Draft</option>
+                                    </select>
+                                    <span className={`pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full ${
+                                      subSub.isPublished !== false && String(subSub.isPublished) !== "false" ? "bg-emerald-500 animate-pulse" : "bg-rose-500"
+                                    }`} />
+                                  </div>
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => onEdit(subSub)}
@@ -273,7 +335,7 @@ export const RESOURCE_FILTERS: Record<string, { label: string; key: string; opti
     { label: "Category", key: "category", options: ["All", "Header", "Footer", "Quick Links", "Sidebar"] },
   ],
   reviews: [
-    { label: "Status", key: "status", options: ["All", "Pending", "Approved", "Rejected"] },
+    { label: "Status", key: "isApproved", options: ["All", "Approved", "Pending"] },
   ],
   inquiries: [
     { label: "Status", key: "status", options: ["All", "New", "In Progress", "Contacted", "Resolved", "Closed"] },
@@ -438,7 +500,6 @@ export function HeaderFooterSettingsCard({
   };
 
   const siteDsItem = useMemo(() => items.find((i) => i.key === "site_datasource"), [items]);
-  const logoItem = useMemo(() => items.find((i) => i.key === "site_logo"), [items]);
   const certItem = useMemo(() => items.find((i) => i.key === "certified_board"), [items]);
   const trustItem = useMemo(() => items.find((i) => i.key === "trust_board"), [items]);
   const partnerItem = useMemo(() => items.find((i) => i.key === "academic_partner"), [items]);
@@ -517,10 +578,6 @@ export function HeaderFooterSettingsCard({
       const logoVal = homeIdentity.site_logo || dsVal.site_logo;
       if (logoVal && typeof logoVal === "object") {
         setSiteLogo((prev) => ({ ...prev, ...(logoVal as object) }));
-      } else if (logoItem?.value) {
-        let lVal = logoItem.value;
-        if (typeof lVal === "string") { try { lVal = JSON.parse(lVal); } catch { } }
-        if (lVal && typeof lVal === "object") setSiteLogo((prev) => ({ ...prev, ...(lVal as object) }));
       }
 
       const certVal = homeIdentity.certified_board || dsVal.certified_board;
@@ -553,7 +610,7 @@ export function HeaderFooterSettingsCard({
 
     loadFullSettings();
     return () => { isMounted = false; };
-  }, [siteDsItem, logoItem, certItem, trustItem, partnerItem]);
+  }, [siteDsItem, certItem, trustItem, partnerItem]);
 
   const saveSettings = async () => {
     if (!token) {
@@ -612,7 +669,6 @@ export function HeaderFooterSettingsCard({
           category: "Content",
           description: "Full home page and website section layout configuration datasource",
           value: finalVal,
-          isPublic: true,
           status: "Active",
         },
         { headers }
@@ -626,7 +682,6 @@ export function HeaderFooterSettingsCard({
             category: "Branding",
             description: "School logo and header branding titles",
             value: siteLogo,
-            isPublic: true,
             status: "Active",
           },
           { headers }
@@ -1190,9 +1245,10 @@ export function ResourceView({
     }
   }, [query.search]);
 
-  const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0;
+  // Create new control is commented out for reviews as they are submitted publicly from the website
+  const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0 && resource.key !== "reviews";
   const canEdit = canEditProp && Object.keys(resource.inputs).length > 0;
-  const canDelete = canDeleteProp;
+  const canDelete = canDeleteProp && resource.key !== "school-settings";
 
   const filtersConfig = RESOURCE_FILTERS[resource.key] || [];
 
@@ -1268,7 +1324,8 @@ export function ResourceView({
           <h2 className="font-display text-3xl font-bold text-[#102a4c]">{resource.label}</h2>
           <p className="mt-1 text-slate-500">{resource.description}</p>
         </div>
-        {canCreate && (
+        {/* Create new control - commented out for reviews page */}
+        {canCreate && resource.key !== "reviews" && (
           <button
             onClick={onCreate}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1a5d9c] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-900/15 transition hover:bg-[#124c81] cursor-pointer"
@@ -1508,7 +1565,24 @@ export function ResourceView({
               </span>
             </div>
           ) : (
-            <MenuHierarchyFlow items={allMenuItems && allMenuItems.length > 0 ? allMenuItems : items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
+            <MenuHierarchyFlow
+              items={allMenuItems && allMenuItems.length > 0 ? allMenuItems : items}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              deletingId={deletingId}
+              onTogglePublished={canEdit ? async (item, isPub) => {
+                try {
+                  await axios.patch(
+                    `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                    { isPublished: isPub },
+                    { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                  );
+                  onQueryChange({});
+                } catch (err) {
+                  console.error("Failed to update isPublished", err);
+                }
+              } : undefined}
+            />
           )
         ) : (
           <div className="overflow-x-auto">
@@ -1518,9 +1592,11 @@ export function ResourceView({
                   {resource.fields.map((field) => (
                     <th
                       key={field}
-                      className={`whitespace-nowrap px-5 py-3.5 ${field === "status" ? "text-center" : ""}`}
+                      className={`whitespace-nowrap px-5 py-3.5 ${
+                        field === "status" || field === "isPublished" || field === "isActive" || field === "isApproved" ? "text-center" : ""
+                      }`}
                     >
-                      {field}
+                      {field === "isPublished" ? "Published" : field === "isActive" ? "Status" : field === "isApproved" ? "Approval" : field}
                     </th>
                   ))}
                   {(canEdit || canDelete || isMediaResource) && (
@@ -1689,6 +1765,225 @@ export function ResourceView({
                             );
                           }
 
+                          if (field === "isPublished") {
+                            const isPub = item[field] === true || String(item[field]) === "true";
+                            const pubStr = isPub ? "Published" : "Draft";
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={pubStr}
+                                      onChange={async (e) => {
+                                        const newPublished = e.target.value === "Published";
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { isPublished: newPublished },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update isPublished", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isPub
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
+                                      }`}
+                                      title="Click to change published status"
+                                    >
+                                      <option value="Published" className="text-slate-900 bg-white font-semibold">
+                                        Published
+                                      </option>
+                                      <option value="Draft" className="text-slate-900 bg-white font-semibold">
+                                        Draft
+                                      </option>
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isPub
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isPub ? "text-emerald-600" : "text-rose-600"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isPub
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : "border-rose-200 bg-rose-50 text-rose-800"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isPub
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <span>{pubStr}</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          }
+
+                          if (field === "isActive") {
+                            const isAct = item[field] === true || String(item[field]) === "true" || String(item[field]).toLowerCase() === "active";
+                            const actStr = isAct ? "Active" : "Inactive";
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={actStr}
+                                      onChange={async (e) => {
+                                        const newActive = e.target.value === "Active";
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { isActive: newActive },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update isActive", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isAct
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100/80"
+                                      }`}
+                                      title="Click to change status"
+                                    >
+                                      <option value="Active" className="text-slate-900 bg-white font-semibold">
+                                        Active
+                                      </option>
+                                      <option value="Inactive" className="text-slate-900 bg-white font-semibold">
+                                        Inactive
+                                      </option>
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isAct ? "text-emerald-600" : "text-rose-600"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isAct
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : "border-rose-200 bg-rose-50 text-rose-800"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isAct
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-rose-500 shadow-xs shadow-rose-400"
+                                      }`}
+                                    />
+                                    <span>{actStr}</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          }
+
+                          if (field === "isApproved") {
+                            const isApp = item[field] === true || String(item[field]) === "true";
+                            const appStr = isApp ? "Approved" : "Pending";
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={appStr}
+                                      onChange={async (e) => {
+                                        const newApproved = e.target.value === "Approved";
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { isApproved: newApproved },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update isApproved", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isApp
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100/80"
+                                      }`}
+                                      title="Click to change approval status"
+                                    >
+                                      <option value="Approved" className="text-slate-900 bg-white font-semibold">
+                                        Approved
+                                      </option>
+                                      <option value="Pending" className="text-slate-900 bg-white font-semibold">
+                                        Pending
+                                      </option>
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isApp
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-amber-500 shadow-xs shadow-amber-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isApp ? "text-emerald-600" : "text-amber-600"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isApp
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : "border-amber-200 bg-amber-50 text-amber-800"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isApp
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-amber-500 shadow-xs shadow-amber-400"
+                                      }`}
+                                    />
+                                    <span>{appStr}</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          }
+
                           return (
                             <td key={field} className="max-w-[220px] px-5 py-4 text-sm text-slate-600">
                               <span
@@ -1717,7 +2012,7 @@ export function ResourceView({
                           return (
                             <td className="whitespace-nowrap px-5 py-4">
                               <div className="flex items-center justify-end gap-1">
-                              {rowPreviewUrl && item.key !== "site_logo" && (
+                              {rowPreviewUrl && (
                                 <a
                                   href={rowPreviewUrl}
                                   target="_blank"
@@ -1728,16 +2023,14 @@ export function ResourceView({
                                   <ExternalLink size={16} />
                                 </a>
                               )}
-                              {item.key !== "site_logo" && (
-                                <button
-                                  onClick={() => setDetailItem(item)}
-                                  className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
-                                  title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
-                                >
-                                  <Eye size={16} />
-                                </button>
-                              )}
-                              {canEdit && item.key !== "site_logo" && (
+                              <button
+                                onClick={() => setDetailItem(item)}
+                                className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#1a5d9c] cursor-pointer"
+                                title={item.key === "site_datasource" ? "Preview complete home site layout" : "View details"}
+                              >
+                                <Eye size={16} />
+                              </button>
+                              {canEdit && (
                                 <button
                                   disabled={Boolean(deletingId)}
                                   onClick={() => onEdit(item)}

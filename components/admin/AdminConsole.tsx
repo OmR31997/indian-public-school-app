@@ -65,6 +65,7 @@ import { DEFAULT_LOGO, DEFAULT_CREST_LOGO, imageUrl } from "@/lib/site-data";
 import { useInquiryNotifications } from "@/lib/hooks/useInquiryNotifications";
 import { CareersAdmin } from "@/components/admin/careers/CareersAdmin";
 import { ThemeManagementTab } from "@/components/admin/tabs/ThemeManagementTab";
+import { PublicDisclosureAdmin } from "@/components/admin/public-disclosure/PublicDisclosureAdmin";
 import { useCareerNotifications } from "@/lib/hooks/useCareerNotifications";
 import {
   RecordItem,
@@ -162,6 +163,7 @@ export function AdminConsole() {
   }, [isSuperAdmin, allowedModules]);
 
   const canDeleteResource = useCallback((resourceKey: ResourceKey): boolean => {
+    if (resourceKey === "school-settings") return false;
     return hasPermission(allowedModules, isSuperAdmin, resourceKey, "delete");
   }, [isSuperAdmin, allowedModules]);
 
@@ -201,7 +203,13 @@ export function AdminConsole() {
         params.sortOrder = currentQuery.sortOrder;
       }
       if (currentQuery.filterKey && currentQuery.filterValue && currentQuery.filterValue !== "All") {
-        params[currentQuery.filterKey] = currentQuery.filterValue;
+        if (currentQuery.filterKey === "isApproved") {
+          params.isApproved = currentQuery.filterValue === "Approved" ? "true" : "false";
+        } else if (currentQuery.filterKey === "isPublished") {
+          params.isPublished = currentQuery.filterValue === "Published" ? "true" : "false";
+        } else {
+          params[currentQuery.filterKey] = currentQuery.filterValue;
+        }
       }
 
       if (key === "menu-items") {
@@ -221,6 +229,9 @@ export function AdminConsole() {
       setData((previous) => ({ ...previous, [key]: parsed.items }));
       setMetaData((previous) => ({ ...previous, [key]: parsed.meta }));
       setQueryParams((previous) => ({ ...previous, [key]: currentQuery }));
+      if (key === "pages") {
+        fetchPublishedPages();
+      }
     } catch (err) {
       if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 404) && key === "users") {
         setToken("");
@@ -382,6 +393,9 @@ export function AdminConsole() {
             payload.menuId = slug;
           }
           if (!payload.menuId) delete payload.menuId;
+          if (!editing && payload.isPublished === undefined) {
+            payload.isPublished = true;
+          }
         }
         if (current.key === "pages") {
           const title = String(payload.title || "").trim();
@@ -433,6 +447,7 @@ export function AdminConsole() {
 
   const remove = async (item: RecordItem) => {
     if (!current) return;
+    if (current.key === "school-settings") return;
     if (current.key === "users" && isSuperAdminRole(item.role)) {
       alert("Super Admin accounts cannot be deleted directly from the console for safety.");
       return;
@@ -777,6 +792,8 @@ export function AdminConsole() {
           <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} />
         ) : active === "theme" ? (
           <ThemeManagementTab token={token} />
+        ) : active === "public-disclosure" ? (
+          <PublicDisclosureAdmin apiUrl={API_URL} token={token} />
         ) : current && (
           <ResourceView
             resource={current}
@@ -790,7 +807,8 @@ export function AdminConsole() {
             onCreate={() => { setEditing(null); setError(""); setFormOpen(true); }}
             onEdit={(item) => { setEditing(item); setError(""); setFormOpen(true); }}
             onDelete={remove}
-            canCreate={canUpdateResource(current.key)}
+            /* Create new control commented out for reviews: reviews are submitted by parents/students publicly */
+            canCreate={current.key !== "reviews" && canUpdateResource(current.key)}
             canEdit={canUpdateResource(current.key)}
             canDelete={canDeleteResource(current.key)}
             allMenuItems={allMenuItems}

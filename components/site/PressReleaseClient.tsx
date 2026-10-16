@@ -19,6 +19,7 @@ import Link from "next/link";
 import { EASE } from "@/lib/motion-presets";
 import { cn, getAssetUrl } from "@/lib/utils";
 import { getOptionalApi, unwrapCollection } from "@/lib/api-client";
+import { DEFAULT_HERO_IMAGE } from "@/lib/site-data";
 
 function text(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
@@ -167,79 +168,82 @@ export function PressReleaseClient() {
   return (
     <div className="min-h-screen bg-background text-foreground pb-24 flex flex-col font-sans">
       {/* Hero Header */}
+      {/* Signature Indian Public School Hero Banner (Consistent with Dynamic Pages) */}
       <section
-        className="relative overflow-hidden py-12 sm:py-16 text-navy-foreground border-b border-[var(--gold)]/30 shadow-2xl"
+        className="relative overflow-hidden py-14 sm:py-18 text-white shadow-xl border-b-2 border-[var(--gold)]/40"
         style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
       >
-        <div className="absolute inset-0 z-0 opacity-20 bg-[radial-gradient(#d4af37_1px,transparent_1px)] [background-size:24px_24px]" />
-        <div className="container-page relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="absolute inset-0 z-0">
+          <img
+            src={getAssetUrl(DEFAULT_HERO_IMAGE)}
+            alt="Press Release"
+            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] opacity-60 scale-105 transition-transform duration-700 hover:scale-100"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[var(--gold)]/20 via-transparent to-transparent opacity-80 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-90" />
+        </div>
+
+        <div className="container-page relative z-10 max-w-6xl flex flex-col items-start gap-4">
           <nav
             aria-label="Breadcrumb"
-            className="inline-flex items-center gap-2 border border-[var(--gold)]/40 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white/90 backdrop-blur-md mb-6 shadow-md"
+            className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-950/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
             style={{ borderRadius: "var(--badge-radius, 9999px)" }}
           >
-            <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-1" />
-            <Link href="/" className="hover:text-[var(--gold)] transition-colors text-white/80">
-              Home
-            </Link>
-            <span className="text-[var(--gold)] font-bold">*</span>
-            <span className="text-[var(--gold)] font-bold drop-shadow">Press Release</span>
+            <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-0.5" />
+            <div className="inline-flex items-center gap-2.5">
+              <Link
+                href="/"
+                className="transition-colors hover:text-[var(--gold)] hover:underline text-white/80"
+              >
+                Home
+              </Link>
+            </div>
+            <span className="text-[var(--gold)] font-extrabold text-xs sm:text-sm">*</span>
+            <div className="inline-flex items-center gap-2.5">
+              <span className="font-bold text-[var(--gold)] drop-shadow-sm">
+                Press Release
+              </span>
+            </div>
           </nav>
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3 max-w-2xl">
-              <span
-                className="inline-flex items-center gap-1.5 bg-[var(--gold)]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--gold)] border border-[var(--gold)]/40"
-                style={{ borderRadius: "var(--badge-radius, 9999px)" }}
-              >
-                <Newspaper className="size-3.5" /> Official Media Archives
-              </span>
-              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md font-[var(--font-display)]">
-                Press Releases & Media Coverage
-              </h1>
-              <p className="text-slate-200 text-sm sm:text-base leading-relaxed">
-                Explore our official press clippings, newspaper publications, academic merit announcements, and media honors inside <code className="text-[var(--gold)] bg-black/30 px-1.5 py-0.5 rounded border border-[var(--gold)]/30">assets/PressRelease</code>.
-              </p>
-            </div>
-
-            {/* Search Input */}
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-300" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search press releases..."
-                className="w-full pl-10 pr-4 py-2.5 bg-white/10 text-white placeholder:text-slate-300 text-xs border border-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/50 backdrop-blur-md transition-all"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-white"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-            </div>
+          <div className="mt-2 space-y-2.5">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight font-[var(--font-display)]">
+              Press Release
+            </h1>
           </div>
         </div>
       </section>
 
       {/* Main Content Area */}
-      <section className="container-page max-w-6xl mx-auto px-4 sm:px-6 py-10 lg:py-16 flex-1">
-        {/* Results Info Bar */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-8 text-sm text-slate-600">
-          <div className="flex items-center gap-2">
-            <span>
-              Showing <strong className="text-slate-900 font-semibold">{filteredImages.length}</strong> press release media item{filteredImages.length !== 1 ? "s" : ""}
-            </span>
+      <section className="container-page max-w-6xl mx-auto px-4 sm:px-6 py-10 lg:py-16 flex-1 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <p className="text-slate-600 dark:text-slate-300 text-sm max-w-xl leading-relaxed">
+            Explore our official press clippings, newspaper publications, academic merit announcements, and media honors.
+          </p>
+
+          {/* Search Input */}
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search press releases..."
+              className="w-full pl-10 pr-9 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d9c] shadow-2xs transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            )}
           </div>
-          {totalPages > 1 && (
-            <span>
-              Page <strong className="text-slate-900">{currentPage}</strong> of <strong className="text-slate-900">{totalPages}</strong>
-            </span>
-          )}
         </div>
+
 
         {/* Media Grid */}
         {filteredImages.length === 0 ? (

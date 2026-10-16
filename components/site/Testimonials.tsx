@@ -47,6 +47,16 @@ function TestimonialAvatar({ src, name }: { src?: string; name: string }) {
   );
 }
 
+function getQuoteTypographyClass(length: number) {
+  if (length > 220) {
+    return "text-sm sm:text-base leading-relaxed sm:leading-7";
+  }
+  if (length > 120) {
+    return "text-base sm:text-lg leading-relaxed sm:leading-8";
+  }
+  return "text-base sm:text-lg md:text-xl leading-relaxed sm:leading-8";
+}
+
 export function Testimonials() {
   const siteData = useSiteData();
   const initialReviews = (siteData.reviewsItems?.length
@@ -54,6 +64,7 @@ export function Testimonials() {
     : (Array.isArray(homeData(siteData).reviews) ? homeData(siteData).reviews as Record<string, unknown>[] : [])) || [];
 
   const [reviewsList, setReviewsList] = useState<Record<string, unknown>[]>(initialReviews);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -87,10 +98,19 @@ export function Testimonials() {
         review.userImage
       );
 
+      const roleText = text(review.role);
+      const batchText = text(review.batch);
+      const resolvedRole = roleText
+        ? roleText
+        : batchText
+          ? (batchText.toLowerCase().includes("batch") ? batchText : `Batch ${batchText}`)
+          : "School Community";
+
       return {
         quote: quoteText,
         name: nameText || "Anonymous",
-        role: text(review.batch || review.role, "School community"),
+        role: resolvedRole,
+        batch: batchText,
         rating: Math.min(5, Math.max(1, Number(review.rating) || 5)),
         avatar: rawAvatar ? getAssetUrl(rawAvatar) : undefined,
       };
@@ -107,19 +127,24 @@ export function Testimonials() {
   };
 
   useEffect(() => {
-    if (items.length <= 1) return;
+    if (items.length <= 1 || isPaused) return;
     const t = setInterval(() => {
       setDir(1);
       setIndex((i) => (i + 1) % items.length);
     }, 7000);
     return () => clearInterval(t);
-  }, [items.length]);
+  }, [items.length, isPaused]);
 
   if (!items.length) {
     return null;
   }
 
   const t = items[index] ?? items[0]!;
+  const cleanQuote = t.quote
+    .replace(/^["'\u201C\u201D]+|["'\u201C\u201D]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const quoteClass = getQuoteTypographyClass(cleanQuote.length);
 
   return (
     <section className="py-20 lg:py-32">
@@ -130,31 +155,77 @@ export function Testimonials() {
           description="Voices from our community."
         />
 
-        <div className="relative mx-auto mt-14 max-w-3xl">
-          <div className="relative min-h-[320px] overflow-hidden rounded-3xl border border-border bg-card p-7 shadow-lift sm:min-h-[280px] sm:p-12">
-            <Quote className="size-9 text-gold" aria-hidden />
+        <div className="relative mx-auto mt-12 max-w-3xl">
+          <div
+            className="group relative min-h-[300px] overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-secondary/30 p-6 sm:p-10 shadow-lift transition-all hover:border-gold/30 hover:shadow-xl"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            {/* Subtle background quote watermark */}
+            <Quote
+              className="pointer-events-none absolute -bottom-6 -right-6 size-36 text-primary/[0.03] dark:text-primary/[0.06] -rotate-12 select-none"
+              aria-hidden
+            />
+
             <AnimatePresence mode="wait" initial={false} custom={dir}>
               <motion.blockquote
                 key={index}
                 custom={dir}
-                initial={{ opacity: 0, x: dir * 40 }}
+                initial={{ opacity: 0, x: dir * 30 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: dir * -40 }}
-                transition={{ duration: 0.5, ease: EASE }}
+                exit={{ opacity: 0, x: dir * -30 }}
+                transition={{ duration: 0.45, ease: EASE }}
+                className="relative z-10 flex min-h-[220px] flex-col justify-between"
               >
-                <p className="mt-5 font-display text-xl leading-snug sm:text-2xl">{t.quote.replace(/^["'\u201C\u201D]+|["'\u201C\u201D]+$/g, "")}</p>
-                <footer className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-border/40 pt-5">
-                  <div className="flex items-center gap-3">
+                {/* Header: badge + rating */}
+                <div className="flex items-center justify-between border-b border-border/50 pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex size-9 items-center justify-center rounded-xl bg-gold/15 text-gold border border-gold/30 shadow-2xs">
+                      <Quote className="size-4.5 fill-gold/20 text-gold" aria-hidden />
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Testimonial
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-secondary/70 px-3 py-1 text-xs font-medium backdrop-blur-xs">
+                    <div className="flex gap-0.5" aria-label={`${t.rating} out of 5 stars`}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`size-3.5 ${
+                            i < t.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/25"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="font-bold text-foreground">{t.rating}.0</span>
+                  </div>
+                </div>
+
+                {/* Quote text */}
+                <div className="py-5 sm:py-6">
+                  <p className={`font-normal text-foreground/85 italic tracking-normal ${quoteClass}`}>
+                    “{cleanQuote}”
+                  </p>
+                </div>
+
+                {/* Author footer */}
+                <footer className="flex items-center justify-between gap-4 border-t border-border/50 pt-4">
+                  <div className="flex items-center gap-3.5">
                     <TestimonialAvatar src={t.avatar} name={t.name} />
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                      <p className="text-sm font-semibold text-foreground leading-tight">{t.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-muted-foreground">{t.role}</span>
+                        {t.batch && t.batch !== t.role && !t.role.includes(t.batch) && (
+                          <>
+                            <span className="size-1 rounded-full bg-border" />
+                            <span className="text-xs text-muted-foreground font-medium">{t.batch}</span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-0.5" aria-label={`${t.rating} out of 5`}>
-                    {Array.from({ length: t.rating }).map((_, i) => (
-                      <Star key={i} className="size-4 fill-gold text-gold" />
-                    ))}
                   </div>
                 </footer>
               </motion.blockquote>
@@ -162,26 +233,26 @@ export function Testimonials() {
           </div>
 
           {items.length > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-4">
+            <div className="mt-8 flex items-center justify-center gap-4">
               <button
                 type="button"
                 onClick={() => go(index - 1)}
                 aria-label="Previous testimonial"
-                className="grid size-10 place-items-center rounded-full border border-border transition-all hover:-translate-x-0.5 hover:bg-secondary"
+                className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition-all hover:-translate-x-0.5 hover:bg-secondary hover:border-gold/40 shadow-2xs active:scale-95"
               >
                 <ChevronLeft className="size-4" />
               </button>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 {items.map((_, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => go(i)}
                     aria-label={`Go to testimonial ${i + 1}`}
-                    className="h-1.5 rounded-full bg-border transition-all"
+                    className="h-2 rounded-full transition-all duration-300"
                     style={{
-                      width: i === index ? 28 : 10,
-                      backgroundColor: i === index ? "var(--gold)" : undefined,
+                      width: i === index ? 32 : 8,
+                      backgroundColor: i === index ? "var(--gold)" : "var(--border)",
                     }}
                   />
                 ))}
@@ -190,7 +261,7 @@ export function Testimonials() {
                 type="button"
                 onClick={() => go(index + 1)}
                 aria-label="Next testimonial"
-                className="grid size-10 place-items-center rounded-full border border-border transition-all hover:translate-x-0.5 hover:bg-secondary"
+                className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition-all hover:translate-x-0.5 hover:bg-secondary hover:border-gold/40 shadow-2xs active:scale-95"
               >
                 <ChevronRight className="size-4" />
               </button>

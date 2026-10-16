@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Briefcase,
   Palette,
+  FileCheck,
 } from "lucide-react";
 import { Resource, ResourceKey, QueryParamsState } from "../types/admin.types";
 
@@ -29,6 +30,7 @@ export const resourcePath: Record<ResourceKey, string> = {
   users: "auth/users",
   careers: "careers",
   theme: "theme",
+  "public-disclosure": "public-disclosure/sections",
 };
 
 export const resources: Resource[] = [
@@ -138,7 +140,7 @@ export const resources: Resource[] = [
     icon: MessageSquareHeart,
     protected: true,
     fields: ["name", "batch", "rating", "isApproved", "createdAt", "updatedAt"],
-    inputs: { name: "text", batch: "text", rating: "number", feedback: "textarea", avatar: "file", isApproved: "boolean" },
+    inputs: { name: "text", batch: "text", rating: "number", feedback: "textarea", avatar: "file" },
   },
   {
     key: "school-settings",
@@ -146,8 +148,8 @@ export const resources: Resource[] = [
     description: "School identity and configuration",
     icon: Settings,
     protected: true,
-    fields: ["key", "category", "value", "status", "isPublic", "createdAt", "updatedAt"],
-    inputs: { key: "text", category: "select", value: "textarea", description: "textarea", status: "select", isPublic: "boolean" },
+    fields: ["key", "category", "value", "status", "createdAt", "updatedAt"],
+    inputs: { key: "text", category: "select", value: "textarea", description: "textarea", status: "select" },
     options: { category: ["Content", "Header", "Footer", "General"], status: ["Active", "Inactive"] },
   },
   {
@@ -156,7 +158,7 @@ export const resources: Resource[] = [
     description: "Navigation structure (up to 3 levels)",
     icon: Menu,
     fields: ["title", "level", "parentId", "category", "isPublished", "order", "createdAt", "updatedAt"],
-    inputs: { title: "text", parentId: "select", targetUrl: "text", order: "number", isPublished: "boolean" },
+    inputs: { title: "text", parentId: "select", targetUrl: "text", order: "number" },
     options: { category: ["Header", "Footer", "Quick Links", "Sidebar"] },
   },
   {
@@ -166,7 +168,7 @@ export const resources: Resource[] = [
     icon: FileText,
     protected: true,
     fields: ["title", "targetUrl", "isPublished", "createdAt", "updatedAt"],
-    inputs: { title: "text", targetUrl: "text", textContent: "richtext", isPublished: "boolean" },
+    inputs: { title: "text", targetUrl: "text", textContent: "richtext" },
   },
   {
     key: "users",
@@ -196,6 +198,15 @@ export const resources: Resource[] = [
     fields: ["name", "slug", "isActive", "isPreset", "createdAt"],
     inputs: { name: "text", description: "textarea", isActive: "boolean" },
   },
+  {
+    key: "public-disclosure",
+    label: "Mandatory Disclosure",
+    description: "CBSE mandatory disclosure, compliance sections and documents",
+    icon: FileCheck,
+    protected: true,
+    fields: ["sectionTitle", "isPublished", "order", "createdAt"],
+    inputs: { sectionTitle: "text", isPublished: "boolean" },
+  },
 ];
 
 export const OPTIONAL_FIELDS = new Set([
@@ -215,7 +226,6 @@ export const OPTIONAL_FIELDS = new Set([
   "targetUrl",
   "parentId",
   "textContent",
-  "isPublic",
   "isPublished",
   "isApproved",
 ]);
@@ -231,6 +241,7 @@ export const resourceSections: Record<ResourceKey, (typeof sectionNames)[number]
   reviews: "Content",
   "menu-items": "Content",
   pages: "Content",
+  "public-disclosure": "Content",
   "school-settings": "System",
   users: "System",
   careers: "People",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import axios from "axios";
 import {
   Briefcase,
@@ -22,6 +23,8 @@ import {
 } from "lucide-react";
 import { API_URL } from "@/lib/api-client";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
+import { getAssetUrl } from "@/lib/utils";
+import { DEFAULT_HERO_IMAGE } from "@/lib/site-data";
 
 export interface CustomField {
   key: string;
@@ -418,64 +421,82 @@ export function CareersView() {
   });
 
   return (
-    <div className="min-h-screen bg-[#f4f7fb] dark:bg-slate-950 pt-24 pb-16">
-      {/* Signature Indian Public School Hero Banner */}
+    <div className="min-h-screen bg-[#f4f7fb] dark:bg-slate-950 pb-16">
+      {/* Signature Indian Public School Hero Banner (Consistent with Dynamic Pages) */}
       <section
-        className="relative overflow-hidden mb-12 text-white"
+        className="relative overflow-hidden py-14 sm:py-18 text-white shadow-xl border-b-2 border-[var(--gold)]/40"
         style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-black/50" />
-        <div className="pointer-events-none absolute right-12 top-10 hidden h-64 w-64 rounded-full border-[32px] border-[var(--gold)]/15 lg:block" />
+        <div className="absolute inset-0 z-0">
+          <img
+            src={getAssetUrl(DEFAULT_HERO_IMAGE)}
+            alt="Careers"
+            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] opacity-60 scale-105 transition-transform duration-700 hover:scale-100"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[var(--gold)]/20 via-transparent to-transparent opacity-80 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-90" />
+        </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center space-y-4">
-          <div
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-[var(--gold)] border border-white/20 shadow-xs"
+        <div className="container-page relative z-10 max-w-7xl flex flex-col items-start gap-4">
+          <nav
+            aria-label="Breadcrumb"
+            className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-950/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
             style={{ borderRadius: "var(--badge-radius, 9999px)" }}
           >
-            <span>Join Our Educator Family</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-[var(--font-display)] text-white">
-            Careers & Current Openings
-          </h1>
-
-          <p className="max-w-2xl mx-auto text-sm sm:text-base text-blue-100 leading-relaxed">
-            Build a rewarding career at Indian Public School. Explore our dynamic current job openings, review requirements, and submit your application online.
-          </p>
-
-          {/* Search Filter Bar */}
-          <div className="max-w-xl mx-auto pt-4">
-            <div className="relative">
-              <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search openings by post name, qualification, or department..."
-                className="w-full pl-12 pr-10 py-3.5 bg-white text-slate-900 shadow-xl border border-white/40 focus:outline-none focus:ring-4 focus:ring-[var(--gold)]/50 text-sm placeholder:text-slate-400 transition-all"
-                style={{ borderRadius: "var(--btn-radius, 1rem)" }}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition cursor-pointer"
-                  title="Clear search"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
+            <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-0.5" />
+            <div className="inline-flex items-center gap-2.5">
+              <Link
+                href="/"
+                className="transition-colors hover:text-[var(--gold)] hover:underline text-white/80"
+              >
+                Home
+              </Link>
             </div>
+            <span className="text-[var(--gold)] font-extrabold text-xs sm:text-sm">*</span>
+            <div className="inline-flex items-center gap-2.5">
+              <span className="font-bold text-[var(--gold)] drop-shadow-sm">
+                Careers
+              </span>
+            </div>
+          </nav>
+
+          <div className="mt-2 space-y-2.5">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight font-[var(--font-display)]">
+              Careers
+            </h1>
           </div>
         </div>
       </section>
 
       {/* Main Dynamic Table Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+        {/* Search Filter Bar */}
+        <div className="relative max-w-xl">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search openings by post name, qualification, or department..."
+            className="w-full pl-10 pr-9 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a5d9c] text-xs placeholder:text-slate-400 transition-all"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              title="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-[var(--navy)] dark:text-white flex items-center gap-2 font-[var(--font-display)]">
-              Open Positions ({filteredPosts.length})
+              Open Positions
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Review vacancies below and click Apply in the last column to open the application form.

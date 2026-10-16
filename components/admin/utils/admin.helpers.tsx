@@ -278,6 +278,7 @@ export function formatValue(field: string, value: unknown, item?: RecordItem, al
     }
   }
 
+  if (field === "isApproved") return value === true || String(value) === "true" ? "Approved" : "Pending";
   if (typeof value === "boolean") return value ? "Published" : "Draft";
   if (Array.isArray(value)) return `${value.length} asset${value.length === 1 ? "" : "s"}`;
 

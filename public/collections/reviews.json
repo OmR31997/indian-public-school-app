@@ -1,1 +1,84 @@
-[]
+[
+  {
+    "_id": "6ad04c4f9745e6f2b89ca187",
+    "publicId": "REV-MV8ZX0RC-8QRBM",
+    "reviewerName": "Dr. Rajesh Sharma",
+    "reviewerRole": "Parent of Class 8 Student",
+    "rating": 5,
+    "reviewText": "Indian Public School provides a remarkable blend of rigorous academics and holistic extracurricular development. The teachers are genuinely dedicated to every child’s growth.",
+    "isApproved": true,
+    "createdAt": "2026-10-15T03:45:19.128Z"
+  },
+  {
+    "_id": "6ad04c4f9745e6f2b89ca188",
+    "publicId": "REV-MV8ZX0RC-K35P0-2",
+    "reviewerName": "Meenakshi Iyer",
+    "reviewerRole": "Parent of Class 5 Student",
+    "rating": 5,
+    "reviewText": "The campus infrastructure, smart classrooms, and sports facilities are outstanding. My daughter loves going to school every single day.",
+    "isApproved": true,
+    "createdAt": "2026-10-10T03:45:19.128Z"
+  },
+  {
+    "_id": "6ac8c65eac4402656e5996fa",
+    "publicId": "REV-MV0UDFTR-K4NTD",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/ips-education/assets/Review/Anonymous.png",
+    "batch": "General Feedback",
+    "createdAt": "2026-10-09T10:47:58.049Z",
+    "feedback": "nice school",
+    "isApproved": true,
+    "mimeType": "image/png",
+    "name": "Om Rathod",
+    "parentId": null,
+    "rating": 5,
+    "updatedAt": "2026-10-09T10:49:49.561Z"
+  },
+  {
+    "_id": "6ac8c9f6a76bc4e9f3ebad5b",
+    "publicId": "REV-MV0UX66R-OUXE3",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/ips-education/assets/Review/Anonymous.png",
+    "batch": "2022-23",
+    "createdAt": "2026-10-09T11:03:18.684Z",
+    "feedback": "Nice school",
+    "isApproved": true,
+    "mimeType": "image/png",
+    "name": "Amr",
+    "parentId": null,
+    "rating": 5,
+    "updatedAt": "2026-10-09T11:03:18.684Z"
+  },
+  {
+    "_id": "6ac8d5251e3f16c7f5aaa22f",
+    "publicId": "REV-MV0WMJ02-RF322",
+    "avatar": "https://res.cloudinary.com/niefrrkx/image/upload/ips-education/assets/Album/RajVanshAgrawalReview_2.jpg",
+    "batch": "2022-23",
+    "createdAt": "2026-10-09T11:51:01.301Z",
+    "feedback": "Principal sir, Sachin Pathak sir is a man of excellence. He has brightened up the school with vigour which is reflected on the children's prior \neducation method and I as a parent feel proud to watch my son grow up into a rational being. We are very glad to be parents of Rajvansh. \nIPS School of Sambalpur has increased his personality . The teachers over here are providing quality education and are very cooperative and \nhelpful . As a parent we are very proud to be a part of IPS School. The Principal who has joined the school last year has brought up new energy \nto the school environment and filled the surrounding with enthusiasm.",
+    "isApproved": true,
+    "mimeType": "image/jpeg",
+    "name": "Raj Vansh Agrawal ",
+    "parentId": null,
+    "rating": 5,
+    "updatedAt": "2026-10-09T12:05:38.880Z"
+  },
+  {
+    "_id": "6ad0405b8db02c3302720abf",
+    "publicId": "REV-MV8Y3FHL-24IG9",
+    "createdAt": "2026-10-15T02:54:18.921Z",
+    "isApproved": true,
+    "rating": 5,
+    "reviewText": "Indian Public School provides a remarkable blend of rigorous academics and holistic extracurricular development. The teachers are genuinely dedicated to every child’s growth.",
+    "reviewerName": "Dr. Rajesh Sharma",
+    "reviewerRole": "Parent of Class 8 Student"
+  },
+  {
+    "_id": "6ad0405b8db02c3302720ac0",
+    "publicId": "REV-MV8Y3FHL-ZR76L-2",
+    "createdAt": "2026-10-10T02:54:18.921Z",
+    "isApproved": true,
+    "rating": 5,
+    "reviewText": "The campus infrastructure, smart classrooms, and sports facilities are outstanding. My daughter loves going to school every single day.",
+    "reviewerName": "Meenakshi Iyer",
+    "reviewerRole": "Parent of Class 5 Student"
+  }
+]

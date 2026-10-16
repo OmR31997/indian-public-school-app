@@ -1,432 +1,6 @@
 [
   {
-    "_id": "6aa8b64ce43965656b59ef25",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T03:06:52.565Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 1,
-    "menuId": "about-us",
-    "order": 1,
-    "parentId": null,
-    "publicId": "MENU-MU4ZML68-EE43G",
-    "slug": "about-us",
-    "targetUrl": "/about",
-    "title": "About Us",
-    "updatedAt": "2026-09-29T07:24:22.526Z"
-  },
-  {
-    "_id": "6aa8b68ee43965656b59ef26",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T03:07:58.539Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "mission-vision",
-    "order": 5,
-    "parentId": "6aa8b64ce43965656b59ef25",
-    "publicId": "MENU-MU4ZMLSQ-UX0PR",
-    "slug": "mission-vision",
-    "targetUrl": "/about/our-mission",
-    "title": "Mission & Vision",
-    "updatedAt": "2026-09-29T07:44:15.589Z"
-  },
-  {
-    "_id": "6aa8c36106359657322f9eaf",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T04:02:41.438Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "core-value",
-    "order": 6,
-    "parentId": "6aa8b64ce43965656b59ef25",
-    "publicId": "MENU-MU4ZMLVA-0EOL7",
-    "slug": "core-value",
-    "targetUrl": "/about/core-value",
-    "title": "Core Value",
-    "updatedAt": "2026-09-29T07:46:06.258Z"
-  },
-  {
-    "_id": "6aa8d833af2040a72676739c",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T05:31:31.333Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "director-message",
-    "order": 4,
-    "parentId": "6aa8b64ce43965656b59ef25",
-    "publicId": "MENU-MU4ZMLXU-ZE7FD",
-    "slug": "director-message",
-    "targetUrl": "/about/director-message",
-    "title": "Director Message",
-    "updatedAt": "2026-09-29T07:45:25.743Z"
-  },
-  {
-    "_id": "6aa8d9b3af2040a72676739e",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T05:37:55.540Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "chairman-message",
-    "order": 2,
-    "parentId": "6aa8b64ce43965656b59ef25",
-    "publicId": "MENU-MU4ZMM0C-9SMVS",
-    "slug": "chairman-message",
-    "targetUrl": "/about/chairman-message",
-    "title": "Chairman Message",
-    "updatedAt": "2026-09-29T07:44:39.516Z"
-  },
-  {
-    "_id": "6aa8dc29af2040a7267673a0",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T05:48:25.748Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "principal-message",
-    "order": 3,
-    "parentId": "6aa8b64ce43965656b59ef25",
-    "publicId": "MENU-MU4ZMM2V-P5AMP",
-    "slug": "principal-message",
-    "targetUrl": "/about/principal-message",
-    "title": "Principal Message",
-    "updatedAt": "2026-09-29T07:45:04.241Z"
-  },
-  {
-    "_id": "6aa8de0faf2040a7267673a2",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T05:56:31.285Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "school-establishment",
-    "order": 1,
-    "parentId": "6aa8b64ce43965656b59ef25",
-    "publicId": "MENU-MU4ZMM8C-X34XQ",
-    "slug": "school-establishment",
-    "targetUrl": "/about/school-establishment",
-    "title": "School Establishment",
-    "updatedAt": "2026-09-15T08:35:41.525Z"
-  },
-  {
-    "_id": "6aa8e4a9af2040a7267673a6",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T06:24:41.351Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "infrastructure",
-    "order": 1,
-    "parentId": "6aa902b1af2040a7267673c6",
-    "publicId": "MENU-MU4ZMMAH-GJ5S7",
-    "slug": "infrastructure",
-    "targetUrl": "/",
-    "title": "Infrastructure",
-    "updatedAt": "2026-09-15T08:37:46.144Z"
-  },
-  {
-    "_id": "6aa8e5ecaf2040a7267673a7",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T06:30:04.482Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "school-building",
-    "order": 1,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMCV-DX0Y5",
-    "slug": "school-building",
-    "targetUrl": "/about/infrastructure/school-building",
-    "title": "School Building",
-    "updatedAt": "2026-09-15T06:41:03.990Z"
-  },
-  {
-    "_id": "6aa8ea14af2040a7267673aa",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T06:47:48.872Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "laboratories",
-    "order": 2,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMFL-V4MJE",
-    "slug": "laboratories",
-    "targetUrl": "/about/infrastructure/laboratories",
-    "title": "Laboratories",
-    "updatedAt": "2026-09-15T06:47:48.872Z"
-  },
-  {
-    "_id": "6aa8ea3daf2040a7267673ab",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T06:48:29.404Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "infirmary-medical",
-    "order": 3,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMI0-7MPMG",
-    "slug": "infirmary-medical",
-    "targetUrl": "/about/infrastructure/infirmary-medical",
-    "title": "Infirmary | Medical",
-    "updatedAt": "2026-09-15T06:48:29.404Z"
-  },
-  {
-    "_id": "6aa8ebefaf2040a7267673ad",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T06:55:43.625Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "sports-room",
-    "order": 4,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMKG-Q9E16",
-    "slug": "sports-room",
-    "targetUrl": "/about/infrastructure/sports-room",
-    "title": "Sports Room",
-    "updatedAt": "2026-09-15T06:55:43.625Z"
-  },
-  {
-    "_id": "6aa8ee56af2040a7267673af",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T07:05:58.169Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "playground",
-    "order": 5,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMMV-YR2S1",
-    "slug": "playground",
-    "targetUrl": "/about/infrastructure/playground",
-    "title": "Playground",
-    "updatedAt": "2026-09-15T07:05:58.169Z"
-  },
-  {
-    "_id": "6aa8ef7daf2040a7267673b1",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T07:10:53.691Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "art-craft-room",
-    "order": 6,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMPE-W7S30",
-    "slug": "art-craft-room",
-    "targetUrl": "/about/infrastructure/art-craft-room",
-    "title": "Art & Craft Room",
-    "updatedAt": "2026-09-15T07:10:53.691Z"
-  },
-  {
-    "_id": "6aa8f2f9af2040a7267673b5",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T07:25:45.781Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "mess",
-    "order": 9,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMRX-S609Q",
-    "slug": "mess",
-    "targetUrl": "/about/infrastructure/mess",
-    "title": "Mess",
-    "updatedAt": "2026-09-15T07:25:45.781Z"
-  },
-  {
-    "_id": "6aa8f336af2040a7267673b6",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T07:26:46.714Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "hostels",
-    "order": 8,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMU3-HJU2M",
-    "slug": "hostels",
-    "targetUrl": "/about/infrastructure/hostels",
-    "title": "Hostels",
-    "updatedAt": "2026-09-15T07:26:46.714Z"
-  },
-  {
-    "_id": "6aa8f368af2040a7267673b7",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T07:27:36.152Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 3,
-    "menuId": "music-dance-room",
-    "order": 7,
-    "parentId": "6aa8e4a9af2040a7267673a6",
-    "publicId": "MENU-MU4ZMMWK-JUTB3",
-    "slug": "music-dance-room",
-    "targetUrl": "/about/infrastructure/music-dance-room",
-    "title": "Music & Dance Room",
-    "updatedAt": "2026-09-15T07:27:36.152Z"
-  },
-  {
-    "_id": "6aa8f460af2040a7267673b8",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T07:31:44.562Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 1,
-    "menuId": "admissions",
-    "order": 4,
-    "parentId": null,
-    "publicId": "MENU-MU4ZMMZ2-YZ7VU",
-    "slug": "admissions",
-    "targetUrl": "/admissions/policy",
-    "title": "Admissions",
-    "updatedAt": "2026-09-29T07:30:30.140Z"
-  },
-  {
-    "_id": "6aa8f58caf2040a7267673ba",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T07:36:44.055Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "curriculum",
-    "order": 1,
-    "parentId": "6aa8f460af2040a7267673b8",
-    "publicId": "MENU-MU4ZMN1N-SHYQ8",
-    "slug": "curriculum",
-    "targetUrl": "/admissions/curriculum",
-    "title": "Curriculum",
-    "updatedAt": "2026-09-15T07:36:44.055Z"
-  },
-  {
-    "_id": "6aa8fd55af2040a7267673c0",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T08:09:57.588Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "learning-based-activity",
-    "order": 2,
-    "parentId": "6aa8f460af2040a7267673b8",
-    "publicId": "MENU-MU4ZMN44-FW680",
-    "slug": "learning-based-activity",
-    "targetUrl": "/admissions/learning-based-activity",
-    "title": "Learning Based Activity",
-    "updatedAt": "2026-09-15T08:09:57.588Z"
-  },
-  {
-    "_id": "6aa8fe7eaf2040a7267673c1",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T08:14:54.953Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "admission-policy",
-    "order": 3,
-    "parentId": "6aa8f460af2040a7267673b8",
-    "publicId": "MENU-MU4ZMN7A-5K1KB",
-    "slug": "admission-policy",
-    "targetUrl": "/admissions/policy",
-    "title": "Admission Policy",
-    "updatedAt": "2026-09-15T08:14:54.953Z"
-  },
-  {
-    "_id": "6aa8fee4af2040a7267673c2",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T08:16:36.570Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "admission-procedure",
-    "order": 4,
-    "parentId": "6aa8f460af2040a7267673b8",
-    "publicId": "MENU-MU4ZMN9A-5IYIP",
-    "slug": "admission-procedure",
-    "targetUrl": "/admissions/procedure",
-    "title": "Admission Procedure",
-    "updatedAt": "2026-09-15T08:16:36.570Z"
-  },
-  {
-    "_id": "6aa8ff38af2040a7267673c3",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T08:18:00.757Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "documents-required-for-admission",
-    "order": 5,
-    "parentId": "6aa8f460af2040a7267673b8",
-    "publicId": "MENU-MU4ZMNBP-1KV74",
-    "slug": "documents-required-for-admission",
-    "targetUrl": "/admission/documents-required",
-    "title": "Documents Required for Admission",
-    "updatedAt": "2026-09-15T08:18:00.757Z"
-  },
-  {
-    "_id": "6aa8ff57af2040a7267673c4",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T08:18:31.712Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 2,
-    "menuId": "admission-form",
-    "order": 6,
-    "parentId": "6aa8f460af2040a7267673b8",
-    "publicId": "MENU-MU4ZMNEE-761L7",
-    "slug": "admission-form",
-    "targetUrl": "/admission/registration-form",
-    "title": "Admission Form",
-    "updatedAt": "2026-09-15T08:18:31.712Z"
-  },
-  {
-    "_id": "6aa90272af2040a7267673c5",
-    "__v": 0,
-    "category": "Header",
-    "createdAt": "2026-09-15T08:31:46.602Z",
-    "icon": "",
-    "isPublished": true,
-    "level": 1,
-    "menuId": "academics",
-    "order": 3,
-    "parentId": null,
-    "publicId": "MENU-MU4ZMNGV-1Z9XF",
-    "slug": "academics",
-    "targetUrl": "/academic/courses-offered",
-    "title": "Academics",
-    "updatedAt": "2026-09-29T07:28:15.282Z"
-  },
-  {
     "_id": "6aa902b1af2040a7267673c6",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T08:32:49.938Z",
     "icon": "",
@@ -439,11 +13,10 @@
     "slug": "campus-life",
     "targetUrl": "/about/infrastructure/school-building",
     "title": "Campus Life",
-    "updatedAt": "2026-09-29T07:38:48.215Z"
+    "updatedAt": "2026-10-15T02:57:04.289Z"
   },
   {
     "_id": "6aa902ccaf2040a7267673c7",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T08:33:16.299Z",
     "icon": "",
@@ -456,11 +29,10 @@
     "slug": "gallery",
     "targetUrl": "/gallery-album",
     "title": "Gallery",
-    "updatedAt": "2026-09-29T07:39:47.410Z"
+    "updatedAt": "2026-10-15T02:57:04.290Z"
   },
   {
     "_id": "6aa902e6af2040a7267673c8",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T08:33:42.367Z",
     "icon": "",
@@ -473,11 +45,10 @@
     "slug": "downloads",
     "targetUrl": "",
     "title": "Downloads",
-    "updatedAt": "2026-09-15T08:33:42.367Z"
+    "updatedAt": "2026-10-15T02:57:04.291Z"
   },
   {
     "_id": "6aa907adaf2040a7267673ce",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T08:54:05.535Z",
     "icon": "",
@@ -490,11 +61,10 @@
     "slug": "courses-offered",
     "targetUrl": "/academic/courses-offered",
     "title": "Courses Offered",
-    "updatedAt": "2026-09-29T07:27:17.646Z"
+    "updatedAt": "2026-10-15T02:57:04.293Z"
   },
   {
     "_id": "6aa90affaf2040a7267673cf",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T09:08:15.951Z",
     "icon": "",
@@ -507,11 +77,10 @@
     "slug": "stream-allocation-subjects-offered",
     "targetUrl": "/academic/stream-allocation-subjects-offered",
     "title": "Stream Allocation Subjects Offered",
-    "updatedAt": "2026-09-15T09:08:15.951Z"
+    "updatedAt": "2026-10-15T02:57:04.294Z"
   },
   {
     "_id": "6aa90b5eaf2040a7267673d0",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T09:09:50.601Z",
     "icon": "",
@@ -524,11 +93,10 @@
     "slug": "social-learning-programs",
     "targetUrl": "/academic/social-learning-programs",
     "title": "Social Learning Programs",
-    "updatedAt": "2026-09-15T09:09:50.601Z"
+    "updatedAt": "2026-10-15T02:57:04.295Z"
   },
   {
     "_id": "6aa90b85af2040a7267673d1",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T09:10:29.892Z",
     "icon": "",
@@ -541,11 +109,10 @@
     "slug": "teaching-methodology",
     "targetUrl": "/academic/teaching-methodology",
     "title": "Teaching Methodology",
-    "updatedAt": "2026-09-15T09:10:29.892Z"
+    "updatedAt": "2026-10-15T02:57:04.296Z"
   },
   {
     "_id": "6aa917c5af2040a7267673d2",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T10:02:45.838Z",
     "icon": "",
@@ -558,11 +125,10 @@
     "slug": "life-ips",
     "targetUrl": "",
     "title": "Life@IPS",
-    "updatedAt": "2026-09-15T10:02:45.838Z"
+    "updatedAt": "2026-10-15T02:57:04.298Z"
   },
   {
     "_id": "6aa917dcaf2040a7267673d3",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T10:03:08.605Z",
     "icon": "",
@@ -575,11 +141,10 @@
     "slug": "connectivity",
     "targetUrl": "",
     "title": "Connectivity",
-    "updatedAt": "2026-09-15T10:03:08.605Z"
+    "updatedAt": "2026-10-15T02:57:04.301Z"
   },
   {
     "_id": "6aa91b68af2040a7267673d9",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T10:18:16.267Z",
     "icon": "",
@@ -592,11 +157,10 @@
     "slug": "student-empowerment",
     "targetUrl": "/campus/life/student-empowerment",
     "title": "Student Empowerment",
-    "updatedAt": "2026-09-15T11:00:06.713Z"
+    "updatedAt": "2026-10-15T02:57:04.303Z"
   },
   {
     "_id": "6aa91baaaf2040a7267673da",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T10:19:22.843Z",
     "icon": "",
@@ -609,11 +173,10 @@
     "slug": "our-learning-partners",
     "targetUrl": "/campus/life/our-learning-partners",
     "title": "Our Learning Partners",
-    "updatedAt": "2026-09-15T10:59:50.374Z"
+    "updatedAt": "2026-10-15T02:57:04.304Z"
   },
   {
     "_id": "6aa91be7af2040a7267673db",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T10:20:23.896Z",
     "icon": "",
@@ -626,11 +189,10 @@
     "slug": "competition-365-days",
     "targetUrl": "/campus/life/competition-365-days",
     "title": "Competition @ 365 Days",
-    "updatedAt": "2026-09-15T10:59:28.377Z"
+    "updatedAt": "2026-10-15T02:57:04.306Z"
   },
   {
     "_id": "6aa925f3af2040a7267673de",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:03:15.968Z",
     "icon": "",
@@ -643,11 +205,10 @@
     "slug": "life-in-hostel",
     "targetUrl": "/campus/life/life-in-hostel",
     "title": "Life In Hostel",
-    "updatedAt": "2026-09-15T11:03:15.968Z"
+    "updatedAt": "2026-10-15T02:57:04.309Z"
   },
   {
     "_id": "6aa92643af2040a7267673df",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:04:35.607Z",
     "icon": "",
@@ -660,11 +221,10 @@
     "slug": "our-houses",
     "targetUrl": "/campus/life/our-houses",
     "title": "Our Houses",
-    "updatedAt": "2026-09-15T11:04:35.607Z"
+    "updatedAt": "2026-10-15T02:57:04.311Z"
   },
   {
     "_id": "6aa9268daf2040a7267673e0",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:05:49.337Z",
     "icon": "",
@@ -677,11 +237,10 @@
     "slug": "blog",
     "targetUrl": "/campus/connectivity/blog",
     "title": "Blog",
-    "updatedAt": "2026-09-15T11:05:49.337Z"
+    "updatedAt": "2026-10-15T02:57:04.313Z"
   },
   {
     "_id": "6aa926c1af2040a7267673e1",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:06:41.592Z",
     "icon": "",
@@ -694,11 +253,10 @@
     "slug": "alumni",
     "targetUrl": "/campus/connectivity/alumni",
     "title": "Alumni",
-    "updatedAt": "2026-09-15T11:06:41.592Z"
+    "updatedAt": "2026-10-15T02:57:04.315Z"
   },
   {
     "_id": "6aa929e3af2040a7267673e6",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:20:03.408Z",
     "icon": "",
@@ -711,11 +269,10 @@
     "slug": "home-visit",
     "targetUrl": "/campus/connectivity/home-visit",
     "title": "Home Visit",
-    "updatedAt": "2026-09-15T11:20:03.408Z"
+    "updatedAt": "2026-10-15T02:57:04.319Z"
   },
   {
     "_id": "6aa92a0baf2040a7267673e7",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:20:43.492Z",
     "icon": "",
@@ -728,11 +285,10 @@
     "slug": "bus-route",
     "targetUrl": "/campus/connectivity/bus-route",
     "title": "Bus Route",
-    "updatedAt": "2026-09-15T11:20:43.492Z"
+    "updatedAt": "2026-10-15T02:57:04.323Z"
   },
   {
     "_id": "6aa92a40af2040a7267673e8",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:21:36.557Z",
     "icon": "",
@@ -745,11 +301,10 @@
     "slug": "school-app",
     "targetUrl": "/campus/connectivity/school-app",
     "title": "School App",
-    "updatedAt": "2026-09-15T11:21:36.557Z"
+    "updatedAt": "2026-10-15T02:57:04.325Z"
   },
   {
     "_id": "6aa92a79af2040a7267673e9",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:22:33.290Z",
     "icon": "",
@@ -762,11 +317,10 @@
     "slug": "parents-teachers-meeting",
     "targetUrl": "/campus/connectivity/parents-teachers-meeting",
     "title": "Parents Teachers Meeting",
-    "updatedAt": "2026-09-15T11:22:33.290Z"
+    "updatedAt": "2026-10-15T02:57:04.327Z"
   },
   {
     "_id": "6aa92aefaf2040a7267673eb",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T11:24:31.734Z",
     "icon": "",
@@ -779,11 +333,10 @@
     "slug": "societal-engagement-programs",
     "targetUrl": "/campus/connectivity/societal-engagement-programs",
     "title": "Societal Engagement Programs",
-    "updatedAt": "2026-09-15T11:24:31.734Z"
+    "updatedAt": "2026-10-15T02:57:04.330Z"
   },
   {
     "_id": "6aa9362baf2040a7267673ec",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T12:12:27.463Z",
     "icon": "",
@@ -796,11 +349,10 @@
     "slug": "certificate-of-recognition",
     "targetUrl": "/download/mandatory/certificate-of-recognition",
     "title": "Certificate Of Recognition",
-    "updatedAt": "2026-09-15T12:47:58.758Z"
+    "updatedAt": "2026-10-15T02:57:04.333Z"
   },
   {
     "_id": "6aa9374faf2040a7267673ed",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T12:17:19.654Z",
     "icon": "",
@@ -813,11 +365,10 @@
     "slug": "mandatory-disclosure",
     "targetUrl": "",
     "title": "Mandatory Disclosure",
-    "updatedAt": "2026-09-15T12:17:19.654Z"
+    "updatedAt": "2026-10-15T02:57:04.334Z"
   },
   {
     "_id": "6aa937c8af2040a7267673ee",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T12:19:20.621Z",
     "icon": "",
@@ -830,11 +381,10 @@
     "slug": "press-releases",
     "targetUrl": "/press-release",
     "title": "Press Releases",
-    "updatedAt": "2026-09-17T07:28:42.395Z"
+    "updatedAt": "2026-10-15T02:57:04.337Z"
   },
   {
     "_id": "6aa937daaf2040a7267673ef",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T12:19:38.122Z",
     "icon": "",
@@ -847,11 +397,10 @@
     "slug": "brochures",
     "targetUrl": "/brochures",
     "title": "Brochures",
-    "updatedAt": "2026-09-23T03:42:58.925Z"
+    "updatedAt": "2026-10-15T02:57:04.338Z"
   },
   {
     "_id": "6aa93ed7af2040a7267673f1",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T12:49:27.940Z",
     "icon": "",
@@ -864,11 +413,10 @@
     "slug": "population-certificate",
     "targetUrl": "/download/mandatory/population-certificate",
     "title": "Population Certificate",
-    "updatedAt": "2026-09-15T12:52:41.800Z"
+    "updatedAt": "2026-10-15T02:57:04.339Z"
   },
   {
     "_id": "6aa94601af2040a7267673f4",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T13:20:01.443Z",
     "icon": "",
@@ -881,11 +429,10 @@
     "slug": "album",
     "targetUrl": "/gallery-album",
     "title": "Album",
-    "updatedAt": "2026-09-17T06:45:36.443Z"
+    "updatedAt": "2026-10-15T02:57:04.341Z"
   },
   {
     "_id": "6aa94756af2040a7267673f6",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T13:25:42.400Z",
     "icon": "",
@@ -898,11 +445,10 @@
     "slug": "best-practices",
     "targetUrl": "/gallery/best-practices",
     "title": "Best Practices",
-    "updatedAt": "2026-09-15T13:25:42.400Z"
+    "updatedAt": "2026-10-15T02:57:04.342Z"
   },
   {
     "_id": "6aa94987af2040a7267673f9",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-15T13:35:03.636Z",
     "icon": "",
@@ -915,11 +461,10 @@
     "slug": "assembly",
     "targetUrl": "/assembly",
     "title": "Assembly",
-    "updatedAt": "2026-09-23T03:52:01.969Z"
+    "updatedAt": "2026-10-15T02:57:04.350Z"
   },
   {
     "_id": "6aaa310ce73d1abd5a223dcd",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T06:02:52.412Z",
     "icon": "",
@@ -932,11 +477,10 @@
     "slug": "safe-drinking-sanitation-certificate",
     "targetUrl": "/download/mandatory/safe-drinking-sanitation-certificate",
     "title": "Safe Drinking & Sanitation Certificate",
-    "updatedAt": "2026-09-16T06:05:44.073Z"
+    "updatedAt": "2026-10-15T02:57:04.353Z"
   },
   {
     "_id": "6aaa3529a50f6f8d1b485029",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T06:20:25.599Z",
     "icon": "",
@@ -949,11 +493,10 @@
     "slug": "no-objection-certificate",
     "targetUrl": "/download/mandatory/no-objection-certificate",
     "title": "No Objection Certificate",
-    "updatedAt": "2026-09-28T12:54:33.374Z"
+    "updatedAt": "2026-10-15T02:57:04.356Z"
   },
   {
     "_id": "6aaa3863a50f6f8d1b48502b",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T06:34:11.668Z",
     "icon": "",
@@ -966,11 +509,10 @@
     "slug": "fire-safety-certificate",
     "targetUrl": "/download/mandatory/fire-safety",
     "title": "Fire Safety Certificate",
-    "updatedAt": "2026-09-16T06:34:11.668Z"
+    "updatedAt": "2026-10-15T02:57:04.358Z"
   },
   {
     "_id": "6aaa3fcca565af3ad206e617",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:05:48.380Z",
     "icon": "",
@@ -983,11 +525,10 @@
     "slug": "building-safety-certificate",
     "targetUrl": "/download/mandatory/building-safety-certificate",
     "title": "Building Safety Certificate",
-    "updatedAt": "2026-09-16T07:05:48.380Z"
+    "updatedAt": "2026-10-15T02:57:04.360Z"
   },
   {
     "_id": "6aaa3ff3a565af3ad206e618",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:06:27.908Z",
     "icon": "",
@@ -1000,11 +541,10 @@
     "slug": "cbse-affiliation",
     "targetUrl": "/download/mandatory/cbse-affiliation",
     "title": "CBSE Affiliation",
-    "updatedAt": "2026-09-16T07:06:27.908Z"
+    "updatedAt": "2026-10-15T02:57:04.363Z"
   },
   {
     "_id": "6aaa4010a565af3ad206e619",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:06:56.428Z",
     "icon": "",
@@ -1017,11 +557,10 @@
     "slug": "certificate-of-land",
     "targetUrl": "/download/mandatory/certificate-of-land",
     "title": "Certificate Of Land",
-    "updatedAt": "2026-09-16T07:06:56.428Z"
+    "updatedAt": "2026-10-15T02:57:04.365Z"
   },
   {
     "_id": "6aaa4038a565af3ad206e61a",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:07:36.535Z",
     "icon": "",
@@ -1034,11 +573,10 @@
     "slug": "parent-teacher-association",
     "targetUrl": "/download/mandatory/parent-teacher-association",
     "title": "Parent Teacher Association",
-    "updatedAt": "2026-09-16T07:07:36.535Z"
+    "updatedAt": "2026-10-15T02:57:04.366Z"
   },
   {
     "_id": "6aaa40cda565af3ad206e61b",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:10:05.286Z",
     "icon": "",
@@ -1051,11 +589,10 @@
     "slug": "contact-us",
     "targetUrl": "/contact-us",
     "title": "Contact Us",
-    "updatedAt": "2026-09-16T07:10:05.286Z"
+    "updatedAt": "2026-10-15T02:57:04.368Z"
   },
   {
     "_id": "6aaa44a11dbd777f259345e9",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:26:25.861Z",
     "icon": "",
@@ -1068,11 +605,10 @@
     "slug": "career-counselling-guide",
     "targetUrl": "/download/career-counselling-guide",
     "title": "Career Counselling Guide",
-    "updatedAt": "2026-09-16T07:26:25.861Z"
+    "updatedAt": "2026-10-15T02:57:04.369Z"
   },
   {
     "_id": "6aaa4757a50f6f8d1b485030",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:37:59.242Z",
     "icon": "",
@@ -1085,11 +621,10 @@
     "slug": "mandatory-public-disclosure",
     "targetUrl": "/download/mandatory/public-disclosure",
     "title": "Mandatory Public Disclosure",
-    "updatedAt": "2026-09-16T07:48:51.750Z"
+    "updatedAt": "2026-10-15T02:57:04.370Z"
   },
   {
     "_id": "6aaa4a07a50f6f8d1b485032",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T07:49:27.001Z",
     "icon": "",
@@ -1102,11 +637,10 @@
     "slug": "self-certification",
     "targetUrl": "/download/mandatory/self-certification",
     "title": "Self-Certification",
-    "updatedAt": "2026-09-16T07:49:27.001Z"
+    "updatedAt": "2026-10-15T02:57:04.372Z"
   },
   {
     "_id": "6aaa5cc3a50f6f8d1b485039",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T09:09:23.813Z",
     "icon": "",
@@ -1119,11 +653,10 @@
     "slug": "other",
     "targetUrl": "",
     "title": "Other",
-    "updatedAt": "2026-09-16T09:10:26.843Z"
+    "updatedAt": "2026-10-15T02:57:04.373Z"
   },
   {
     "_id": "6aaa5d83a50f6f8d1b48503a",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T09:12:35.679Z",
     "icon": "",
@@ -1136,11 +669,10 @@
     "slug": "staff-directory",
     "targetUrl": "/download/mandatory/staff-directory",
     "title": "Staff Directory",
-    "updatedAt": "2026-09-16T09:12:35.679Z"
+    "updatedAt": "2026-10-15T02:57:04.374Z"
   },
   {
     "_id": "6aaa61dfa50f6f8d1b48503b",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T09:31:11.739Z",
     "icon": "",
@@ -1153,11 +685,10 @@
     "slug": "trustee",
     "targetUrl": "/download/mandatory/trustee",
     "title": "Trustee",
-    "updatedAt": "2026-09-16T09:31:11.739Z"
+    "updatedAt": "2026-10-15T02:57:04.376Z"
   },
   {
     "_id": "6aaa6258a50f6f8d1b48503c",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T09:33:12.642Z",
     "icon": "",
@@ -1170,11 +701,10 @@
     "slug": "emergency-contacts",
     "targetUrl": "/other/emergency-contacts",
     "title": "Emergency Contacts",
-    "updatedAt": "2026-09-16T09:33:12.642Z"
+    "updatedAt": "2026-10-15T02:57:04.380Z"
   },
   {
     "_id": "6aaa6296a50f6f8d1b48503d",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T09:34:14.259Z",
     "icon": "",
@@ -1187,11 +717,10 @@
     "slug": "general-information",
     "targetUrl": "/other/general-information",
     "title": "General Information",
-    "updatedAt": "2026-09-16T09:34:14.259Z"
+    "updatedAt": "2026-10-15T02:57:04.384Z"
   },
   {
     "_id": "6aaa62bca50f6f8d1b48503e",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T09:34:52.723Z",
     "icon": "",
@@ -1204,11 +733,10 @@
     "slug": "water-testing",
     "targetUrl": "/other/water-testing",
     "title": "Water Testing",
-    "updatedAt": "2026-09-16T09:34:52.723Z"
+    "updatedAt": "2026-10-15T02:57:04.386Z"
   },
   {
     "_id": "6aaa62dea50f6f8d1b48503f",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-16T09:35:26.404Z",
     "icon": "",
@@ -1221,11 +749,10 @@
     "slug": "transfer-certificate",
     "targetUrl": "/other/transfer-certificate",
     "title": "Transfer Certificate",
-    "updatedAt": "2026-09-16T09:35:26.404Z"
+    "updatedAt": "2026-10-15T02:57:04.387Z"
   },
   {
     "_id": "6aae3d30130228defd7dda2f",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-19T07:43:44.005Z",
     "icon": "",
@@ -1238,11 +765,10 @@
     "slug": "careers",
     "targetUrl": "/careers",
     "title": "Careers",
-    "updatedAt": "2026-09-19T07:43:44.005Z"
+    "updatedAt": "2026-10-15T02:57:04.388Z"
   },
   {
     "_id": "6ab9fd6a2704543305a8706d",
-    "__v": 0,
     "category": "Header",
     "createdAt": "2026-09-28T05:38:50.837Z",
     "icon": "",
@@ -1255,6 +781,406 @@
     "slug": "home",
     "targetUrl": "/",
     "title": "Home",
-    "updatedAt": "2026-09-28T05:38:50.837Z"
+    "updatedAt": "2026-10-15T02:57:04.390Z"
+  },
+  {
+    "_id": "6aa8b64ce43965656b59ef25",
+    "category": "Header",
+    "createdAt": "2026-09-15T03:06:52.565Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 1,
+    "menuId": "about-us",
+    "order": 1,
+    "parentId": null,
+    "publicId": "MENU-MU4ZML68-EE43G",
+    "slug": "about-us",
+    "targetUrl": "/about",
+    "title": "About Us",
+    "updatedAt": "2026-10-15T02:57:04.240Z"
+  },
+  {
+    "_id": "6aa8de0faf2040a7267673a2",
+    "category": "Header",
+    "createdAt": "2026-09-15T05:56:31.285Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "school-establishment",
+    "order": 1,
+    "parentId": "6aa8b64ce43965656b59ef25",
+    "publicId": "MENU-MU4ZMM8C-X34XQ",
+    "slug": "school-establishment",
+    "targetUrl": "/about/school-establishment",
+    "title": "School Establishment",
+    "updatedAt": "2026-10-15T02:57:04.259Z"
+  },
+  {
+    "_id": "6aa8e4a9af2040a7267673a6",
+    "category": "Header",
+    "createdAt": "2026-09-15T06:24:41.351Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "infrastructure",
+    "order": 1,
+    "parentId": "6aa902b1af2040a7267673c6",
+    "publicId": "MENU-MU4ZMMAH-GJ5S7",
+    "slug": "infrastructure",
+    "targetUrl": "/",
+    "title": "Infrastructure",
+    "updatedAt": "2026-10-15T02:57:04.263Z"
+  },
+  {
+    "_id": "6aa8b68ee43965656b59ef26",
+    "category": "Header",
+    "createdAt": "2026-09-15T03:07:58.539Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "mission-vision",
+    "order": 5,
+    "parentId": "6aa8b64ce43965656b59ef25",
+    "publicId": "MENU-MU4ZMLSQ-UX0PR",
+    "slug": "mission-vision",
+    "targetUrl": "/about/our-mission",
+    "title": "Mission & Vision",
+    "updatedAt": "2026-10-15T02:57:04.244Z"
+  },
+  {
+    "_id": "6aa8e5ecaf2040a7267673a7",
+    "category": "Header",
+    "createdAt": "2026-09-15T06:30:04.482Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "school-building",
+    "order": 1,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMCV-DX0Y5",
+    "slug": "school-building",
+    "targetUrl": "/about/infrastructure/school-building",
+    "title": "School Building",
+    "updatedAt": "2026-10-15T02:57:04.265Z"
+  },
+  {
+    "_id": "6aa8ea3daf2040a7267673ab",
+    "category": "Header",
+    "createdAt": "2026-09-15T06:48:29.404Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "infirmary-medical",
+    "order": 3,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMI0-7MPMG",
+    "slug": "infirmary-medical",
+    "targetUrl": "/about/infrastructure/infirmary-medical",
+    "title": "Infirmary | Medical",
+    "updatedAt": "2026-10-15T02:57:04.269Z"
+  },
+  {
+    "_id": "6aa8ebefaf2040a7267673ad",
+    "category": "Header",
+    "createdAt": "2026-09-15T06:55:43.625Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "sports-room",
+    "order": 4,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMKG-Q9E16",
+    "slug": "sports-room",
+    "targetUrl": "/about/infrastructure/sports-room",
+    "title": "Sports Room",
+    "updatedAt": "2026-10-15T02:57:04.271Z"
+  },
+  {
+    "_id": "6aa8ea14af2040a7267673aa",
+    "category": "Header",
+    "createdAt": "2026-09-15T06:47:48.872Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "laboratories",
+    "order": 2,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMFL-V4MJE",
+    "slug": "laboratories",
+    "targetUrl": "/about/infrastructure/laboratories",
+    "title": "Laboratories",
+    "updatedAt": "2026-10-15T02:57:04.267Z"
+  },
+  {
+    "_id": "6aa8c36106359657322f9eaf",
+    "category": "Header",
+    "createdAt": "2026-09-15T04:02:41.438Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "core-value",
+    "order": 6,
+    "parentId": "6aa8b64ce43965656b59ef25",
+    "publicId": "MENU-MU4ZMLVA-0EOL7",
+    "slug": "core-value",
+    "targetUrl": "/about/core-value",
+    "title": "Core Value",
+    "updatedAt": "2026-10-15T02:57:04.247Z"
+  },
+  {
+    "_id": "6aa8d833af2040a72676739c",
+    "category": "Header",
+    "createdAt": "2026-09-15T05:31:31.333Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "director-message",
+    "order": 4,
+    "parentId": "6aa8b64ce43965656b59ef25",
+    "publicId": "MENU-MU4ZMLXU-ZE7FD",
+    "slug": "director-message",
+    "targetUrl": "/about/director-message",
+    "title": "Director Message",
+    "updatedAt": "2026-10-15T02:57:04.252Z"
+  },
+  {
+    "_id": "6aa8dc29af2040a7267673a0",
+    "category": "Header",
+    "createdAt": "2026-09-15T05:48:25.748Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "principal-message",
+    "order": 3,
+    "parentId": "6aa8b64ce43965656b59ef25",
+    "publicId": "MENU-MU4ZMM2V-P5AMP",
+    "slug": "principal-message",
+    "targetUrl": "/about/principal-message",
+    "title": "Principal Message",
+    "updatedAt": "2026-10-15T02:57:04.257Z"
+  },
+  {
+    "_id": "6aa8d9b3af2040a72676739e",
+    "category": "Header",
+    "createdAt": "2026-09-15T05:37:55.540Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "chairman-message",
+    "order": 2,
+    "parentId": "6aa8b64ce43965656b59ef25",
+    "publicId": "MENU-MU4ZMM0C-9SMVS",
+    "slug": "chairman-message",
+    "targetUrl": "/about/chairman-message",
+    "title": "Chairman Message",
+    "updatedAt": "2026-10-15T02:57:04.254Z"
+  },
+  {
+    "_id": "6aa8f368af2040a7267673b7",
+    "category": "Header",
+    "createdAt": "2026-09-15T07:27:36.152Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "music-dance-room",
+    "order": 7,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMWK-JUTB3",
+    "slug": "music-dance-room",
+    "targetUrl": "/about/infrastructure/music-dance-room",
+    "title": "Music & Dance Room",
+    "updatedAt": "2026-10-15T02:57:04.278Z"
+  },
+  {
+    "_id": "6aa8f58caf2040a7267673ba",
+    "category": "Header",
+    "createdAt": "2026-09-15T07:36:44.055Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "curriculum",
+    "order": 1,
+    "parentId": "6aa8f460af2040a7267673b8",
+    "publicId": "MENU-MU4ZMN1N-SHYQ8",
+    "slug": "curriculum",
+    "targetUrl": "/admissions/curriculum",
+    "title": "Curriculum",
+    "updatedAt": "2026-10-15T02:57:04.280Z"
+  },
+  {
+    "_id": "6aa8ff38af2040a7267673c3",
+    "category": "Header",
+    "createdAt": "2026-09-15T08:18:00.757Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "documents-required-for-admission",
+    "order": 5,
+    "parentId": "6aa8f460af2040a7267673b8",
+    "publicId": "MENU-MU4ZMNBP-1KV74",
+    "slug": "documents-required-for-admission",
+    "targetUrl": "/admission/documents-required",
+    "title": "Documents Required for Admission",
+    "updatedAt": "2026-10-15T02:57:04.286Z"
+  },
+  {
+    "_id": "6aa8f336af2040a7267673b6",
+    "category": "Header",
+    "createdAt": "2026-09-15T07:26:46.714Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "hostels",
+    "order": 8,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMU3-HJU2M",
+    "slug": "hostels",
+    "targetUrl": "/about/infrastructure/hostels",
+    "title": "Hostels",
+    "updatedAt": "2026-10-15T02:57:04.276Z"
+  },
+  {
+    "_id": "6aa8fee4af2040a7267673c2",
+    "category": "Header",
+    "createdAt": "2026-09-15T08:16:36.570Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "admission-procedure",
+    "order": 4,
+    "parentId": "6aa8f460af2040a7267673b8",
+    "publicId": "MENU-MU4ZMN9A-5IYIP",
+    "slug": "admission-procedure",
+    "targetUrl": "/admissions/procedure",
+    "title": "Admission Procedure",
+    "updatedAt": "2026-10-15T02:57:04.285Z"
+  },
+  {
+    "_id": "6aa90272af2040a7267673c5",
+    "category": "Header",
+    "createdAt": "2026-09-15T08:31:46.602Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 1,
+    "menuId": "academics",
+    "order": 3,
+    "parentId": null,
+    "publicId": "MENU-MU4ZMNGV-1Z9XF",
+    "slug": "academics",
+    "targetUrl": "/academic/courses-offered",
+    "title": "Academics",
+    "updatedAt": "2026-10-15T02:57:04.288Z"
+  },
+  {
+    "_id": "6aa8ef7daf2040a7267673b1",
+    "category": "Header",
+    "createdAt": "2026-09-15T07:10:53.691Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "art-craft-room",
+    "order": 6,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMPE-W7S30",
+    "slug": "art-craft-room",
+    "targetUrl": "/about/infrastructure/art-craft-room",
+    "title": "Art & Craft Room",
+    "updatedAt": "2026-10-15T02:57:04.273Z"
+  },
+  {
+    "_id": "6aa8f2f9af2040a7267673b5",
+    "category": "Header",
+    "createdAt": "2026-09-15T07:25:45.781Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "mess",
+    "order": 9,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMRX-S609Q",
+    "slug": "mess",
+    "targetUrl": "/about/infrastructure/mess",
+    "title": "Mess",
+    "updatedAt": "2026-10-15T02:57:04.275Z"
+  },
+  {
+    "_id": "6aa8ee56af2040a7267673af",
+    "category": "Header",
+    "createdAt": "2026-09-15T07:05:58.169Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 3,
+    "menuId": "playground",
+    "order": 5,
+    "parentId": "6aa8e4a9af2040a7267673a6",
+    "publicId": "MENU-MU4ZMMMV-YR2S1",
+    "slug": "playground",
+    "targetUrl": "/about/infrastructure/playground",
+    "title": "Playground",
+    "updatedAt": "2026-10-15T02:57:04.272Z"
+  },
+  {
+    "_id": "6aa8fd55af2040a7267673c0",
+    "category": "Header",
+    "createdAt": "2026-09-15T08:09:57.588Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "learning-based-activity",
+    "order": 2,
+    "parentId": "6aa8f460af2040a7267673b8",
+    "publicId": "MENU-MU4ZMN44-FW680",
+    "slug": "learning-based-activity",
+    "targetUrl": "/admissions/learning-based-activity",
+    "title": "Learning Based Activity",
+    "updatedAt": "2026-10-15T02:57:04.282Z"
+  },
+  {
+    "_id": "6aa8ff57af2040a7267673c4",
+    "category": "Header",
+    "createdAt": "2026-09-15T08:18:31.712Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "admission-form",
+    "order": 6,
+    "parentId": "6aa8f460af2040a7267673b8",
+    "publicId": "MENU-MU4ZMNEE-761L7",
+    "slug": "admission-form",
+    "targetUrl": "/admission/registration-form",
+    "title": "Admission Form",
+    "updatedAt": "2026-10-15T02:57:04.287Z"
+  },
+  {
+    "_id": "6aa8fe7eaf2040a7267673c1",
+    "category": "Header",
+    "createdAt": "2026-09-15T08:14:54.953Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 2,
+    "menuId": "admission-policy",
+    "order": 3,
+    "parentId": "6aa8f460af2040a7267673b8",
+    "publicId": "MENU-MU4ZMN7A-5K1KB",
+    "slug": "admission-policy",
+    "targetUrl": "/admissions/policy",
+    "title": "Admission Policy",
+    "updatedAt": "2026-10-15T02:57:04.284Z"
+  },
+  {
+    "_id": "6aa8f460af2040a7267673b8",
+    "category": "Header",
+    "createdAt": "2026-09-15T07:31:44.562Z",
+    "icon": "",
+    "isPublished": true,
+    "level": 1,
+    "menuId": "admissions",
+    "order": 4,
+    "parentId": null,
+    "publicId": "MENU-MU4ZMMZ2-YZ7VU",
+    "slug": "admissions",
+    "targetUrl": "/admissions/policy",
+    "title": "Admissions",
+    "updatedAt": "2026-10-15T02:57:04.279Z"
   }
 ]

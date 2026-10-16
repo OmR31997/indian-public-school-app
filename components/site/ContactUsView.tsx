@@ -257,46 +257,50 @@ export function ContactUsView() {
 
   return (
     <main className="flex-1 bg-slate-50/60 dark:bg-slate-950">
-      {/* Dynamic Hero Banner */}
-      <section className="relative overflow-hidden bg-slate-950 py-12 lg:py-16 text-white shadow-xl border-b border-gold/30">
+      {/* Signature Indian Public School Hero Banner (Consistent with Dynamic Pages) */}
+      <section
+        className="relative overflow-hidden py-14 sm:py-18 text-white shadow-xl border-b-2 border-[var(--gold)]/40"
+        style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
+      >
         <div className="absolute inset-0 z-0">
           <img
             src={DEFAULT_HERO_IMAGE}
-            alt="Indian Public School Contact"
-            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] scale-105"
+            alt="Contact Us"
+            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] opacity-60 scale-105 transition-transform duration-700 hover:scale-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-navy-950/90 to-slate-950" />
-          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[var(--gold)]/20 via-transparent to-transparent opacity-80 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-90" />
         </div>
 
-        <div className="container-page relative z-10 max-w-6xl">
+        <div className="container-page relative z-10 max-w-6xl flex flex-col items-start gap-4">
           <nav
             aria-label="Breadcrumb"
-            className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-900/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-xl backdrop-blur-md sm:text-sm"
+            className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-950/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
             style={{ borderRadius: "var(--badge-radius, 9999px)" }}
           >
             <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-0.5" />
-            <Link href="/" className="hover:text-[var(--gold)] transition-colors">
-              Home
-            </Link>
-            <span className="text-[var(--gold)] font-extrabold">*</span>
-            <span className="text-[var(--gold)] font-bold">Contact Us</span>
+            <div className="inline-flex items-center gap-2.5">
+              <Link
+                href="/"
+                className="transition-colors hover:text-[var(--gold)] hover:underline text-white/80"
+              >
+                Home
+              </Link>
+            </div>
+            <span className="text-[var(--gold)] font-extrabold text-xs sm:text-sm">*</span>
+            <div className="inline-flex items-center gap-2.5">
+              <span className="font-bold text-[var(--gold)] drop-shadow-sm">
+                Contact Us
+              </span>
+            </div>
           </nav>
 
-          <div className="mt-6 max-w-3xl">
-            <span
-              className="inline-flex items-center gap-1.5 bg-[var(--gold)]/20 px-3 py-1 text-xs font-semibold tracking-wide text-[var(--gold)] border border-[var(--gold)]/30 uppercase"
-              style={{ borderRadius: "var(--badge-radius, 9999px)" }}
-            >
-              Get In Touch
-            </span>
-            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-5xl font-[var(--font-display)]">
-              We&apos;re Here to Assist You
+          <div className="mt-2 space-y-2.5">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight font-[var(--font-display)]">
+              Contact Us
             </h1>
-            <p className="mt-3 text-base text-slate-300 sm:text-lg leading-relaxed">
-              Have questions regarding admissions, fee structure, transport, or school facilities?
-              Send us a message, submit your feedback, or track your previous inquiries.
-            </p>
           </div>
         </div>
       </section>

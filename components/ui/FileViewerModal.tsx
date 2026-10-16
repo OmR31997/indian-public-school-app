@@ -18,7 +18,9 @@ import {
   Eye,
   BookOpen,
   LoaderCircle,
-  AlertCircle
+  AlertCircle,
+  Download,
+  Printer
 } from "lucide-react";
 import {
   isPdfFile,
@@ -35,9 +37,11 @@ import { UniversalMedia, detectMediaType } from "@/components/ui/UniversalMedia"
 interface FileViewerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  url: string | null;
+  url?: string | null;
   title?: string;
   initialMode?: "picture" | "reader";
+  fileType?: string;
+  htmlContent?: string;
 }
 
 declare global {
@@ -81,9 +85,56 @@ export function FileViewerModal({
   onClose,
   url,
   title,
-  initialMode = "picture"
+  initialMode,
+  fileType: explicitFileType,
+  htmlContent,
 }: FileViewerModalProps) {
-  const [activeTab, setActiveTab] = useState<"picture" | "reader">(initialMode);
+  const isHtml = Boolean(htmlContent || explicitFileType === "html");
+  const isBlobOrData = Boolean(url && (url.startsWith("blob:") || url.startsWith("data:")));
+  const isPdfDetected = !isHtml && (explicitFileType === "pdf" || isPdfFile(url ?? "", title));
+  const htmlIframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  const handlePrintDocument = () => {
+    try {
+      const iframe = htmlIframeRef.current;
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        return;
+      }
+    } catch (e) {
+      console.warn("Iframe direct print fallback:", e);
+    }
+
+    if (htmlContent) {
+      const printWin = window.open("", "_blank");
+      if (printWin) {
+        printWin.document.write(htmlContent);
+        printWin.document.close();
+        setTimeout(() => {
+          printWin.focus();
+          printWin.print();
+        }, 300);
+      }
+    }
+  };
+
+  // Shortcut for Ctrl + P (Windows/Linux) and Cmd + P (Mac/iPad)
+  useEffect(() => {
+    if (!isOpen || !isHtml) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        handlePrintDocument();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isHtml, htmlContent]);
+
+  // Default: PDFs open in reader, everything else in picture
+  const resolvedInitialMode = initialMode ?? (isPdfDetected ? "reader" : "picture");
+  const [activeTab, setActiveTab] = useState<"picture" | "reader">(resolvedInitialMode);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [zoomLevel, setZoomLevel] = useState<number>(100);
@@ -99,42 +150,59 @@ export function FileViewerModal({
   const [isRenderingPage, setIsRenderingPage] = useState<boolean>(false);
 
   // Reader Engine: 1 = Next.js Server PDF Proxy (Default), 2 = Local Blob Stream Reader, 3 = Google Reader
-  const [readerEngine, setReaderEngine] = useState<1 | 2 | 3>(1);
+  const [readerEngine, setReaderEngine] = useState<1 | 2 | 3>(isBlobOrData ? 2 : 1);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfDocRef = useRef<any>(null);
 
-  // Fetch PDF via Next.js Proxy as ArrayBuffer and create local Blob URL when modal opens
+  // Track if we internally created a blob URL to revoke on cleanup
+  const internalBlobUrlRef = useRef<string | null>(null);
+
+  // Fetch PDF as ArrayBuffer and create local Blob URL when modal opens
   useEffect(() => {
     if (!isOpen || !url) {
+      if (internalBlobUrlRef.current) {
+        URL.revokeObjectURL(internalBlobUrlRef.current);
+        internalBlobUrlRef.current = null;
+      }
       setPdfBlobUrl(null);
       setPdfBuffer(null);
       pdfDocRef.current = null;
       return;
     }
 
+    const isCurrentPdf = explicitFileType === "pdf" || isPdfFile(url, title);
+    const isBlob = url.startsWith("blob:") || url.startsWith("data:");
+
     setCurrentPage(1);
     setTotalPages(1);
     setZoomLevel(100);
     setFetchError(null);
-    setReaderEngine(1);
-    setActiveTab(initialMode);
+    setReaderEngine(isBlob ? 2 : 1);
+    setActiveTab(initialMode ?? (isCurrentPdf ? "reader" : "picture"));
 
-    const isPdf = isPdfFile(url);
-    if (!isPdf) return;
+    if (!isCurrentPdf) return;
 
     let isMounted = true;
     setIsFetchingPdf(true);
 
-    const proxyUrl = getPdfProxyUrl(url);
+    if (url.startsWith("blob:")) {
+      setPdfBlobUrl(url);
+    }
 
-    fetch(proxyUrl)
+    const targetUrl = isBlob ? url : getPdfProxyUrl(url);
+
+    fetch(targetUrl)
       .then(async (res) => {
         if (!res.ok) {
-          console.warn(`Proxy fetch returned ${res.status}, falling back to direct stream...`);
-          const directRes = await fetch(inlineUrl);
-          if (!directRes.ok) throw new Error(`Direct fetch status: ${directRes.status}`);
-          return directRes.arrayBuffer();
+          if (!isBlob) {
+            console.warn(`Proxy fetch returned ${res.status}, falling back to direct stream...`);
+            const fallbackUrl = getCloudinaryInlineViewerUrl(url);
+            const directRes = await fetch(fallbackUrl);
+            if (!directRes.ok) throw new Error(`Direct fetch status: ${directRes.status}`);
+            return directRes.arrayBuffer();
+          }
+          throw new Error(`Direct fetch status: ${res.status}`);
         }
         return res.arrayBuffer();
       })
@@ -156,20 +224,30 @@ export function FileViewerModal({
 
         setPdfBuffer(buffer);
 
-        // Create Blob URL for browser iframe embedding
-        const blob = new Blob([buffer], { type: "application/pdf" });
-        const bUrl = URL.createObjectURL(blob);
-        setPdfBlobUrl(bUrl);
+        // Create Blob URL for browser iframe embedding if not already a blob URL
+        if (!url.startsWith("blob:")) {
+          const blob = new Blob([buffer], { type: "application/pdf" });
+          const bUrl = URL.createObjectURL(blob);
+          internalBlobUrlRef.current = bUrl;
+          setPdfBlobUrl(bUrl);
+        } else {
+          setPdfBlobUrl(url);
+        }
 
-        // Load PDF.js document
-        const pdfjsLib = await loadPdfJsScript();
-        const loadingTask = pdfjsLib.getDocument({ data: buffer });
-        const pdf = await loadingTask.promise;
-        if (!isMounted) return;
+        // Load PDF.js document for Picture preview mode
+        try {
+          const pdfjsLib = await loadPdfJsScript();
+          const loadingTask = pdfjsLib.getDocument({ data: buffer });
+          const pdf = await loadingTask.promise;
+          if (!isMounted) return;
 
-        pdfDocRef.current = pdf;
-        setTotalPages(pdf.numPages);
-        setIsFetchingPdf(false);
+          pdfDocRef.current = pdf;
+          setTotalPages(pdf.numPages);
+        } catch (pdfErr) {
+          console.warn("PDF.js initialization notice:", pdfErr);
+        } finally {
+          if (isMounted) setIsFetchingPdf(false);
+        }
       })
       .catch((err) => {
         if (isMounted) {
@@ -180,17 +258,12 @@ export function FileViewerModal({
 
     return () => {
       isMounted = false;
-    };
-  }, [isOpen, url, initialMode]);
-
-  // Clean up blob URL when closing
-  useEffect(() => {
-    return () => {
-      if (pdfBlobUrl) {
-        URL.revokeObjectURL(pdfBlobUrl);
+      if (internalBlobUrlRef.current) {
+        URL.revokeObjectURL(internalBlobUrlRef.current);
+        internalBlobUrlRef.current = null;
       }
     };
-  }, [pdfBlobUrl]);
+  }, [isOpen, url, title, initialMode, explicitFileType]);
 
   // Render current page onto canvas
   useEffect(() => {
@@ -232,20 +305,22 @@ export function FileViewerModal({
     };
   }, [isOpen, activeTab, currentPage, zoomLevel]);
 
-  if (!isOpen || !url) return null;
+  if (!isOpen || (!url && !htmlContent)) return null;
 
-  const fileType = getFileType(url);
-  const isPdf = isPdfFile(url);
-  const isDoc = isDocumentFile(url);
-  const displayName = title || url.split("/").pop() || "File Preview";
-  const pdfProxyStreamUrl = getPdfProxyUrl(url);
-  const inlineUrl = getCloudinaryInlineViewerUrl(url);
-  const googleViewerUrl = getGoogleDocsViewerUrl(url);
+  const fileType = isHtml ? "document" : getFileType(url || "");
+  const isPdf = !isHtml && (isPdfDetected || isPdfFile(url || ""));
+  const isDoc = !isHtml && isDocumentFile(url || "");
+  const displayName = title || (url ? url.split("/").pop() : "Document Print Preview") || "Document Print Preview";
+  const pdfProxyStreamUrl = getPdfProxyUrl(url || "");
+  const inlineUrl = getCloudinaryInlineViewerUrl(url || "");
+  const googleViewerUrl = getGoogleDocsViewerUrl(url || "");
 
   const handleCopyLink = () => {
-    void navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (url) {
+      void navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const zoomIn = () => setZoomLevel((prev) => Math.min(prev + 25, 250));
@@ -278,14 +353,14 @@ export function FileViewerModal({
               <h2 className="truncate font-display text-base font-bold text-slate-100">{displayName}</h2>
               <div className="flex items-center gap-2 text-[11px] text-slate-400">
                 <span className="font-semibold uppercase tracking-wider text-blue-400">
-                  {isPdf ? "PDF Document" : fileType}
+                  {isHtml ? "Document Preview (Ctrl + P)" : isPdf ? "PDF Document" : fileType}
                 </span>
               </div>
             </div>
           </div>
 
           {/* PDF View Mode Switcher */}
-          {isPdf && (
+          {!isHtml && isPdf && (
             <div className="flex items-center rounded-xl bg-slate-800/80 p-1 border border-slate-700/60">
               <button
                 type="button"
@@ -314,57 +389,107 @@ export function FileViewerModal({
 
           {/* Action Tools & Controls */}
           <div className="flex items-center gap-2">
-            {/* Zoom controls for Picture mode or Image */}
-            {(fileType === "image" || (isPdf && activeTab === "picture")) && (
-              <div className="hidden sm:flex items-center gap-1 rounded-xl bg-slate-800/60 px-2 py-1 border border-slate-700/50">
+            {/* If HTML template mode: render direct native Print & Open in New Window buttons */}
+            {isHtml ? (
+              <>
                 <button
                   type="button"
-                  onClick={zoomOut}
-                  className="rounded-md p-1 text-slate-300 hover:bg-slate-700 hover:text-white"
-                  title="Zoom Out"
+                  onClick={handlePrintDocument}
+                  className="flex items-center gap-1.5 rounded-xl border border-blue-500/50 bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-blue-500 transition shadow-sm cursor-pointer"
+                  title="Print or Save as PDF (Ctrl + P / Cmd + P)"
                 >
-                  <ZoomOut size={15} />
+                  <Printer size={15} />
+                  <span>Print / Save PDF</span>
                 </button>
-                <span className="w-11 text-center text-xs font-mono text-slate-300 font-semibold">{zoomLevel}%</span>
+
                 <button
                   type="button"
-                  onClick={zoomIn}
-                  className="rounded-md p-1 text-slate-300 hover:bg-slate-700 hover:text-white"
-                  title="Zoom In"
+                  onClick={() => {
+                    if (htmlContent) {
+                      const printWin = window.open("", "_blank");
+                      if (printWin) {
+                        printWin.document.write(htmlContent);
+                        printWin.document.close();
+                        setTimeout(() => {
+                          printWin.focus();
+                          printWin.print();
+                        }, 250);
+                      }
+                    }
+                  }}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition cursor-pointer"
+                  title="Open in new window to print or save"
                 >
-                  <ZoomIn size={15} />
+                  <ExternalLink size={14} />
+                  <span className="hidden sm:inline">Open New Tab</span>
                 </button>
+              </>
+            ) : (
+              <>
+                {/* Zoom controls for Picture mode or Image */}
+                {(fileType === "image" || (isPdf && activeTab === "picture")) && (
+                  <div className="hidden sm:flex items-center gap-1 rounded-xl bg-slate-800/60 px-2 py-1 border border-slate-700/50">
+                    <button
+                      type="button"
+                      onClick={zoomOut}
+                      className="rounded-md p-1 text-slate-300 hover:bg-slate-700 hover:text-white"
+                      title="Zoom Out"
+                    >
+                      <ZoomOut size={15} />
+                    </button>
+                    <span className="w-11 text-center text-xs font-mono text-slate-300 font-semibold">{zoomLevel}%</span>
+                    <button
+                      type="button"
+                      onClick={zoomIn}
+                      className="rounded-md p-1 text-slate-300 hover:bg-slate-700 hover:text-white"
+                      title="Zoom In"
+                    >
+                      <ZoomIn size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetZoom}
+                      className="ml-1 rounded-md p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
+                      title="Reset Zoom"
+                    >
+                      <RotateCcw size={13} />
+                    </button>
+                  </div>
+                )}
+
                 <button
                   type="button"
-                  onClick={resetZoom}
-                  className="ml-1 rounded-md p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
-                  title="Reset Zoom"
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition cursor-pointer"
+                  title="Copy file URL"
                 >
-                  <RotateCcw size={13} />
+                  {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  <span className="hidden md:inline">{copied ? "Copied!" : "Copy Link"}</span>
                 </button>
-              </div>
+
+                {/* Download Action */}
+                <a
+                  href={url ?? ""}
+                  download={displayName.toLowerCase().endsWith(".pdf") ? displayName : `${displayName}.pdf`}
+                  className="flex items-center gap-1.5 rounded-xl border border-emerald-600/40 bg-emerald-600/20 px-3 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-600/30 transition cursor-pointer"
+                  title="Download File"
+                >
+                  <Download size={14} />
+                  <span className="hidden md:inline">Download</span>
+                </a>
+
+                <a
+                  href={isBlobOrData ? (url ?? "") : pdfProxyStreamUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-xl border border-blue-600/40 bg-blue-600/20 px-3 py-1.5 text-xs font-bold text-blue-300 hover:bg-blue-600/30 transition"
+                  title="Open stream in new browser page/tab"
+                >
+                  <ExternalLink size={14} />
+                  <span>Open in New Page</span>
+                </a>
+              </>
             )}
-
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition cursor-pointer"
-              title="Copy file URL"
-            >
-              {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-              <span className="hidden md:inline">{copied ? "Copied!" : "Copy Link"}</span>
-            </button>
-
-            <a
-              href={pdfProxyStreamUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-xl border border-blue-600/40 bg-blue-600/20 px-3 py-1.5 text-xs font-bold text-blue-300 hover:bg-blue-600/30 transition"
-              title="Open stream in new browser page/tab"
-            >
-              <ExternalLink size={14} />
-              <span>Open in New Page</span>
-            </a>
 
             <button
               type="button"
@@ -379,15 +504,27 @@ export function FileViewerModal({
         {/* Main Viewing Canvas */}
         <div className="relative flex flex-1 overflow-hidden bg-slate-950 items-center justify-center p-2 sm:p-4">
 
+          {/* HTML Document Print Preview Mode */}
+          {isHtml && (
+            <div className="relative h-full w-full flex items-center justify-center p-1 sm:p-2">
+              <iframe
+                ref={htmlIframeRef}
+                srcDoc={htmlContent}
+                className="h-full w-full rounded-2xl bg-white border-0 shadow-2xl"
+                title={displayName}
+              />
+            </div>
+          )}
+
           {/* PDF Picture Preview Mode */}
-          {isPdf && activeTab === "picture" && (
+          {!isHtml && isPdf && activeTab === "picture" && (
             <div className="relative flex h-full w-full flex-col items-center justify-center overflow-auto scrollbar-thin">
 
               {(isFetchingPdf || isRenderingPage) && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-xs text-slate-300 gap-2">
                   <LoaderCircle size={32} className="animate-spin text-blue-500" />
                   <p className="text-xs font-semibold">
-                    {isFetchingPdf ? "Streaming PDF document via Next.js proxy..." : `Rendering Page ${currentPage} picture...`}
+                    {isFetchingPdf ? "Streaming PDF document..." : `Rendering Page ${currentPage} picture...`}
                   </p>
                 </div>
               )}
@@ -398,7 +535,7 @@ export function FileViewerModal({
                   <h3 className="font-bold text-lg text-slate-200">Streaming Interrupted</h3>
                   <p className="text-xs text-slate-400">{fetchError}</p>
                   <a
-                    href={pdfProxyStreamUrl}
+                    href={isBlobOrData ? (url ?? "") : pdfProxyStreamUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 transition cursor-pointer"
@@ -442,54 +579,58 @@ export function FileViewerModal({
           )}
 
           {/* PDF / Document Interactive Reader Mode */}
-          {((isPdf && activeTab === "reader") || (!isPdf && isDoc)) && (
+          {!isHtml && ((isPdf && activeTab === "reader") || (!isPdf && isDoc)) && (
             <div className="relative h-full w-full flex flex-col items-center justify-center">
 
               {/* Reader Engine Bar */}
               <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-xl bg-slate-900/90 border border-slate-800 px-3 py-1 text-[11px] shadow-lg backdrop-blur-md">
                 <span className="font-bold text-slate-400 mr-1">Reader Engine:</span>
-                <button
-                  type="button"
-                  onClick={() => setReaderEngine(1)}
-                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 1 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
-                    }`}
-                >
-                  Proxy Stream
-                </button>
+                {!isBlobOrData && (
+                  <button
+                    type="button"
+                    onClick={() => setReaderEngine(1)}
+                    className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 1 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                      }`}
+                  >
+                    Proxy Stream
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setReaderEngine(2)}
-                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 2 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 2 || isBlobOrData ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
                     }`}
                 >
-                  Local Blob Reader
+                  {isBlobOrData ? "Interactive Reader" : "Local Blob Reader"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setReaderEngine(3)}
-                  className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 3 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
-                    }`}
-                >
-                  Google Reader
-                </button>
+                {!isBlobOrData && (
+                  <button
+                    type="button"
+                    onClick={() => setReaderEngine(3)}
+                    className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${readerEngine === 3 ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                      }`}
+                  >
+                    Google Reader
+                  </button>
+                )}
               </div>
 
-              {isFetchingPdf && (readerEngine === 1 || readerEngine === 2) ? (
+              {isFetchingPdf && (readerEngine === 1 || readerEngine === 2 || isBlobOrData) ? (
                 <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                   <LoaderCircle size={32} className="animate-spin text-blue-500" />
                   <p className="text-xs font-semibold">Preparing interactive PDF reader stream...</p>
                 </div>
-              ) : readerEngine === 1 ? (
+              ) : (readerEngine === 2 || isBlobOrData) && (pdfBlobUrl || url) ? (
+                <iframe
+                  src={`${pdfBlobUrl || url}#toolbar=1`}
+                  className="h-full w-full rounded-2xl bg-white border-0 shadow-2xl"
+                  title="Interactive PDF Reader"
+                />
+              ) : readerEngine === 1 && !isBlobOrData ? (
                 <iframe
                   src={`${pdfProxyStreamUrl}#toolbar=1`}
                   className="h-full w-full rounded-2xl bg-white border-0 shadow-2xl"
                   title="Proxy Stream PDF Reader"
-                />
-              ) : readerEngine === 2 && pdfBlobUrl ? (
-                <iframe
-                  src={`${pdfBlobUrl}#toolbar=1`}
-                  className="h-full w-full rounded-2xl bg-white border-0 shadow-2xl"
-                  title="Native Blob PDF Reader"
                 />
               ) : (
                 <iframe
@@ -503,7 +644,7 @@ export function FileViewerModal({
           )}
 
           {/* Standard Image Viewer */}
-          {fileType === "image" && !isPdf && (
+          {!isHtml && fileType === "image" && !isPdf && url && (
             <div className="flex h-full w-full items-center justify-center overflow-auto p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -516,10 +657,10 @@ export function FileViewerModal({
           )}
 
           {/* Video Player (YouTube, Vimeo, HTML5 Video, Cloudinary Stream) */}
-          {(fileType === "video" || detectMediaType(url) === "video") && (
+          {!isHtml && (fileType === "video" || (url ? detectMediaType(url) === "video" : false)) && (
             <div className="flex h-full w-full items-center justify-center p-2 sm:p-4">
               <UniversalMedia
-                src={inlineUrl}
+                src={inlineUrl || (url ?? "")}
                 alt={displayName}
                 title={displayName}
                 controls
@@ -531,14 +672,14 @@ export function FileViewerModal({
           )}
 
           {/* Audio Player */}
-          {fileType === "audio" && (
+          {!isHtml && fileType === "audio" && (
             <div className="flex flex-col items-center justify-center gap-6 p-6 sm:p-8 text-center max-w-lg bg-slate-900/90 rounded-3xl border border-slate-800 shadow-2xl w-full">
               <div className="grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white shadow-lg shadow-purple-500/20">
                 <Music size={40} className="animate-pulse" />
               </div>
               <div className="w-full">
                 <UniversalMedia
-                  src={inlineUrl}
+                  src={inlineUrl || (url ?? "")}
                   title={displayName}
                   alt={displayName}
                   type="audio"

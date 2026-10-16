@@ -1,12 +1,12 @@
-import { getOptionalApi, unwrapCollection, unwrapSetting, type ApiRecord, type PaginatedData } from "@/lib/api-client";
+import { checkBackendHealth, getOptionalApi, unwrapCollection, unwrapSetting, type ApiRecord, type PaginatedData } from "@/lib/api-client";
 import { getAssetUrl, getCloudinaryRootFolder } from "@/lib/utils";
 import fallbackSiteData from "@/public/cloud-datasource.json";
 
 export const CLOUDINARY_ROOT_FOLDER = getCloudinaryRootFolder();
 export const DEFAULT_HERO_IMAGE = "/assets/Settings/Home/Banner_1.jpg";
-export const DEFAULT_LOGO = "/Settings/Logos/IPSLogo.png";
-export const DEFAULT_SECONDARY_LOGO = "https://res.cloudinary.com/dnw7mgysa/image/upload/ips-education/assets/Settings/Logos/file_xpnvia.png";
-export const DEFAULT_CREST_LOGO = "/Settings/Logos/IPSStandardLogo.png";
+export const DEFAULT_LOGO = "/assets/Settings/Logos/IPSLogo.png";
+export const DEFAULT_SECONDARY_LOGO = "/assets/Settings/Logos/AakashFoundationLogo.png";
+export const DEFAULT_CREST_LOGO = "/assets/Settings/Logos/IPSStandardLogo.png";
 export const DEFAULT_INTRO_VIDEO = "/Videos/IPSIntroVideo.mp4";
 
 export type SiteRecord = ApiRecord;
@@ -77,6 +77,13 @@ export interface PopupBannerSetting {
   showInlineForm?: boolean;
   imageBorderRadius?: number;
   showImageZoomOnClick?: boolean;
+}
+
+export interface DeveloperSetting {
+  name?: string;
+  url?: string;
+  label?: string;
+  showBackendStatus?: boolean;
 }
 
 export interface ApiMenuItem {
@@ -184,21 +191,60 @@ export interface SiteData {
   certified_board?: CertifiedBoardSetting;
   trust_board?: TrustBoardSetting;
   academic_partner?: AcademicPartnerSetting;
+  developer?: DeveloperSetting;
+  backendConnected?: boolean;
   whatsapp?: WhatsAppSetting;
   popupBanner?: PopupBannerSetting;
   [key: string]: unknown;
 }
 
 export async function getSiteData(): Promise<SiteData> {
-  const fallback = fallbackSiteData as SiteData;
-  const rawFallbackMenuitems = Array.isArray(fallback.menuItems)
-    ? fallback.menuItems
-    : Array.isArray(fallback.menuitems)
-      ? fallback.menuitems
-      : [];
-  const fallbackMenuitemsTree = buildMenuHierarchy(rawFallbackMenuitems as SiteRecord[]);
+  const isHealthy = await checkBackendHealth();
 
-  const [siteResponse, logoSettingResponse, newsResponse, galleryResponse, reviewsResponse, menuItemsResponse] = await Promise.all([
+  if (!isHealthy) {
+    // Backend NOT attached -> apply fallback
+    const fallback = fallbackSiteData as SiteData;
+    const rawFallbackMenuitems = Array.isArray(fallback.menuItems)
+      ? fallback.menuItems
+      : Array.isArray(fallback.menuitems)
+        ? fallback.menuitems
+        : [];
+    const fallbackMenuitemsTree = buildMenuHierarchy(rawFallbackMenuitems as SiteRecord[]);
+    const fallbackGallery = Array.isArray(fallback.gallery)
+      ? (fallback.gallery as SiteRecord[])
+      : [];
+    const fallbackReviews = Array.isArray(fallback.reviews)
+      ? (fallback.reviews as SiteRecord[])
+      : [];
+
+    return {
+      ...fallback,
+      backendConnected: false,
+      developer: (fallback.developer as DeveloperSetting) || {
+        name: "EZ Softech",
+        url: "https://ezsoftapp.in",
+        label: "Crafted by",
+        showBackendStatus: true,
+      },
+      site_logo: fallback.site_logo,
+      home: fallback.home || [],
+      news: fallback.news || [],
+      galleryItems: fallbackGallery,
+      reviewsItems: fallbackReviews,
+      menuItems: fallbackMenuitemsTree,
+      menuitems: rawFallbackMenuitems as SiteRecord[],
+    };
+  }
+
+  // Backend IS attached -> DO NOT apply fallback!
+  const [
+    siteResponse,
+    logoSettingResponse,
+    newsResponse,
+    galleryResponse,
+    reviewsResponse,
+    menuItemsResponse,
+  ] = await Promise.all([
     getOptionalApi<SiteData | { value?: SiteData; _doc?: { value?: SiteData } }>("/regarding/datasource"),
     getOptionalApi<SiteLogoSetting | { value?: SiteLogoSetting }>("/school-settings/key/site_logo"),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/news", { limit: 10, page: 1, sortOrder: "desc" }),
@@ -206,29 +252,24 @@ export async function getSiteData(): Promise<SiteData> {
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/reviews", { limit: 12, page: 1, sortOrder: "desc", isApproved: "true" }),
     getOptionalApi<SiteRecord[] | PaginatedData<SiteRecord>>("/menu-items", { publishedOnly: "true" }),
   ]);
-  const siteData = siteResponse ? unwrapSetting<SiteData>(siteResponse) : fallback;
+
+  const siteData = siteResponse ? unwrapSetting<SiteData>(siteResponse) : ({} as SiteData);
   const dbLogoSetting = logoSettingResponse ? unwrapSetting<SiteLogoSetting>(logoSettingResponse) : null;
   const apiNews = unwrapCollection(newsResponse);
   const apiGallery = unwrapCollection(galleryResponse);
   const apiReviews = unwrapCollection(reviewsResponse);
   const apiMenuItems = unwrapCollection(menuItemsResponse);
-  const fallbackGallery = Array.isArray(fallback.gallery)
-    ? fallback.gallery as SiteRecord[]
-    : [];
-  const fallbackReviews = Array.isArray(fallback.reviews)
-    ? fallback.reviews as SiteRecord[]
-    : [];
 
-  const finalMenuItems = apiMenuItems.length > 0
-    ? buildMenuHierarchy(apiMenuItems)
-    : fallbackMenuitemsTree;
+  const menuList = apiMenuItems.length > 0
+    ? apiMenuItems
+    : (Array.isArray(siteData.menuitems) ? siteData.menuitems : []);
+  const finalMenuItems = buildMenuHierarchy(menuList);
 
   const siteLogoFromDb = (dbLogoSetting && typeof dbLogoSetting === "object" && dbLogoSetting.logoUrl)
     ? dbLogoSetting
     : (siteData.site_logo || (siteData.home?.[0]?.identity as any)?.site_logo);
 
-  const hasDbSiteData = !!(siteResponse && siteData && typeof siteData === "object" && Array.isArray(siteData.home) && siteData.home.length > 0);
-  const homeList = hasDbSiteData ? siteData.home : fallback.home;
+  const homeList = Array.isArray(siteData.home) ? siteData.home : [];
   const updatedHome = homeList.map((item, idx) => {
     if (idx === 0 && siteLogoFromDb) {
       const currentIdentity = (item.identity as Record<string, unknown>) || {};
@@ -258,15 +299,21 @@ export async function getSiteData(): Promise<SiteData> {
   });
 
   return {
-    ...(hasDbSiteData ? {} : fallback),
     ...siteData,
-    site_logo: siteLogoFromDb || siteData.site_logo || fallback.site_logo,
+    backendConnected: true,
+    developer: (siteData.developer as DeveloperSetting) || {
+      name: "EZ Softech",
+      url: "https://ezsoftapp.in",
+      label: "Crafted by",
+      showBackendStatus: true,
+    },
+    site_logo: siteLogoFromDb || siteData.site_logo,
     home: updatedHome,
-    news: apiNews.length ? apiNews : fallback.news,
-    galleryItems: apiGallery.length ? apiGallery : fallbackGallery,
-    reviewsItems: apiReviews.length ? apiReviews : fallbackReviews,
+    news: apiNews.length ? apiNews : (Array.isArray(siteData.news) ? (siteData.news as SiteRecord[]) : []),
+    galleryItems: apiGallery.length ? apiGallery : (Array.isArray(siteData.gallery) ? (siteData.gallery as SiteRecord[]) : []),
+    reviewsItems: apiReviews.length ? apiReviews : (Array.isArray(siteData.reviews) ? (siteData.reviews as SiteRecord[]) : []),
     menuItems: finalMenuItems,
-    menuitems: rawFallbackMenuitems as SiteRecord[],
+    menuitems: menuList as SiteRecord[],
   };
 }
 
@@ -388,8 +435,14 @@ export function processHtmlAssetUrls(html?: string | null): string {
 
 export function imageUrls(record: SiteRecord): string[] {
   const value = record.fileUrls ?? record.fileUrl;
-  if (!Array.isArray(value)) return imageUrl(value) ? [imageUrl(value)] : [];
-  return value.filter((item): item is string => typeof item === "string" && item.length > 0);
+  if (!Array.isArray(value)) {
+    const single = imageUrl(value);
+    return single ? [single] : [];
+  }
+  return value
+    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    .map((item) => imageUrl(item))
+    .filter((url): url is string => Boolean(url));
 }
 
 export interface OfficeTimingItem {

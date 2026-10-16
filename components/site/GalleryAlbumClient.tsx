@@ -3,11 +3,11 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Search, Image as ImageIcon, ChevronLeft, ChevronRight, Download, ExternalLink, Filter, LayoutGrid } from "lucide-react";
+import { X, Search, Image as ImageIcon, ChevronLeft, ChevronRight, Download, ExternalLink, Filter, LayoutGrid, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { EASE } from "@/lib/motion-presets";
-import { cn } from "@/lib/utils";
-import { homeData, imageUrls, imageUrl, text } from "@/lib/site-data";
+import { cn, getAssetUrl } from "@/lib/utils";
+import { homeData, imageUrls, imageUrl, text, DEFAULT_HERO_IMAGE } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
 import { getOptionalApi, unwrapCollection } from "@/lib/api-client";
 import { UniversalMedia, detectMediaType } from "@/components/ui/UniversalMedia";
@@ -92,6 +92,10 @@ function isStaffStudentOrPressUrl(url: string): boolean {
 
   // Exclude non-image file extensions if any
   if (lower.endsWith(".pdf") || lower.endsWith(".doc") || lower.endsWith(".docx") || lower.endsWith(".mp4")) {
+    return true;
+  }
+
+  if (lower.includes("/settings/icons") || lower.includes("settings/icons")) {
     return true;
   }
 
@@ -427,59 +431,76 @@ export function GalleryAlbumClient({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24 pt-8">
-      {/* Page Header Banner */}
+    <div className="min-h-screen bg-background text-foreground pb-24">
+      {/* Signature Indian Public School Hero Banner (Consistent with Dynamic Pages) */}
       <section
-        className="relative overflow-hidden py-16 text-navy-foreground lg:py-20"
+        className="relative overflow-hidden py-14 sm:py-18 text-white shadow-xl border-b-2 border-[var(--gold)]/40"
         style={{ background: "var(--gradient-navy, linear-gradient(140deg, #102a4c, #1a5d9c))" }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(217,119,6,0.15),transparent_50%)]" />
-        <div className="container-page relative z-10">
-          <div className="flex flex-col items-center text-center">
-            {/* Breadcrumb */}
-            <div className="mb-4 flex items-center gap-2 text-xs font-medium text-white/80">
-              <Link href="/" className="hover:text-[var(--gold)] transition-colors">Home</Link>
-              <span>/</span>
-              <Link href="/gallery" className="hover:text-[var(--gold)] transition-colors">Gallery</Link>
-              {isAlbumMode && (
-                <>
-                  <span>/</span>
-                  <span className="text-[var(--gold)] font-semibold">Album</span>
-                </>
-              )}
-            </div>
+        <div className="absolute inset-0 z-0">
+          <img
+            src={getAssetUrl(DEFAULT_HERO_IMAGE)}
+            alt={isAlbumMode ? "Photo Albums" : "Gallery"}
+            className="h-full w-full object-cover object-center filter brightness-[0.35] contrast-[1.15] opacity-60 scale-105 transition-transform duration-700 hover:scale-100"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[var(--gold)]/20 via-transparent to-transparent opacity-80 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-90" />
+        </div>
 
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl font-[var(--font-display)] text-white">
-              {isAlbumMode ? (
-                <>Photo Albums <span className="text-[var(--gold)]">&</span> Media Collections</>
-              ) : (
-                <>School Gallery <span className="text-[var(--gold)]">&</span> Photo Collections</>
-              )}
+        <div className="container-page relative z-10 max-w-6xl flex flex-col items-start gap-4">
+          <nav
+            aria-label="Breadcrumb"
+            className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-950/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
+            style={{ borderRadius: "var(--badge-radius, 9999px)" }}
+          >
+            <GraduationCap className="size-4 text-[var(--gold)] shrink-0 mr-0.5" />
+            <div className="inline-flex items-center gap-2.5">
+              <Link
+                href="/"
+                className="transition-colors hover:text-[var(--gold)] hover:underline text-white/80"
+              >
+                Home
+              </Link>
+            </div>
+            <span className="text-[var(--gold)] font-extrabold text-xs sm:text-sm">*</span>
+            {isAlbumMode ? (
+              <>
+                <div className="inline-flex items-center gap-2.5">
+                  <Link
+                    href="/gallery"
+                    className="transition-colors hover:text-[var(--gold)] hover:underline text-white/80"
+                  >
+                    Gallery
+                  </Link>
+                </div>
+                <span className="text-[var(--gold)] font-extrabold text-xs sm:text-sm">*</span>
+                <div className="inline-flex items-center gap-2.5">
+                  <span className="font-bold text-[var(--gold)] drop-shadow-sm">
+                    Photo Albums
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="inline-flex items-center gap-2.5">
+                <span className="font-bold text-[var(--gold)] drop-shadow-sm">
+                  Gallery
+                </span>
+              </div>
+            )}
+          </nav>
+
+          <div className="mt-2 space-y-2.5">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl drop-shadow-md leading-tight font-[var(--font-display)]">
+              {isAlbumMode ? "Photo Albums" : "Gallery"}
             </h1>
-
-            {/* Quick Stats Pill */}
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-white/90">
-              <div
-                className="flex items-center gap-1.5 bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15"
-                style={{ borderRadius: "var(--badge-radius, 9999px)" }}
-              >
-                <ImageIcon className="size-4 text-[var(--gold)]" />
-                <span>{filteredImages.length} High-Res Photos</span>
-              </div>
-              <div
-                className="flex items-center gap-1.5 bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15"
-                style={{ borderRadius: "var(--badge-radius, 9999px)" }}
-              >
-                <LayoutGrid className="size-4 text-[var(--gold)]" />
-                <span>{CATEGORIES.length - 1} Categories</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Filter Controls & Content Area */}
-      <section id="gallery-section" className="container-page mt-10">
+      <section id="gallery-section" className="container-page mt-8 space-y-6">
         {/* Search & Categories Bar */}
         <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card text-card-foreground p-5 shadow-sm md:flex-row md:items-center md:justify-between">
           {/* Category Tabs */}
@@ -506,16 +527,13 @@ export function GalleryAlbumClient({
                   type="button"
                   onClick={() => setActiveCategory(cat)}
                   className={cn(
-                    "relative rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200",
+                    "relative rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200",
                     activeCategory === cat
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "bg-secondary text-foreground hover:bg-secondary/80"
                   )}
                 >
                   <span>{cat}</span>
-                  <span className={cn("ml-1.5 rounded-md px-1.5 py-0.5 text-[10px]", activeCategory === cat ? "bg-white/20 text-white" : "bg-background/80 text-muted-foreground")}>
-                    {count}
-                  </span>
                 </button>
               );
             })}
@@ -614,13 +632,7 @@ export function GalleryAlbumClient({
         {!loading && totalItems > 0 && (
           <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-card text-card-foreground p-4 shadow-xs sm:flex-row sm:px-6">
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span>
-                Showing <strong className="font-semibold text-foreground">{Math.min((currentPage - 1) * pageSize + 1, totalItems)}</strong> to{" "}
-                <strong className="font-semibold text-foreground">{Math.min(currentPage * pageSize, totalItems)}</strong> of{" "}
-                <strong className="font-semibold text-foreground">{totalItems}</strong> photos
-              </span>
-              <span className="hidden sm:inline text-border">|</span>
-              <div className="hidden sm:flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5">
                 <span className="text-muted-foreground">Per page:</span>
                 <select
                   value={pageSize}
