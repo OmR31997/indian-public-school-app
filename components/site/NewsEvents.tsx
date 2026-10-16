@@ -242,10 +242,6 @@ export function NewsEvents() {
             )}
           </div>
 
-          {/* Footer Ribbon */}
-          <div className="mt-3 border-t border-border pt-2.5 text-center text-xs text-muted-foreground flex items-center justify-between">
-            <span>Showing all {filteredNotices.length} news updates</span>
-          </div>
         </div>
       </div>
     </section>

@@ -53,10 +53,21 @@ export function getCleanUrl(url?: string | null): string {
   return normalizePdfUrl(url).split("?")[0].split("#")[0];
 }
 
-export function isPdfFile(url?: string | null): boolean {
+export function isPdfFile(url?: string | null, title?: string | null): boolean {
   if (!url || typeof url !== "string") return false;
-  const normalized = normalizePdfUrl(url);
   const lowercaseUrl = url.toLowerCase();
+  const cleanTitle = (title || "").toLowerCase();
+
+  if (
+    lowercaseUrl.startsWith("blob:") ||
+    lowercaseUrl.startsWith("data:application/pdf") ||
+    lowercaseUrl.includes("application/pdf") ||
+    cleanTitle.endsWith(".pdf")
+  ) {
+    return true;
+  }
+
+  const normalized = normalizePdfUrl(url);
   const clean = getCleanUrl(normalized).toLowerCase();
 
   return (
@@ -68,14 +79,14 @@ export function isPdfFile(url?: string | null): boolean {
   );
 }
 
-export function isDocumentFile(url?: string | null): boolean {
+export function isDocumentFile(url?: string | null, title?: string | null): boolean {
   if (!url || typeof url !== "string") return false;
   const normalized = normalizePdfUrl(url);
   const clean = getCleanUrl(normalized).toLowerCase();
   const lowercaseUrl = url.toLowerCase();
 
   return (
-    isPdfFile(url) ||
+    isPdfFile(url, title) ||
     /\.(doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|7z)$/i.test(clean) ||
     lowercaseUrl.includes(".doc") ||
     lowercaseUrl.includes(".docx") ||
@@ -88,11 +99,18 @@ export function isDocumentFile(url?: string | null): boolean {
 /**
  * Returns an internal Next.js PDF proxy URL so CORS and Content-Disposition headers
  * are handled server-side seamlessly for any external/Cloudinary PDF file.
+ * Returns local blob: and data: URLs unmodified.
  */
 export function getPdfProxyUrl(url?: string | null): string {
   if (!url) return "";
   const trimmed = normalizePdfUrl(url);
-  if (trimmed.startsWith("/api/pdf-proxy")) return trimmed;
+  if (
+    trimmed.startsWith("blob:") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("/api/pdf-proxy")
+  ) {
+    return trimmed;
+  }
   return `/api/pdf-proxy?url=${encodeURIComponent(trimmed)}`;
 }
 

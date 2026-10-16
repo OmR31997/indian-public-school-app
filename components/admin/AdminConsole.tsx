@@ -65,6 +65,7 @@ import { DEFAULT_LOGO, DEFAULT_CREST_LOGO, imageUrl } from "@/lib/site-data";
 import { useInquiryNotifications } from "@/lib/hooks/useInquiryNotifications";
 import { CareersAdmin } from "@/components/admin/careers/CareersAdmin";
 import { ThemeManagementTab } from "@/components/admin/tabs/ThemeManagementTab";
+import { PublicDisclosureAdmin } from "@/components/admin/public-disclosure/PublicDisclosureAdmin";
 import { useCareerNotifications } from "@/lib/hooks/useCareerNotifications";
 import {
   RecordItem,
@@ -779,6 +780,8 @@ export function AdminConsole() {
           <CareersAdmin apiUrl={API_URL} token={token} onRefreshNotifications={careerNotifications.refreshNotifications} />
         ) : active === "theme" ? (
           <ThemeManagementTab token={token} />
+        ) : active === "public-disclosure" ? (
+          <PublicDisclosureAdmin apiUrl={API_URL} token={token} />
         ) : current && (
           <ResourceView
             resource={current}

@@ -13,7 +13,8 @@ export type ResourceKey =
   | "pages"
   | "users"
   | "careers"
-  | "theme";
+  | "theme"
+  | "public-disclosure";
 
 export type InputType =
   | "text"

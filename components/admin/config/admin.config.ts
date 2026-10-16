@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Briefcase,
   Palette,
+  FileCheck,
 } from "lucide-react";
 import { Resource, ResourceKey, QueryParamsState } from "../types/admin.types";
 
@@ -29,6 +30,7 @@ export const resourcePath: Record<ResourceKey, string> = {
   users: "auth/users",
   careers: "careers",
   theme: "theme",
+  "public-disclosure": "public-disclosure/sections",
 };
 
 export const resources: Resource[] = [
@@ -196,6 +198,15 @@ export const resources: Resource[] = [
     fields: ["name", "slug", "isActive", "isPreset", "createdAt"],
     inputs: { name: "text", description: "textarea", isActive: "boolean" },
   },
+  {
+    key: "public-disclosure",
+    label: "Mandatory Disclosure",
+    description: "CBSE mandatory disclosure, compliance sections and documents",
+    icon: FileCheck,
+    protected: true,
+    fields: ["sectionTitle", "isPublished", "order", "createdAt"],
+    inputs: { sectionTitle: "text", isPublished: "boolean" },
+  },
 ];
 
 export const OPTIONAL_FIELDS = new Set([
@@ -230,6 +241,7 @@ export const resourceSections: Record<ResourceKey, (typeof sectionNames)[number]
   reviews: "Content",
   "menu-items": "Content",
   pages: "Content",
+  "public-disclosure": "Content",
   "school-settings": "System",
   users: "System",
   careers: "People",

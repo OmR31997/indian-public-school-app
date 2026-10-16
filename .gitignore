@@ -47,3 +47,5 @@ documents/
 /public/assets/*
 !/public/assets/Settings/
 !/public/assets/Settings/**
+
+public/assets/Settings/Mandatory_Disclosure_SARAS_Sep2026.pdf

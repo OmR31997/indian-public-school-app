@@ -402,6 +402,11 @@ export default async function ContentPage({
       </main>
     );
   }
+  const lastSeg = (slug.at(-1) || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (["mandatorydisclosure", "mandatorypublicdisclosure", "publicdisclosure", "disclosure"].includes(lastSeg)) {
+    redirect("/mandatory-disclosure");
+  }
+
   const page = await resolvePage(slug);
 
   if (page && (page.isPublished === false || page.isPublished === "false")) {

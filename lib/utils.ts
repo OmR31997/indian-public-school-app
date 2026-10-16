@@ -176,9 +176,16 @@ export function getAssetUrl(url?: any): string {
         fixedUrl = 'https://res.cloudinary.com/dnw7mgysa/image/upload/ips-education/assets/Settings/Logos/AakashFoundationLogo.png';
       }
 
+      if (
+        fixedUrl.includes('/image/upload/') &&
+        (fixedUrl.includes('/Documents/') || /\.pdf($|\?|#)/i.test(fixedUrl))
+      ) {
+        fixedUrl = fixedUrl.replace('/image/upload/', '/raw/upload/');
+      }
+
       if (!fixedUrl.includes('/upload/')) {
         const isVideo = fixedUrl.includes('/Videos/') || /\.(mp4|webm|mov|avi|mkv|flv|wmv|m4v)$/i.test(fixedUrl);
-        const isRaw = /\.(doc|docx|xls|xlsx|zip|txt|csv)$/i.test(fixedUrl);
+        const isRaw = /\.(doc|docx|xls|xlsx|zip|txt|csv|pdf)$/i.test(fixedUrl) || fixedUrl.includes('/Documents/');
         const typePrefix = isVideo ? 'video/upload' : isRaw ? 'raw/upload' : 'image/upload';
         const rootFolder = getCloudinaryRootFolder();
         if (rootFolder && fixedUrl.includes(`/${rootFolder}/`)) {
@@ -249,11 +256,10 @@ export function getAssetUrl(url?: any): string {
   ) {
     resourcePrefix = 'video/upload';
   } else if (
-    /\.(doc|docx|xls|xlsx|zip|txt|csv)$/i.test(lowerPath)
+    /\.(doc|docx|xls|xlsx|zip|txt|csv|pdf)$/i.test(lowerPath) ||
+    lowerPath.includes('documents/')
   ) {
     resourcePrefix = 'raw/upload';
-  } else if (/\.pdf$/i.test(lowerPath)) {
-    resourcePrefix = 'image/upload';
   }
 
   cleanPath = cleanPath.replace(/\.pdf\.pdf(?=($|\?|#))/gi, '.pdf');
