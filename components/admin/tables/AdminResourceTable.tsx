@@ -335,7 +335,7 @@ export const RESOURCE_FILTERS: Record<string, { label: string; key: string; opti
     { label: "Category", key: "category", options: ["All", "Header", "Footer", "Quick Links", "Sidebar"] },
   ],
   reviews: [
-    { label: "Status", key: "status", options: ["All", "Pending", "Approved", "Rejected"] },
+    { label: "Status", key: "isApproved", options: ["All", "Approved", "Pending"] },
   ],
   inquiries: [
     { label: "Status", key: "status", options: ["All", "New", "In Progress", "Contacted", "Resolved", "Closed"] },
@@ -1593,10 +1593,10 @@ export function ResourceView({
                     <th
                       key={field}
                       className={`whitespace-nowrap px-5 py-3.5 ${
-                        field === "status" || field === "isPublished" || field === "isActive" ? "text-center" : ""
+                        field === "status" || field === "isPublished" || field === "isActive" || field === "isApproved" ? "text-center" : ""
                       }`}
                     >
-                      {field === "isPublished" ? "Published" : field === "isActive" ? "Status" : field}
+                      {field === "isPublished" ? "Published" : field === "isActive" ? "Status" : field === "isApproved" ? "Approval" : field}
                     </th>
                   ))}
                   {(canEdit || canDelete || isMediaResource) && (
@@ -1905,6 +1905,79 @@ export function ResourceView({
                                       }`}
                                     />
                                     <span>{actStr}</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          }
+
+                          if (field === "isApproved") {
+                            const isApp = item[field] === true || String(item[field]) === "true";
+                            const appStr = isApp ? "Approved" : "Pending";
+
+                            return (
+                              <td key={field} className="whitespace-nowrap px-5 py-4 text-center">
+                                {canEdit ? (
+                                  <div className="relative inline-flex items-center">
+                                    <select
+                                      value={appStr}
+                                      onChange={async (e) => {
+                                        const newApproved = e.target.value === "Approved";
+                                        try {
+                                          await axios.patch(
+                                            `${API_URL}/${resourcePath[resource.key]}/${itemId(item)}`,
+                                            { isApproved: newApproved },
+                                            { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                                          );
+                                          onQueryChange({});
+                                        } catch (err) {
+                                          console.error("Failed to update isApproved", err);
+                                        }
+                                      }}
+                                      className={`appearance-none cursor-pointer inline-flex items-center rounded-full pl-6 pr-6 py-1 text-xs font-bold border shadow-2xs transition outline-none ${
+                                        isApp
+                                          ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                          : "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100/80"
+                                      }`}
+                                      title="Click to change approval status"
+                                    >
+                                      <option value="Approved" className="text-slate-900 bg-white font-semibold">
+                                        Approved
+                                      </option>
+                                      <option value="Pending" className="text-slate-900 bg-white font-semibold">
+                                        Pending
+                                      </option>
+                                    </select>
+                                    <span
+                                      className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ${
+                                        isApp
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-amber-500 shadow-xs shadow-amber-400"
+                                      }`}
+                                    />
+                                    <ChevronDown
+                                      size={12}
+                                      className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 ${
+                                        isApp ? "text-emerald-600" : "text-amber-600"
+                                      }`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs tracking-wide ${
+                                      isApp
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                        : "border-amber-200 bg-amber-50 text-amber-800"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`h-2 w-2 rounded-full shrink-0 ${
+                                        isApp
+                                          ? "bg-emerald-500 shadow-xs shadow-emerald-400 animate-pulse"
+                                          : "bg-amber-500 shadow-xs shadow-amber-400"
+                                      }`}
+                                    />
+                                    <span>{appStr}</span>
                                   </span>
                                 )}
                               </td>

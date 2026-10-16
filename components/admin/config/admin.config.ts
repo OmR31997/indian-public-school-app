@@ -140,7 +140,7 @@ export const resources: Resource[] = [
     icon: MessageSquareHeart,
     protected: true,
     fields: ["name", "batch", "rating", "isApproved", "createdAt", "updatedAt"],
-    inputs: { name: "text", batch: "text", rating: "number", feedback: "textarea", avatar: "file", isApproved: "boolean" },
+    inputs: { name: "text", batch: "text", rating: "number", feedback: "textarea", avatar: "file" },
   },
   {
     key: "school-settings",

@@ -303,6 +303,13 @@ export function RecordDialog({
         payload.isPublished = true;
       }
     }
+    if (resource.key === "reviews") {
+      if (record && record.isApproved !== undefined && payload.isApproved === undefined) {
+        payload.isApproved = record.isApproved;
+      } else if (!record && payload.isApproved === undefined) {
+        payload.isApproved = false;
+      }
+    }
     if (resource.key === "menu-items") {
       payload.category = record?.category || "Header";
     }

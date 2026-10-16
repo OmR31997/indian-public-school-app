@@ -203,7 +203,13 @@ export function AdminConsole() {
         params.sortOrder = currentQuery.sortOrder;
       }
       if (currentQuery.filterKey && currentQuery.filterValue && currentQuery.filterValue !== "All") {
-        params[currentQuery.filterKey] = currentQuery.filterValue;
+        if (currentQuery.filterKey === "isApproved") {
+          params.isApproved = currentQuery.filterValue === "Approved" ? "true" : "false";
+        } else if (currentQuery.filterKey === "isPublished") {
+          params.isPublished = currentQuery.filterValue === "Published" ? "true" : "false";
+        } else {
+          params[currentQuery.filterKey] = currentQuery.filterValue;
+        }
       }
 
       if (key === "menu-items") {
