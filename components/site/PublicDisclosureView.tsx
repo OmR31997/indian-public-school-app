@@ -199,7 +199,7 @@ export function PublicDisclosureView({
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-90" />
         </div>
 
-        <div className="container-page relative z-10 max-w-5xl flex flex-col items-start gap-4">
+        <div className="container-page relative z-10 max-w-7xl flex flex-col items-start gap-4">
           <nav
             aria-label="Breadcrumb"
             className="inline-flex flex-wrap items-center gap-2.5 border border-[var(--gold)]/40 bg-slate-950/80 px-5 py-2 text-xs font-semibold text-white/95 shadow-2xl backdrop-blur-md sm:text-sm"
@@ -231,7 +231,7 @@ export function PublicDisclosureView({
       </section>
 
       {/* Main Content Area */}
-      <section className="container-page py-10 lg:py-16 max-w-5xl space-y-8">
+      <section className="container-page py-10 lg:py-16 max-w-7xl space-y-8">
         {/* Statutory Compliance Notice Bar (Indian Public School theme, responsive & dynamic) */}
         {showNotice && (
           <div className="relative overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800/90 border-l-4 border-l-amber-500 dark:border-l-amber-400 bg-gradient-to-r from-blue-50/70 via-slate-50/60 to-amber-50/30 dark:from-slate-900/95 dark:via-slate-900 dark:to-blue-950/25 p-3.5 sm:p-4 shadow-2xs">
