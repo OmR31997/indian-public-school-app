@@ -59,6 +59,23 @@ function generatePublicInquiryId(): string {
   return `INQ-${timestamp}-${random}`;
 }
 
+function generatePublicReviewId(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+  return `REV-${timestamp}-${random}`;
+}
+
+function getPublicReference(data: any, fallback: () => string): string {
+  if (data?.publicId && typeof data.publicId === "string" && data.publicId.trim()) {
+    return data.publicId.trim();
+  }
+  const idStr = String(data?.id || data?._id || "").trim();
+  if (idStr && !/^[0-9a-fA-F]{24}$/.test(idStr)) {
+    return idStr;
+  }
+  return fallback();
+}
+
 // Validation Schemas
 const inquirySchema = z
   .object({
@@ -196,7 +213,7 @@ export function ContactUsView() {
       });
 
       const data = res.data?.data || res.data;
-      const resolvedId = data?.id || data?._id || data?.publicId || generatePublicInquiryId();
+      const resolvedId = getPublicReference(data, generatePublicInquiryId);
 
       setSubmittedResult({
         id: resolvedId,
@@ -228,8 +245,10 @@ export function ContactUsView() {
       });
 
       const data = res.data?.data || res.data;
+      const resolvedId = getPublicReference(data, generatePublicReviewId);
+
       setSubmittedResult({
-        id: data?.publicId || data?.id || ("REV-REF-" + Math.floor(100000 + Math.random() * 900000)),
+        id: resolvedId,
         type: `Testimonial Review`,
         email: values.name,
         timestamp: new Date().toLocaleString(),
@@ -237,7 +256,7 @@ export function ContactUsView() {
     } catch (err: any) {
       console.error("Feedback submission error:", err);
       setSubmittedResult({
-        id: "REV-REF-" + Math.floor(100000 + Math.random() * 900000),
+        id: generatePublicReviewId(),
         type: `Testimonial Review`,
         email: values.name,
         timestamp: new Date().toLocaleString(),
@@ -435,7 +454,7 @@ export function ContactUsView() {
                   Online Desk
                 </span>
                 <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                  Send Message or Feedback
+                  Inquiry / Feedback
                 </h2>
               </div>
             </div>
