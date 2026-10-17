@@ -60,14 +60,14 @@ const inquirySchema = z.object({
   email: z.string().email("Enter a valid email address"),
   inquiryType: z.string().min(1, "Please select an inquiry type"),
   subject: z.string().optional(),
-  message: z.string().min(10, "Please enter at least 10 characters").max(1000, "Maximum 1000 characters"),
+  message: z.string().min(1, "Please enter your message").max(2000, "Maximum 2000 characters"),
 });
 
 const feedbackSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   batch: z.string().optional(),
   rating: z.number().min(1, "Please select a star rating").max(5),
-  message: z.string().min(5, "Please provide detailed feedback").max(1000, "Maximum 1000 characters"),
+  message: z.string().min(1, "Please enter your feedback").max(2000, "Maximum 2000 characters"),
 });
 
 type InquiryFormValues = z.infer<typeof inquirySchema>;
@@ -160,10 +160,15 @@ export function ContactUsView() {
         ? `[Subject: ${values.subject}]\n${values.message}`
         : values.message;
 
+      const trimmedEmail = values.email?.trim() || "";
+      const sanitizedEmail = trimmedEmail
+        ? (trimmedEmail.includes("@") ? trimmedEmail : `${trimmedEmail.replace(/\s+/g, "")}@ips.school`)
+        : "info@indianpublicschool.in";
+
       const res = await axios.post(`${API_BASE_URL}/inquiries`, {
-        name: values.name,
-        contact: values.contact,
-        email: values.email,
+        name: values.name.trim(),
+        contact: values.contact.trim(),
+        email: sanitizedEmail,
         inquiryType: values.inquiryType,
         message: fullMessage,
       });
@@ -172,7 +177,7 @@ export function ContactUsView() {
       setSubmittedResult({
         id: data?.referenceNo || data?.inquiryId || (data?.id && data.id !== data._id ? data.id : undefined),
         type: values.inquiryType,
-        email: values.email,
+        email: values.email || sanitizedEmail,
         timestamp: new Date().toLocaleString(),
       });
     } catch (err: any) {
@@ -479,7 +484,7 @@ export function ContactUsView() {
                               name="name"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Your Full Name *</FormLabel>
+                                  <FormLabel>Your Full Name <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <FormControl>
                                     <Input placeholder="e.g. Ramesh Kumar" {...field} />
                                   </FormControl>
@@ -492,7 +497,7 @@ export function ContactUsView() {
                               name="contact"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Contact Number *</FormLabel>
+                                  <FormLabel>Contact Number <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <FormControl>
                                     <Input
                                       type="tel"
@@ -518,7 +523,7 @@ export function ContactUsView() {
                               name="email"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Email Address *</FormLabel>
+                                  <FormLabel>Email Address <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <FormControl>
                                     <Input type="email" placeholder="name@example.com" {...field} />
                                   </FormControl>
@@ -531,7 +536,7 @@ export function ContactUsView() {
                               name="inquiryType"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Inquiry Type *</FormLabel>
+                                  <FormLabel>Inquiry Type <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                       <SelectTrigger>
@@ -572,7 +577,7 @@ export function ContactUsView() {
                             name="message"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Detailed Message *</FormLabel>
+                                <FormLabel>Detailed Message <span className="text-red-500 font-bold">*</span></FormLabel>
                                 <FormControl>
                                   <Textarea
                                     rows={4}
@@ -615,7 +620,7 @@ export function ContactUsView() {
                               name="name"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Your Name *</FormLabel>
+                                  <FormLabel>Your Name <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <FormControl>
                                     <Input placeholder="e.g. Sunita Devi" {...field} />
                                   </FormControl>
@@ -644,7 +649,7 @@ export function ContactUsView() {
                             name="rating"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Overall Rating *</FormLabel>
+                                <FormLabel>Overall Rating <span className="text-red-500 font-bold">*</span></FormLabel>
                                 <FormControl>
                                   <div className="flex items-center gap-2 pt-1">
                                     {[1, 2, 3, 4, 5].map((star) => (
@@ -677,7 +682,7 @@ export function ContactUsView() {
                             name="message"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Your Feedback Message *</FormLabel>
+                                <FormLabel>Your Feedback Message <span className="text-red-500 font-bold">*</span></FormLabel>
                                 <FormControl>
                                   <Textarea
                                     rows={4}

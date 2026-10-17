@@ -185,7 +185,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-foreground">
-                        Name
+                        Name <span className="text-red-500 font-bold">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -207,7 +207,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-foreground">
-                        Contact Number
+                        Contact Number <span className="text-red-500 font-bold">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -236,7 +236,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-foreground">
-                        Enquiry Type
+                        Enquiry Type <span className="text-red-500 font-bold">*</span>
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value || "Admission"}>
                         <FormControl>
