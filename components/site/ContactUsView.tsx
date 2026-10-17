@@ -53,15 +53,39 @@ import { formatHref, isExternalUrl } from "@/lib/utils";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
+function generatePublicInquiryId(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+  return `INQ-${timestamp}-${random}`;
+}
+
 // Validation Schemas
-const inquirySchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  contact: z.string().regex(/^\d{10}$/, "Contact number must be 10 digits (numbers only)"),
-  email: z.string().email("Enter a valid email address"),
-  inquiryType: z.string().min(1, "Please select an inquiry type"),
-  subject: z.string().optional(),
-  message: z.string().min(1, "Please enter your message").max(2000, "Maximum 2000 characters"),
-});
+const inquirySchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    contact: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^\d{10}$/.test(val), {
+        message: "Contact number must be 10 digits (numbers only)",
+      }),
+    email: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
+        message: "Enter a valid email address",
+      }),
+    inquiryType: z.string().min(1, "Please select an inquiry type"),
+    subject: z.string().optional(),
+    message: z.string().min(1, "Please enter your message").max(2000, "Maximum 2000 characters"),
+  })
+  .refine(
+    (data) => Boolean((data.contact && data.contact.trim().length > 0) || (data.email && data.email.trim().length > 0)),
+    {
+      message: "Please provide either a contact number or an email address",
+      path: ["contact"],
+    }
+  );
 
 const feedbackSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -161,32 +185,32 @@ export function ContactUsView() {
         : values.message;
 
       const trimmedEmail = values.email?.trim() || "";
-      const sanitizedEmail = trimmedEmail
-        ? (trimmedEmail.includes("@") ? trimmedEmail : `${trimmedEmail.replace(/\s+/g, "")}@ips.school`)
-        : "info@indianpublicschool.in";
+      const trimmedContact = values.contact?.trim() || "";
 
       const res = await axios.post(`${API_BASE_URL}/inquiries`, {
         name: values.name.trim(),
-        contact: values.contact.trim(),
-        email: sanitizedEmail,
+        contact: trimmedContact,
+        email: trimmedEmail,
         inquiryType: values.inquiryType,
         message: fullMessage,
       });
 
       const data = res.data?.data || res.data;
+      const resolvedId = data?.id || data?._id || data?.publicId || generatePublicInquiryId();
+
       setSubmittedResult({
-        id: data?.referenceNo || data?.inquiryId || (data?.id && data.id !== data._id ? data.id : undefined),
+        id: resolvedId,
         type: values.inquiryType,
-        email: values.email || sanitizedEmail,
+        email: trimmedEmail || trimmedContact || values.name,
         timestamp: new Date().toLocaleString(),
       });
     } catch (err: any) {
       console.error("Inquiry submission error:", err);
       // Fallback optimistic submission indicator if server is unreachable
       setSubmittedResult({
-        id: "PENDING-REF-" + Math.floor(100000 + Math.random() * 900000),
+        id: generatePublicInquiryId(),
         type: values.inquiryType,
-        email: values.email,
+        email: values.email?.trim() || values.contact?.trim() || values.name,
         timestamp: new Date().toLocaleString(),
       });
     }
@@ -435,13 +459,13 @@ export function ContactUsView() {
                   <div className="mx-auto max-w-sm rounded-xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/40 p-4 text-left text-xs space-y-1.5">
                     <p className="text-muted-foreground">
                       <strong className="text-foreground">Reference ID:</strong>{" "}
-                      <code className="font-mono text-primary font-bold">{submittedResult.id || "REC-ONLINE"}</code>
+                      <code className="font-mono text-primary font-bold">{submittedResult.id}</code>
                     </p>
                     <p className="text-muted-foreground">
                       <strong className="text-foreground">Category:</strong> {submittedResult.type}
                     </p>
                     <p className="text-muted-foreground">
-                      <strong className="text-foreground">Email:</strong> {submittedResult.email}
+                      <strong className="text-foreground">Contact:</strong> {submittedResult.email}
                     </p>
                   </div>
                   <div className="pt-4 flex justify-center">
@@ -497,7 +521,7 @@ export function ContactUsView() {
                               name="contact"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Contact Number <span className="text-red-500 font-bold">*</span></FormLabel>
+                                  <FormLabel>Contact Number</FormLabel>
                                   <FormControl>
                                     <Input
                                       type="tel"
@@ -523,7 +547,7 @@ export function ContactUsView() {
                               name="email"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Email Address <span className="text-red-500 font-bold">*</span></FormLabel>
+                                  <FormLabel>Email Address</FormLabel>
                                   <FormControl>
                                     <Input type="email" placeholder="name@example.com" {...field} />
                                   </FormControl>
