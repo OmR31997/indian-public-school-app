@@ -29,13 +29,13 @@ function TestimonialAvatar({ src, name }: { src?: string; name: string }) {
   if (!cleanSrc || failed) {
     const initials = name
       ? name
-          .trim()
-          .split(/\s+/)
-          .map((n) => n[0])
-          .filter(Boolean)
-          .slice(0, 2)
-          .join("")
-          .toUpperCase()
+        .trim()
+        .split(/\s+/)
+        .map((n) => n[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
       : "";
 
     return (
@@ -310,9 +310,8 @@ export function Testimonials() {
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
-                          className={`size-3.5 ${
-                            i < t.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/25"
-                          }`}
+                          className={`size-3.5 ${i < t.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/25"
+                            }`}
                         />
                       ))}
                     </div>
@@ -461,11 +460,10 @@ export function Testimonials() {
                           title={`${star} Star`}
                         >
                           <Star
-                            className={`size-6 transition-colors ${
-                              (hoverRating !== null ? star <= hoverRating : star <= reviewRating)
-                                ? "fill-amber-400 text-amber-400"
-                                : "text-muted-foreground/30"
-                            }`}
+                            className={`size-6 transition-colors ${(hoverRating !== null ? star <= hoverRating : star <= reviewRating)
+                              ? "fill-amber-400 text-amber-400"
+                              : "text-muted-foreground/30"
+                              }`}
                           />
                         </button>
                       ))}
@@ -517,7 +515,7 @@ export function Testimonials() {
                     {/* Batch / Role Input */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold text-foreground">
-                        Batch / Role (Optional)
+                        Batch / Year
                       </label>
                       <input
                         type="text"

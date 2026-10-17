@@ -657,7 +657,7 @@ export function ContactUsView() {
                               name="batch"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Batch / Role (Optional)</FormLabel>
+                                  <FormLabel>Batch / Year</FormLabel>
                                   <FormControl>
                                     <Input placeholder="e.g. 2021-2022 or Parent" {...field} />
                                   </FormControl>
@@ -685,8 +685,8 @@ export function ContactUsView() {
                                       >
                                         <Star
                                           className={`size-7 ${star <= (field.value || 5)
-                                              ? "fill-amber-400 text-amber-400"
-                                              : "text-slate-300 dark:text-slate-700"
+                                            ? "fill-amber-400 text-amber-400"
+                                            : "text-slate-300 dark:text-slate-700"
                                             }`}
                                         />
                                       </button>
