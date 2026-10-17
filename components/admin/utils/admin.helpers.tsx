@@ -72,7 +72,19 @@ export function isRequiredField(field: string, resourceKey: string, isEdit: bool
 }
 
 export function itemId(item: RecordItem): string {
-  return String(item.publicId || item.id || item._id || item.menuId || "");
+  if (item.publicId && typeof item.publicId === "string" && item.publicId.trim()) {
+    return item.publicId.trim();
+  }
+  if (item.menuId && typeof item.menuId === "string" && item.menuId.trim()) {
+    return item.menuId.trim();
+  }
+  if (item.applicationNo && typeof item.applicationNo === "string" && item.applicationNo.trim()) {
+    return item.applicationNo.trim();
+  }
+  if (item.id && !/^[0-9a-fA-F]{24}$/.test(String(item.id))) {
+    return String(item.id);
+  }
+  return String(item.id || item._id || "");
 }
 
 export function flattenMenuItems(list: RecordItem[]): RecordItem[] {
@@ -266,10 +278,21 @@ export function formatValue(field: string, value: unknown, item?: RecordItem, al
       const parentIdStr = typeof value === "object" && value && "_id" in (value as object)
         ? String((value as RecordItem)._id)
         : String(value);
-      const parentItem = allItems.find((i) => itemId(i) === parentIdStr || String(i._id) === parentIdStr || String(i.menuId) === parentIdStr || String(i.slug) === parentIdStr);
+      const parentItem = allItems.find(
+        (i) =>
+          itemId(i) === parentIdStr ||
+          String(i._id) === parentIdStr ||
+          String(i.id) === parentIdStr ||
+          String(i.menuId) === parentIdStr ||
+          String(i.publicId) === parentIdStr ||
+          String(i.slug) === parentIdStr
+      );
       if (parentItem?.title) return String(parentItem.title);
+      if (parentItem?.menuId) return String(parentItem.menuId);
+      if (parentItem?.publicId) return String(parentItem.publicId);
     }
-    return value ? `Parent (${String(value).slice(-6)})` : "—";
+    if (!value || Number(item?.level) === 1) return "—";
+    return "Root";
   }
   if (field === "createdAt" || field === "updatedAt" || field.toLowerCase().endsWith("at") || field.toLowerCase().endsWith("date")) {
     const d = new Date(String(value));

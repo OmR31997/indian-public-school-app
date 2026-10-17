@@ -39,7 +39,7 @@ export function NewsEvents() {
     const isRecentDate = rawDate ? rawDate >= fourteenDaysAgo : idx < 3;
 
     return {
-      id: item._id || item.id || `api-news-${idx}`,
+      id: item.publicId || item.id || item._id || `api-news-${idx}`,
       type: item.category || item.type || "Notice",
       date: dateStr,
       title: item.title || "School Notice",
