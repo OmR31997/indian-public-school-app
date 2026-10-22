@@ -62,4 +62,6 @@ export interface JwtPayload {
   role?: string;
   name?: string;
   allowedModules?: string[];
+  exp?: number;
+  iat?: number;
 }

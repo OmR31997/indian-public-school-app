@@ -167,6 +167,12 @@ export function AdminConsole() {
     return hasPermission(allowedModules, isSuperAdmin, resourceKey, "delete");
   }, [isSuperAdmin, allowedModules]);
 
+  const handleAuthExpired = useCallback(() => {
+    setToken("");
+    window.localStorage.removeItem("ips_admin_token");
+    document.cookie = "ips_admin_session=; Path=/; Max-Age=0; SameSite=Lax";
+    window.location.assign("/admin/login");
+  }, []);
 
   const fetchResource = useCallback(async (key: ResourceKey, overrideQuery?: Partial<QueryParamsState>) => {
     const isSearchAction = overrideQuery?.search !== undefined;
@@ -233,10 +239,9 @@ export function AdminConsole() {
         fetchPublishedPages();
       }
     } catch (err) {
-      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 404) && key === "users") {
-        setToken("");
-        window.localStorage.removeItem("ips_admin_token");
-        document.cookie = "ips_admin_session=; Path=/; Max-Age=0; SameSite=Lax";
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        handleAuthExpired();
+        return;
       }
       throw err;
     } finally {
@@ -353,7 +358,17 @@ export function AdminConsole() {
     };
   }, [notificationOpen, setNotificationOpen]);
 
-  useEffect(() => { setToken(window.localStorage.getItem("ips_admin_token") || ""); }, []);
+  useEffect(() => {
+    const stored = window.localStorage.getItem("ips_admin_token") || "";
+    if (stored) {
+      const payload = parseJwt(stored);
+      if (payload?.exp && payload.exp * 1000 <= Date.now()) {
+        handleAuthExpired();
+        return;
+      }
+    }
+    setToken(stored);
+  }, [handleAuthExpired]);
   useEffect(() => { void refresh(); }, [refresh]);
 
   const current = resources.find((resource) => resource.key === active);
@@ -364,7 +379,15 @@ export function AdminConsole() {
 
   const securedRequest = async (method: "post" | "patch" | "delete", path: string, body?: unknown) => {
     if (!token) { setLoginOpen(true); throw new Error("Please sign in to make changes."); }
-    return axios({ method, url: `${API_URL}/${path}`, data: body, headers: { Authorization: `Bearer ${token}` } });
+    try {
+      return await axios({ method, url: `${API_URL}/${path}`, data: body, headers: { Authorization: `Bearer ${token}` } });
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        handleAuthExpired();
+        throw new Error("Session expired. Redirecting to login...");
+      }
+      throw err;
+    }
   };
 
   const save = async (values: Record<string, unknown>, options?: { keepOpen?: boolean }) => {

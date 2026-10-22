@@ -451,6 +451,10 @@ export function MediaDetailDialog({
                   <img
                     src={imageUrl(primaryUrl)}
                     alt={title}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                    }}
                     className="max-h-[360px] w-auto rounded-lg object-contain shadow-lg"
                   />
                 ) : isPdf ? (
@@ -494,7 +498,15 @@ export function MediaDetailDialog({
                       }`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imageUrl(u)} alt="" className="h-full w-full object-cover" />
+                      <img
+                        src={imageUrl(u)}
+                        alt=""
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                        }}
+                        className="h-full w-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>

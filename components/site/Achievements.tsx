@@ -12,6 +12,7 @@ import {
   textList,
 } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { getAssetUrl } from "@/lib/utils";
 
 
 
@@ -35,10 +36,10 @@ const CARDS = [
 ];
 
 const DEFAULT_COURSE_IMAGES = [
-  "/assets/Album/PrePrimary.webp",
-  "/assets/Album/PrimaryLevel.webp",
-  "/assets/Album/SecondaryLevel.webp",
-  "/assets/Album/SeniorSecondLevel.webp",
+  getAssetUrl("/Album/PrePrimary.webp"),
+  getAssetUrl("/Album/PrimaryLevel.webp"),
+  getAssetUrl("/Album/SecondaryLevel.webp"),
+  getAssetUrl("/Album/SeniorSecondLevel.webp"),
 ];
 
 export function Achievements() {
@@ -62,7 +63,7 @@ export function Achievements() {
     Array.isArray(section.fileUrls) ? section.fileUrls[0] : (section.fileUrl as string) || ""
   );
 
-  const fallbackCourseImg = DEFAULT_COURSE_IMAGES[activeIndex % DEFAULT_COURSE_IMAGES.length] || "/assets/Album/PrePrimary.webp";
+  const fallbackCourseImg = DEFAULT_COURSE_IMAGES[activeIndex % DEFAULT_COURSE_IMAGES.length] || getAssetUrl("/Album/PrePrimary.webp") || "/assets/Settings/Home/Banner_1.jpg";
 
   const currentImage =
     activeCardImg ||

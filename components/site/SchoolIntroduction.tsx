@@ -8,7 +8,8 @@ export function SchoolIntroduction() {
   const rawImage = Array.isArray(section.fileUrls)
     ? section.fileUrls[0]
     : section.fileUrl;
-  const image = (rawImage ? getAssetUrl(text(rawImage)) : "") || "/assets/Album/Director.jpg";
+  const fallbackImg = getAssetUrl("/Album/Director.jpg") || "/assets/Settings/Home/hero-campus.png";
+  const image = (rawImage ? getAssetUrl(text(rawImage)) : "") || fallbackImg;
 
   if (!section.heading && !section.description) return null;
   return (
@@ -25,7 +26,7 @@ export function SchoolIntroduction() {
           loading="lazy"
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = "/assets/Album/Director.jpg";
+            e.currentTarget.src = fallbackImg;
           }}
         />
       </div>

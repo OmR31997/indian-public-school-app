@@ -10,6 +10,7 @@ import {
   textList,
 } from "@/lib/site-data";
 import { useSiteData } from "@/components/site/SiteDataProvider";
+import { getAssetUrl } from "@/lib/utils";
 
 const FALLBACK_HEIGHTS = [
   "h-72 sm:h-96",
@@ -21,12 +22,12 @@ const FALLBACK_HEIGHTS = [
 ];
 
 const DEFAULT_STUDENT_LIFE_IMAGES: Record<string, string> = {
-  ClassRoom: "/assets/Album/ClassRoom.webp",
-  ComputerLab: "/assets/Album/ComputerLab.webp",
-  Library: "/assets/Album/Library.webp",
-  LifeArts: "/assets/Album/LifeArts.png",
-  LifeKids: "/assets/Album/LifeKids.jpg",
-  Sports: "/assets/Album/Sports.png",
+  ClassRoom: getAssetUrl("/Album/ClassRoom.webp"),
+  ComputerLab: getAssetUrl("/Album/ComputerLab.webp"),
+  Library: getAssetUrl("/Album/Library.webp"),
+  LifeArts: getAssetUrl("/Album/LifeArts.png"),
+  LifeKids: getAssetUrl("/Album/LifeKids.jpg"),
+  Sports: getAssetUrl("/Album/Sports.png"),
 };
 
 export function StudentLife() {
@@ -54,7 +55,7 @@ export function StudentLife() {
             const titleKey = text(shot.title) || text(shot.heading) || "";
             const alt = titleKey || "Student life at Indian Public School";
             const rawUrl = text(shot.fileUrl);
-            const fallbackImg = DEFAULT_STUDENT_LIFE_IMAGES[titleKey] || Object.values(DEFAULT_STUDENT_LIFE_IMAGES)[index % 6] || "/assets/Album/ClassRoom.webp";
+            const fallbackImg = DEFAULT_STUDENT_LIFE_IMAGES[titleKey] || Object.values(DEFAULT_STUDENT_LIFE_IMAGES)[index % 6] || getAssetUrl("/Album/ClassRoom.webp") || "/assets/Settings/Home/hero-campus.png";
             const shotImage = (rawUrl ? imageUrl(rawUrl) : "") || fallbackImg;
             return (
               <motion.figure

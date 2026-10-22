@@ -28,7 +28,7 @@ import { AnimatePresence } from "motion/react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { AdmissionEnquiryForm } from "@/components/site/AdmissionEnquiryForm";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
-import { getAssetUrl, ensureExternalUrl, formatHref, isExternalUrl } from "@/lib/utils";
+import { getAssetUrl, ensureExternalUrl, formatHref, isExternalUrl, toCleanRelativeAssetPath } from "@/lib/utils";
 
 const EDITOR_TABS = [
   { id: "header", label: "Header Config", icon: "bi-card-heading" },
@@ -511,6 +511,23 @@ export function HomeLayoutEditorModal({
         },
       };
       firstHome["section-1"] = sec1;
+    }
+
+    if (firstHome.hero) {
+      const hero = { ...firstHome.hero };
+      if (Array.isArray(hero.slides)) {
+        hero.slides = hero.slides.map((s: any) => ({
+          ...s,
+          bannerUrl: toCleanRelativeAssetPath(s.bannerUrl) || s.bannerUrl,
+        }));
+      }
+      if (hero.bannerUrl) {
+        hero.bannerUrl = toCleanRelativeAssetPath(hero.bannerUrl) || hero.bannerUrl;
+      }
+      if (Array.isArray(hero.fileUrls)) {
+        hero.fileUrls = hero.fileUrls.map((u: any) => toCleanRelativeAssetPath(u) || u);
+      }
+      firstHome.hero = hero;
     }
 
     homeList[0] = firstHome;
@@ -2768,7 +2785,7 @@ export function HomeLayoutEditorModal({
                                 alt={infra.title || "Campus Facility"}
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
-                                  e.currentTarget.src = "/assets/Album/ClassRoom.webp";
+                                  e.currentTarget.src = getAssetUrl("/Album/ClassRoom.webp") || "/assets/Settings/Home/hero-campus.png";
                                 }}
                                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                               />
@@ -3023,8 +3040,12 @@ export function HomeLayoutEditorModal({
                               {card.fileUrl ? (
                                 /* eslint-disable-next-line @next/next/no-img-element */
                                 <img
-                                  src={card.fileUrl}
+                                  src={getAssetUrl(card.fileUrl)}
                                   alt={card.title || card.heading || `Student Life ${cardIdx + 1}`}
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                                  }}
                                   className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                               ) : (
@@ -3401,7 +3422,15 @@ export function HomeLayoutEditorModal({
                         <div className="space-y-1.5 pt-1">
                           {cardImgUrl ? (
                             <div className="relative h-24 w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-900 group">
-                              <img src={cardImgUrl} alt={course.title || "Course"} className="h-full w-full object-cover" />
+                              <img
+                                src={getAssetUrl(cardImgUrl)}
+                                alt={course.title || "Course"}
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                                }}
+                                className="h-full w-full object-cover"
+                              />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                 <button
                                   type="button"
@@ -3565,7 +3594,15 @@ export function HomeLayoutEditorModal({
                     {homeObj["section-9"]?.[0]?.fileUrls?.[0] && (
                       <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={homeObj["section-9"][0].fileUrls[0]} alt="Director" className="h-full w-full object-cover" />
+                        <img
+                          src={getAssetUrl(homeObj["section-9"][0].fileUrls[0])}
+                          alt="Director"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                          }}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                     )}
                     <div className="flex flex-1 flex-col gap-1.5">
@@ -3688,7 +3725,15 @@ export function HomeLayoutEditorModal({
                     <i className="bi bi-x-lg text-xs" />
                   </button>
                   <div className="w-full md:w-1/2 h-[42vh] sm:h-[48vh] md:h-full shrink-0 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950/80 border border-blue-400/30 flex items-center justify-center p-2">
-                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain drop-shadow-xl" />
+                    <img
+                      src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")}
+                      alt="Preview"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                      }}
+                      className="w-full h-full object-contain drop-shadow-xl"
+                    />
                   </div>
                   <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
                     <span className="text-[10px] sm:text-xs font-black tracking-[0.25em] text-blue-400">ENQUIRY</span>
@@ -3704,7 +3749,15 @@ export function HomeLayoutEditorModal({
               {currentPopupBanner.bannerStyle === "concept2" && (
                 <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-[#051326] text-white rounded-2xl sm:rounded-3xl border border-blue-400/30 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
                   <div className="w-full md:w-1/2 h-[42vh] sm:h-[48vh] md:h-full bg-slate-950 flex items-center justify-center p-3 shrink-0 border-b md:border-b-0 md:border-r border-blue-900/50">
-                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                    <img
+                      src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")}
+                      alt="Preview"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                      }}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                   <div className="w-full md:w-1/2 p-5 sm:p-8 bg-[#07162c] flex flex-col justify-center items-center text-center space-y-4 overflow-y-auto flex-1">
                     <div className="space-y-1 max-w-sm sm:max-w-md mx-auto">
@@ -3725,7 +3778,15 @@ export function HomeLayoutEditorModal({
                 <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[90vh] md:h-[80vh] max-h-[92vh] bg-[#06142a] text-white rounded-2xl sm:rounded-3xl border border-blue-400/40 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row items-stretch">
                   <button onClick={() => setShowLivePopUpPreview(false)} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 size-8 sm:size-9 rounded-full bg-slate-900 text-white flex items-center justify-center border border-white/20"><i className="bi bi-x-lg text-xs" /></button>
                   <div className="w-full md:w-1/2 h-[32vh] sm:h-[40vh] md:h-full bg-slate-950 flex items-center justify-center p-2 overflow-hidden border-b md:border-b-0 md:border-r border-blue-900/50 shrink-0">
-                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                    <img
+                      src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")}
+                      alt="Preview"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                      }}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                   <div className="w-full md:w-1/2 p-4 sm:p-6 md:p-8 bg-[#091b38] flex flex-col justify-start md:justify-center overflow-y-auto flex-1 h-auto md:h-full pb-6">
                     <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight">{currentPopupBanner.title || "Enquiry"}</h2>
@@ -3742,7 +3803,15 @@ export function HomeLayoutEditorModal({
                 <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[92vh] bg-gradient-to-br from-[#060c22] via-[#091536] to-[#040817] text-white rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-9 border-2 border-amber-400/80 shadow-[0_0_55px_rgba(251,191,36,0.4)] backdrop-blur-2xl flex flex-col md:flex-row items-stretch gap-4 sm:gap-8 overflow-y-auto md:overflow-hidden">
                   <button onClick={() => setShowLivePopUpPreview(false)} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 size-9 sm:size-10 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400 flex items-center justify-center"><i className="bi bi-x-lg text-xs sm:text-sm" /></button>
                   <div className="w-full md:w-1/2 h-[42vh] sm:h-[48vh] md:h-full rounded-xl sm:rounded-2xl border-2 border-amber-400/40 bg-slate-950 overflow-hidden flex items-center justify-center p-2 shadow-2xl shrink-0">
-                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                    <img
+                      src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")}
+                      alt="Preview"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                      }}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                   <div className="w-full md:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 px-1 py-1 md:py-0 overflow-y-auto md:overflow-visible shrink-0 md:shrink">
                     <div className="flex items-center gap-2 sm:gap-3">
@@ -3761,7 +3830,15 @@ export function HomeLayoutEditorModal({
               {(currentPopupBanner.bannerStyle === "card" || currentPopupBanner.bannerStyle === "full-bleed" || currentPopupBanner.bannerStyle === "side-by-side") && (
                 <div className="relative w-[92vw] sm:w-[88vw] max-w-5xl h-[88vh] md:h-[80vh] max-h-[90vh] bg-slate-950 text-white rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl flex flex-col justify-between overflow-hidden">
                   <div className="w-full flex-1 min-h-0 bg-slate-950 flex items-center justify-center p-2 sm:p-3 overflow-hidden">
-                    <img src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")} alt="Preview" className="w-full h-full object-contain" />
+                    <img
+                      src={getAssetUrl(currentPopupBanner.imageUrl || "/assets/Settings/Home/POP_UP_IMAGE.jpeg")}
+                      alt="Preview"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/assets/Settings/Home/POP_UP_IMAGE.jpeg";
+                      }}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                   <div className="shrink-0 bg-slate-900/95 border-t border-slate-800 px-3.5 py-2.5 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
                     <div>

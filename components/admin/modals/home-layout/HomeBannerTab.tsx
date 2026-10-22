@@ -2,6 +2,7 @@
 
 import React from "react";
 import { UploadCloud, Trash2, Image as ImageIcon } from "lucide-react";
+import { getAssetUrl } from "@/lib/utils";
 
 interface HomeBannerTabProps {
   homeObj: any;
@@ -78,11 +79,20 @@ export function HomeBannerTab({ homeObj, updateHome, uploadImage, onOpenGallery 
                 : []
           ).map((item: any, idx: number) => {
             const imgUrl = typeof item === "string" ? item : item?.fileUrl || "";
+            const displayUrl = imgUrl ? getAssetUrl(imgUrl) : "";
             return (
               <div key={idx} className="group relative aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shadow-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {imgUrl ? (
-                  <img src={imgUrl} alt={`Banner ${idx + 1}`} className="h-full w-full object-cover" />
+                {displayUrl ? (
+                  <img
+                    src={displayUrl}
+                    alt={`Banner ${idx + 1}`}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/assets/Settings/Home/Banner_1.jpg";
+                    }}
+                    className="h-full w-full object-cover"
+                  />
                 ) : null}
                 <button
                   type="button"

@@ -15,10 +15,15 @@ import {
   FileText,
   Eye,
   FileSpreadsheet,
+  Cloud,
+  HardDrive,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import axios from "axios";
 import { getOptionalApi, unwrapCollection, API_URL } from "@/lib/api-client";
-import { getAssetUrl } from "@/lib/utils";
+import { getAssetUrl, getMediaDeliveryPreset, setMediaDeliveryPreset } from "@/lib/utils";
 import { ImageStudioModal } from "./ImageStudioModal";
 import { FileViewerModal } from "@/components/ui/FileViewerModal";
 import { PdfCanvasThumbnail } from "@/components/ui/PdfCanvasThumbnail";
@@ -278,6 +283,23 @@ export function CloudinaryGalleryModal({
   const [isStudioOpen, setIsStudioOpen] = useState<boolean>(false);
   const [previewFileUrl, setPreviewFileUrl] = useState<string | null>(null);
 
+  const [storageUsage, setStorageUsage] = useState<any>(null);
+  const [showStorageDetails, setShowStorageDetails] = useState<boolean>(false);
+  const [preset, setPreset] = useState<"default" | "cloud">("default");
+
+  // Fetch live storage metrics
+  const fetchStorageUsage = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL}/uploads/storage`);
+      const payload = res.data?.data || res.data;
+      if (payload && payload.provider) {
+        setStorageUsage(payload);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   // Performance: Pagination & Non-blocking transitions
   const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE);
   const [, startCategoryTransition] = useTransition();
@@ -287,6 +309,9 @@ export function CloudinaryGalleryModal({
   // Fetch live unified gallery media from school backend /gallery
   useEffect(() => {
     if (!isOpen) return;
+
+    setPreset(getMediaDeliveryPreset());
+    fetchStorageUsage();
 
     const fetchGalleryMedia = async () => {
       setLoading(true);
@@ -482,6 +507,8 @@ export function CloudinaryGalleryModal({
         stageMessage: "Upload complete!",
       }));
 
+      fetchStorageUsage();
+
       await new Promise((resolve) => setTimeout(resolve, 800));
     } catch (err: any) {
       console.error("Upload failed:", err);
@@ -652,7 +679,7 @@ export function CloudinaryGalleryModal({
     <div className="fixed inset-0 z-[150] grid place-items-center bg-slate-950/70 p-4 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100 flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 bg-white px-6 py-3.5 gap-2">
           <div>
             <h2 className="font-display text-xl font-bold text-[#102a4c] flex items-center gap-2">
               <ImageIcon className="text-amber-500" size={20} />
@@ -662,10 +689,11 @@ export function CloudinaryGalleryModal({
               Pick any file (Image, Video, PDF, Document, Audio) from Cloudinary media gallery or upload a new one.
             </p>
           </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+            className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer self-end sm:self-auto"
           >
             <X size={20} />
           </button>
