@@ -1,5 +1,5 @@
-"use client";
-
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import {
   GraduationCap,
   Users,
@@ -9,9 +9,20 @@ import {
   Plus,
   LayoutDashboard,
   Check,
+  Cloud,
+  HardDrive,
+  Layers,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle2,
+  Activity,
+  Cpu,
+  ArrowUpRight,
 } from "lucide-react";
 import { RecordItem, ResourceKey } from "../types/admin.types";
 import { itemId } from "../utils/admin.helpers";
+import { API_URL } from "../config/admin.config";
+import { getMediaDeliveryPreset, setMediaDeliveryPreset } from "@/lib/utils";
 
 function Empty({ text }: { text: string }) {
   return <div className="px-5 py-12 text-center text-sm text-slate-400">{text}</div>;
@@ -118,6 +129,132 @@ export function StructuredHomeSettingsView({ homeData }: { homeData: any }) {
   );
 }
 
+export function CloudinaryStorageCard({
+  onNavigate,
+}: {
+  onNavigate?: (key: ResourceKey) => void;
+}) {
+  const [storage, setStorage] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchStorage = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get(`${API_URL}/uploads/storage`);
+      const payload = res.data?.data || res.data;
+      if (payload && payload.provider) {
+        setStorage(payload);
+      } else {
+        setError("Unable to read storage usage payload");
+      }
+    } catch (err: any) {
+      setError(err?.message || "Failed to load storage details");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStorage();
+  }, [fetchStorage]);
+
+  if (loading && !storage) {
+    return (
+      <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-2xs animate-pulse">
+        <div className="flex items-center justify-between">
+          <div className="h-4 w-32 bg-slate-200 rounded" />
+          <div className="h-4 w-20 bg-slate-200 rounded" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!storage || error) {
+    return null;
+  }
+
+  // Allowed limit in GB (from provider plan limit, default 25 GB)
+  const limitGB = Number(storage.credits?.limit || 25);
+
+  // Storage used in bytes converted to GB
+  const usedBytes = Number(storage.storage?.usedBytes || 0);
+  const usedGB = usedBytes > 0
+    ? usedBytes / (1024 * 1024 * 1024)
+    : Number(storage.storage?.creditsUsage || 0);
+
+  const usedGBFormatted = usedGB < 0.01 && usedGB > 0 ? "0.01" : usedGB.toFixed(2);
+  const limitGBFormatted = limitGB.toFixed(0);
+  const remainingGB = Math.max(0, limitGB - usedGB);
+  const remainingGBFormatted = remainingGB.toFixed(2);
+
+  const percentUsed = limitGB > 0 ? Math.min(100, (usedGB / limitGB) * 100) : 0;
+  const percentRemaining = Math.max(0, 100 - percentUsed).toFixed(1);
+
+  const isCritical = percentUsed >= 90;
+  const isWarning = percentUsed >= 75 && !isCritical;
+
+  const barColor = isCritical
+    ? "bg-red-500"
+    : isWarning
+    ? "bg-amber-500"
+    : "bg-emerald-500";
+
+  return (
+    <div className="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Left: Icon & Used info in GB */}
+        <div className="flex items-center gap-2.5">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-blue-50 text-[#1a5d9c]">
+            <Cloud size={16} />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold text-[#102a4c]">Cloud Storage</h4>
+            <p className="text-[11px] text-slate-500">
+              <span className="font-semibold text-slate-700">Used:</span>{" "}
+              <span title={storage.storage?.usedFormatted || undefined} className="font-medium text-slate-800">
+                {usedGBFormatted}/{limitGBFormatted} GB
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Right: Remaining info & Refresh */}
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <span className="text-[11px] font-semibold text-slate-500">Remaining: </span>
+            <span className={`text-xs font-bold ${isCritical ? "text-red-600" : isWarning ? "text-amber-600" : "text-emerald-700"}`}>
+              {remainingGBFormatted} GB ({percentRemaining}%)
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => fetchStorage(true)}
+            disabled={refreshing}
+            className="grid h-7 w-7 place-items-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer disabled:opacity-50"
+            title="Refresh storage usage"
+          >
+            <RefreshCw size={13} className={refreshing ? "animate-spin text-blue-600" : ""} />
+          </button>
+        </div>
+      </div>
+
+      {/* Mini Progress Bar */}
+      <div className="mt-2.5 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+          style={{ width: `${Math.min(100, Math.max(3, percentUsed))}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function Overview({
   data,
   loading,
@@ -175,6 +312,9 @@ export function Overview({
           </button>
         ))}
       </div>
+
+      {/* Cloudinary & Media Storage Live Monitor */}
+      <CloudinaryStorageCard onNavigate={onNavigate} />
 
       <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
         <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">

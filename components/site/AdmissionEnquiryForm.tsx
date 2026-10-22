@@ -77,15 +77,15 @@ export function AdmissionEnquiryForm({
   }, [defaultInquiryType, defaultGrade, form]);
 
   const generateInquiryId = () => {
-    const year = new Date().getFullYear();
-    const rand = Math.floor(1000 + Math.random() * 9000);
-    return `IPS-ENQ-${year}-${rand}`;
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const rand = Math.random().toString(36).slice(2, 7).toUpperCase();
+    return `INQ-${timestamp}-${rand}`;
   };
 
   const onSubmit = async (values: AdmissionEnquiryFormValues) => {
     setSubmitting(true);
-    const refId = generateInquiryId();
-    setInquiryId(refId);
+    const clientRefId = generateInquiryId();
+    setInquiryId(clientRefId);
 
     try {
       const baseUrl = (
@@ -94,13 +94,20 @@ export function AdmissionEnquiryForm({
         "http://localhost:5000/api/v1"
       ).replace(/\/$/, "");
 
-      await axios.post(`${baseUrl}/inquiries`, {
+      const res = await axios.post(`${baseUrl}/inquiries`, {
         name: values.fullName,
         contact: values.phone,
         email: values.email,
         inquiryType: values.inquiryType,
-        message: `${values.inquiryType} inquiry from website form (Ref: ${refId})`,
+        message: `${values.inquiryType} inquiry from website form (Ref: ${clientRefId})`,
       });
+
+      const data = res.data?.data || res.data;
+      if (data?.publicId && typeof data.publicId === "string" && data.publicId.trim()) {
+        setInquiryId(data.publicId.trim());
+      } else if (data?.id && !/^[0-9a-fA-F]{24}$/.test(String(data.id))) {
+        setInquiryId(String(data.id));
+      }
     } catch (err) {
       console.error("Enquiry submission error:", err);
     } finally {
@@ -185,7 +192,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-foreground">
-                        Name
+                        Name <span className="text-red-500 font-bold">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -207,7 +214,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-foreground">
-                        Contact Number
+                        Contact Number <span className="text-red-500 font-bold">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -236,7 +243,7 @@ export function AdmissionEnquiryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold text-foreground">
-                        Enquiry Type
+                        Enquiry Type <span className="text-red-500 font-bold">*</span>
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value || "Admission"}>
                         <FormControl>

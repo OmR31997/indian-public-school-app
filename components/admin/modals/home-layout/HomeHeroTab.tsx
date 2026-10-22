@@ -22,6 +22,7 @@ import {
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { ImageStudioModal } from "@/components/admin/ImageStudioModal";
 import { imageUrl } from "@/lib/site-data";
+import { toCleanRelativeAssetPath } from "@/lib/utils";
 
 function dataURLtoFile(dataurl: string, filename: string): File {
   const arr = dataurl.split(",");
@@ -161,8 +162,9 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
   };
 
   const addNewSlide = (bannerUrl: string, extraProps: Record<string, any> = {}) => {
+    const cleanBanner = toCleanRelativeAssetPath(bannerUrl) || bannerUrl;
     const newSlide = {
-      bannerUrl,
+      bannerUrl: cleanBanner,
       title: "",
       h1: "",
       h2: "",
@@ -225,20 +227,23 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
         if (uploaded) finalUrl = uploaded;
       }
 
+      const cleanFinalUrl = toCleanRelativeAssetPath(finalUrl) || finalUrl;
+
       if (studioTarget.isNewUpload) {
-        addNewSlide(finalUrl);
+        addNewSlide(cleanFinalUrl);
       } else if (typeof studioTarget.slideIndex === "number") {
         const updated = [...slides];
         updated[studioTarget.slideIndex] = {
           ...updated[studioTarget.slideIndex],
-          bannerUrl: finalUrl,
+          bannerUrl: cleanFinalUrl,
         };
         updateSlidesList(updated);
       }
     } catch (err) {
       console.error("Error saving cropped poster:", err);
+      const cleanSrc = toCleanRelativeAssetPath(src) || src;
       if (studioTarget.isNewUpload) {
-        addNewSlide(src);
+        addNewSlide(cleanSrc);
       }
     } finally {
       setIsUploadingCropped(false);
@@ -379,6 +384,13 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
                       src={imageUrl(slide.bannerUrl) || slide.bannerUrl}
                       alt={`Slide ${idx + 1}`}
                       className="size-full object-cover pointer-events-none"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.dataset.triedFallback) {
+                          target.dataset.triedFallback = "true";
+                          target.src = "/assets/Settings/Home/hero-campus.png";
+                        }
+                      }}
                     />
                   ) : (
                     <div className="size-full bg-slate-800 flex flex-col items-center justify-center gap-1 text-slate-400 p-2 text-center pointer-events-none">
@@ -794,16 +806,17 @@ export function HomeHeroTab({ homeObj, updateHome, uploadImage }: HomeHeroTabPro
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
         onSelectImage={async (url) => {
-          if (url.startsWith("data:")) {
+          const clean = toCleanRelativeAssetPath(url) || url;
+          if (clean.startsWith("data:")) {
             try {
-              const file = dataURLtoFile(url, `hero-poster-gallery-crop-${Date.now()}.webp`);
+              const file = dataURLtoFile(clean, `hero-poster-gallery-crop-${Date.now()}.webp`);
               const uploaded = await uploadImage(file);
-              addNewSlide(uploaded || url);
+              addNewSlide(toCleanRelativeAssetPath(uploaded) || uploaded || clean);
             } catch {
-              addNewSlide(url);
+              addNewSlide(clean);
             }
           } else {
-            addNewSlide(url);
+            addNewSlide(clean);
           }
           setIsGalleryOpen(false);
         }}

@@ -579,39 +579,58 @@ export function RecordDialog({
                   />
                 ) : field === "parentId" ? (
                   <div className="relative">
-                    <select
-                      value={
+                    {(() => {
+                      const menuOptions = resource.key === "menu-items" ? allMenuItems : effectiveSectionPages;
+                      const rawParent =
                         typeof values.parentId === "object" && values.parentId && "_id" in (values.parentId as object)
                           ? String((values.parentId as RecordItem)._id)
-                          : String(values.parentId ?? "")
-                      }
-                      onChange={(event) => setValue("parentId", event.target.value || null)}
-                      className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-sm font-semibold text-slate-800 outline-none transition hover:border-slate-300 focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer"
-                    >
-                      <option value="">-- None (Root Level 1 Item) --</option>
-                      {(resource.key === "menu-items" ? allMenuItems : effectiveSectionPages)
-                        .filter((item) => itemId(item) !== (record ? itemId(record) : ""))
-                        .filter(
-                          (item, idx, arr) =>
-                            arr.findIndex(
-                              (i) =>
-                                String(i.title || "").toLowerCase().trim() ===
-                                String(item.title || "").toLowerCase().trim() &&
-                                Number(i.level || 1) === Number(item.level || 1)
-                            ) === idx
-                        )
-                        .map((item) => {
-                          const level = Number(item.level || 1);
-                          const isMaxDepth = resource.key === "menu-items" && level >= 3;
-                          return (
-                            <option key={itemId(item)} value={itemId(item)} disabled={isMaxDepth}>
-                              {level === 1 ? "" : level === 2 ? "└─ " : "    └─ "}
-                              {String(item.title || "Untitled")} (Level {level})
-                              {isMaxDepth ? " - Max 3-level depth reached" : ""}
-                            </option>
-                          );
-                        })}
-                    </select>
+                          : String(values.parentId ?? "");
+
+                      const matched = menuOptions.find(
+                        (i) =>
+                          itemId(i) === rawParent ||
+                          String(i._id) === rawParent ||
+                          String(i.id) === rawParent ||
+                          String(i.publicId) === rawParent ||
+                          String(i.menuId) === rawParent ||
+                          String(i.slug) === rawParent
+                      );
+
+                      const selectValue = matched ? itemId(matched) : rawParent;
+
+                      return (
+                        <select
+                          value={selectValue}
+                          onChange={(event) => setValue("parentId", event.target.value || null)}
+                          className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-sm font-semibold text-slate-800 outline-none transition hover:border-slate-300 focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer"
+                        >
+                          <option value="">-- None (Root Level 1 Item) --</option>
+                          {menuOptions
+                            .filter((item) => itemId(item) !== (record ? itemId(record) : ""))
+                            .filter(
+                              (item, idx, arr) =>
+                                arr.findIndex(
+                                  (i) =>
+                                    String(i.title || "").toLowerCase().trim() ===
+                                    String(item.title || "").toLowerCase().trim() &&
+                                    Number(i.level || 1) === Number(item.level || 1)
+                                ) === idx
+                            )
+                            .map((item) => {
+                              const level = Number(item.level || 1);
+                              const isMaxDepth = resource.key === "menu-items" && level >= 3;
+                              const optVal = itemId(item);
+                              return (
+                                <option key={optVal} value={optVal} disabled={isMaxDepth}>
+                                  {level === 1 ? "" : level === 2 ? "└─ " : "    └─ "}
+                                  {String(item.title || "Untitled")} (Level {level})
+                                  {isMaxDepth ? " - Max 3-level depth reached" : ""}
+                                </option>
+                              );
+                            })}
+                        </select>
+                      );
+                    })()}
                     <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
                 ) : field === "targetUrl" || field === "redirectUrl" || field === "linkUrl" ? (

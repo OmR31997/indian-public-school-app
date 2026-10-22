@@ -83,7 +83,13 @@ export function MenuHierarchyFlow({
 
   items.forEach((item) => {
     const id = itemId(item);
-    itemMap.set(id, { ...item, children: [] });
+    const node = { ...item, children: [] };
+    itemMap.set(id, node);
+    if (item._id) itemMap.set(String(item._id), node);
+    if (item.id) itemMap.set(String(item.id), node);
+    if (item.menuId) itemMap.set(String(item.menuId), node);
+    if (item.publicId) itemMap.set(String(item.publicId), node);
+    if (item.slug) itemMap.set(String(item.slug), node);
   });
 
   const roots: any[] = [];
@@ -1630,7 +1636,11 @@ export function ResourceView({
                         }`}
                       >
                         {resource.fields.map((field) => {
-                          const formatted = formatValue(field, item[field], item, items);
+                          const allContextItems =
+                            resource.key === "menu-items" && allMenuItems && allMenuItems.length > 0
+                              ? allMenuItems
+                              : items;
+                          const formatted = formatValue(field, item[field], item, allContextItems);
                           if (field === "role") {
                             return (
                               <td key={field} className="max-w-[200px] px-5 py-4 text-sm text-slate-700">

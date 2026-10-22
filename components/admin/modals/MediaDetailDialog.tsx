@@ -36,6 +36,28 @@ export function StructuredDetailValue({
   val: unknown;
   item: RecordItem;
 }) {
+  if (keyName === "parentId") {
+    if (item.parentTitle) return <span className="font-semibold text-slate-800">{String(item.parentTitle)}</span>;
+    if (typeof item.parent === "object" && item.parent && "title" in (item.parent as object)) {
+      return <span className="font-semibold text-slate-800">{String((item.parent as any).title)}</span>;
+    }
+    const rawVal = typeof val === "object" && val && "_id" in (val as object) ? String((val as any)._id) : String(val ?? "");
+    if (!rawVal || rawVal === "null" || rawVal === "undefined" || Number(item.level) === 1) {
+      return <span className="text-slate-400 italic text-xs">None (Root Level 1 Item)</span>;
+    }
+    if (typeof item.parent === "object" && item.parent && "menuId" in (item.parent as object)) {
+      return <span className="font-semibold text-slate-800">{String((item.parent as any).menuId)}</span>;
+    }
+    return <span className="font-semibold text-slate-800">Parent Item</span>;
+  }
+
+  if (keyName === "id") {
+    const publicRef = item.publicId || item.menuId || item.applicationNo;
+    if (publicRef) {
+      return <code className="font-mono font-bold text-[#1a5d9c]">{String(publicRef)}</code>;
+    }
+  }
+
   if (val === null || val === undefined || val === "") {
     return <span className="text-slate-400 italic text-xs">—</span>;
   }
@@ -429,6 +451,10 @@ export function MediaDetailDialog({
                   <img
                     src={imageUrl(primaryUrl)}
                     alt={title}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                    }}
                     className="max-h-[360px] w-auto rounded-lg object-contain shadow-lg"
                   />
                 ) : isPdf ? (
@@ -472,7 +498,15 @@ export function MediaDetailDialog({
                       }`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imageUrl(u)} alt="" className="h-full w-full object-cover" />
+                      <img
+                        src={imageUrl(u)}
+                        alt=""
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                        }}
+                        className="h-full w-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>

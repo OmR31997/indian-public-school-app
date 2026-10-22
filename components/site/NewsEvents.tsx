@@ -39,7 +39,7 @@ export function NewsEvents() {
     const isRecentDate = rawDate ? rawDate >= fourteenDaysAgo : idx < 3;
 
     return {
-      id: item._id || item.id || `api-news-${idx}`,
+      id: item.publicId || item.id || item._id || `api-news-${idx}`,
       type: item.category || item.type || "Notice",
       date: dateStr,
       title: item.title || "School Notice",
@@ -52,6 +52,10 @@ export function NewsEvents() {
   });
 
   const filteredNotices = apiNewsItems;
+
+  if (filteredNotices.length === 0) {
+    return null;
+  }
 
   // Only enable continuous auto-scrolling flow if items cross the viewport window (> 3 items)
   const shouldScroll = filteredNotices.length > 3;
@@ -158,12 +162,6 @@ export function NewsEvents() {
                           {p.isNew && (
                             <span className="rounded bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
                               NEW
-                            </span>
-                          )}
-
-                          {hasLink && (
-                            <span className="rounded bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                              Visit Link
                             </span>
                           )}
                         </div>

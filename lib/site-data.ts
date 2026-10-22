@@ -309,7 +309,7 @@ export async function getSiteData(): Promise<SiteData> {
     },
     site_logo: siteLogoFromDb || siteData.site_logo,
     home: updatedHome,
-    news: apiNews.length ? apiNews : (Array.isArray(siteData.news) ? (siteData.news as SiteRecord[]) : []),
+    news: apiNews,
     galleryItems: apiGallery.length ? apiGallery : (Array.isArray(siteData.gallery) ? (siteData.gallery as SiteRecord[]) : []),
     reviewsItems: apiReviews.length ? apiReviews : (Array.isArray(siteData.reviews) ? (siteData.reviews as SiteRecord[]) : []),
     menuItems: finalMenuItems,

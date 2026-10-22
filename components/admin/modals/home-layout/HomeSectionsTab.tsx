@@ -1061,7 +1061,7 @@ export function HomeSectionsTab({
                             alt={infra.title || "Campus Facility"}
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src = "/assets/Album/ClassRoom.webp";
+                              e.currentTarget.src = getAssetUrl("/Album/ClassRoom.webp") || "/assets/Settings/Home/hero-campus.png";
                             }}
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
@@ -1322,8 +1322,12 @@ export function HomeSectionsTab({
                           {card.fileUrl ? (
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
-                              src={card.fileUrl}
+                              src={getAssetUrl(card.fileUrl)}
                               alt={card.title || card.heading || `Student Life ${cardIdx + 1}`}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                              }}
                               className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
@@ -1660,7 +1664,15 @@ export function HomeSectionsTab({
                     {(course.fileUrl || course.imageUrl) && (
                       <div className="relative h-16 w-20 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={course.fileUrl || course.imageUrl} alt={course.title} className="h-full w-full object-cover" />
+                        <img
+                          src={getAssetUrl(course.fileUrl || course.imageUrl)}
+                          alt={course.title}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                          }}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                     )}
                     <input
@@ -1807,7 +1819,15 @@ export function HomeSectionsTab({
                   {homeObj["section-9"]?.[0]?.fileUrls?.[0] && (
                     <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={homeObj["section-9"][0].fileUrls[0]} alt="Director" className="h-full w-full object-cover" />
+                      <img
+                        src={getAssetUrl(homeObj["section-9"][0].fileUrls[0])}
+                        alt="Director"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/assets/Settings/Home/hero-campus.png";
+                        }}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
                   )}
                   <div className="flex flex-1 flex-col gap-1.5">

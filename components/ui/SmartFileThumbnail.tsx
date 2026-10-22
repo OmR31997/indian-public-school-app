@@ -163,16 +163,33 @@ export function SmartFileThumbnail({
       alt={alt}
       loading="lazy"
       onError={() => {
-        // 1. If Cloudinary image failed, fallback to local /assets/ copy
-        if (currentSrc.includes("cloudinary.com") || currentSrc.includes("res.cloudinary.com")) {
-          const match = currentSrc.match(/(?:ips-education\/assets\/|assets\/)(.*)$/i);
-          if (match && match[1]) {
-            setCurrentSrc(`/assets/${match[1]}`);
+        // 1. If local /assets/ image failed to load, fall back to Cloudinary CDN
+        if (
+          !currentSrc.includes("cloudinary.com") &&
+          !currentSrc.includes("res.cloudinary.com") &&
+          (currentSrc.startsWith("/") || currentSrc.startsWith("assets/"))
+        ) {
+          const cleanSub = currentSrc.replace(/^\/?(assets\/)?/, "").replace(/^\/+/, "");
+          const cloudUrl = `https://res.cloudinary.com/dnw7mgysa/image/upload/f_auto,q_auto/ips-education/assets/${cleanSub}`;
+          if (currentSrc !== cloudUrl) {
+            setCurrentSrc(cloudUrl);
             return;
           }
         }
 
-        // 2. If already tried fallback or has cleanUrl, fallback to cleanUrl
+        // 2. If Cloudinary image failed, fallback to local /assets/ copy
+        if (currentSrc.includes("cloudinary.com") || currentSrc.includes("res.cloudinary.com")) {
+          const match = currentSrc.match(/(?:ips-education\/assets\/|assets\/)(.*)$/i);
+          if (match && match[1]) {
+            const localUrl = `/assets/${match[1]}`;
+            if (currentSrc !== localUrl) {
+              setCurrentSrc(localUrl);
+              return;
+            }
+          }
+        }
+
+        // 3. If already tried fallback or has cleanUrl, fallback to cleanUrl
         if (currentSrc !== cleanUrl && cleanUrl) {
           setCurrentSrc(cleanUrl);
         } else if (

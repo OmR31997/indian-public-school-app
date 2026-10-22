@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { SectionHeading } from "@/components/site/Reveal";
 import { EASE } from "@/lib/motion-presets";
-import { cn } from "@/lib/utils";
+import { cn, getAssetUrl } from "@/lib/utils";
 import {
   firstSection,
   homeData,
@@ -53,14 +53,14 @@ const FACILITIES = [
 ];
 
 const DEFAULT_FACILITY_MAP: Record<string, string> = {
-  "Smart Classrooms": "/assets/Album/ClassRoom.webp",
-  "Science Labs": "/assets/Album/ScienceLab.webp",
-  "Computer Lab": "/assets/Album/ComputerLab.webp",
-  "Library": "/assets/Album/Library.webp",
-  "Sports Facilities": "/assets/Album/Sports.png",
-  "Playground": "/assets/Album/KidPlaygroud_1.jpg",
-  "Hostel & Mess": "/assets/Album/Mess_1.jpg",
-  "Art & Music Rooms": "/assets/Album/LifeArts.png",
+  "Smart Classrooms": getAssetUrl("/Album/ClassRoom.webp"),
+  "Science Labs": getAssetUrl("/Album/ScienceLab.webp"),
+  "Computer Lab": getAssetUrl("/Album/ComputerLab.webp"),
+  "Library": getAssetUrl("/Album/Library.webp"),
+  "Sports Facilities": getAssetUrl("/Album/Sports.png"),
+  "Playground": getAssetUrl("/Album/KidPlaygroud_1.jpg"),
+  "Hostel & Mess": getAssetUrl("/Album/Mess_1.jpg"),
+  "Art & Music Rooms": getAssetUrl("/Album/LifeArts.png"),
 };
 
 export function Infrastructure() {
@@ -97,7 +97,8 @@ export function Infrastructure() {
             const title = text(f.heading, fallback.title);
             const redirectUrl = text(f.redirectUrl);
             const rawUrl = text(f.fileUrl);
-            const facilityImage = (rawUrl ? imageUrl(rawUrl) : "") || DEFAULT_FACILITY_MAP[title] || "/assets/Album/ClassRoom.webp";
+            const fallbackFacilityImg = DEFAULT_FACILITY_MAP[title] || getAssetUrl("/Album/ClassRoom.webp") || "/assets/Settings/Home/hero-campus.png";
+            const facilityImage = (rawUrl ? imageUrl(rawUrl) : "") || fallbackFacilityImg;
             return (
               <motion.a
                 key={`${title}-${index}`}
@@ -121,7 +122,7 @@ export function Infrastructure() {
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = DEFAULT_FACILITY_MAP[title] || "/assets/Album/ClassRoom.webp";
+                    e.currentTarget.src = fallbackFacilityImg;
                   }}
                   className="size-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
                 />

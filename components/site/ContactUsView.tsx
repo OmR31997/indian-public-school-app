@@ -53,21 +53,62 @@ import { formatHref, isExternalUrl } from "@/lib/utils";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
+function generatePublicInquiryId(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+  return `INQ-${timestamp}-${random}`;
+}
+
+function generatePublicReviewId(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+  return `REV-${timestamp}-${random}`;
+}
+
+function getPublicReference(data: any, fallback: () => string): string {
+  if (data?.publicId && typeof data.publicId === "string" && data.publicId.trim()) {
+    return data.publicId.trim();
+  }
+  const idStr = String(data?.id || data?._id || "").trim();
+  if (idStr && !/^[0-9a-fA-F]{24}$/.test(idStr)) {
+    return idStr;
+  }
+  return fallback();
+}
+
 // Validation Schemas
-const inquirySchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  contact: z.string().regex(/^\d{10}$/, "Contact number must be 10 digits (numbers only)"),
-  email: z.string().email("Enter a valid email address"),
-  inquiryType: z.string().min(1, "Please select an inquiry type"),
-  subject: z.string().optional(),
-  message: z.string().min(10, "Please enter at least 10 characters").max(1000, "Maximum 1000 characters"),
-});
+const inquirySchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    contact: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^\d{10}$/.test(val), {
+        message: "Contact number must be 10 digits (numbers only)",
+      }),
+    email: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
+        message: "Enter a valid email address",
+      }),
+    inquiryType: z.string().min(1, "Please select an inquiry type"),
+    subject: z.string().optional(),
+    message: z.string().min(1, "Please enter your message").max(2000, "Maximum 2000 characters"),
+  })
+  .refine(
+    (data) => Boolean((data.contact && data.contact.trim().length > 0) || (data.email && data.email.trim().length > 0)),
+    {
+      message: "Please provide either a contact number or an email address",
+      path: ["contact"],
+    }
+  );
 
 const feedbackSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   batch: z.string().optional(),
   rating: z.number().min(1, "Please select a star rating").max(5),
-  message: z.string().min(5, "Please provide detailed feedback").max(1000, "Maximum 1000 characters"),
+  message: z.string().min(1, "Please enter your feedback").max(2000, "Maximum 2000 characters"),
 });
 
 type InquiryFormValues = z.infer<typeof inquirySchema>;
@@ -160,28 +201,33 @@ export function ContactUsView() {
         ? `[Subject: ${values.subject}]\n${values.message}`
         : values.message;
 
+      const trimmedEmail = values.email?.trim() || "";
+      const trimmedContact = values.contact?.trim() || "";
+
       const res = await axios.post(`${API_BASE_URL}/inquiries`, {
-        name: values.name,
-        contact: values.contact,
-        email: values.email,
+        name: values.name.trim(),
+        contact: trimmedContact,
+        email: trimmedEmail,
         inquiryType: values.inquiryType,
         message: fullMessage,
       });
 
       const data = res.data?.data || res.data;
+      const resolvedId = getPublicReference(data, generatePublicInquiryId);
+
       setSubmittedResult({
-        id: data?.referenceNo || data?.inquiryId || (data?.id && data.id !== data._id ? data.id : undefined),
+        id: resolvedId,
         type: values.inquiryType,
-        email: values.email,
+        email: trimmedEmail || trimmedContact || values.name,
         timestamp: new Date().toLocaleString(),
       });
     } catch (err: any) {
       console.error("Inquiry submission error:", err);
       // Fallback optimistic submission indicator if server is unreachable
       setSubmittedResult({
-        id: "PENDING-REF-" + Math.floor(100000 + Math.random() * 900000),
+        id: generatePublicInquiryId(),
         type: values.inquiryType,
-        email: values.email,
+        email: values.email?.trim() || values.contact?.trim() || values.name,
         timestamp: new Date().toLocaleString(),
       });
     }
@@ -199,8 +245,10 @@ export function ContactUsView() {
       });
 
       const data = res.data?.data || res.data;
+      const resolvedId = getPublicReference(data, generatePublicReviewId);
+
       setSubmittedResult({
-        id: data?.publicId || data?.id || ("REV-REF-" + Math.floor(100000 + Math.random() * 900000)),
+        id: resolvedId,
         type: `Testimonial Review`,
         email: values.name,
         timestamp: new Date().toLocaleString(),
@@ -208,7 +256,7 @@ export function ContactUsView() {
     } catch (err: any) {
       console.error("Feedback submission error:", err);
       setSubmittedResult({
-        id: "REV-REF-" + Math.floor(100000 + Math.random() * 900000),
+        id: generatePublicReviewId(),
         type: `Testimonial Review`,
         email: values.name,
         timestamp: new Date().toLocaleString(),
@@ -406,7 +454,7 @@ export function ContactUsView() {
                   Online Desk
                 </span>
                 <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                  Send Message or Feedback
+                  Inquiry / Feedback
                 </h2>
               </div>
             </div>
@@ -430,13 +478,13 @@ export function ContactUsView() {
                   <div className="mx-auto max-w-sm rounded-xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/40 p-4 text-left text-xs space-y-1.5">
                     <p className="text-muted-foreground">
                       <strong className="text-foreground">Reference ID:</strong>{" "}
-                      <code className="font-mono text-primary font-bold">{submittedResult.id || "REC-ONLINE"}</code>
+                      <code className="font-mono text-primary font-bold">{submittedResult.id}</code>
                     </p>
                     <p className="text-muted-foreground">
                       <strong className="text-foreground">Category:</strong> {submittedResult.type}
                     </p>
                     <p className="text-muted-foreground">
-                      <strong className="text-foreground">Email:</strong> {submittedResult.email}
+                      <strong className="text-foreground">Contact:</strong> {submittedResult.email}
                     </p>
                   </div>
                   <div className="pt-4 flex justify-center">
@@ -479,7 +527,7 @@ export function ContactUsView() {
                               name="name"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Your Full Name *</FormLabel>
+                                  <FormLabel>Your Full Name <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <FormControl>
                                     <Input placeholder="e.g. Ramesh Kumar" {...field} />
                                   </FormControl>
@@ -492,7 +540,7 @@ export function ContactUsView() {
                               name="contact"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Contact Number *</FormLabel>
+                                  <FormLabel>Contact Number</FormLabel>
                                   <FormControl>
                                     <Input
                                       type="tel"
@@ -518,7 +566,7 @@ export function ContactUsView() {
                               name="email"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Email Address *</FormLabel>
+                                  <FormLabel>Email Address</FormLabel>
                                   <FormControl>
                                     <Input type="email" placeholder="name@example.com" {...field} />
                                   </FormControl>
@@ -531,7 +579,7 @@ export function ContactUsView() {
                               name="inquiryType"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Inquiry Type *</FormLabel>
+                                  <FormLabel>Inquiry Type <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                       <SelectTrigger>
@@ -572,7 +620,7 @@ export function ContactUsView() {
                             name="message"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Detailed Message *</FormLabel>
+                                <FormLabel>Detailed Message <span className="text-red-500 font-bold">*</span></FormLabel>
                                 <FormControl>
                                   <Textarea
                                     rows={4}
@@ -615,7 +663,7 @@ export function ContactUsView() {
                               name="name"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Your Name *</FormLabel>
+                                  <FormLabel>Your Name <span className="text-red-500 font-bold">*</span></FormLabel>
                                   <FormControl>
                                     <Input placeholder="e.g. Sunita Devi" {...field} />
                                   </FormControl>
@@ -628,7 +676,7 @@ export function ContactUsView() {
                               name="batch"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Batch / Role (Optional)</FormLabel>
+                                  <FormLabel>Batch / Year</FormLabel>
                                   <FormControl>
                                     <Input placeholder="e.g. 2021-2022 or Parent" {...field} />
                                   </FormControl>
@@ -644,7 +692,7 @@ export function ContactUsView() {
                             name="rating"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Overall Rating *</FormLabel>
+                                <FormLabel>Overall Rating <span className="text-red-500 font-bold">*</span></FormLabel>
                                 <FormControl>
                                   <div className="flex items-center gap-2 pt-1">
                                     {[1, 2, 3, 4, 5].map((star) => (
@@ -656,8 +704,8 @@ export function ContactUsView() {
                                       >
                                         <Star
                                           className={`size-7 ${star <= (field.value || 5)
-                                              ? "fill-amber-400 text-amber-400"
-                                              : "text-slate-300 dark:text-slate-700"
+                                            ? "fill-amber-400 text-amber-400"
+                                            : "text-slate-300 dark:text-slate-700"
                                             }`}
                                         />
                                       </button>
@@ -677,7 +725,7 @@ export function ContactUsView() {
                             name="message"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Your Feedback Message *</FormLabel>
+                                <FormLabel>Your Feedback Message <span className="text-red-500 font-bold">*</span></FormLabel>
                                 <FormControl>
                                   <Textarea
                                     rows={4}
