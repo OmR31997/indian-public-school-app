@@ -239,7 +239,9 @@ export function Footer() {
                     />
                     <div className="flex flex-col flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Certified Company Board</span>
+                        <span className="text-[11px] font-bold tracking-wider text-gold uppercase">
+                          {String(certifiedBoard.subtitle || "Board Affiliation")}
+                        </span>
                         <ShieldCheck size={14} className="text-gold shrink-0" />
                       </div>
                       <h4 className="mt-1 text-sm sm:text-base font-semibold text-navy-foreground">

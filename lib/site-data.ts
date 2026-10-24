@@ -22,6 +22,7 @@ export interface SiteLogoSetting {
 
 export interface CertifiedBoardSetting {
   title?: string;
+  subtitle?: string;
   code?: string;
   badgeUrl?: string;
   description?: string;
