@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Sparkles, Youtube } from "lucide-react";
+import { Award, Building2, Facebook, GraduationCap, Instagram, Linkedin, ShieldCheck, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
 import { cn, ensureExternalUrl, formatHref, isExternalUrl } from "@/lib/utils";
@@ -196,162 +196,192 @@ export function Footer() {
   const showSecondaryLogo = siteLogo.showSecondaryLogo !== false && (footerConfig as any).showSecondaryLogo !== false;
 
   const certifiedBoard = (homeIdentity.certified_board as Record<string, unknown>) || (siteData?.certified_board as Record<string, unknown>) || (footerConfig.certified_board as Record<string, unknown>) || {};
-  const certifiedEnabled = certifiedBoard.enabled !== false && Boolean(certifiedBoard.title || certifiedBoard.badgeUrl || certifiedBoard.code);
+  const certifiedEnabled =
+    certifiedBoard.enabled !== false &&
+    Boolean(certifiedBoard.title || certifiedBoard.badgeUrl || certifiedBoard.code);
 
   const trustBoard = (homeIdentity.trust_board as Record<string, unknown>) || (siteData?.trust_board as Record<string, unknown>) || (footerConfig.trust_board as Record<string, unknown>) || {};
-  const trustEnabled = trustBoard.enabled !== false && Boolean(trustBoard.trustName || trustBoard.logoUrl || trustBoard.regNo);
+  const trustEnabled =
+    trustBoard.enabled !== false &&
+    Boolean(trustBoard.trustName || trustBoard.logoUrl || trustBoard.regNo);
 
   const academicPartner = (homeIdentity.academic_partner as Record<string, unknown>) || (siteData?.academic_partner as Record<string, unknown>) || (footerConfig.academic_partner as Record<string, unknown>) || {};
-  const partnerEnabled = academicPartner.enabled !== false && Boolean(academicPartner.title || academicPartner.logoUrl);
+  const partnerEnabled =
+    academicPartner.enabled !== false &&
+    Boolean(academicPartner.title || academicPartner.logoUrl);
+
+  const enabledCardsCount = (certifiedEnabled ? 1 : 0) + (trustEnabled ? 1 : 0) + (partnerEnabled ? 1 : 0);
+  const gridCardsClass =
+    enabledCardsCount === 1
+      ? "max-w-xl mx-auto"
+      : enabledCardsCount === 2
+      ? "grid gap-6 md:grid-cols-2 max-w-5xl mx-auto"
+      : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
 
   return (
     <footer className="surface-navy pt-16 pb-8">
       <div className="container-page">
         {(certifiedEnabled || trustEnabled || partnerEnabled) && (
-          <div className="mb-12 grid gap-6 border-b border-navy-foreground/15 pb-10 sm:grid-cols-2 lg:grid-cols-3">
-            {certifiedEnabled && (
-              <Reveal>
-                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
-                  <SmartFileThumbnail
-                    url={certifiedBoard.badgeUrl ? imageUrl(String(certifiedBoard.badgeUrl)) : null}
-                    alt={String(certifiedBoard.title || "Certified Board")}
-                    className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
-                    fallbackIcon={
-                      <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
-                        <Award className="size-6" />
+          <div className="mb-12 border-b border-navy-foreground/15 pb-10">
+            <div className={gridCardsClass}>
+              {certifiedEnabled && (
+                <Reveal className="h-full">
+                  <div className="flex items-start gap-4 sm:gap-5 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 sm:p-6 backdrop-blur-xs transition-all duration-300 hover:border-gold/30 hover:bg-white/[0.07] h-full shadow-xs">
+                    <SmartFileThumbnail
+                      url={certifiedBoard.badgeUrl ? imageUrl(String(certifiedBoard.badgeUrl)) : null}
+                      alt={String(certifiedBoard.title || "Certified Board")}
+                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                      fallbackIcon={
+                        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                          <Award className="size-6" />
+                        </div>
+                      }
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-bold tracking-wider text-gold uppercase">
+                          {String(certifiedBoard.subtitle || "Board Affiliation")}
+                        </span>
+                        <ShieldCheck size={14} className="text-gold shrink-0" />
                       </div>
-                    }
-                  />
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Certified Company Board</span>
-                      <ShieldCheck size={14} className="text-gold" />
+                      <h4 className="mt-1 text-sm sm:text-base font-semibold text-navy-foreground">
+                        {String(certifiedBoard.title || "CBSE Affiliated School")}
+                      </h4>
+                      {Boolean(certifiedBoard.code) && (
+                        <p className="mt-0.5 text-xs font-medium text-gold/90">
+                          {String(certifiedBoard.code)}
+                        </p>
+                      )}
+                      {Boolean(certifiedBoard.description) && (
+                        <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
+                          {String(certifiedBoard.description)}
+                        </p>
+                      )}
+                      {Boolean(certifiedBoard.linkUrl) && (() => {
+                        const href = formatHref(String(certifiedBoard.linkUrl));
+                        const isExt = isExternalUrl(href);
+                        return (
+                          <div className="mt-auto pt-3">
+                            {isExt ? (
+                              <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                                View Affiliation Details &rarr;
+                              </a>
+                            ) : (
+                              <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                                View Affiliation Details &rarr;
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
-                    <h4 className="mt-1 text-sm font-semibold text-navy-foreground">
-                      {String(certifiedBoard.title || "CBSE Affiliated School")}
-                    </h4>
-                    {Boolean(certifiedBoard.code) && (
-                      <p className="mt-0.5 text-xs font-medium text-gold/90">
-                        {String(certifiedBoard.code)}
-                      </p>
-                    )}
-                    {Boolean(certifiedBoard.description) && (
-                      <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
-                        {String(certifiedBoard.description)}
-                      </p>
-                    )}
-                    {Boolean(certifiedBoard.linkUrl) && (() => {
-                      const href = formatHref(String(certifiedBoard.linkUrl));
-                      const isExt = isExternalUrl(href);
-                      return isExt ? (
-                        <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                          View Affiliation Details &rarr;
-                        </a>
-                      ) : (
-                        <Link href={href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                          View Affiliation Details &rarr;
-                        </Link>
-                      );
-                    })()}
                   </div>
-                </div>
-              </Reveal>
-            )}
+                </Reveal>
+              )}
 
-            {trustEnabled && (
-              <Reveal delay={0.1}>
-                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
-                  <SmartFileThumbnail
-                    url={trustBoard.logoUrl ? imageUrl(String(trustBoard.logoUrl)) : null}
-                    alt={String(trustBoard.trustName || "Trust Board")}
-                    className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
-                    fallbackIcon={
-                      <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
-                        <Building2 className="size-6" />
+              {trustEnabled && (
+                <Reveal delay={0.1} className="h-full">
+                  <div className="flex items-start gap-4 sm:gap-5 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 sm:p-6 backdrop-blur-xs transition-all duration-300 hover:border-gold/30 hover:bg-white/[0.07] h-full shadow-xs">
+                    <SmartFileThumbnail
+                      url={trustBoard.logoUrl ? imageUrl(String(trustBoard.logoUrl)) : null}
+                      alt={String(trustBoard.trustName || "Trust Board")}
+                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                      fallbackIcon={
+                        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                          <Building2 className="size-6" />
+                        </div>
+                      }
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Trust Board</span>
+                        <Building2 size={14} className="text-gold shrink-0" />
                       </div>
-                    }
-                  />
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-bold tracking-wider text-gold uppercase">Trust Board</span>
-                      <Building2 size={14} className="text-gold" />
+                      <h4 className="mt-1 text-sm sm:text-base font-semibold text-navy-foreground">
+                        {String(trustBoard.trustName || "K.S. Dalmia Education Trust")}
+                      </h4>
+                      {Boolean(trustBoard.regNo) && (
+                        <p className="mt-0.5 text-xs font-medium text-gold/90">
+                          {String(trustBoard.regNo)}
+                        </p>
+                      )}
+                      {Boolean(trustBoard.description) && (
+                        <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
+                          {String(trustBoard.description)}
+                        </p>
+                      )}
+                      {Boolean(trustBoard.linkUrl) && (() => {
+                        const href = formatHref(String(trustBoard.linkUrl) || "https://www.cbse.gov.in");
+                        const isExt = isExternalUrl(href);
+                        return (
+                          <div className="mt-auto pt-3">
+                            {isExt ? (
+                              <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                                Learn About Trust &rarr;
+                              </a>
+                            ) : (
+                              <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                                Learn About Trust &rarr;
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
-                    <h4 className="mt-1 text-sm font-semibold text-navy-foreground">
-                      {String(trustBoard.trustName || "K.S. Dalmia Education Trust")}
-                    </h4>
-                    {Boolean(trustBoard.regNo) && (
-                      <p className="mt-0.5 text-xs font-medium text-gold/90">
-                        {String(trustBoard.regNo)}
-                      </p>
-                    )}
-                    {Boolean(trustBoard.description) && (
-                      <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
-                        {String(trustBoard.description)}
-                      </p>
-                    )}
-                    {Boolean(trustBoard.linkUrl) && (() => {
-                      const href = formatHref(String(trustBoard.linkUrl) || "https://www.cbse.gov.in");
-                      const isExt = isExternalUrl(href);
-                      return isExt ? (
-                        <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                          Learn About Trust &rarr;
-                        </a>
-                      ) : (
-                        <Link href={href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                          Learn About Trust &rarr;
-                        </Link>
-                      );
-                    })()}
                   </div>
-                </div>
-              </Reveal>
-            )}
+                </Reveal>
+              )}
 
-            {partnerEnabled && (
-              <Reveal delay={0.2}>
-                <div className="flex items-start gap-4 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 backdrop-blur-xs transition-colors hover:border-gold/30 h-full">
-                  <SmartFileThumbnail
-                    url={academicPartner.logoUrl ? imageUrl(String(academicPartner.logoUrl)) : null}
-                    alt={String(academicPartner.title || "Academic Partner")}
-                    className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
-                    fallbackIcon={
-                      <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
-                        <GraduationCap className="size-6" />
+              {partnerEnabled && (
+                <Reveal delay={0.2} className="h-full">
+                  <div className="flex items-start gap-4 sm:gap-5 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 sm:p-6 backdrop-blur-xs transition-all duration-300 hover:border-gold/30 hover:bg-white/[0.07] h-full shadow-xs">
+                    <SmartFileThumbnail
+                      url={academicPartner.logoUrl ? imageUrl(String(academicPartner.logoUrl)) : null}
+                      alt={String(academicPartner.title || "Academic Partner")}
+                      className="size-14 rounded-xl object-contain bg-white/10 p-1.5 shrink-0"
+                      fallbackIcon={
+                        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
+                          <GraduationCap className="size-6" />
+                        </div>
+                      }
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-bold tracking-wider text-gold uppercase">
+                          {String(academicPartner.subtitle || "Our Academic Partner")}
+                        </span>
+                        <i className="bi bi-briefcase text-gold text-[14px]"></i>
                       </div>
-                    }
-                  />
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-bold tracking-wider text-gold uppercase">
-                        {String(academicPartner.subtitle || "Our Academic Partner")}
-                      </span>
-                      <i className="bi bi-briefcase text-gold text-[14px]"></i>
+                      <h4 className="mt-1 text-sm sm:text-base font-semibold text-navy-foreground">
+                        {String(academicPartner.title || "Aakash Institute Partner")}
+                      </h4>
+                      {Boolean(academicPartner.description) && (
+                        <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
+                          {String(academicPartner.description)}
+                        </p>
+                      )}
+                      {Boolean(academicPartner.linkUrl) && (() => {
+                        const href = formatHref(String(academicPartner.linkUrl));
+                        const isExt = isExternalUrl(href);
+                        return (
+                          <div className="mt-auto pt-3">
+                            {isExt ? (
+                              <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                                Explore Courses &rarr;
+                              </a>
+                            ) : (
+                              <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
+                                Explore Courses &rarr;
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
-                    <h4 className="mt-1 text-sm font-semibold text-navy-foreground">
-                      {String(academicPartner.title || "Aakash Institute Partner")}
-                    </h4>
-                    {Boolean(academicPartner.description) && (
-                      <p className="mt-1 text-xs text-navy-foreground/70 leading-relaxed">
-                        {String(academicPartner.description)}
-                      </p>
-                    )}
-                    {Boolean(academicPartner.linkUrl) && (() => {
-                      const href = formatHref(String(academicPartner.linkUrl));
-                      const isExt = isExternalUrl(href);
-                      return isExt ? (
-                        <a href={href} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                          Explore Courses &rarr;
-                        </a>
-                      ) : (
-                        <Link href={href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                          Explore Courses &rarr;
-                        </Link>
-                      );
-                    })()}
                   </div>
-                </div>
-              </Reveal>
-            )}
+                </Reveal>
+              )}
+            </div>
           </div>
         )}
 
