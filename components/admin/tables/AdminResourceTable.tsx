@@ -26,9 +26,14 @@ import {
   Save,
   Crown,
   ShieldCheck,
-  Sparkles,
   ExternalLink,
   Image,
+  RotateCcw,
+  Power,
+  Award,
+  Building2,
+  GraduationCap,
+  EyeOff,
 } from "lucide-react";
 import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModal";
 import { DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
@@ -505,6 +510,34 @@ export function HeaderFooterSettingsCard({
     }
   };
 
+  const DEFAULT_CERTIFIED_BOARD = {
+    title: "CBSE Affiliated School",
+    subtitle: "Board Affiliation",
+    code: "Affiliation No. 1530211 | School Code: 53123",
+    badgeUrl: "",
+    description: "Affiliated to Central Board of Secondary Education, New Delhi",
+    linkUrl: "/mandatory-disclosure",
+    enabled: true,
+  };
+
+  const DEFAULT_TRUST_BOARD = {
+    trustName: "K.S. Dalmia Education Trust",
+    regNo: "Established under KS Dalmia Education Trust",
+    logoUrl: "",
+    description: "Dedicated to character building, academic excellence, and holistic personality development.",
+    linkUrl: "/about-us/school-establishment",
+    enabled: true,
+  };
+
+  const DEFAULT_ACADEMIC_PARTNER = {
+    title: "Aakash Institute Partner",
+    subtitle: "Our Academic Partner",
+    logoUrl: "/assets/Settings/Logos/AakashFoundationLogo.png",
+    description: "Integrated coaching and foundation programs for NEET, IIT-JEE and competitive examinations.",
+    linkUrl: "/academics/courses-offered",
+    enabled: true,
+  };
+
   const siteDsItem = useMemo(() => items.find((i) => i.key === "site_datasource"), [items]);
   const certItem = useMemo(() => items.find((i) => i.key === "certified_board"), [items]);
   const trustItem = useMemo(() => items.find((i) => i.key === "trust_board"), [items]);
@@ -518,32 +551,9 @@ export function HeaderFooterSettingsCard({
     logoSubText: "",
   });
 
-  const [certifiedBoard, setCertifiedBoard] = useState({
-    title: "CBSE Affiliated School",
-    code: "Affiliation No. 1530211 | School Code: 53123",
-    badgeUrl: "",
-    description: "Affiliated to Central Board of Secondary Education, New Delhi",
-    linkUrl: "/mandatory-disclosure",
-    enabled: true,
-  });
-
-  const [trustBoard, setTrustBoard] = useState({
-    trustName: "K.S. Dalmia Education Trust",
-    regNo: "Established under KS Dalmia Education Trust",
-    logoUrl: "",
-    description: "Dedicated to character building, academic excellence, and holistic personality development.",
-    linkUrl: "/about-us/school-establishment",
-    enabled: true,
-  });
-
-  const [academicPartner, setAcademicPartner] = useState({
-    title: "Aakash Institute Partner",
-    subtitle: "Our Academic Partner",
-    logoUrl: "/assets/Settings/Logos/AakashFoundationLogo.png",
-    description: "Integrated coaching and foundation programs for NEET, IIT-JEE and competitive examinations.",
-    linkUrl: "/academics/courses-offered",
-    enabled: true,
-  });
+  const [certifiedBoard, setCertifiedBoard] = useState(DEFAULT_CERTIFIED_BOARD);
+  const [trustBoard, setTrustBoard] = useState(DEFAULT_TRUST_BOARD);
+  const [academicPartner, setAcademicPartner] = useState(DEFAULT_ACADEMIC_PARTNER);
 
   const [fetchedDsValue, setFetchedDsValue] = useState<Record<string, any> | null>(null);
 
@@ -586,31 +596,37 @@ export function HeaderFooterSettingsCard({
         setSiteLogo((prev) => ({ ...prev, ...(logoVal as object) }));
       }
 
-      const certVal = homeIdentity.certified_board || dsVal.certified_board;
+      const certVal: any = homeIdentity.certified_board || dsVal.certified_board;
       if (certVal && typeof certVal === "object") {
-        setCertifiedBoard((prev) => ({ ...prev, ...(certVal as object) }));
+        setCertifiedBoard((prev) => ({ ...prev, ...(certVal as object), enabled: certVal.enabled !== false }));
       } else if (certItem?.value) {
-        let cVal = certItem.value;
+        let cVal: any = certItem.value;
         if (typeof cVal === "string") { try { cVal = JSON.parse(cVal); } catch { } }
-        if (cVal && typeof cVal === "object") setCertifiedBoard((prev) => ({ ...prev, ...(cVal as object) }));
+        if (cVal && typeof cVal === "object") {
+          setCertifiedBoard((prev) => ({ ...prev, ...(cVal as object), enabled: cVal.enabled !== false }));
+        }
       }
 
-      const trustVal = homeIdentity.trust_board || dsVal.trust_board;
+      const trustVal: any = homeIdentity.trust_board || dsVal.trust_board;
       if (trustVal && typeof trustVal === "object") {
-        setTrustBoard((prev) => ({ ...prev, ...(trustVal as object) }));
+        setTrustBoard((prev) => ({ ...prev, ...(trustVal as object), enabled: trustVal.enabled !== false }));
       } else if (trustItem?.value) {
-        let tVal = trustItem.value;
+        let tVal: any = trustItem.value;
         if (typeof tVal === "string") { try { tVal = JSON.parse(tVal); } catch { } }
-        if (tVal && typeof tVal === "object") setTrustBoard((prev) => ({ ...prev, ...(tVal as object) }));
+        if (tVal && typeof tVal === "object") {
+          setTrustBoard((prev) => ({ ...prev, ...(tVal as object), enabled: tVal.enabled !== false }));
+        }
       }
 
-      const partnerVal = homeIdentity.academic_partner || dsVal.academic_partner;
+      const partnerVal: any = homeIdentity.academic_partner || dsVal.academic_partner;
       if (partnerVal && typeof partnerVal === "object") {
-        setAcademicPartner((prev) => ({ ...prev, ...(partnerVal as object) }));
+        setAcademicPartner((prev) => ({ ...prev, ...(partnerVal as object), enabled: partnerVal.enabled !== false }));
       } else if (partnerItem?.value) {
-        let pVal = partnerItem.value;
+        let pVal: any = partnerItem.value;
         if (typeof pVal === "string") { try { pVal = JSON.parse(pVal); } catch { } }
-        if (pVal && typeof pVal === "object") setAcademicPartner((prev) => ({ ...prev, ...(pVal as object) }));
+        if (pVal && typeof pVal === "object") {
+          setAcademicPartner((prev) => ({ ...prev, ...(pVal as object), enabled: pVal.enabled !== false }));
+        }
       }
     };
 
@@ -645,14 +661,32 @@ export function HeaderFooterSettingsCard({
       currentHeader.logoSubText = siteLogo.logoSubText || "";
       currentFooter.logoSubText = siteLogo.logoSubText || "";
 
+      const certToSave = {
+        ...certifiedBoard,
+        enabled: Boolean(certifiedBoard.enabled),
+      };
+      delete (certToSave as any).status;
+
+      const trustToSave = {
+        ...trustBoard,
+        enabled: Boolean(trustBoard.enabled),
+      };
+      delete (trustToSave as any).status;
+
+      const partnerToSave = {
+        ...academicPartner,
+        enabled: Boolean(academicPartner.enabled),
+      };
+      delete (partnerToSave as any).status;
+
       const identityObj = {
         ...(firstHome.identity || {}),
         header: currentHeader,
         footer: currentFooter,
         site_logo: siteLogo,
-        certified_board: certifiedBoard,
-        trust_board: trustBoard,
-        academic_partner: academicPartner,
+        certified_board: certToSave,
+        trust_board: trustToSave,
+        academic_partner: partnerToSave,
       };
       firstHome.identity = identityObj;
       homeList[0] = firstHome;
@@ -662,9 +696,9 @@ export function HeaderFooterSettingsCard({
         header: currentHeader,
         footer: currentFooter,
         site_logo: siteLogo,
-        certified_board: certifiedBoard,
-        trust_board: trustBoard,
-        academic_partner: academicPartner,
+        certified_board: certToSave,
+        trust_board: trustToSave,
+        academic_partner: partnerToSave,
         home: homeList,
       };
 
@@ -696,7 +730,55 @@ export function HeaderFooterSettingsCard({
         console.warn("Syncing standalone site_logo skipped or failed:", e);
       }
 
-      setMessage("Header & Footer identity settings saved successfully inside site_datasource!");
+      if (certItem) {
+        try {
+          await axios.post(
+            `${API_URL}/school-settings`,
+            {
+              key: "certified_board",
+              category: "Footer",
+              description: "Board Affiliation footer card",
+              value: certToSave,
+              status: certToSave.enabled ? "Active" : "Inactive",
+            },
+            { headers }
+          );
+        } catch { }
+      }
+
+      if (trustItem) {
+        try {
+          await axios.post(
+            `${API_URL}/school-settings`,
+            {
+              key: "trust_board",
+              category: "Footer",
+              description: "Trust Board footer card",
+              value: trustToSave,
+              status: trustToSave.enabled ? "Active" : "Inactive",
+            },
+            { headers }
+          );
+        } catch { }
+      }
+
+      if (partnerItem) {
+        try {
+          await axios.post(
+            `${API_URL}/school-settings`,
+            {
+              key: "academic_partner",
+              category: "Footer",
+              description: "Academic Partner footer card",
+              value: partnerToSave,
+              status: partnerToSave.enabled ? "Active" : "Inactive",
+            },
+            { headers }
+          );
+        } catch { }
+      }
+
+      setMessage("Settings saved successfully! Footer identity cards updated.");
       onSaveComplete();
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -721,7 +803,7 @@ export function HeaderFooterSettingsCard({
             <h3 className="font-display text-xl font-bold text-[#102a4c]">Header & Footer Branding Settings</h3>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Configure Certified Board info, Trust Board details, and Academic Partner. Applied automatically if present.
+            Configure, Activate, Inactivate, or Clear Board Affiliation info, Trust Board details, and Academic Partner.
           </p>
         </div>
         <button
@@ -737,7 +819,7 @@ export function HeaderFooterSettingsCard({
 
       {message && (
         <div className="mt-4 flex items-center justify-between rounded-xl bg-emerald-50 p-3.5 text-xs font-bold text-emerald-800 border border-emerald-200">
-          <span><i className="bi bi-cloud-check-fill"></i> {message}</span>
+          <span><i className="bi bi-cloud-check-fill mr-1.5"></i> {message}</span>
           <button type="button" onClick={() => setMessage("")}><X size={14} /></button>
         </div>
       )}
@@ -749,39 +831,85 @@ export function HeaderFooterSettingsCard({
         </div>
       )}
 
-      {/* Tabs Switcher */}
+      {/* Tabs Switcher with Status Badges */}
       <div className="mt-5 flex flex-wrap gap-2 border-b border-slate-100 pb-4">
         <button
           type="button"
           onClick={() => setActiveTab("logo")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            activeTab === "logo" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
         >
           <Image size={15} /> School Logo & Header
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("certified")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            activeTab === "certified" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
         >
-          <Crown size={15} /> Certified Company Board
+          <Award size={15} />
+          <span>Board Affiliation</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+              certifiedBoard.enabled
+                ? activeTab === "certified"
+                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-400/40"
+                  : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                : activeTab === "certified"
+                ? "bg-rose-500/25 text-rose-300 border border-rose-400/40"
+                : "bg-rose-100 text-rose-800 border border-rose-200"
+            }`}
+          >
+            {certifiedBoard.enabled ? "Active" : "Inactive"}
+          </span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("trust")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "trust" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            activeTab === "trust" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
         >
-          <ShieldCheck size={15} /> Trust Board
+          <ShieldCheck size={15} />
+          <span>Trust Board</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+              trustBoard.enabled
+                ? activeTab === "trust"
+                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-400/40"
+                  : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                : activeTab === "trust"
+                ? "bg-rose-500/25 text-rose-300 border border-rose-400/40"
+                : "bg-rose-100 text-rose-800 border border-rose-200"
+            }`}
+          >
+            {trustBoard.enabled ? "Active" : "Inactive"}
+          </span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("partner")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${activeTab === "partner" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            activeTab === "partner" ? "bg-[#102a4c] text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
         >
-          <i className="bi bi-briefcase text-[14px]"></i> Academic Partner
+          <i className="bi bi-briefcase text-[14px]"></i>
+          <span>Academic Partner</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+              academicPartner.enabled
+                ? activeTab === "partner"
+                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-400/40"
+                  : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                : activeTab === "partner"
+                ? "bg-rose-500/25 text-rose-300 border border-rose-400/40"
+                : "bg-rose-100 text-rose-800 border border-rose-200"
+            }`}
+          >
+            {academicPartner.enabled ? "Active" : "Inactive"}
+          </span>
         </button>
       </div>
 
@@ -827,6 +955,16 @@ export function HeaderFooterSettingsCard({
                   <Image size={14} className="text-amber-500" />
                   <span>Gallery</span>
                 </button>
+                {Boolean(siteLogo.logoUrl) && (
+                  <button
+                    type="button"
+                    title="Remove primary logo"
+                    onClick={() => setSiteLogo((p) => ({ ...p, logoUrl: "" }))}
+                    className="inline-flex items-center p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -862,6 +1000,16 @@ export function HeaderFooterSettingsCard({
                   <Image size={14} className="text-amber-500" />
                   <span>Gallery</span>
                 </button>
+                {Boolean(siteLogo.secondaryLogoUrl) && (
+                  <button
+                    type="button"
+                    title="Remove secondary logo"
+                    onClick={() => setSiteLogo((p) => ({ ...p, secondaryLogoUrl: "" }))}
+                    className="inline-flex items-center p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -876,8 +1024,6 @@ export function HeaderFooterSettingsCard({
                 Show Secondary / Foundation Logo in Header
               </label>
             </div>
-
-
           </div>
 
           <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
@@ -929,78 +1075,253 @@ export function HeaderFooterSettingsCard({
         </div>
       )}
 
-      {/* Tab 2: Certified Board */}
+      {/* Tab 2: Board Affiliation */}
       {activeTab === "certified" && (
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Board Name / Title</label>
-              <input
-                type="text"
-                value={certifiedBoard.title}
-                onChange={(e) => setCertifiedBoard((p) => ({ ...p, title: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Affiliation Code / Registration</label>
-              <input
-                type="text"
-                value={certifiedBoard.code}
-                onChange={(e) => setCertifiedBoard((p) => ({ ...p, code: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Badge Icon / Logo Image</label>
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={certifiedBoard.badgeUrl}
-                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, badgeUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+        <div className="mt-5 space-y-4">
+          {/* Card Control Bar: Active/Inactive Switch & Delete/Restore Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setCertifiedBoard((p) => ({ ...p, enabled: !p.enabled }))}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  certifiedBoard.enabled ? "bg-emerald-600" : "bg-slate-300"
+                }`}
+                title="Toggle Active / Inactive status"
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    certifiedBoard.enabled ? "translate-x-5" : "translate-x-0"
+                  }`}
                 />
-                <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
-                  {uploadingSetting === "badgeUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
-                  <span>{uploadingSetting === "badgeUrl" ? "Uploading…" : "Upload"}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleDirectSettingFileUpload("badgeUrl", file);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setGalleryPickerField("badgeUrl")}
-                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-                >
-                  <Image size={14} className="text-amber-500" />
-                  <span>Gallery</span>
-                </button>
+              </button>
+              <div className="flex items-center gap-2">
+                <span className={`inline-block h-2 w-2 rounded-full ${certifiedBoard.enabled ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
+                <span className="text-xs font-bold text-slate-800">
+                  {certifiedBoard.enabled ? "Card Status: Active (Visible in Footer)" : "Card Status: Inactive / Disabled (Hidden from Footer)"}
+                </span>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCertifiedBoard({ ...DEFAULT_CERTIFIED_BOARD })}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs cursor-pointer"
+                title="Restore original CBSE defaults"
+              >
+                <RotateCcw size={13} />
+                <span>Restore Default</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Clear and disable Board Affiliation card from footer?")) {
+                    setCertifiedBoard({
+                      title: "",
+                      subtitle: "",
+                      code: "",
+                      badgeUrl: "",
+                      description: "",
+                      linkUrl: "",
+                      enabled: false,
+                    });
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition shadow-2xs cursor-pointer"
+                title="Clear content and disable card"
+              >
+                <Trash2 size={13} />
+                <span>Clear / Delete Card</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Footer Certification Badge Preview</span>
-            <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-2xs flex items-center gap-3">
-              {certifiedBoard.badgeUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={imageUrl(certifiedBoard.badgeUrl)} alt="" className="h-10 w-10 object-contain" />
-              ) : (
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-amber-100 text-amber-800 font-bold text-xs">
-                  CBSE
-                </div>
-              )}
+          {!certifiedBoard.enabled && (
+            <div className="flex items-center gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 font-medium">
+              <EyeOff size={16} className="text-amber-700 shrink-0" />
+              <span>
+                <strong>Card is Inactive / Disabled:</strong> This badge will <strong>not</strong> be displayed on the public website footer. Toggle the switch above to make it Active.
+              </span>
+            </div>
+          )}
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-3.5">
               <div>
-                <p className="font-bold text-xs text-[#102a4c]">{certifiedBoard.title}</p>
-                <p className="text-[11px] text-slate-500">{certifiedBoard.code}</p>
+                <label className="block text-xs font-bold text-slate-700">Category Label / Badge Subtitle</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Board Affiliation or Affiliation & Accreditation"
+                  value={certifiedBoard.subtitle || ""}
+                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, subtitle: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
               </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Board Name / Title</label>
+                <input
+                  type="text"
+                  placeholder="e.g. CBSE Affiliated School"
+                  value={certifiedBoard.title}
+                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, title: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Affiliation Code / Registration</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Affiliation No. 1530211 | School Code: 53123"
+                  value={certifiedBoard.code}
+                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, code: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Badge Icon / Logo Image</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    placeholder="Upload or choose from gallery"
+                    value={certifiedBoard.badgeUrl}
+                    onChange={(e) => setCertifiedBoard((p) => ({ ...p, badgeUrl: e.target.value }))}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+                  />
+                  <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
+                    {uploadingSetting === "badgeUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                    <span>{uploadingSetting === "badgeUrl" ? "Uploading…" : "Upload"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleDirectSettingFileUpload("badgeUrl", file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryPickerField("badgeUrl")}
+                    className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                  >
+                    <Image size={14} className="text-amber-500" />
+                    <span>Gallery</span>
+                  </button>
+                  {Boolean(certifiedBoard.badgeUrl) && (
+                    <button
+                      type="button"
+                      title="Clear badge logo"
+                      onClick={() => setCertifiedBoard((p) => ({ ...p, badgeUrl: "" }))}
+                      className="inline-flex items-center p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Description</label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Affiliated to Central Board of Secondary Education, New Delhi"
+                  value={certifiedBoard.description}
+                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, description: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Action Link URL</label>
+                <input
+                  type="text"
+                  placeholder="e.g. /mandatory-disclosure or https://www.cbse.gov.in"
+                  value={certifiedBoard.linkUrl}
+                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, linkUrl: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+            </div>
+
+            {/* Live Footer Preview */}
+            <div className="flex flex-col justify-between space-y-4 rounded-2xl border border-slate-200 bg-slate-900 p-5 text-white shadow-inner">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                  <Eye size={14} /> Live Footer Card Preview
+                </span>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                    certifiedBoard.enabled
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                  }`}
+                >
+                  {certifiedBoard.enabled ? "Visible in Footer" : "Hidden (Inactive)"}
+                </span>
+              </div>
+
+              <div
+                className={`relative flex items-start gap-4 rounded-2xl border border-white/15 bg-white/5 p-4 backdrop-blur-xs transition ${
+                  !certifiedBoard.enabled ? "opacity-50 grayscale" : "border-amber-400/30"
+                }`}
+              >
+                {!certifiedBoard.enabled && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-slate-950/75 p-3 text-center backdrop-blur-2xs">
+                    <EyeOff size={22} className="text-rose-400 mb-1" />
+                    <span className="text-xs font-bold text-rose-200">Card Currently Inactive</span>
+                    <button
+                      type="button"
+                      onClick={() => setCertifiedBoard((p) => ({ ...p, enabled: true }))}
+                      className="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-emerald-700 transition"
+                    >
+                      <Power size={11} /> Activate Card
+                    </button>
+                  </div>
+                )}
+
+                <div className="size-14 rounded-xl bg-white/10 p-1.5 shrink-0 flex items-center justify-center">
+                  {certifiedBoard.badgeUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={imageUrl(certifiedBoard.badgeUrl)} alt="" className="size-full object-contain" />
+                  ) : (
+                    <div className="grid size-11 place-items-center rounded-lg bg-amber-400/20 text-amber-300 font-bold text-xs">
+                      <Award size={22} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold tracking-wider text-amber-400 uppercase">
+                      {certifiedBoard.subtitle || "Board Affiliation"}
+                    </span>
+                    <ShieldCheck size={14} className="text-amber-400 shrink-0" />
+                  </div>
+                  <h4 className="mt-0.5 text-sm font-semibold text-white truncate">
+                    {certifiedBoard.title || "(No Title Set)"}
+                  </h4>
+                  {Boolean(certifiedBoard.code) && (
+                    <p className="mt-0.5 text-xs font-medium text-amber-300/90 truncate">
+                      {certifiedBoard.code}
+                    </p>
+                  )}
+                  {Boolean(certifiedBoard.description) && (
+                    <p className="mt-1 text-xs text-white/70 line-clamp-2 leading-relaxed">
+                      {certifiedBoard.description}
+                    </p>
+                  )}
+                  {Boolean(certifiedBoard.linkUrl) && (
+                    <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
+                      View Affiliation Details &rarr;
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-white/50 italic">
+                Shows exact layout &amp; design as rendered in the website footer.
+              </p>
             </div>
           </div>
         </div>
@@ -1008,87 +1329,238 @@ export function HeaderFooterSettingsCard({
 
       {/* Tab 3: Trust Board */}
       {activeTab === "trust" && (
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Trust Name</label>
-              <input
-                type="text"
-                value={trustBoard.trustName}
-                onChange={(e) => setTrustBoard((p) => ({ ...p, trustName: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Registration / Sub-details</label>
-              <input
-                type="text"
-                value={trustBoard.regNo}
-                onChange={(e) => setTrustBoard((p) => ({ ...p, regNo: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Trust Logo Image</label>
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={trustBoard.logoUrl}
-                  onChange={(e) => setTrustBoard((p) => ({ ...p, logoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+        <div className="mt-5 space-y-4">
+          {/* Card Control Bar: Active/Inactive Switch & Delete/Restore Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setTrustBoard((p) => ({ ...p, enabled: !p.enabled }))}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  trustBoard.enabled ? "bg-emerald-600" : "bg-slate-300"
+                }`}
+                title="Toggle Active / Inactive status"
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    trustBoard.enabled ? "translate-x-5" : "translate-x-0"
+                  }`}
                 />
-                <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
-                  {uploadingSetting === "trustLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
-                  <span>{uploadingSetting === "trustLogoUrl" ? "Uploading…" : "Upload"}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleDirectSettingFileUpload("trustLogoUrl", file);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setGalleryPickerField("trustLogoUrl")}
-                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-                >
-                  <Image size={14} className="text-amber-500" />
-                  <span>Gallery</span>
-                </button>
+              </button>
+              <div className="flex items-center gap-2">
+                <span className={`inline-block h-2 w-2 rounded-full ${trustBoard.enabled ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
+                <span className="text-xs font-bold text-slate-800">
+                  {trustBoard.enabled ? "Card Status: Active (Visible in Footer)" : "Card Status: Inactive / Disabled (Hidden from Footer)"}
+                </span>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTrustBoard({ ...DEFAULT_TRUST_BOARD })}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs cursor-pointer"
+                title="Restore original Trust Board defaults"
+              >
+                <RotateCcw size={13} />
+                <span>Restore Default</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Clear and disable Trust Board card from footer?")) {
+                    setTrustBoard({
+                      trustName: "",
+                      regNo: "",
+                      logoUrl: "",
+                      description: "",
+                      linkUrl: "",
+                      enabled: false,
+                    });
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition shadow-2xs cursor-pointer"
+                title="Clear content and disable card"
+              >
+                <Trash2 size={13} />
+                <span>Clear / Delete Card</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Footer Trust Badge Preview</span>
-            <div className="rounded-xl border border-blue-200 bg-white p-4 shadow-2xs flex items-center gap-3">
-              {trustBoard.logoUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={imageUrl(trustBoard.logoUrl)}
-                  alt=""
-                  className="h-10 w-10 object-contain"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    if (!target.dataset.triedLocal && trustBoard.logoUrl) {
-                      target.dataset.triedLocal = "true";
-                      target.src = trustBoard.logoUrl;
-                    }
-                  }}
-                />
-              ) : (
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-blue-100 text-[#1a5d9c] font-bold text-xs">
-                  TRUST
-                </div>
-              )}
+          {!trustBoard.enabled && (
+            <div className="flex items-center gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 font-medium">
+              <EyeOff size={16} className="text-amber-700 shrink-0" />
+              <span>
+                <strong>Card is Inactive / Disabled:</strong> This badge will <strong>not</strong> be displayed on the public website footer. Toggle the switch above to make it Active.
+              </span>
+            </div>
+          )}
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-3.5">
               <div>
-                <p className="font-bold text-xs text-[#102a4c]">{trustBoard.trustName}</p>
-                <p className="text-[11px] text-slate-500">{trustBoard.regNo}</p>
+                <label className="block text-xs font-bold text-slate-700">Trust Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. K.S. Dalmia Education Trust"
+                  value={trustBoard.trustName}
+                  onChange={(e) => setTrustBoard((p) => ({ ...p, trustName: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
               </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Registration / Sub-details</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Established under KS Dalmia Education Trust"
+                  value={trustBoard.regNo}
+                  onChange={(e) => setTrustBoard((p) => ({ ...p, regNo: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Trust Logo Image</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    placeholder="Upload or choose from gallery"
+                    value={trustBoard.logoUrl}
+                    onChange={(e) => setTrustBoard((p) => ({ ...p, logoUrl: e.target.value }))}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+                  />
+                  <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
+                    {uploadingSetting === "trustLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                    <span>{uploadingSetting === "trustLogoUrl" ? "Uploading…" : "Upload"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleDirectSettingFileUpload("trustLogoUrl", file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryPickerField("trustLogoUrl")}
+                    className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                  >
+                    <Image size={14} className="text-amber-500" />
+                    <span>Gallery</span>
+                  </button>
+                  {Boolean(trustBoard.logoUrl) && (
+                    <button
+                      type="button"
+                      title="Clear trust logo"
+                      onClick={() => setTrustBoard((p) => ({ ...p, logoUrl: "" }))}
+                      className="inline-flex items-center p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Description</label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Dedicated to character building, academic excellence, and holistic personality development."
+                  value={trustBoard.description}
+                  onChange={(e) => setTrustBoard((p) => ({ ...p, description: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Action Link URL</label>
+                <input
+                  type="text"
+                  placeholder="e.g. /about-us/school-establishment"
+                  value={trustBoard.linkUrl}
+                  onChange={(e) => setTrustBoard((p) => ({ ...p, linkUrl: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+            </div>
+
+            {/* Live Footer Preview */}
+            <div className="flex flex-col justify-between space-y-4 rounded-2xl border border-slate-200 bg-slate-900 p-5 text-white shadow-inner">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                  <Eye size={14} /> Live Footer Card Preview
+                </span>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                    trustBoard.enabled
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                  }`}
+                >
+                  {trustBoard.enabled ? "Visible in Footer" : "Hidden (Inactive)"}
+                </span>
+              </div>
+
+              <div
+                className={`relative flex items-start gap-4 rounded-2xl border border-white/15 bg-white/5 p-4 backdrop-blur-xs transition ${
+                  !trustBoard.enabled ? "opacity-50 grayscale" : "border-amber-400/30"
+                }`}
+              >
+                {!trustBoard.enabled && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-slate-950/75 p-3 text-center backdrop-blur-2xs">
+                    <EyeOff size={22} className="text-rose-400 mb-1" />
+                    <span className="text-xs font-bold text-rose-200">Card Currently Inactive</span>
+                    <button
+                      type="button"
+                      onClick={() => setTrustBoard((p) => ({ ...p, enabled: true }))}
+                      className="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-emerald-700 transition"
+                    >
+                      <Power size={11} /> Activate Card
+                    </button>
+                  </div>
+                )}
+
+                <div className="size-14 rounded-xl bg-white/10 p-1.5 shrink-0 flex items-center justify-center">
+                  {trustBoard.logoUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={imageUrl(trustBoard.logoUrl)} alt="" className="size-full object-contain" />
+                  ) : (
+                    <div className="grid size-11 place-items-center rounded-lg bg-amber-400/20 text-amber-300 font-bold text-xs">
+                      <Building2 size={22} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold tracking-wider text-amber-400 uppercase">Trust Board</span>
+                    <Building2 size={14} className="text-amber-400 shrink-0" />
+                  </div>
+                  <h4 className="mt-0.5 text-sm font-semibold text-white truncate">
+                    {trustBoard.trustName || "(No Trust Name Set)"}
+                  </h4>
+                  {Boolean(trustBoard.regNo) && (
+                    <p className="mt-0.5 text-xs font-medium text-amber-300/90 truncate">
+                      {trustBoard.regNo}
+                    </p>
+                  )}
+                  {Boolean(trustBoard.description) && (
+                    <p className="mt-1 text-xs text-white/70 line-clamp-2 leading-relaxed">
+                      {trustBoard.description}
+                    </p>
+                  )}
+                  {Boolean(trustBoard.linkUrl) && (
+                    <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
+                      Learn About Trust &rarr;
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-white/50 italic">
+                Shows exact layout &amp; design as rendered in the website footer.
+              </p>
             </div>
           </div>
         </div>
@@ -1096,76 +1568,235 @@ export function HeaderFooterSettingsCard({
 
       {/* Tab 4: Academic Partner */}
       {activeTab === "partner" && (
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Partner Title</label>
-              <input
-                type="text"
-                value={academicPartner.title}
-                onChange={(e) => setAcademicPartner((p) => ({ ...p, title: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Subtitle / Tagline</label>
-              <input
-                type="text"
-                value={academicPartner.subtitle}
-                onChange={(e) => setAcademicPartner((p) => ({ ...p, subtitle: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700">Partner Logo Image</label>
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={academicPartner.logoUrl}
-                  onChange={(e) => setAcademicPartner((p) => ({ ...p, logoUrl: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+        <div className="mt-5 space-y-4">
+          {/* Card Control Bar: Active/Inactive Switch & Delete/Restore Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setAcademicPartner((p) => ({ ...p, enabled: !p.enabled }))}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  academicPartner.enabled ? "bg-emerald-600" : "bg-slate-300"
+                }`}
+                title="Toggle Active / Inactive status"
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    academicPartner.enabled ? "translate-x-5" : "translate-x-0"
+                  }`}
                 />
-                <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
-                  {uploadingSetting === "partnerLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
-                  <span>{uploadingSetting === "partnerLogoUrl" ? "Uploading…" : "Upload"}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleDirectSettingFileUpload("partnerLogoUrl", file);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setGalleryPickerField("partnerLogoUrl")}
-                  className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-                >
-                  <Image size={14} className="text-amber-500" />
-                  <span>Gallery</span>
-                </button>
+              </button>
+              <div className="flex items-center gap-2">
+                <span className={`inline-block h-2 w-2 rounded-full ${academicPartner.enabled ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
+                <span className="text-xs font-bold text-slate-800">
+                  {academicPartner.enabled ? "Card Status: Active (Visible in Footer)" : "Card Status: Inactive / Disabled (Hidden from Footer)"}
+                </span>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setAcademicPartner({ ...DEFAULT_ACADEMIC_PARTNER })}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs cursor-pointer"
+                title="Restore original Academic Partner defaults"
+              >
+                <RotateCcw size={13} />
+                <span>Restore Default</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Clear and disable Academic Partner card from footer?")) {
+                    setAcademicPartner({
+                      title: "",
+                      subtitle: "",
+                      logoUrl: "",
+                      description: "",
+                      linkUrl: "",
+                      enabled: false,
+                    });
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition shadow-2xs cursor-pointer"
+                title="Clear content and disable card"
+              >
+                <Trash2 size={13} />
+                <span>Clear / Delete Card</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Footer Academic Partner Badge Preview</span>
-            <div className="rounded-xl border border-sky-200 bg-white p-4 shadow-2xs flex items-center gap-3">
-              {academicPartner.logoUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={imageUrl(academicPartner.logoUrl)} alt="" className="h-10 w-10 object-contain" />
-              ) : (
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-sky-100 text-[#1a5d9c] font-bold text-xs">
-                  PARTNER
-                </div>
-              )}
+          {!academicPartner.enabled && (
+            <div className="flex items-center gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 font-medium">
+              <EyeOff size={16} className="text-amber-700 shrink-0" />
+              <span>
+                <strong>Card is Inactive / Disabled:</strong> This badge will <strong>not</strong> be displayed on the public website footer. Toggle the switch above to make it Active.
+              </span>
+            </div>
+          )}
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-3.5">
               <div>
-                <p className="font-bold text-xs text-[#102a4c]">{academicPartner.title}</p>
-                <p className="text-[11px] text-slate-500">{academicPartner.subtitle}</p>
+                <label className="block text-xs font-bold text-slate-700">Partner Title</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Aakash Institute Partner"
+                  value={academicPartner.title}
+                  onChange={(e) => setAcademicPartner((p) => ({ ...p, title: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
               </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Subtitle / Tagline</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Our Academic Partner"
+                  value={academicPartner.subtitle}
+                  onChange={(e) => setAcademicPartner((p) => ({ ...p, subtitle: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Partner Logo Image</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    placeholder="Upload or choose from gallery"
+                    value={academicPartner.logoUrl}
+                    onChange={(e) => setAcademicPartner((p) => ({ ...p, logoUrl: e.target.value }))}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-medium outline-none text-slate-500 cursor-not-allowed select-all"
+                  />
+                  <label className="inline-flex cursor-pointer items-center gap-1 shrink-0 rounded-xl bg-[#1a5d9c] px-3 py-2 text-xs font-bold text-white hover:bg-[#102a4c] transition shadow-xs">
+                    {uploadingSetting === "partnerLogoUrl" ? <LoaderCircle size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                    <span>{uploadingSetting === "partnerLogoUrl" ? "Uploading…" : "Upload"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleDirectSettingFileUpload("partnerLogoUrl", file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setGalleryPickerField("partnerLogoUrl")}
+                    className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                  >
+                    <Image size={14} className="text-amber-500" />
+                    <span>Gallery</span>
+                  </button>
+                  {Boolean(academicPartner.logoUrl) && (
+                    <button
+                      type="button"
+                      title="Clear partner logo"
+                      onClick={() => setAcademicPartner((p) => ({ ...p, logoUrl: "" }))}
+                      className="inline-flex items-center p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Description</label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Integrated coaching and foundation programs for NEET, IIT-JEE and competitive examinations."
+                  value={academicPartner.description}
+                  onChange={(e) => setAcademicPartner((p) => ({ ...p, description: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Action Link URL</label>
+                <input
+                  type="text"
+                  placeholder="e.g. /academics/courses-offered"
+                  value={academicPartner.linkUrl}
+                  onChange={(e) => setAcademicPartner((p) => ({ ...p, linkUrl: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
+                />
+              </div>
+            </div>
+
+            {/* Live Footer Preview */}
+            <div className="flex flex-col justify-between space-y-4 rounded-2xl border border-slate-200 bg-slate-900 p-5 text-white shadow-inner">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                  <Eye size={14} /> Live Footer Card Preview
+                </span>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                    academicPartner.enabled
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                  }`}
+                >
+                  {academicPartner.enabled ? "Visible in Footer" : "Hidden (Inactive)"}
+                </span>
+              </div>
+
+              <div
+                className={`relative flex items-start gap-4 rounded-2xl border border-white/15 bg-white/5 p-4 backdrop-blur-xs transition ${
+                  !academicPartner.enabled ? "opacity-50 grayscale" : "border-amber-400/30"
+                }`}
+              >
+                {!academicPartner.enabled && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-slate-950/75 p-3 text-center backdrop-blur-2xs">
+                    <EyeOff size={22} className="text-rose-400 mb-1" />
+                    <span className="text-xs font-bold text-rose-200">Card Currently Inactive</span>
+                    <button
+                      type="button"
+                      onClick={() => setAcademicPartner((p) => ({ ...p, enabled: true }))}
+                      className="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-emerald-700 transition"
+                    >
+                      <Power size={11} /> Activate Card
+                    </button>
+                  </div>
+                )}
+
+                <div className="size-14 rounded-xl bg-white/10 p-1.5 shrink-0 flex items-center justify-center">
+                  {academicPartner.logoUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={imageUrl(academicPartner.logoUrl)} alt="" className="size-full object-contain" />
+                  ) : (
+                    <div className="grid size-11 place-items-center rounded-lg bg-amber-400/20 text-amber-300 font-bold text-xs">
+                      <GraduationCap size={22} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold tracking-wider text-amber-400 uppercase">
+                      {academicPartner.subtitle || "Our Academic Partner"}
+                    </span>
+                    <i className="bi bi-briefcase text-amber-400 text-[14px]"></i>
+                  </div>
+                  <h4 className="mt-0.5 text-sm font-semibold text-white truncate">
+                    {academicPartner.title || "(No Partner Title Set)"}
+                  </h4>
+                  {Boolean(academicPartner.description) && (
+                    <p className="mt-1 text-xs text-white/70 line-clamp-2 leading-relaxed">
+                      {academicPartner.description}
+                    </p>
+                  )}
+                  {Boolean(academicPartner.linkUrl) && (
+                    <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
+                      Explore Courses &rarr;
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-white/50 italic">
+                Shows exact layout &amp; design as rendered in the website footer.
+              </p>
             </div>
           </div>
         </div>
@@ -1254,7 +1885,7 @@ export function ResourceView({
   // Create new control is commented out for reviews as they are submitted publicly from the website
   const canCreate = canCreateProp && Object.keys(resource.inputs).length > 0 && resource.key !== "reviews";
   const canEdit = canEditProp && Object.keys(resource.inputs).length > 0;
-  const canDelete = canDeleteProp && resource.key !== "school-settings";
+  const canDelete = canDeleteProp;
 
   const filtersConfig = RESOURCE_FILTERS[resource.key] || [];
 
@@ -2051,11 +2682,11 @@ export function ResourceView({
                                 </button>
                               )}
                               {canDelete && (
-                                isSuperUser ? (
+                                (isSuperUser || (resource.key === "school-settings" && item.key === "site_datasource")) ? (
                                   <button
                                     disabled
                                     className="rounded-lg p-2 text-slate-300 cursor-not-allowed"
-                                    title="Super Admin accounts cannot be deleted"
+                                    title={resource.key === "school-settings" ? "Core site datasource setting cannot be deleted" : "Super Admin accounts cannot be deleted"}
                                   >
                                     <Lock size={16} />
                                   </button>
