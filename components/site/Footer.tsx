@@ -260,15 +260,16 @@ export function Footer() {
                       {Boolean(certifiedBoard.linkUrl) && (() => {
                         const href = formatHref(String(certifiedBoard.linkUrl));
                         const isExt = isExternalUrl(href);
+                        const labelText = String(certifiedBoard.buttonText || "View Affiliation Details");
                         return (
                           <div className="mt-auto pt-3">
                             {isExt ? (
                               <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                                View Affiliation Details &rarr;
+                                {labelText} &rarr;
                               </a>
                             ) : (
                               <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                                View Affiliation Details &rarr;
+                                {labelText} &rarr;
                               </Link>
                             )}
                           </div>
@@ -311,17 +312,18 @@ export function Footer() {
                         </p>
                       )}
                       {Boolean(trustBoard.linkUrl) && (() => {
-                        const href = formatHref(String(trustBoard.linkUrl) || "https://www.cbse.gov.in");
+                        const href = formatHref(String(trustBoard.linkUrl));
                         const isExt = isExternalUrl(href);
+                        const labelText = String(trustBoard.buttonText || "Learn About Trust");
                         return (
                           <div className="mt-auto pt-3">
                             {isExt ? (
                               <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                                Learn About Trust &rarr;
+                                {labelText} &rarr;
                               </a>
                             ) : (
                               <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                                Learn About Trust &rarr;
+                                {labelText} &rarr;
                               </Link>
                             )}
                           </div>
@@ -363,15 +365,16 @@ export function Footer() {
                       {Boolean(academicPartner.linkUrl) && (() => {
                         const href = formatHref(String(academicPartner.linkUrl));
                         const isExt = isExternalUrl(href);
+                        const labelText = String(academicPartner.buttonText || "Explore Courses");
                         return (
                           <div className="mt-auto pt-3">
                             {isExt ? (
                               <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                                Explore Courses &rarr;
+                                {labelText} &rarr;
                               </a>
                             ) : (
                               <Link href={href} className="inline-flex items-center gap-1 text-xs font-semibold text-gold transition-transform hover:translate-x-1">
-                                Explore Courses &rarr;
+                                {labelText} &rarr;
                               </Link>
                             )}
                           </div>

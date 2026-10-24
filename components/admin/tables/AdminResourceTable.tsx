@@ -39,12 +39,12 @@ import { CloudinaryGalleryModal } from "@/components/admin/CloudinaryGalleryModa
 import { DEFAULT_LOGO, DEFAULT_SECONDARY_LOGO, imageUrl, isBannerLogoUrl } from "@/lib/site-data";
 import { RecordItem, Resource, PaginationMeta, QueryParamsState } from "../types/admin.types";
 import { API_URL, resourcePath } from "../config/admin.config";
-import { isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
+import { asPaginatedPayload, isSuperAdminRole, itemId, formatValue, getPreviewUrl } from "../utils/admin.helpers";
 import { MediaDetailDialog } from "../modals/MediaDetailDialog";
 import { HomePreviewModal } from "../modals/HomePreviewModal";
 import { SmartFileThumbnail } from "@/components/ui/SmartFileThumbnail";
 import { FileUploadProgressLoader, FileUploadStatus } from "@/components/ui/FileUploadProgressLoader";
-import { toCleanRelativeAssetPath } from "@/lib/utils";
+import { toCleanRelativeAssetPath, formatHref } from "@/lib/utils";
 
 function Empty({
   text,
@@ -390,14 +390,213 @@ export const RESOURCE_FILTERS: Record<string, { label: string; key: string; opti
   ],
 };
 
+interface PageOption {
+  title: string;
+  url: string;
+  group: string;
+}
+
+function ActionLinkPicker({
+  value,
+  onChange,
+  availablePages,
+  placeholder = "e.g. /academics/courses-offered",
+  label = "Action Link URL",
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  availablePages: PageOption[];
+  placeholder?: string;
+  label?: string;
+}) {
+  const matchedPage = useMemo(() => {
+    const trimmed = String(value || "").trim();
+    if (!trimmed) return null;
+    const cleanTrimmed = trimmed.replace(/\/+$/, "");
+    return (
+      availablePages.find((p) => p.url === trimmed) ||
+      availablePages.find((p) => p.url.replace(/\/+$/, "") === cleanTrimmed) ||
+      availablePages.find((p) => {
+        try {
+          return formatHref(p.url) === formatHref(trimmed);
+        } catch {
+          return false;
+        }
+      }) ||
+      null
+    );
+  }, [value, availablePages]);
+
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(() => {
+    const trimmed = String(value || "").trim();
+    if (!trimmed) return false;
+    const cleanTrimmed = trimmed.replace(/\/+$/, "");
+    return !availablePages.some(
+      (p) =>
+        p.url === trimmed ||
+        p.url.replace(/\/+$/, "") === cleanTrimmed ||
+        formatHref(p.url) === formatHref(trimmed)
+    );
+  });
+
+  useEffect(() => {
+    const trimmed = String(value || "").trim();
+    if (!trimmed) {
+      setIsCustomMode(false);
+      return;
+    }
+    const cleanTrimmed = trimmed.replace(/\/+$/, "");
+    const matchesPreset = availablePages.some(
+      (p) =>
+        p.url === trimmed ||
+        p.url.replace(/\/+$/, "") === cleanTrimmed ||
+        formatHref(p.url) === formatHref(trimmed)
+    );
+    if (!matchesPreset) {
+      setIsCustomMode(true);
+    } else {
+      setIsCustomMode(false);
+    }
+  }, [value, availablePages]);
+
+  const selectValue = useMemo(() => {
+    if (isCustomMode) return "__custom__";
+    if (matchedPage) return matchedPage.url;
+    return "";
+  }, [isCustomMode, matchedPage]);
+
+  const groupedPages = useMemo(() => {
+    const groups: Record<string, PageOption[]> = {};
+    availablePages.forEach((p) => {
+      if (!groups[p.group]) groups[p.group] = [];
+      groups[p.group].push(p);
+    });
+    return groups;
+  }, [availablePages]);
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <label className="block text-xs font-bold text-slate-700">{label}</label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => {
+              onChange("");
+              setIsCustomMode(false);
+            }}
+            className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 hover:underline inline-flex items-center gap-1 cursor-pointer"
+            title="Clear Action Link"
+          >
+            <Trash2 size={11} /> Clear Link
+          </button>
+        )}
+      </div>
+
+      <div className="relative">
+        <select
+          value={selectValue}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === "__custom__") {
+              setIsCustomMode(true);
+            } else if (val === "") {
+              setIsCustomMode(false);
+              onChange("");
+            } else {
+              setIsCustomMode(false);
+              onChange(val);
+            }
+          }}
+          className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 py-2 pr-9 text-xs font-semibold text-slate-800 outline-none transition hover:border-slate-300 focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer"
+        >
+          <option value="">-- Choose destination page / route --</option>
+          {Object.entries(groupedPages).map(([groupName, pages]) => (
+            <optgroup key={groupName} label={groupName}>
+              {pages.map((p) => (
+                <option key={p.url} value={p.url}>
+                  {p.title} ({p.url})
+                </option>
+              ))}
+            </optgroup>
+          ))}
+          <optgroup label="Custom / External">
+            <option value="__custom__">Custom URL / External Link (Manual typing)</option>
+          </optgroup>
+        </select>
+        <ChevronDown
+          size={14}
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+        />
+      </div>
+
+      <div className="relative flex items-center">
+        <input
+          type="text"
+          placeholder={placeholder}
+          disabled={!isCustomMode}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition font-mono ${
+            !isCustomMode
+              ? "border-slate-200 bg-slate-100/90 text-slate-600 cursor-not-allowed select-all"
+              : "border-slate-300 bg-white text-slate-800 focus:border-[#1a5d9c] focus:ring-2 focus:ring-blue-100"
+          }`}
+        />
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-slate-500 pt-0.5">
+        {!isCustomMode && matchedPage ? (
+          <span className="inline-flex items-center gap-1 font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
+            <Check size={11} className="text-emerald-600" />
+            <span>Active Destination: <strong>{matchedPage.title}</strong> ({matchedPage.url})</span>
+          </span>
+        ) : !isCustomMode && value ? (
+          <span className="inline-flex items-center gap-1 font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/80">
+            <Check size={11} className="text-blue-600" />
+            <span>Target Route: <strong className="font-mono">{value}</strong></span>
+          </span>
+        ) : !isCustomMode && !value ? (
+          <span className="text-slate-400">Select a page above to set destination link.</span>
+        ) : (
+          <span className="text-amber-700 font-medium">Custom mode enabled: Enter any internal route or external URL.</span>
+        )}
+
+        {isCustomMode ? (
+          <button
+            type="button"
+            onClick={() => {
+              setIsCustomMode(false);
+              if (matchedPage) onChange(matchedPage.url);
+            }}
+            className="font-semibold text-[#1a5d9c] hover:underline cursor-pointer ml-auto"
+          >
+            Choose from page list instead
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsCustomMode(true)}
+            className="font-semibold text-slate-500 hover:text-slate-800 hover:underline cursor-pointer ml-auto"
+          >
+            Type custom URL
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function HeaderFooterSettingsCard({
   token,
   items,
   onSaveComplete,
+  allMenuItems,
 }: {
   token: string;
   items: RecordItem[];
   onSaveComplete: () => void;
+  allMenuItems?: RecordItem[];
 }) {
   const [activeTab, setActiveTab] = useState<"logo" | "certified" | "trust" | "partner">("logo");
   const [galleryPickerField, setGalleryPickerField] = useState<"logoUrl" | "secondaryLogoUrl" | "badgeUrl" | "trustLogoUrl" | "partnerLogoUrl" | null>(null);
@@ -410,6 +609,98 @@ export function HeaderFooterSettingsCard({
     progress: 0,
     step: "preparing",
   });
+
+  const [publishedPages, setPublishedPages] = useState<{ title: string; url: string }[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchPages = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/pages/published`);
+        const parsed = asPaginatedPayload(res.data);
+        if (Array.isArray(parsed.items) && isMounted) {
+          const list: { title: string; url: string }[] = [];
+          parsed.items.forEach((p: any) => {
+            const rawUrl = String(p.targetUrl || (p.slug ? `/pages/${p.slug}` : "")).trim();
+            if (rawUrl) {
+              const url = rawUrl.startsWith("/") || rawUrl.startsWith("http") ? rawUrl : `/${rawUrl}`;
+              list.push({
+                title: String(p.title || p.heading || rawUrl).trim(),
+                url,
+              });
+            }
+          });
+          setPublishedPages(list);
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    };
+    fetchPages();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const brandingPageOptions: PageOption[] = useMemo(() => {
+    const list: PageOption[] = [
+      // Primary Academic & School Pages
+      { title: "Academics & Courses Offered", url: "/academics/courses-offered", group: "Important Pages" },
+      { title: "Mandatory Public Disclosure", url: "/mandatory-disclosure", group: "Important Pages" },
+      { title: "School Establishment & Trust", url: "/about-us/school-establishment", group: "Important Pages" },
+      { title: "CBSE Affiliation Details", url: "/about-us/affiliation", group: "Important Pages" },
+      { title: "Student Admissions", url: "/admission", group: "Important Pages" },
+      { title: "Career Opportunities", url: "/careers", group: "Important Pages" },
+      { title: "Photo & Media Gallery", url: "/gallery", group: "Important Pages" },
+      { title: "Contact Us", url: "/contact-us", group: "Important Pages" },
+      { title: "CBSE Official Portal (cbse.gov.in)", url: "https://www.cbse.gov.in", group: "Important Pages" },
+
+      // In-page sections
+      { title: "Home Page (Top)", url: "/", group: "Website Sections" },
+      { title: "About Us (Section)", url: "/#about", group: "Website Sections" },
+      { title: "Academics (Section)", url: "/#academics", group: "Website Sections" },
+      { title: "Admissions (Section)", url: "/#admissions", group: "Website Sections" },
+      { title: "Infrastructure (Section)", url: "/#infrastructure", group: "Website Sections" },
+      { title: "Student Life (Section)", url: "/#student-life", group: "Website Sections" },
+      { title: "Gallery (Section)", url: "/#gallery", group: "Website Sections" },
+      { title: "Contact Us (Section)", url: "/#contact", group: "Website Sections" },
+    ];
+
+    const seenUrls = new Set<string>(list.map((i) => i.url));
+
+    // Dynamic Published Pages
+    publishedPages.forEach((p) => {
+      if (!seenUrls.has(p.url)) {
+        seenUrls.add(p.url);
+        list.push({
+          title: p.title,
+          url: p.url,
+          group: "Published CMS Pages",
+        });
+      }
+    });
+
+    // Navigation Menu Items
+    if (Array.isArray(allMenuItems) && allMenuItems.length > 0) {
+      allMenuItems.forEach((item: any) => {
+        const isPublished = item.isPublished !== false && String(item.isPublished) !== "false";
+        if (!isPublished) return;
+        const rawUrl = String(item.targetUrl || item.linkUrl || item.redirectUrl || item.href || (item.slug ? `/${item.slug}` : "")).trim();
+        if (!rawUrl) return;
+        const url = rawUrl.startsWith("/") || rawUrl.startsWith("http") ? rawUrl : `/${rawUrl}`;
+        if (!seenUrls.has(url)) {
+          seenUrls.add(url);
+          list.push({
+            title: String(item.title || item.heading || url).trim(),
+            url,
+            group: "Navigation Menu",
+          });
+        }
+      });
+    }
+
+    return list;
+  }, [publishedPages, allMenuItems]);
 
   const handleDirectSettingFileUpload = async (
     targetField: "logoUrl" | "secondaryLogoUrl" | "badgeUrl" | "trustLogoUrl" | "partnerLogoUrl",
@@ -517,6 +808,7 @@ export function HeaderFooterSettingsCard({
     badgeUrl: "",
     description: "Affiliated to Central Board of Secondary Education, New Delhi",
     linkUrl: "/mandatory-disclosure",
+    buttonText: "View Affiliation Details",
     enabled: true,
   };
 
@@ -526,6 +818,7 @@ export function HeaderFooterSettingsCard({
     logoUrl: "",
     description: "Dedicated to character building, academic excellence, and holistic personality development.",
     linkUrl: "/about-us/school-establishment",
+    buttonText: "Learn About Trust",
     enabled: true,
   };
 
@@ -535,6 +828,7 @@ export function HeaderFooterSettingsCard({
     logoUrl: "/assets/Settings/Logos/AakashFoundationLogo.png",
     description: "Integrated coaching and foundation programs for NEET, IIT-JEE and competitive examinations.",
     linkUrl: "/academics/courses-offered",
+    buttonText: "Explore Courses",
     enabled: true,
   };
 
@@ -563,14 +857,14 @@ export function HeaderFooterSettingsCard({
       let rawDsVal: any = siteDsItem?.value;
       if (!rawDsVal) {
         try {
-          const res = await axios.get(`${API_URL}/school-settings/key/site_datasource`);
+          const res = await axios.get(`${API_URL}/school-settings/key/site_datasource?t=${Date.now()}`);
           const itemData = res.data?.data ?? res.data;
           if (itemData?.value) {
             rawDsVal = itemData.value;
           }
         } catch {
           try {
-            const res2 = await axios.get(`${API_URL}/regarding/datasource`);
+            const res2 = await axios.get(`${API_URL}/regarding/datasource?t=${Date.now()}`);
             rawDsVal = res2.data?.data ?? res2.data;
           } catch {
             // Keep default fallback
@@ -713,6 +1007,8 @@ export function HeaderFooterSettingsCard({
         },
         { headers }
       );
+
+      setFetchedDsValue(finalVal);
 
       try {
         await axios.post(
@@ -1124,6 +1420,7 @@ export function HeaderFooterSettingsCard({
                       badgeUrl: "",
                       description: "",
                       linkUrl: "",
+                      buttonText: "",
                       enabled: false,
                     });
                   }
@@ -1233,14 +1530,32 @@ export function HeaderFooterSettingsCard({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700">Action Link URL</label>
+                <label className="block text-xs font-bold text-slate-700">Action Button Label (Optional)</label>
                 <input
                   type="text"
-                  placeholder="e.g. /mandatory-disclosure or https://www.cbse.gov.in"
-                  value={certifiedBoard.linkUrl}
-                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, linkUrl: e.target.value }))}
+                  placeholder="e.g. View Affiliation Details"
+                  value={certifiedBoard.buttonText || ""}
+                  onChange={(e) => setCertifiedBoard((p) => ({ ...p, buttonText: e.target.value }))}
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
                 />
+              </div>
+              <ActionLinkPicker
+                label="Action Link URL"
+                value={certifiedBoard.linkUrl}
+                onChange={(val) => setCertifiedBoard((p) => ({ ...p, linkUrl: val }))}
+                availablePages={brandingPageOptions}
+                placeholder="e.g. /mandatory-disclosure or https://www.cbse.gov.in"
+              />
+              <div className="pt-2">
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={saveSettings}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#124c81] transition cursor-pointer disabled:opacity-60"
+                >
+                  {saving ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}
+                  <span>{saving ? "Saving Changes…" : "Save Changes"}</span>
+                </button>
               </div>
             </div>
 
@@ -1312,9 +1627,14 @@ export function HeaderFooterSettingsCard({
                     </p>
                   )}
                   {Boolean(certifiedBoard.linkUrl) && (
-                    <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
-                      View Affiliation Details &rarr;
-                    </span>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
+                        {certifiedBoard.buttonText || "View Affiliation Details"} &rarr;
+                      </span>
+                      <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-[10px] text-amber-200/90 border border-white/10">
+                        Target: {certifiedBoard.linkUrl}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1375,6 +1695,7 @@ export function HeaderFooterSettingsCard({
                       logoUrl: "",
                       description: "",
                       linkUrl: "",
+                      buttonText: "",
                       enabled: false,
                     });
                   }
@@ -1474,14 +1795,32 @@ export function HeaderFooterSettingsCard({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700">Action Link URL</label>
+                <label className="block text-xs font-bold text-slate-700">Action Button Label (Optional)</label>
                 <input
                   type="text"
-                  placeholder="e.g. /about-us/school-establishment"
-                  value={trustBoard.linkUrl}
-                  onChange={(e) => setTrustBoard((p) => ({ ...p, linkUrl: e.target.value }))}
+                  placeholder="e.g. Learn About Trust"
+                  value={trustBoard.buttonText || ""}
+                  onChange={(e) => setTrustBoard((p) => ({ ...p, buttonText: e.target.value }))}
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
                 />
+              </div>
+              <ActionLinkPicker
+                label="Action Link URL"
+                value={trustBoard.linkUrl}
+                onChange={(val) => setTrustBoard((p) => ({ ...p, linkUrl: val }))}
+                availablePages={brandingPageOptions}
+                placeholder="e.g. /about-us/school-establishment"
+              />
+              <div className="pt-2">
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={saveSettings}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#124c81] transition cursor-pointer disabled:opacity-60"
+                >
+                  {saving ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}
+                  <span>{saving ? "Saving Changes…" : "Save Changes"}</span>
+                </button>
               </div>
             </div>
 
@@ -1551,9 +1890,14 @@ export function HeaderFooterSettingsCard({
                     </p>
                   )}
                   {Boolean(trustBoard.linkUrl) && (
-                    <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
-                      Learn About Trust &rarr;
-                    </span>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
+                        {trustBoard.buttonText || "Learn About Trust"} &rarr;
+                      </span>
+                      <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-[10px] text-amber-200/90 border border-white/10">
+                        Target: {trustBoard.linkUrl}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1614,6 +1958,7 @@ export function HeaderFooterSettingsCard({
                       logoUrl: "",
                       description: "",
                       linkUrl: "",
+                      buttonText: "",
                       enabled: false,
                     });
                   }
@@ -1713,14 +2058,32 @@ export function HeaderFooterSettingsCard({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700">Action Link URL</label>
+                <label className="block text-xs font-bold text-slate-700">Action Button Label (Optional)</label>
                 <input
                   type="text"
-                  placeholder="e.g. /academics/courses-offered"
-                  value={academicPartner.linkUrl}
-                  onChange={(e) => setAcademicPartner((p) => ({ ...p, linkUrl: e.target.value }))}
+                  placeholder="e.g. Explore Courses"
+                  value={academicPartner.buttonText || ""}
+                  onChange={(e) => setAcademicPartner((p) => ({ ...p, buttonText: e.target.value }))}
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#1a5d9c]"
                 />
+              </div>
+              <ActionLinkPicker
+                label="Action Link URL"
+                value={academicPartner.linkUrl}
+                onChange={(val) => setAcademicPartner((p) => ({ ...p, linkUrl: val }))}
+                availablePages={brandingPageOptions}
+                placeholder="e.g. /academics/courses-offered"
+              />
+              <div className="pt-2">
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={saveSettings}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#124c81] transition cursor-pointer disabled:opacity-60"
+                >
+                  {saving ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}
+                  <span>{saving ? "Saving Changes…" : "Save Changes"}</span>
+                </button>
               </div>
             </div>
 
@@ -1787,9 +2150,14 @@ export function HeaderFooterSettingsCard({
                     </p>
                   )}
                   {Boolean(academicPartner.linkUrl) && (
-                    <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
-                      Explore Courses &rarr;
-                    </span>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-400">
+                        {academicPartner.buttonText || "Explore Courses"} &rarr;
+                      </span>
+                      <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-[10px] text-amber-200/90 border border-white/10">
+                        Target: {academicPartner.linkUrl}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1977,6 +2345,7 @@ export function ResourceView({
           token={token || ""}
           items={items}
           onSaveComplete={() => onQueryChange({})}
+          allMenuItems={allMenuItems}
         />
       )}
 
