@@ -1217,7 +1217,7 @@ export function HeaderFooterSettingsCard({
 
       {/* Tab 1: Logo & Header Branding */}
       {activeTab === "logo" && (
-        <div className="mt-5 grid gap-6 sm:grid-cols-2">
+        <div className="mt-5 grid gap-6 sm:grid-cols-2 items-center">
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700">Primary Logo Image (Banner / IPS Logo)</label>
@@ -1262,8 +1262,12 @@ export function HeaderFooterSettingsCard({
                   </button>
                 )}
               </div>
+              <p className="mt-2 text-[11px] text-slate-500">
+                Official school branding emblem or horizontal banner logo displayed across the navigation bar and footer.
+              </p>
             </div>
 
+            {/* Secondary / Foundation Logo Image - Commented out as requested (Preserved for easy restoration)
             <div>
               <label className="block text-xs font-bold text-slate-700">Secondary / Foundation Logo Image</label>
               <div className="mt-1 flex items-center gap-2">
@@ -1320,12 +1324,13 @@ export function HeaderFooterSettingsCard({
                 Show Secondary / Foundation Logo in Header
               </label>
             </div>
+            */}
           </div>
 
-          <div className="flex flex-col justify-center space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-6">
+          <div className="flex flex-col justify-center space-y-3 rounded-2xl border border-slate-200/90 bg-slate-50/80 p-5 sm:p-6 shadow-2xs">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Live Header Logo Branding Preview</span>
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs flex items-center justify-between gap-3 overflow-x-auto">
-              <div className="flex items-center gap-3 shrink-0">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs flex items-center justify-center gap-3 overflow-x-auto min-h-[72px]">
+              <div className="flex items-center justify-center gap-3 shrink-0">
                 {siteLogo.logoUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -1345,10 +1350,10 @@ export function HeaderFooterSettingsCard({
                   </div>
                 )}
 
+                {/* Secondary Logo Preview - Commented out as requested
                 {siteLogo.showSecondaryLogo !== false && siteLogo.secondaryLogoUrl && (
                   <div className="flex items-center gap-3 shrink-0">
                     <div className="h-7 w-[1.5px] bg-slate-200 rounded-full" />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imageUrl(siteLogo.secondaryLogoUrl)}
                       alt="Secondary Logo Preview"
@@ -1362,10 +1367,11 @@ export function HeaderFooterSettingsCard({
                     />
                   </div>
                 )}
+                */}
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 italic">
-              This preview shows how your site logo banner &amp; optional foundation logo will appear in the main navigation bar.
+            <p className="text-[11px] text-slate-500 italic text-center sm:text-left">
+              This preview shows how your site logo banner will appear in the main navigation bar.
             </p>
           </div>
         </div>

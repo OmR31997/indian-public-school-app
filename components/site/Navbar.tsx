@@ -298,7 +298,7 @@ export function Navbar() {
                 className={cn(
                   "w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.015]",
                   isBanner
-                    ? "h-8 sm:h-9 lg:h-10 max-w-[150px] sm:max-w-[190px] lg:max-w-[220px]"
+                    ? "h-8 sm:h-9 lg:h-10 max-w-[160px] sm:max-w-[200px] lg:max-w-[240px]"
                     : "h-8 sm:h-9 lg:h-10 max-w-[120px] sm:max-w-[150px] lg:max-w-[180px]"
                 )}
               />
@@ -312,6 +312,7 @@ export function Navbar() {
             )}
           </Link>
 
+          {/* Aakash / Secondary Partner Logo - Temporarily commented out (Preserved for easy restoration)
           {showSecondaryLogo && secondaryLogoUrl && !secondaryLogoError && (
             <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
               <div className="h-6 sm:h-7 w-[1.5px] bg-border dark:bg-slate-300/80 rounded-full shrink-0" aria-hidden="true" />
@@ -333,6 +334,7 @@ export function Navbar() {
               </Link>
             </div>
           )}
+          */}
         </div>
 
         <ul className="hidden items-center gap-1 xl:flex">
