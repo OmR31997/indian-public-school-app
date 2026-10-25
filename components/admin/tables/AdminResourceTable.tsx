@@ -1554,17 +1554,6 @@ export function HeaderFooterSettingsCard({
                 availablePages={brandingPageOptions}
                 placeholder="e.g. /mandatory-disclosure or https://www.cbse.gov.in"
               />
-              <div className="pt-2">
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={saveSettings}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#124c81] transition cursor-pointer disabled:opacity-60"
-                >
-                  {saving ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}
-                  <span>{saving ? "Saving Changes…" : "Save Changes"}</span>
-                </button>
-              </div>
             </div>
 
             {/* Live Footer Preview */}
@@ -1819,17 +1808,6 @@ export function HeaderFooterSettingsCard({
                 availablePages={brandingPageOptions}
                 placeholder="e.g. /about-us/school-establishment"
               />
-              <div className="pt-2">
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={saveSettings}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a5d9c] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#124c81] transition cursor-pointer disabled:opacity-60"
-                >
-                  {saving ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}
-                  <span>{saving ? "Saving Changes…" : "Save Changes"}</span>
-                </button>
-              </div>
             </div>
 
             {/* Live Footer Preview */}
