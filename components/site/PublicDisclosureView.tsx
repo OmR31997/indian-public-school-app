@@ -266,9 +266,8 @@ export function PublicDisclosureView({
             >
               <ChevronDown
                 size={14}
-                className={`text-primary transition-transform duration-200 ${
-                  allExpanded ? "rotate-180" : ""
-                }`}
+                className={`text-primary transition-transform duration-200 ${allExpanded ? "rotate-180" : ""
+                  }`}
               />
               <span>{allExpanded ? "Collapse All" : "Expand All"}</span>
             </button>
@@ -278,7 +277,7 @@ export function PublicDisclosureView({
               onClick={handlePrint}
               className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground hover:opacity-90 px-4 py-2 text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
               style={{ borderRadius: "var(--btn-radius, 9999px)" }}
-              title="Open document preview to print or save as PDF (Ctrl + P)"
+              title="Open document preview to print or save as PDF"
             >
               <Printer size={14} />
               <span>Print / PDF</span>
@@ -332,9 +331,8 @@ export function PublicDisclosureView({
 
                     <div className="flex items-center gap-2 shrink-0">
                       <div
-                        className={`grid size-9 place-items-center bg-white/10 hover:bg-white/20 text-white backdrop-blur-xs transition-all duration-300 shadow-2xs ${
-                          isExpanded ? "rotate-180" : ""
-                        }`}
+                        className={`grid size-9 place-items-center bg-white/10 hover:bg-white/20 text-white backdrop-blur-xs transition-all duration-300 shadow-2xs ${isExpanded ? "rotate-180" : ""
+                          }`}
                         style={{ borderRadius: "var(--btn-radius, 0.75rem)" }}
                       >
                         <ChevronDown size={18} />
