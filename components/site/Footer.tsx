@@ -205,10 +205,14 @@ export function Footer() {
     trustBoard.enabled !== false &&
     Boolean(trustBoard.trustName || trustBoard.logoUrl || trustBoard.regNo);
 
+  // Academic Partner - Temporarily commented out (Preserved for easy restoration)
+  /*
   const academicPartner = (homeIdentity.academic_partner as Record<string, unknown>) || (siteData?.academic_partner as Record<string, unknown>) || (footerConfig.academic_partner as Record<string, unknown>) || {};
   const partnerEnabled =
     academicPartner.enabled !== false &&
     Boolean(academicPartner.title || academicPartner.logoUrl);
+  */
+  const partnerEnabled = false;
 
   const enabledCardsCount = (certifiedEnabled ? 1 : 0) + (trustEnabled ? 1 : 0) + (partnerEnabled ? 1 : 0);
   const gridCardsClass =
@@ -334,6 +338,7 @@ export function Footer() {
                 </Reveal>
               )}
 
+              {/* Academic Partner Card - Temporarily commented out (Preserved for easy restoration)
               {partnerEnabled && (
                 <Reveal delay={0.2} className="h-full">
                   <div className="flex items-start gap-4 sm:gap-5 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 sm:p-6 backdrop-blur-xs transition-all duration-300 hover:border-gold/30 hover:bg-white/[0.07] h-full shadow-xs">
@@ -384,6 +389,7 @@ export function Footer() {
                   </div>
                 </Reveal>
               )}
+              */}
             </div>
           </div>
         )}
@@ -395,7 +401,7 @@ export function Footer() {
                 <img
                   src={customLogoUrl || "/assets/Settings/Logos/IPSLogo.png"}
                   alt={displayBrandTitle || "Indian Public School"}
-                  className="h-8 sm:h-9 md:h-10 w-auto max-w-[150px] sm:max-w-[180px] object-contain shrink-0"
+                  className="h-8 sm:h-9 md:h-10 w-auto max-w-[160px] sm:max-w-[200px] object-contain shrink-0"
                   onError={(e) => {
                     const target = e.currentTarget;
                     if (!target.dataset.triedLocal) {
@@ -404,6 +410,7 @@ export function Footer() {
                     }
                   }}
                 />
+                {/* Aakash / Secondary Partner Logo - Temporarily commented out (Preserved for easy restoration)
                 {showSecondaryLogo && secondaryLogoUrl && (
                   <>
                     <div className="h-6 sm:h-7 w-[1.5px] bg-slate-300/80 rounded-full shrink-0" aria-hidden="true" />
@@ -421,6 +428,7 @@ export function Footer() {
                     />
                   </>
                 )}
+                */}
               </div>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-navy-foreground/70">

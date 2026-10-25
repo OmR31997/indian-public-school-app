@@ -353,7 +353,7 @@ export function FileViewerModal({
               <h2 className="truncate font-display text-base font-bold text-slate-100">{displayName}</h2>
               <div className="flex items-center gap-2 text-[11px] text-slate-400">
                 <span className="font-semibold uppercase tracking-wider text-blue-400">
-                  {isHtml ? "Document Preview (Ctrl + P)" : isPdf ? "PDF Document" : fileType}
+                  {isHtml ? "Document Preview" : isPdf ? "PDF Document" : fileType}
                 </span>
               </div>
             </div>
@@ -366,8 +366,8 @@ export function FileViewerModal({
                 type="button"
                 onClick={() => setActiveTab("picture")}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${activeTab === "picture"
-                    ? "bg-[#1a5d9c] text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
+                  ? "bg-[#1a5d9c] text-white shadow-xs"
+                  : "text-slate-400 hover:text-white"
                   }`}
               >
                 <Eye size={14} />
@@ -377,8 +377,8 @@ export function FileViewerModal({
                 type="button"
                 onClick={() => setActiveTab("reader")}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${activeTab === "reader"
-                    ? "bg-[#1a5d9c] text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
+                  ? "bg-[#1a5d9c] text-white shadow-xs"
+                  : "text-slate-400 hover:text-white"
                   }`}
               >
                 <BookOpen size={14} />

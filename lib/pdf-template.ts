@@ -66,8 +66,8 @@ export function generatePdfHtmlTemplate(data: PdfTemplateData): string {
     email = "info@indianpublicschool.in",
     website = "https://ips-web.ezsoftapp.in",
     logoUrl = "/assets/Settings/Logos/IPSLogo.png",
-    secondaryLogoUrl = "/assets/Settings/Logos/AakashFoundationLogo.png",
-    showSecondaryLogo = true,
+    // secondaryLogoUrl = "/assets/Settings/Logos/AakashFoundationLogo.png",
+    // showSecondaryLogo = true,
     sections = [],
   } = data;
 
@@ -473,11 +473,12 @@ export function generatePdfHtmlTemplate(data: PdfTemplateData): string {
     <header class="header-container">
       <div class="header-logos">
         <img src="${logoUrl}" alt="${schoolName}" class="logo-main" onerror="this.style.display='none'" />
-        ${showSecondaryLogo && secondaryLogoUrl
-      ? `<div class="logo-divider"></div>
+        ${/* Aakash / Secondary Partner Logo - Temporarily commented out (Preserved for easy restoration)
+        showSecondaryLogo && secondaryLogoUrl
+          ? `<div class="logo-divider"></div>
                <img src="${secondaryLogoUrl}" alt="Educational Partner" class="logo-sec" onerror="this.style.display='none'" />`
-      : ""
-    }
+          : ""
+        */ ""}
       </div>
       <div class="header-address">
         <div>${address}</div>
