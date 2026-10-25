@@ -1184,6 +1184,7 @@ export function HeaderFooterSettingsCard({
             {trustBoard.enabled ? "Active" : "Inactive"}
           </span>
         </button>
+        {/* Academic Partner Tab - Commented out as requested (Preserved for easy restoration)
         <button
           type="button"
           onClick={() => setActiveTab("partner")}
@@ -1207,6 +1208,7 @@ export function HeaderFooterSettingsCard({
             {academicPartner.enabled ? "Active" : "Inactive"}
           </span>
         </button>
+        */}
       </div>
 
       {(uploadStatus.isUploading || uploadStatus.step === "done" || uploadStatus.step === "error") && (
@@ -1916,8 +1918,8 @@ export function HeaderFooterSettingsCard({
         </div>
       )}
 
-      {/* Tab 4: Academic Partner */}
-      {activeTab === "partner" && (
+      {/* Tab 4: Academic Partner - Commented out as requested (Preserved for easy restoration) */}
+      {false && activeTab === "partner" && (
         <div className="mt-5 space-y-4">
           {/* Card Control Bar: Active/Inactive Switch & Delete/Restore Actions */}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">

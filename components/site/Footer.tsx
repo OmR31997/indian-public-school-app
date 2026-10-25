@@ -205,10 +205,14 @@ export function Footer() {
     trustBoard.enabled !== false &&
     Boolean(trustBoard.trustName || trustBoard.logoUrl || trustBoard.regNo);
 
+  // Academic Partner - Temporarily commented out (Preserved for easy restoration)
+  /*
   const academicPartner = (homeIdentity.academic_partner as Record<string, unknown>) || (siteData?.academic_partner as Record<string, unknown>) || (footerConfig.academic_partner as Record<string, unknown>) || {};
   const partnerEnabled =
     academicPartner.enabled !== false &&
     Boolean(academicPartner.title || academicPartner.logoUrl);
+  */
+  const partnerEnabled = false;
 
   const enabledCardsCount = (certifiedEnabled ? 1 : 0) + (trustEnabled ? 1 : 0) + (partnerEnabled ? 1 : 0);
   const gridCardsClass =
@@ -334,6 +338,7 @@ export function Footer() {
                 </Reveal>
               )}
 
+              {/* Academic Partner Card - Temporarily commented out (Preserved for easy restoration)
               {partnerEnabled && (
                 <Reveal delay={0.2} className="h-full">
                   <div className="flex items-start gap-4 sm:gap-5 rounded-2xl border border-navy-foreground/20 bg-white/5 p-5 sm:p-6 backdrop-blur-xs transition-all duration-300 hover:border-gold/30 hover:bg-white/[0.07] h-full shadow-xs">
@@ -384,6 +389,7 @@ export function Footer() {
                   </div>
                 </Reveal>
               )}
+              */}
             </div>
           </div>
         )}
