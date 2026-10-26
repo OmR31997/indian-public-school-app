@@ -103,6 +103,10 @@ export function formatHref(url?: any, fallback = "/"): string {
   }
 
   // Internal path
+  if (trimmed === "/gallery-album" || trimmed === "gallery-album") {
+    return "/gallery/album";
+  }
+
   if (trimmed.startsWith("/")) {
     return trimmed;
   }
