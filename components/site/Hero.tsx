@@ -121,9 +121,10 @@ export function Hero() {
 
   // Determine mobile-friendly object-fit styling
   const isContainDesktop = currentSlide.objectFit === "contain";
+  // Default to contain on mobile screens so people and posters are never chopped off
   const isContainMobile = currentSlide.mobileObjectFit
     ? currentSlide.mobileObjectFit === "contain"
-    : isContainDesktop || !hasTextContent;
+    : true;
 
   const objectFitClass =
     isContainDesktop && isContainMobile
@@ -182,8 +183,8 @@ export function Hero() {
       onTouchEnd={handleTouchEnd}
       className={`relative isolate overflow-hidden bg-slate-950 flex items-center transition-[min-height] duration-500 ${
         hasTextContent
-          ? "min-h-[58svh] sm:min-h-[75svh] lg:min-h-[90svh]"
-          : "min-h-[42svh] sm:min-h-[60svh] md:min-h-[75svh] lg:min-h-[90svh]"
+          ? "min-h-[46svh] max-h-[60svh] sm:max-h-none sm:min-h-[75svh] lg:min-h-[90svh]"
+          : "min-h-[36svh] max-h-[50svh] sm:max-h-none sm:min-h-[60svh] md:min-h-[75svh] lg:min-h-[90svh]"
       }`}
     >
       {/* Background Banner Image with Smooth Cross-Fade Animation */}
